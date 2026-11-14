@@ -102,12 +102,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 738
-  commits: 8
-  files_changed: 189
-  lines_added: 22807
-  lines_removed: 545
-  footprint_refreshed_at: '2026-11-14T16:07:07Z'
-  footprint_refreshed_by_commit: pre-commit
+  commits: 7
+  files_changed: 25
+  lines_added: 17998
+  lines_removed: 36
+  footprint_refreshed_at: '2026-11-14T16:07:29Z'
+  footprint_refreshed_by_commit: 2ad181cf5
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1135-release-designer-0191-field-settings--su.md

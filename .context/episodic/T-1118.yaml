@@ -76,12 +76,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 1458
-  commits: 5
-  files_changed: 171
-  lines_added: 5061
-  lines_removed: 555
-  footprint_refreshed_at: '2026-11-14T16:07:03Z'
-  footprint_refreshed_by_commit: pre-commit
+  commits: 4
+  files_changed: 7
+  lines_added: 252
+  lines_removed: 46
+  footprint_refreshed_at: '2026-11-14T16:07:26Z'
+  footprint_refreshed_by_commit: 2ad181cf5
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1118-unknown-content-kinds-become-designer-fi.md

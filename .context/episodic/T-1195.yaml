@@ -103,12 +103,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 88
-  commits: 9
-  files_changed: 191
-  lines_added: 23170
-  lines_removed: 540
-  footprint_refreshed_at: '2026-11-14T16:07:11Z'
-  footprint_refreshed_by_commit: pre-commit
+  commits: 8
+  files_changed: 27
+  lines_added: 18361
+  lines_removed: 31
+  footprint_refreshed_at: '2026-11-14T16:07:34Z'
+  footprint_refreshed_by_commit: 2ad181cf5
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1195-release-designer-0210-sticky-lane-labels.md

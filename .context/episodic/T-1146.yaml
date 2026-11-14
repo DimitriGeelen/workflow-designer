@@ -63,12 +63,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 1
-  commits: 2
-  files_changed: 167
-  lines_added: 5164
-  lines_removed: 513
-  footprint_refreshed_at: '2026-11-14T16:07:09Z'
-  footprint_refreshed_by_commit: pre-commit
+  commits: 1
+  files_changed: 3
+  lines_added: 355
+  lines_removed: 4
+  footprint_refreshed_at: '2026-11-14T16:07:32Z'
+  footprint_refreshed_by_commit: 2ad181cf5
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1146-correct-the-991-mb-vector-index-committe.md

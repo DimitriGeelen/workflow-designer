@@ -76,12 +76,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 5
-  commits: 4
-  files_changed: 172
-  lines_added: 5358
-  lines_removed: 556
-  footprint_refreshed_at: '2026-11-14T16:07:01Z'
-  footprint_refreshed_by_commit: pre-commit
+  commits: 3
+  files_changed: 8
+  lines_added: 549
+  lines_removed: 47
+  footprint_refreshed_at: '2026-11-14T16:07:35Z'
+  footprint_refreshed_by_commit: 2ad181cf5
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1230-runme-picker-is-flaky-on-the-operators-t.md

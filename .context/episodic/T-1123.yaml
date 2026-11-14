@@ -79,12 +79,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 13
-  commits: 4
-  files_changed: 173
-  lines_added: 5500
-  lines_removed: 528
-  footprint_refreshed_at: '2026-11-14T16:07:04Z'
-  footprint_refreshed_by_commit: pre-commit
+  commits: 3
+  files_changed: 9
+  lines_added: 691
+  lines_removed: 19
+  footprint_refreshed_at: '2026-11-14T16:07:26Z'
+  footprint_refreshed_by_commit: 2ad181cf5
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1123-inception-readiness-check-omits-the-go-h.md

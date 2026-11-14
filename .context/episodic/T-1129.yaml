@@ -70,12 +70,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 4
-  commits: 3
-  files_changed: 169
-  lines_added: 5321
-  lines_removed: 511
-  footprint_refreshed_at: '2026-11-14T16:07:05Z'
-  footprint_refreshed_by_commit: pre-commit
+  commits: 2
+  files_changed: 5
+  lines_added: 512
+  lines_removed: 2
+  footprint_refreshed_at: '2026-11-14T16:07:27Z'
+  footprint_refreshed_by_commit: 2ad181cf5
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1129-optional-select-fields-agent-type-and-de.md

@@ -81,12 +81,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 6573
-  commits: 4
-  files_changed: 174
-  lines_added: 5154
-  lines_removed: 531
-  footprint_refreshed_at: '2026-11-14T16:07:02Z'
-  footprint_refreshed_by_commit: pre-commit
+  commits: 3
+  files_changed: 10
+  lines_added: 345
+  lines_removed: 22
+  footprint_refreshed_at: '2026-11-14T16:07:25Z'
+  footprint_refreshed_by_commit: 2ad181cf5
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1092-greenfield-t-172-6-review-their-patch-sh.md

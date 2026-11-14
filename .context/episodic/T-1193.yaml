@@ -91,12 +91,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 250
-  commits: 9
-  files_changed: 188
-  lines_added: 5438
-  lines_removed: 538
-  footprint_refreshed_at: '2026-11-14T16:07:10Z'
-  footprint_refreshed_by_commit: pre-commit
+  commits: 8
+  files_changed: 24
+  lines_added: 629
+  lines_removed: 29
+  footprint_refreshed_at: '2026-11-14T16:07:33Z'
+  footprint_refreshed_by_commit: 2ad181cf5
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1193-check-a-node-slug-edited-in-the-designer.md

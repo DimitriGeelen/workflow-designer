@@ -131,12 +131,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 5890
-  commits: 11
-  files_changed: 207
-  lines_added: 5394
-  lines_removed: 563
-  footprint_refreshed_at: '2026-11-14T16:07:10Z'
-  footprint_refreshed_by_commit: pre-commit
+  commits: 10
+  files_changed: 43
+  lines_added: 585
+  lines_removed: 54
+  footprint_refreshed_at: '2026-11-14T16:07:33Z'
+  footprint_refreshed_by_commit: 2ad181cf5
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1164-designer-mark-the-lane-band-for-lane-anc.md

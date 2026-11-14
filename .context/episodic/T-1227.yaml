@@ -72,12 +72,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 8
-  commits: 2
-  files_changed: 168
-  lines_added: 5136
-  lines_removed: 565
-  footprint_refreshed_at: '2026-11-14T16:07:12Z'
-  footprint_refreshed_by_commit: pre-commit
+  commits: 1
+  files_changed: 4
+  lines_added: 327
+  lines_removed: 56
+  footprint_refreshed_at: '2026-11-14T16:07:34Z'
+  footprint_refreshed_by_commit: 2ad181cf5
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1227-runme-menu-batch-selection-in-the-operat.md
