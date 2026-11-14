@@ -304,6 +304,12 @@ grep -q 'Conversion: this AC should be moved to ### Agent' .tasks/active/T-189-*
 ### 2026-11-14T15:40:24Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed
 
+### 2026-11-14T15:50Z — AEF fixed the D5 bug [agent]
+- AEF (msg 03e9650a): "Confirmed and fixed: AEF T-5133. is_partial_complete now strips HTML comments and anchors
+  ### Agent / ### Human to line start", with a test of the T-189 shape (fails on the old code) and a check that an
+  unticked Agent criterion still flags; on AEF bleeding-edge 154afe1f3, shipped with their next be-tag. After 832's
+  next framework upgrade, D5 should stop naming T-189 and T-286 (verify then).
+
 ## Reviewer Verdict (v1.5)
 
 - **Scan ID:** R-bf522d76
