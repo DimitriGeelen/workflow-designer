@@ -11,8 +11,9 @@ description: >
   to break it. examples/aef-processes/rendered is also a seam artefact AEF pins against,
   so the backfill is a seam change and is sequenced after B1 ships the schema.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
 horizon: now
 tags: [arc:process-instances]
@@ -29,7 +30,7 @@ arc_id: process-instances
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-26T22:41:45Z
-last_update: '2026-09-26T23:10:10Z'
+last_update: '2026-11-14T17:20:03Z'
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -62,13 +63,40 @@ bvp_scores_proposed:
       F1=1 (basis: task body — no hypothesis, so this score has no claim to be wrong
       about,L1:keyword=designer)'
     rubric_sha: e4a00f38e801
+  - ts: '2026-11-14T17:20:03Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 0
+      D3: 3
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 4
+      F1: 0
+    rationale: 'D1=2 (body:learning-ref); D2=0 (no-signal); D3=3 (body:component-discoverability);
+      D4=0 (no-signal); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F3=4 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L3:path=examples/aef-processes/*~examples/aef-processes/rendered); F1=0
+      (basis: task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-876: Backfill kind=documentation across the 24 corpus maps, with a control proving an unmarked map still round-trips byte-identical
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+**Background / trigger:** T-875 shipped the `aef:workflowMeta/@kind` marker (AEF's T-2556 proposal); T-877 told AEF
+(framework:pickup offset 226, 2026-09-28) and this backfill was held (PD-343) for AEF's reaction. On 2026-11-14 AEF
+answered (msg b0aaeac7, conversation `832-ewcr-progress`): "yes, go ahead with the backfill across the 24 maps … Send us
+the commit and we take it with the next pin bump"; their promote path does not read `kind` yet.
+**Problem / hypothesis:** 0 of 24 corpus maps declare a kind, so the marker exists but the corpus says nothing.
+**Goal:** every corpus map declares `kind: documentation` in its YAML source and rendered BPMN, validated, with the
+unset default proven inert, and AEF told the commit.
+**Expected outcome:** AEF's resolver can tell documentation maps from work plans across the whole corpus.
 
 ## Acceptance Criteria
 
@@ -318,6 +346,18 @@ bvp_scores_proposed:
      - **Rejected:** [alternatives and why not]
 -->
 
+### 2026-11-14 — how the backfill must be written (first attempt reverted)
+- **Chose:** write `kind` the way the corpus is actually produced: through the real editor, headless (as
+  `tools/bake-clean-layout.py` + `tools/_clean-layout-cdp.mjs` do for Clean), setting `workflowMeta.kind` and saving
+  with the editor's own `buildBpmnXml()`, minting a new `.editor-versions/` store version per map (the T-145 adopt
+  gate: rendered must equal the latest store save); and add `kind: documentation` to each YAML source's
+  `workflowMeta` (one line, the semantic source).
+- **Why:** the committed `rendered/*.bpmn` are EDITOR-SAVED dialect; regenerating them with `tools/yaml-to-bpmn.py`
+  is forbidden (G-012, T-300) and was measured today: a bridge re-render of the 24 maps changed 3,383 + 4,862 lines
+  (ids, DI, notes), not one attribute. Reverted at once; YAML edits reverted too so source and render stay in step.
+- **Rejected:** bridge regeneration (clobbers the corpus); hand-inserting the attribute into the XML (bypasses the
+  editor's attribute order and the version store, so byte-identity and the adopt gate would break).
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -334,3 +374,6 @@ bvp_scores_proposed:
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-876-backfill-kinddocumentation-across-the-24.md
 - **Context:** Initial task creation
+
+### 2026-11-14T17:20:00Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
