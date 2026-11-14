@@ -2977,3 +2977,33 @@ learnings:
   task: T-1362
   date: 2026-11-01
   context: Added via context agent
+- id: PL-432
+  learning: "After an independent reviewer's verdict, commit nothing else under that task's id: any later commit tagged with the task makes the verdict stale-review, the close check withdraws the tick and hands the task to the operator. Put follow-up fixes (census baselines etc.) under another task, or re-judge before closing."
+  source: unknown
+  task: T-1366
+  date: 2026-11-02
+  context: Added via context agent
+- id: PL-433
+  learning: "Re-arm tools/runme-watch.sh after EVERY runme event, a STOPPED included: the operator often re-runs a stopped job within a minute (job 118: stopped 12:58:28, re-run 12:59:00, done 12:59:46, unseen). And report a stop with what the log recorded, never a guessed cause."
+  source: unknown
+  task: T-1368
+  date: 2026-11-02
+  context: Added via context agent
+- id: PL-434
+  learning: "Run the browser tier before pushing any change under src/, not only the core tier the pre-push hook runs: T-1366/T-1369/T-1372 were pushed on core alone and 0.36.0/0.37.0 shipped with two browser legs red (a byte-identity golden and a notice expectation), found only by an upgrade that ran both tiers."
+  source: unknown
+  task: T-1374
+  date: 2026-11-02
+  context: Added via context agent
+- id: PL-435
+  learning: "A validator change reaches the browser tier too: the designer's Check runs the validator, and CDP harnesses (e.g. _t1303-io-findings-cdp.mjs) assert exact finding sets. A change to tools/validate-workflow.py needs the browser tier before push, not only a grep for direct callers (T-1377, caught by release job 122 step 6)"
+  source: unknown
+  task: T-1377
+  date: 2026-11-03
+  context: Added via context agent
+- id: PL-436
+  learning: "Before filing an inception or putting a question to the operator, search the recorded rulings (grep .context/project/decisions.yaml and fw recall for the question's key terms). T-1413 re-asked whether 832 should deploy as a swarm service, which the operator had already ruled NO in September (SQ-1, PD-296, T-766); the outcome matched, but the operator's time and two peers' time were spent on a settled question."
+  source: P-001
+  task: T-1297
+  date: 2026-11-14
+  context: Added via context agent
