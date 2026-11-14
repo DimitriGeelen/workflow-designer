@@ -11,11 +11,11 @@ description: >
   tracking, per-step selection. Draft first (docs/reports/T-1073-ring20-t2250-reply.md),
   agent reviews, then send.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -46,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T10:28:15Z
-last_update: 2026-10-06T12:28:16Z
-date_finished:
+last_update: 2026-11-14T19:59:52Z
+date_finished: 2026-11-14T19:59:52Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -85,18 +85,30 @@ bvp_scores_proposed:
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+**Background / trigger:** ring20's manager ran an orchestration-concept panel (their T-2250) and asked 832 for a
+round-2 reply: gaps with severity and a list of 832 mechanisms ring20 could reuse.
+**Problem / hypothesis:** the reply was written (docs/reports/T-1073-ring20-t2250-reply.md) but never sent, and the
+task went quiet in early October.
+**Goal:** get the reply to ring20 or confirm it is overtaken, and close our side.
+**Expected outcome:** ring20 has the reply on file and nothing is left open between us on T-2250.
 
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Review document created at docs/reports/T-1073-ring20-t2250-reply.md
-- [ ] Document contains §1 Round-2 Items with 5 gap analyses, each with severity (blocker/should/nice) and change wanted
-- [ ] Document contains §2 Reuse List with at least 10 mechanisms from 832, each with path, what it gives ring20, and caveats
-- [ ] Document contains §3 Open Questions (3 questions for ring20 to clarify)
-- [ ] Document cites specific 832 source files (paths verified to exist in the repo)
-- [ ] All five Round-2 items are designer-facing (per-step routing, template/instance, executor kind, tiering/hatch, worker identity)
-- [ ] Reuse list covers: authority model, routing, tiering, template-instance binding, capability registry, data class, dry-run, pre-approval
+- [x] Review document created at docs/reports/T-1073-ring20-t2250-reply.md
+- [x] Document contains §1 Round-2 Items with 5 gap analyses, each with severity (blocker/should/nice) and change wanted
+- [x] ~~Document contains §2 Reuse List with at least 10 mechanisms from 832, each with path, what it gives ring20, and caveats~~ — **DROPPED, not met:** the list has 7 mechanisms (each with path, gain and caveats). ring20 declared T-2250 overtaken and asked us "do not spend new work on it" (msg 989b029f, 2026-11-14), so the list was sent as written.
+- [x] Document contains §3 Open Questions (3 questions for ring20 to clarify)
+- [x] Document cites specific 832 source files (paths verified to exist in the repo)
+- [x] All five Round-2 items are designer-facing (per-step routing, template/instance, executor kind, tiering/hatch, worker identity)
+- [x] ~~Reuse list covers: authority model, routing, tiering, template-instance binding, capability registry, data class, dry-run, pre-approval~~ — **DROPPED, partly met:** it covers authority, routing, tiering, template-instance binding, dry-run and pre-approval (operator gates); capability registry and data class are absent because 832 has neither, which §2 states openly as "open space for your registry". Same reason as above for not extending it.
+
+**Outcome (2026-11-14):** ring20 (msg 989b029f): "T-2250 panel: overtaken … closed 2026-10-06 … If your reuse list of
+832 mechanisms is already written, send it as an FYI and we file it". Sent on topic `xfer-832-ring20` (offsets 0-4,
+18,305 bytes, sha256 3c204b0222638e45594f98bc28bc7bc6c7f0463f88762b40dddac11869f02e91, read back and matched);
+ring20 confirmed (msg 3f615b26): "received … matches; filed as docs/reports/T-2250-832-round2-reply.md … closed". Checked
+2026-11-14: 5 gap sections all with severity; 3 open questions; 13 cited paths, all present except a placeholder
+pattern (`.context/runme/<NNN>-<name>/dryrun.ok`).
 
 ## Verification
 
@@ -225,6 +237,8 @@ bvp_scores_proposed:
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+test "$(sha256sum docs/reports/T-1073-ring20-t2250-reply.md | cut -d' ' -f1)" = 3c204b0222638e45594f98bc28bc7bc6c7f0463f88762b40dddac11869f02e91
+grep -q '^## §2 Reuse List' docs/reports/T-1073-ring20-t2250-reply.md
 
 ## RCA
 
@@ -337,3 +351,16 @@ and §13 records the operator decision "build on v0.3". So 832 sent a landing ch
   non-overridable list vs T-956 "always an exception hatch", raised for the operator, not as a change request;
 - not covered, fine for S-1: per-step worker selection vs designer lanes (item 1.1).
 Delivered: HUB_ACCEPTED on ring20-management, conversation t2250-orchestration-concept.
+
+### 2026-11-14T19:59:52Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-5ad094fa
+- **Timestamp:** 2026-11-14T19:59:53Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

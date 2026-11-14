@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1073: Answer ring20-manager's T-2250 orchestration-concept panel: round-2 gaps for the designer (5R.5) and the reuse list (5G) with paths
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-14T19:59:59Z
+# ============================================================================
+
+task_id: T-1073
+task_name: "Answer ring20-manager's T-2250 orchestration-concept panel: round-2 gaps for the designer (5R.5) and the reuse list (5G) with paths"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-06T10:28:15Z
+completed: 2026-11-14T19:59:52Z
+duration_days: 39
+updates_count: 4
+first_commit: 2026-10-06T12:38:03+02:00
+last_commit: 2026-10-06T14:28:16+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  reply to ring20 T-2250 round 2 — 5 items (4 should, 1 nice: where per-step worker selection lives vs lanes-as-authority, template vs instance binding, executor kind deterministic/stochastic, operator override / exception hatch, worker state machine), 8 verified reuse rows, 3 questions; 5 unsupported rows from the worker's draft removed after checking their sources, and the gaps 832 does NOT cover stated. S-1 contract (ring20 T-2252) is already v0.3 final with the operator's build decision — sent a landing check instead of a review: 3 of 832's inputs landed, 3 notes (pin time, executor_kind values, non-overridable list vs the exception hatch), lanes not covered
+
+# Key outcomes
+outcomes:
+  - 'Review document created at docs/reports/T-1073-ring20-t2250-reply.md'
+  - 'Document contains §1 Round-2 Items with 5 gap analyses, each with severity (blocker/should/nice) and change wanted'
+  - '~~Document contains §2 Reuse List with at least 10 mechanisms from 832, each with path, what it gives ring20, and caveats~~ — **DROPPED, not met:** the list has 7 mechanisms (each with path, gain and caveats). ring20 declared T-2250 overtaken and asked us "do not spend new work on it" (msg 989b029f, 2026-11-14), so the list was sent as written.'
+  - 'Document contains §3 Open Questions (3 questions for ring20 to clarify)'
+  - 'Document cites specific 832 source files (paths verified to exist in the repo)'
+  - 'All five Round-2 items are designer-facing (per-step routing, template/instance, executor kind, tiering/hatch, worker identity)'
+  - '~~Reuse list covers: authority model, routing, tiering, template-instance binding, capability registry, data class, dry-run, pre-approval~~ — **DROPPED, partly met:** it covers authority, routing, tiering, template-instance binding, dry-run and pre-approval (operator gates); capability registry and data class are absent because 832 has neither, which §2 states openly as "open space for your registry". Same reason as above for not extending it.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1073-answer-ring20-managers-t-2250-orchestrat.md'
+  - 'docs/reports/T-1073-ring20-t2250-reply.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-06T12:38:03'
+    action: 'T-1073: reply to ring20 T-2250 round 2 — 5 items (4 should, 1 nice: where per-step worker selection lives vs lanes-as-authority, template vs instance binding, executor kind deterministic/stochastic, operator override / exception hatch, worker state machine), 8 verified reuse rows, 3 questions; 5 unsupported rows from the worker''s draft removed after checking their sources, and the gaps 832 does NOT cover stated'
+  - time: '2026-10-06T14:28:16'
+    action: 'T-1073: S-1 contract (ring20 T-2252) is already v0.3 final with the operator''s build decision — sent a landing check instead of a review: 3 of 832''s inputs landed, 3 notes (pin time, executor_kind values, non-overridable list vs the exception hatch), lanes not covered'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 56731 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 56731
+  commits: 3
+  files_changed: 5
+  lines_added: 362
+  lines_removed: 54
+  footprint_refreshed_at: '2026-11-14T20:00:07Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1073-answer-ring20-managers-t-2250-orchestrat.md
+generated_by: context-agent-hybrid
