@@ -6,10 +6,11 @@ description: >
   adds 35 records to that denominator by construction, which must be read into any
   cycle-3 comparison.
 
-status: captured
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [arc-003, audit-remediation, RA-035]
 components: []
 related_tasks: []
@@ -19,8 +20,8 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-16T13:26:27Z
-last_update: 2026-09-29T17:31:23Z
-date_finished:
+last_update: 2026-11-14T15:47:42Z
+date_finished: 2026-11-14T15:47:42Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -49,6 +50,25 @@ bvp_scores_proposed:
       (no-signal); F2=0 (no-signal); F4=0 (no-signal); F3=0 (no-signal); F1=1 
       (prose:process-enablement-incidental)
     rubric_sha: e4a00f38e801
+  - ts: '2026-11-14T15:45:12Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=2 (body:learning-ref); D2=0 (no-signal); D3=0 (no-signal); D4=0
+      (no-signal); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body
+      — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=0 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 cost_estimate_proposed:
   - ts: '2026-09-16T13:30:56Z'
     estimator: bvp-estimator-v1-heuristic
@@ -63,6 +83,13 @@ cost_estimate_proposed:
 # T-731: RA-035: task debt - 52 tasks with no update in 7 or more days
 
 ## Context
+
+**Background / trigger:** `fw doctor` in the September residue audit (RA-035) warned of 52 tasks with no update in 7
+or more days.
+**Problem / hypothesis:** the count mixes abandoned tasks, tasks parked on a decision, and real work in flight, so it
+cannot say how much is actual debt.
+**Goal:** partition the stale tasks into those three groups with counts, stating arc-003's share separately.
+**Expected outcome:** a debt number that means something, without touching any task just to reset its date.
 
 **Finding RA-035** - cycle 1, 2026-09-16. Source: fw doctor. Severity: WARN.
 
@@ -87,9 +114,25 @@ Cycle-1 baseline for regression detection: audit Pass 166 / Warn 31 / Fail 1; do
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The 52 stale tasks are partitioned into abandoned, parked-on-decision, and genuinely in-flight, with counts for each
-- [ ] The arc-003 contribution to the denominator is stated separately so cycle-over-cycle comparison is not read as regression
-- [ ] No task is touched merely to reset its last_update - that would clear the warning without changing anything real
+- [x] The 52 stale tasks are partitioned into abandoned, parked-on-decision, and genuinely in-flight, with counts for each
+- [x] The arc-003 contribution to the denominator is stated separately so cycle-over-cycle comparison is not read as regression
+- [x] No task is touched merely to reset its last_update - that would clear the warning without changing anything real
+
+**Evidence (2026-11-14).** `fw doctor` today: "Task debt: 186 active tasks with last_update older than 7 days or
+unreadable" (the framework's T-4430/T-4555 now counts every active task, captured included, so 186 is not comparable
+with September's 52). The 186, partitioned by mechanical rules applied in this order (a rule, not a per-task judgement):
+| class | rule | count | arc-003 (tag `arc-003` or `audit-remediation`) |
+|---|---|---|---|
+| parked-on-decision | an open `### Human` criterion, or `owner: human` | 60 | 0 |
+| parked by horizon | `horizon: later` (deliberately set aside) | 37 | 1 |
+| genuinely in-flight | `started-work`/`issues`, last update 8-30 days ago | 20 | 0 |
+| abandoned (started) | `started-work`/`issues`, no update for over 30 days | 22 | 5 |
+| abandoned (never started) | `captured`, horizon now/next, no update for over 7 days | 47 | 4 |
+| **total** | | **186** | **10** |
+The arc-003 share is 10 of 186; 24 arc-003 tasks were closed in this cycle (2026-11-13/14) on evidence, which is why
+it is small. The real debt is the 69 "abandoned" (22 + 47): they are candidates for a triage pass (close on evidence,
+re-horizon to later, or restart), each on its own facts, not by bulk edit. No task was touched to reset its date: every
+task changed in this cycle was closed or advanced with recorded evidence.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -213,6 +256,12 @@ out=$(.agentic-framework/bin/fw task stale 2>&1); echo "$out" | grep -q "T-"
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-11-14 — the denominator changed under the check
+- **What changed:** the doctor now counts every active task (186, not 52); a rule-based partition shows 69 likely
+  abandoned, 97 parked (decision or horizon), 20 in flight; arc-003 is only 10 of them after this cycle's closes.
+- **Plan impact:** none for this task; the abandoned 69 want their own triage pass.
+- **Triggered:** nothing filed yet (offered to the operator as next work).
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -243,3 +292,19 @@ out=$(.agentic-framework/bin/fw task stale 2>&1); echo "$out" | grep -q "T-"
 
 ### 2026-09-29T17:31:23Z — status-update [task-update-agent]
 - **Change:** owner: human → agent
+
+### 2026-11-14T15:45:10Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+### 2026-11-14T15:47:42Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-86334471
+- **Timestamp:** 2026-11-14T15:47:46Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

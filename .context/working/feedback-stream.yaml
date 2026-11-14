@@ -22293,3 +22293,21 @@ scan_id: R-bf522d76
 task_id: T-724
 payload:
   task_file: .tasks/active/T-724-ra-028-d5-task-lifecycle-reports-10-cycl.md
+---
+kind: scan_emitted
+timestamp: '2026-11-14T15:47:46Z'
+scan_id: R-86334471
+task_id: T-731
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-14T15:47:46Z'
+scan_id: R-86334471
+task_id: T-731
+payload:
+  task_file: .tasks/active/T-731-ra-035-task-debt---52-tasks-with-no-upda.md
