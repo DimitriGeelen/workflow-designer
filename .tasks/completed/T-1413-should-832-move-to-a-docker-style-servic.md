@@ -307,6 +307,14 @@ this ruling. If the operator wants a public, always-on designer to show, the che
 - **Change:** status: started-work → work-completed
 - **Reason:** Inception decision: NO-GO
 
+### 2026-11-14T11:45Z — correction after close [agent]
+- **Wording:** the NO-GO rule under "Go/No-Go Criteria" says the deploy section is "declared not applicable to 832".
+  Per the independent reviewer's note (V-20261114-e8788bd9), read it as "out of scope for 832": nothing has to be
+  declared, because the deployment section is opt-in and never runs unasked (IW-5, dissolved). T-752..T-754 closed on
+  the ruling (commit 35ebfdcf6).
+- **Claim table below:** the `audit.sh:9147-9200` row shows "file not found" only because the line range is part of
+  the path string; the file exists at `.agentic-framework/agents/audit/audit.sh`.
+
 ## Reviewer Verdict (v1.5)
 
 - **Scan ID:** R-17093cd0
