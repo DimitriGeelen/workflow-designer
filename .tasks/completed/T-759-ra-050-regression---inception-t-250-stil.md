@@ -6,10 +6,11 @@ description: >
   Complete 19-section audit reports [WARN] Inception task T-250 has no research artifact
   in docs/reports/. RA-010 (T-706) was created for this exact finding and is work-completed.
 
-status: captured
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [audit-remediation, cycle-2]
 components: []
 related_tasks: []
@@ -19,8 +20,8 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T08:47:45Z
-last_update: '2026-09-21T08:49:30Z'
-date_finished:
+last_update: 2026-11-14T14:19:42Z
+date_finished: 2026-11-14T14:19:42Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -49,6 +50,25 @@ bvp_scores_proposed:
       (no-signal); F4=0 (no-signal); F3=0 (no-signal); F1=1 
       (prose:process-enablement-incidental)
     rubric_sha: e4a00f38e801
+  - ts: '2026-11-14T14:17:36Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=2 (body:learning-ref); D2=0 (no-signal); D3=0 (no-signal); D4=0
+      (no-signal); F-RECALL=2 (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F3=0 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L0: no signal); F1=0 (basis: task body — no hypothesis, so
+      this score has no claim to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 cost_estimate_proposed:
   - ts: '2026-09-21T08:49:30Z'
     estimator: bvp-estimator-v1-heuristic
@@ -65,6 +85,13 @@ cost_estimate_proposed:
 # T-759: RA-050: REGRESSION - inception T-250 still has no research artifact after RA-010 closed
 
 ## Context
+
+**Background / trigger:** the residue audit (RA-050) warned again that inception T-250 has no research document under
+`docs/reports/`, after T-706 had closed on the same warning.
+**Problem / hypothesis:** the check equates "research trail exists" with "a file under docs/reports/", but T-706 ruled
+that T-250's record lives in its task file and that writing a document now would fabricate a trail.
+**Goal:** record why the warning stays and get the underlying question (can a check carry an exemption?) answered.
+**Expected outcome:** nobody "fixes" T-250 by writing the forbidden document; the check gains exemptions (T-769).
 
 ### Correction: this task's NAME says REGRESSION. That is wrong.
 
@@ -109,10 +136,19 @@ Predecessor: RA-010/T-706 (work-completed, ruled against fixing). Sibling instan
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The ruling in T-706 is cited as the disposition of this warning, so nobody re-opens it a third time and no agent 'fixes' it by writing the forbidden document.
-- [ ] The check's assumption is stated as the defect: it encodes location (`docs/reports/`) as a proxy for existence of a research trail, and cannot express 'recorded elsewhere by decision'.
-- [ ] Filed as a Sovereign question and NOT decided here: should a check be able to carry a recorded exemption, or should the project accept permanent warnings it has ruled against clearing? This is the same shape as RA-047 — that makes two, which is a class rather than a coincidence.
-- [ ] No document is written to `docs/reports/` for T-250. T-706's verification leg goes red if one appears, and that leg is correct.
+- [x] The ruling in T-706 is cited as the disposition of this warning, so nobody re-opens it a third time and no agent 'fixes' it by writing the forbidden document.
+- [x] The check's assumption is stated as the defect: it encodes location (`docs/reports/`) as a proxy for existence of a research trail, and cannot express 'recorded elsewhere by decision'.
+- [x] Filed as a Sovereign question and NOT decided here: should a check be able to carry a recorded exemption, or should the project accept permanent warnings it has ruled against clearing? This is the same shape as RA-047 — that makes two, which is a class rather than a coincidence.
+- [x] No document is written to `docs/reports/` for T-250. T-706's verification leg goes red if one appears, and that leg is correct.
+
+**Disposition (2026-11-14):** criteria 1 and 2 are met by this task's own Context (T-706's ruling quoted verbatim;
+the check's location-as-proxy assumption stated). Criterion 3: the question was filed and the operator has since
+ruled it — **SQ-4 RULED YES (PD-298, recorded by T-766, 2026-09-21):** a check may carry a recorded exemption, and the
+exemption is a *substituted assertion*, not a suppression (the operator's "emergency exit door" example). Building it
+is T-769 ("SQ-4 design: recorded check exemptions as SUBSTITUTED assertions, not suppressions"); for T-250 the
+substituted assertion is the one T-706 already wrote: *no* T-250 document under `docs/reports/`, and the exploration
+present in the task file. Until T-769 lands, the warning remains and is explained here, not cleared. Criterion 4:
+`ls docs/reports/ | grep -c T-250` = 0 on 2026-11-14.
 
 ## Verification
 
@@ -165,6 +201,8 @@ Predecessor: RA-010/T-706 (work-completed, ruled against fixing). Sibling instan
 
 ! ls docs/reports/ 2>/dev/null | grep -qiE 'T-250'
 grep -q 'No document is written to' .tasks/completed/T-706-ra-010-completed-inception-t-250-has-no-.md
+grep -q 'SQ-4 RULED YES' .context/project/decisions.yaml
+find .tasks/active .tasks/completed -maxdepth 1 -name 'T-769-*.md' | grep -q T-769
 
 ## RCA
 
@@ -181,6 +219,14 @@ grep -q 'No document is written to' .tasks/completed/T-706-ra-010-completed-ince
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** the audit keeps warning "Inception task T-250 has no research artifact in docs/reports/" after T-706 closed on it.
+**Root cause:** the check uses a file location as a proxy for "a research trail exists" and cannot represent a
+recorded decision that the trail lives elsewhere (T-706: in the task file; a new document would be fabricated).
+**Why structurally allowed:** checks had no way to carry a recorded exemption, so a ruled-on warning could only be
+cleared by doing what the ruling forbade. (Not a regression: the name says so, the Context corrects it.)
+**Prevention:** SQ-4 (PD-298) rules that a check may carry an exemption as a *substituted assertion*; T-769 builds it.
+T-706's red leg (a T-250 document appearing) stays as the guard against the forbidden "fix".
 
 ## Evolution
 
@@ -205,6 +251,12 @@ grep -q 'No document is written to' .tasks/completed/T-706-ra-010-completed-ince
      section exists but is empty/template-only. Use --skip-evolution to bypass
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
+
+### 2026-11-14 — the Sovereign question was answered by SQ-4
+- **What changed:** the question this task filed was ruled YES by the operator (SQ-4, PD-298): exemptions are
+  substituted assertions. Its build is T-769.
+- **Plan impact:** nothing more to do here; the warning goes away when T-769 lets the check assert T-250's real state.
+- **Triggered:** nothing new (T-769 already exists).
 
 ## Decisions
 
@@ -233,3 +285,26 @@ grep -q 'No document is written to' .tasks/completed/T-706-ra-010-completed-ince
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-759-ra-050-regression---inception-t-250-stil.md
 - **Context:** Initial task creation
+
+### 2026-11-14T14:17:35Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+### 2026-11-14T14:19:42Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-397a03e9
+- **Timestamp:** 2026-11-14T14:19:45Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 2
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 48
+     - evidence: `! ls docs/reports/ 2>/dev/null | grep -qiE 'T-250'`
+  2. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 51
+     - evidence: `find .tasks/active .tasks/completed -maxdepth 1 -name 'T-769-*.md' | grep -q T-769`

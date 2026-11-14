@@ -22185,3 +22185,21 @@ scan_id: R-23c460d5
 task_id: T-751
 payload:
   task_file: .tasks/active/T-751-ra-042-deploy-gate-counts-746-uncommitte.md
+---
+kind: scan_emitted
+timestamp: '2026-11-14T14:19:45Z'
+scan_id: R-397a03e9
+task_id: T-759
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-14T14:19:45Z'
+scan_id: R-397a03e9
+task_id: T-759
+payload:
+  task_file: .tasks/active/T-759-ra-050-regression---inception-t-250-stil.md

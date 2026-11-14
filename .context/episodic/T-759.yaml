@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-759: RA-050: REGRESSION - inception T-250 still has no research artifact after RA-010 closed
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-14T14:20:07Z
+# ============================================================================
+
+task_id: T-759
+task_name: "RA-050: REGRESSION - inception T-250 still has no research artifact after RA-010 closed"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-21T08:47:45Z
+completed: 2026-11-14T14:19:42Z
+duration_days: 54
+updates_count: 3
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Complete 19-section audit reports [WARN] Inception task T-250 has no research artifact in docs/reports/. RA-010 (T-706) was created for this exact finding and is work-completed.
+
+# Key outcomes
+outcomes:
+  - 'The ruling in T-706 is cited as the disposition of this warning, so nobody re-opens it a third time and no agent ''fixes'' it by writing the forbidden document.'
+  - 'The check''s assumption is stated as the defect: it encodes location (`docs/reports/`) as a proxy for existence of a research trail, and cannot express ''recorded elsewhere by decision''.'
+  - 'Filed as a Sovereign question and NOT decided here: should a check be able to carry a recorded exemption, or should the project accept permanent warnings it has ruled against clearing? This is the same shape as RA-047 — that makes two, which is a class rather than a coincidence.'
+  - 'No document is written to `docs/reports/` for T-250. T-706''s verification leg goes red if one appears, and that leg is correct.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 78091 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [audit-remediation, cycle-2]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 78091
+  commits: 1
+  files_changed: 3
+  lines_added: 177
+  lines_removed: 8
+  footprint_refreshed_at: '2026-11-14T14:20:17Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-759-ra-050-regression---inception-t-250-stil.md
+generated_by: context-agent-hybrid
