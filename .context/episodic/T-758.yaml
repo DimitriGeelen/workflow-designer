@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-758: RA-049: the deployment section is excluded from every default audit run
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-14T16:19:53Z
+# ============================================================================
+
+task_id: T-758
+task_name: "RA-049: the deployment section is excluded from every default audit run"
+workflow_type: refactor
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-21T08:47:42Z
+completed: 2026-11-14T16:19:24Z
+duration_days: 54
+updates_count: 3
+first_commit: 2026-10-19T18:18:44+02:00
+last_commit: 2026-10-19T18:18:44+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  intent established (deliberate opt-in, AEF T-275); help-text mismatch reported to AEF, close waits on their task id
+
+# Key outcomes
+outcomes:
+  - 'The intent behind the `[ -n "$SECTIONS" ]` guard is established from history (`git log -S` on that line, or the task that introduced it) rather than inferred from the code alone.'
+  - 'If the guard is deliberate, the section is made *explicitly* not-applicable for this project through a named mechanism a reader can find — not left silently skipped. If it is accidental, the guard is removed and the four FAILs become visible findings with owners.'
+  - 'Either way, `fw audit --help` or the section list states which sections a bare `fw audit` actually runs. Today it advertises nineteen and runs eighteen.'
+  - 'No check is weakened and no scaffolding is created to silence the four FAILs. Whether this project deploys at all is SQ-1 and stays with the operator.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-758-ra-049-the-deployment-section-is-exclude.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-19T18:18:44'
+    action: 'T-758: intent established (deliberate opt-in, AEF T-275); help-text mismatch reported to AEF, close waits on their task id'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 78211 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [audit-remediation, cycle-2]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 78211
+  commits: 3
+  files_changed: 13
+  lines_added: 1336
+  lines_removed: 8
+  footprint_refreshed_at: '2026-11-14T16:20:07Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-758-ra-049-the-deployment-section-is-exclude.md
+generated_by: context-agent-hybrid

@@ -22365,3 +22365,21 @@ scan_id: R-19001a6f
 task_id: T-750
 payload:
   task_file: .tasks/active/T-750-ra-041-ctl-029-arc-003-task-t-723-is-com.md
+---
+kind: scan_emitted
+timestamp: '2026-11-14T16:19:30Z'
+scan_id: R-c1708fc8
+task_id: T-758
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-14T16:19:30Z'
+scan_id: R-c1708fc8
+task_id: T-758
+payload:
+  task_file: .tasks/active/T-758-ra-049-the-deployment-section-is-exclude.md

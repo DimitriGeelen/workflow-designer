@@ -8,10 +8,11 @@ description: >
   and RA-042..045 are four FAILs living in a section no routine audit, cron entry
   or pre-push check ever executes.
 
-status: started-work
+status: work-completed
 workflow_type: refactor
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [audit-remediation, cycle-2]
 components: []
 related_tasks: []
@@ -21,8 +22,8 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T08:47:42Z
-last_update: 2026-09-21T08:54:20Z
-date_finished:
+last_update: 2026-11-14T16:19:24Z
+date_finished: 2026-11-14T16:19:24Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -66,6 +67,12 @@ cost_estimate_proposed:
 # T-758: RA-049: the deployment section is excluded from every default audit run
 
 ## Context
+
+**Background / trigger:** the residue audit (RA-049) found the deployment section silently excluded from every
+default audit run while the help text advertised it.
+**Problem / hypothesis:** a section that is skipped without saying so looks covered when it is not.
+**Goal:** make the exclusion explicit and findable, without weakening any check.
+**Expected outcome:** a reader of `fw audit --help` knows what a bare audit runs.
 
 ### Verbatim tool output
 
@@ -118,9 +125,16 @@ Parent of RA-042/T-751, RA-043/T-752, RA-044/T-753, RA-045/T-754 — all four li
       pre-push checks", `audit.sh` ~8313-8316. Deliberate.) The help text still says "(default: all)": AEF took
       that as T-4410 (msg 36d796c4, 2026-10-19), "help and header will say '(default: all except deployment)'".
       The third criterion closes when T-4410 reaches a release 832 runs.
-- [ ] If the guard is deliberate, the section is made *explicitly* not-applicable for this project through a named mechanism a reader can find — not left silently skipped. If it is accidental, the guard is removed and the four FAILs become visible findings with owners.
-- [ ] Either way, `fw audit --help` or the section list states which sections a bare `fw audit` actually runs. Today it advertises nineteen and runs eighteen.
-- [ ] No check is weakened and no scaffolding is created to silence the four FAILs. Whether this project deploys at all is SQ-1 and stays with the operator.
+- [x] If the guard is deliberate, the section is made *explicitly* not-applicable for this project through a named mechanism a reader can find — not left silently skipped. If it is accidental, the guard is removed and the four FAILs become visible findings with owners.
+- [x] Either way, `fw audit --help` or the section list states which sections a bare `fw audit` actually runs. Today it advertises nineteen and runs eighteen.
+- [x] No check is weakened and no scaffolding is created to silence the four FAILs. Whether this project deploys at all is SQ-1 and stays with the operator.
+
+**Evidence (2026-11-14, vendored be.48):** `fw audit --help` now says "--section NAMES … (default: all except
+deployment)" and "(deployment is opt-in: it runs only with --section deployment)" — AEF's T-4410 landed, so the
+exclusion is stated where a reader looks. The guard is deliberate (AEF msg 1d7d8b4b, 2026-11-14: "opt-in … never by
+default or from cron"), and for this project the section is not applicable by the operator's ruling: SQ-1 (PD-296,
+2026-09-21) and again T-1413 NO-GO (2026-11-14): 832 is not a deployed service. No check was weakened; no Dockerfile,
+compose or traefik file exists.
 
 ## Verification
 
@@ -173,6 +187,8 @@ Parent of RA-042/T-751, RA-043/T-752, RA-044/T-753, RA-045/T-754 — all four li
 
 grep -q '\[ -n "\$SECTIONS" \] && should_run_section "deployment"' .agentic-framework/agents/audit/audit.sh
 test "$(grep -cE '\[ -n "\$SECTIONS" \] && should_run_section' .agentic-framework/agents/audit/audit.sh)" -eq 1
+grep -q 'deployment is opt-in: it runs only with --section deployment' .agentic-framework/agents/audit/audit.sh
+grep -q '^\*\*Decision\*\*: NO-GO' .tasks/completed/T-1413-*.md
 
 ## RCA
 
@@ -214,6 +230,12 @@ test "$(grep -cE '\[ -n "\$SECTIONS" \] && should_run_section' .agentic-framewor
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-11-14 — AEF made the exclusion explicit
+- **What changed:** AEF T-4410 put "default: all except deployment" and "deployment is opt-in" in the help; the
+  operator ruled 832 out of the section's scope twice (SQ-1, T-1413).
+- **Plan impact:** none left for 832.
+- **Triggered:** nothing new.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -244,3 +266,16 @@ test "$(grep -cE '\[ -n "\$SECTIONS" \] && should_run_section' .agentic-framewor
 
 ### 2026-09-21T08:54:20Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-14T16:19:24Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-c1708fc8
+- **Timestamp:** 2026-11-14T16:19:30Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none
