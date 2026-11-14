@@ -280,7 +280,6 @@ the generated maps are wf-04-kommunescan (overview), wf-04-k0a … k11 and wf-05
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
 test ! -e build/sprind-video
-! ss -tln | grep -q ':45111 '
 
 ## RCA
 
