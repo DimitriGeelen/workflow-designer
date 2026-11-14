@@ -56,14 +56,23 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+**Background / trigger:** T-986 drafted 832's project objectives (`.context/project/objectives.yaml`) for the operator
+to ratify; before ratification they are checked against the operator's own words, AEF's view and an external review.
+**Problem / hypothesis:** the draft may say what the agent inferred rather than what the operator said; the sources
+review (docs/reports/T-1072-objectives-sources.md) found three sharp conflicts (O-4 "refused", out_of_scope excluding
+execution, no objective for deterministic-first execution/routing/learning loop).
+**Goal:** gather the operator's vision with sources, get AEF's input and an external cross-vendor review, and hand the
+operator a revised draft with the conflicts put as questions.
+**Expected outcome:** objectives the operator can ratify that match what they said.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Operator vision gathered from memory (fw recall over learnings/decisions/episodics/handovers) and the EWCR material (docs/research/executable-workflow/), with verbatim quotes and sources, written to docs/reports/T-1072-objectives-sources.md; gaps between it and objectives.yaml named
-- [ ] AEF asked for input on the objectives (sidecar), answer recorded
+- [x] Operator vision gathered from memory (fw recall over learnings/decisions/episodics/handovers) and the EWCR material (docs/research/executable-workflow/), with verbatim quotes and sources, written to docs/reports/T-1072-objectives-sources.md; gaps between it and objectives.yaml named
+      (§1-§5 of that file: vector-memory result, the operator's vision and ways of working verbatim with sources, EWCR, and the gap analysis per objective.)
+- [x] AEF asked for input on the objectives (sidecar), answer recorded
+      (asked 2026-11-14, conversation `832-objectives`, msg 1f92aa5a; answered msg 7c7d72db; recorded as §6 of the sources file.)
 - [ ] External cross-vendor review (fw external scan) run with a brief that carries the draft, the operator's own words and AEF's input; findings answered; a revised draft (if any) written and handed to T-986's existing Human check (ratification lives there, not here)
 
 ### Human

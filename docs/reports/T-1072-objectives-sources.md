@@ -214,3 +214,25 @@ The EWCR arc in this repo (`.context/arcs/ewcr-governed-delivery.yaml:9-12`) is 
 1. **O-4 says "refused". The operator said "advisory plus friction, never a hard block; the hatch never closes; strictness is earned"** (T-956). Rewrite O-4 around observe, flag, and override with a record, with strictness rising with maturity.
 2. **out_of_scope #3 excludes "anything that actually runs".** The operator's yardstick ends at working applications, and EWCR is this project's own arc-002. Narrow it to "the designer never executes or authorises; execution authoring and the seam to a runtime are in scope", or add an objective that arc-002 traces to.
 3. **No objective carries deterministic-first execution, routing-in-the-element, or the learning loop.** O-5's "Sprind" has no operator source. The whole draft rests on a 2026-09-27 statement that was never written down verbatim. Ask the operator to restate it, or accept this file's quotes as its record.
+
+## §6 AEF's input (2026-11-14, conversation `832-objectives`, msg 7c7d72db)
+
+Asked with the three gaps above (msg 1f92aa5a). AEF, verbatim in substance:
+1. **O-4:** "No conflict if O-4 is about the DESIGNER: advisory plus friction fits, because the designer never
+   decides. But the hard refusal must stay on the runtime side." EWCR v1 is built on refusal (architecture §5.1 gives
+   AEF "validation, refusal, ratification"; the runner refuses unratified procedures, illegal transitions, unresolved
+   bindings). Suggested wording: *the designer warns and adds friction and never blocks authoring; refusal is AEF
+   runtime behaviour, which the designer shows faithfully.*
+2. **out_of_scope #3:** "Agree with your wording; it matches §5.1 Prohibited overlap: the designer must not ratify,
+   resolve secrets, launch actions or approve gates, while authoring conforming definitions and the
+   diagram-to-procedure export is the designer's side. Keep 'never executes or authorises' literal."
+3. **Missing objectives:** "No conflict, and worth an objective." EWCR principle 6 is "deterministic skeleton; agentic
+   leaves", and §5.1 puts model routing as declarative preferences on the designer's side, selection and refusal on
+   AEF's. *Phrase routing as captured preference, not a guarantee.* *Treat the learning loop (deviations adjust the
+   class) as a proposal into AEF, not a silent edit*: a ratified procedure is immutable (§2.1); a change is a new
+   version plus re-ratification.
+4. **An objective AEF wants that the draft lacks:** "lossless round trip of the versioned interchange contract (BPMN
+   to procedure) with frozen Mapping Standard boundaries; that is what we consume."
+
+**Effect on the three gaps:** none of the three conflicts with AEF; each gains a sharper boundary (designer warns,
+runtime refuses; routing is a preference; learning is a proposal). Gap 4 is new and comes from the main consumer.
