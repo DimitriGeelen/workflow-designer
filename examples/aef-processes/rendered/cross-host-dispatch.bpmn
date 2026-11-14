@@ -13,7 +13,7 @@
 
   <bpmn:process id="Process_cross-host-dispatch" isExecutable="true">
     <bpmn:extensionElements>
-      <aef:workflowMeta id="cross-host-dispatch" uuid="628a00c7-1bff-496c-9dfd-7b5680f58b86" version="1" schemaVersion="2" title="cross-host-dispatch" tier_default="2"/>
+      <aef:workflowMeta id="cross-host-dispatch" uuid="628a00c7-1bff-496c-9dfd-7b5680f58b86" version="1" schemaVersion="2" title="cross-host-dispatch" tier_default="2" kind="documentation"/>
     </bpmn:extensionElements>
     <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="agent" name="Agent · Initiative">

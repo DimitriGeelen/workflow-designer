@@ -13,7 +13,7 @@
 
   <bpmn:process id="Process_session-capture" isExecutable="true">
     <bpmn:extensionElements>
-      <aef:workflowMeta id="session-capture" uuid="9ec8c5ec-0635-4e2b-8860-3543220cfeea" version="1" schemaVersion="2" title="session-capture" tier_default="2"/>
+      <aef:workflowMeta id="session-capture" uuid="9ec8c5ec-0635-4e2b-8860-3543220cfeea" version="1" schemaVersion="2" title="session-capture" tier_default="2" kind="documentation"/>
     </bpmn:extensionElements>
     <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="agent" name="Agent · Initiative">

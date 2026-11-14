@@ -18,6 +18,7 @@
 # docs/reports/T-055-task-gate-friction.md.
 workflowMeta:
   id: task-gate
+  kind: documentation
   version: 1
   schemaVersion: 2
   source: agents/context/check-active-task.sh

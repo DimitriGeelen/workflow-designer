@@ -13,7 +13,7 @@
 
   <bpmn:process id="Process_git-commit-flow" isExecutable="true">
     <bpmn:extensionElements>
-      <aef:workflowMeta id="git-commit-flow" uuid="05bf5afe-d7fb-4398-b204-dd6b2f38094a" version="1" schemaVersion="2" title="git-commit-flow" tier_default="2"/>
+      <aef:workflowMeta id="git-commit-flow" uuid="05bf5afe-d7fb-4398-b204-dd6b2f38094a" version="1" schemaVersion="2" title="git-commit-flow" tier_default="2" kind="documentation"/>
     </bpmn:extensionElements>
     <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="human" name="Human · Sovereignty">

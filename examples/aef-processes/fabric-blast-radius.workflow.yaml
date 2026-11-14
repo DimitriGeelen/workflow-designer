@@ -28,6 +28,7 @@
 #     nesting is inexpressible without a scope construct (same FC-15).
 workflowMeta:
   id: fabric-blast-radius
+  kind: documentation
   version: 1
   schemaVersion: 2
   source: agents/fabric/lib/traverse.sh

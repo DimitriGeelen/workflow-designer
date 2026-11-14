@@ -23,6 +23,7 @@
 # = code-enforced, stochastic = agent judgement). Lanes = authority axis.
 workflowMeta:
   id: error-escalation-ladder
+  kind: documentation
   version: 2
   schemaVersion: 2
   source: agents/healing/lib/diagnose.sh + CLAUDE.md

@@ -32,6 +32,7 @@
 #     discrepancy in the friction report rather than inventing a hook-skip edge.
 workflowMeta:
   id: git-commit-flow
+  kind: documentation
   version: 1
   schemaVersion: 2
   source: agents/git/lib/commit.sh

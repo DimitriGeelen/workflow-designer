@@ -17,6 +17,7 @@
 # itself friction evidence — it has no first-class home in v2.
 workflowMeta:
   id: task-lifecycle
+  kind: documentation
   version: 1
   schemaVersion: 2
   source: agents/task-create/update-task.sh

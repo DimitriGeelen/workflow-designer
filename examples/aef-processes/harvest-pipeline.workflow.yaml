@@ -30,6 +30,7 @@
 #   the source read dips into the external lane (y=760). check-lane-bands clean.
 workflowMeta:
   id: harvest-pipeline
+  kind: documentation
   version: 1
   schemaVersion: 2
   source: lib/harvest.sh

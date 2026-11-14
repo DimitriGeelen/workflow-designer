@@ -28,6 +28,7 @@
 #   check-lane-bands clean.
 workflowMeta:
   id: cross-host-dispatch
+  kind: documentation
   version: 1
   schemaVersion: 2
   source: lib/dispatch.sh

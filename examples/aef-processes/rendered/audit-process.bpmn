@@ -13,7 +13,7 @@
 
   <bpmn:process id="Process_audit-process" isExecutable="true">
     <bpmn:extensionElements>
-      <aef:workflowMeta id="audit-process" uuid="ed141d1f-45bd-444e-b041-e0b644f9251f" version="1" schemaVersion="2" title="audit-process" tier_default="2"/>
+      <aef:workflowMeta id="audit-process" uuid="ed141d1f-45bd-444e-b041-e0b644f9251f" version="1" schemaVersion="2" title="audit-process" tier_default="2" kind="documentation"/>
     </bpmn:extensionElements>
     <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="human" name="Human · Sovereignty">

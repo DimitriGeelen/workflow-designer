@@ -13,7 +13,7 @@
 
   <bpmn:process id="Process_inception-review" isExecutable="true">
     <bpmn:extensionElements>
-      <aef:workflowMeta id="inception-review" uuid="1ed80938-d9ed-4557-b4fa-ab3aa26a8e6f" version="1" schemaVersion="2" title="inception-review" tier_default="2"/>
+      <aef:workflowMeta id="inception-review" uuid="1ed80938-d9ed-4557-b4fa-ab3aa26a8e6f" version="1" schemaVersion="2" title="inception-review" tier_default="2" kind="documentation"/>
     </bpmn:extensionElements>
     <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="agent" name="Agent · Initiative">

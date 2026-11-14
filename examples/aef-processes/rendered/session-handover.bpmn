@@ -13,7 +13,7 @@
 
   <bpmn:process id="Process_session-handover" isExecutable="true">
     <bpmn:extensionElements>
-      <aef:workflowMeta id="session-handover" uuid="6f1094d1-3fc2-4288-9a89-804d32ff7ccd" version="1" schemaVersion="2" title="session-handover" tier_default="2"/>
+      <aef:workflowMeta id="session-handover" uuid="6f1094d1-3fc2-4288-9a89-804d32ff7ccd" version="1" schemaVersion="2" title="session-handover" tier_default="2" kind="documentation"/>
     </bpmn:extensionElements>
     <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="human" name="Human · Sovereignty">

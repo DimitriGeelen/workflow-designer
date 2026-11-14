@@ -13,7 +13,7 @@
 
   <bpmn:process id="Process_inception-lifecycle" isExecutable="true">
     <bpmn:extensionElements>
-      <aef:workflowMeta id="inception-lifecycle" uuid="b726813c-8364-4c2c-b8bd-bf6b16496db8" version="1" schemaVersion="2" title="inception-lifecycle" tier_default="2"/>
+      <aef:workflowMeta id="inception-lifecycle" uuid="b726813c-8364-4c2c-b8bd-bf6b16496db8" version="1" schemaVersion="2" title="inception-lifecycle" tier_default="2" kind="documentation"/>
     </bpmn:extensionElements>
     <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="human" name="Human · Sovereignty">

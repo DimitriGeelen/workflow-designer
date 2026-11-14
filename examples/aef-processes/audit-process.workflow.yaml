@@ -22,6 +22,7 @@
 # docs/reports/T-031-audit-process-friction.md.
 workflowMeta:
   id: audit-process
+  kind: documentation
   version: 1
   schemaVersion: 2
   source: agents/audit/audit.sh

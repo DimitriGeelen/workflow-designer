@@ -32,6 +32,7 @@
 #   check-lane-bands clean.
 workflowMeta:
   id: release-pipeline
+  kind: documentation
   version: 1
   schemaVersion: 2
   source: lib/release.sh

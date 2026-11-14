@@ -13,7 +13,7 @@
 
   <bpmn:process id="Process_context-memory" isExecutable="true">
     <bpmn:extensionElements>
-      <aef:workflowMeta id="context-memory" uuid="81883506-c8d2-45b1-a767-9ed733df94e4" version="1" schemaVersion="2" title="context-memory" tier_default="2"/>
+      <aef:workflowMeta id="context-memory" uuid="81883506-c8d2-45b1-a767-9ed733df94e4" version="1" schemaVersion="2" title="context-memory" tier_default="2" kind="documentation"/>
     </bpmn:extensionElements>
     <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="working" name="Working Memory · session-local">

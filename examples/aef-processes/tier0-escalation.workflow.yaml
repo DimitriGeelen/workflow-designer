@@ -18,6 +18,7 @@
 # rejected record back on retry (T-641). Added n_record_reject (framework lane).
 workflowMeta:
   id: tier0-escalation
+  kind: documentation
   version: 2
   schemaVersion: 2
   source: agents/context/check-tier0.sh

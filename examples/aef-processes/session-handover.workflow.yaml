@@ -11,6 +11,7 @@
 # (F3,F5,F8,F10), no new gap. See docs/reports/T-029-session-handover-friction.md.
 workflowMeta:
   id: session-handover
+  kind: documentation
   version: 1
   schemaVersion: 2
   source: agents/handover/handover.sh

@@ -13,7 +13,7 @@
 
   <bpmn:process id="Process_promotion-pipeline" isExecutable="true">
     <bpmn:extensionElements>
-      <aef:workflowMeta id="promotion-pipeline" uuid="be7afc47-7c51-41b5-87b5-df32ad682dc3" version="1" schemaVersion="2" title="promotion-pipeline" tier_default="2"/>
+      <aef:workflowMeta id="promotion-pipeline" uuid="be7afc47-7c51-41b5-87b5-df32ad682dc3" version="1" schemaVersion="2" title="promotion-pipeline" tier_default="2" kind="documentation"/>
     </bpmn:extensionElements>
     <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="agent" name="Agent · Initiative">

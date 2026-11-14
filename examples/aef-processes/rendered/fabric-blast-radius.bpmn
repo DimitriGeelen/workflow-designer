@@ -13,7 +13,7 @@
 
   <bpmn:process id="Process_fabric-blast-radius" isExecutable="true">
     <bpmn:extensionElements>
-      <aef:workflowMeta id="fabric-blast-radius" uuid="057595e9-2f18-4daa-859b-4684368384f3" version="1" schemaVersion="2" title="fabric-blast-radius" tier_default="2"/>
+      <aef:workflowMeta id="fabric-blast-radius" uuid="057595e9-2f18-4daa-859b-4684368384f3" version="1" schemaVersion="2" title="fabric-blast-radius" tier_default="2" kind="documentation"/>
     </bpmn:extensionElements>
     <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="agent" name="Agent · Initiative">

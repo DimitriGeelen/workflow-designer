@@ -24,6 +24,7 @@
 #              work-completed (framework), sourced from task file + git log.
 workflowMeta:
   id: context-memory
+  kind: documentation
   version: 1
   schemaVersion: 2
   source: agents/context/context.sh

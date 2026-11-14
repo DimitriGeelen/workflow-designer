@@ -20,6 +20,7 @@
 # See docs/reports/T-033-revisit-due-scan-friction.md.
 workflowMeta:
   id: revisit-due-scan
+  kind: documentation
   version: 1
   schemaVersion: 2
   source: agents/context/revisit-due-scan.sh

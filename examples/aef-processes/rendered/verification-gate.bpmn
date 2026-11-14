@@ -13,7 +13,7 @@
 
   <bpmn:process id="Process_verification-gate" isExecutable="true">
     <bpmn:extensionElements>
-      <aef:workflowMeta id="verification-gate" uuid="c227d546-aace-4105-b871-77f0f6b2ad13" version="1" schemaVersion="2" title="verification-gate" tier_default="2"/>
+      <aef:workflowMeta id="verification-gate" uuid="c227d546-aace-4105-b871-77f0f6b2ad13" version="1" schemaVersion="2" title="verification-gate" tier_default="2" kind="documentation"/>
     </bpmn:extensionElements>
     <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="human" name="Human · Sovereignty">

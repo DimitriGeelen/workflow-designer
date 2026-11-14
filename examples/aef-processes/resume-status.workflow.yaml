@@ -28,6 +28,7 @@
 #     guarded) is omitted as out-of-frame — noted, not drawn.
 workflowMeta:
   id: resume-status
+  kind: documentation
   version: 1
   schemaVersion: 2
   source: agents/resume/resume.sh

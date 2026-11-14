@@ -13,7 +13,7 @@
 
   <bpmn:process id="Process_review-emission" isExecutable="true">
     <bpmn:extensionElements>
-      <aef:workflowMeta id="review-emission" uuid="334e5d0f-37d4-4352-97aa-884b0ca56461" version="1" schemaVersion="2" title="review-emission" tier_default="2"/>
+      <aef:workflowMeta id="review-emission" uuid="334e5d0f-37d4-4352-97aa-884b0ca56461" version="1" schemaVersion="2" title="review-emission" tier_default="2" kind="documentation"/>
     </bpmn:extensionElements>
     <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="agent" name="Agent · Initiative">

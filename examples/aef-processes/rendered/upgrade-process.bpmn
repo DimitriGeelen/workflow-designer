@@ -13,7 +13,7 @@
 
   <bpmn:process id="Process_upgrade-process" isExecutable="true">
     <bpmn:extensionElements>
-      <aef:workflowMeta id="upgrade-process" uuid="fa213bfe-8608-43b4-a29c-7926f22d053d" version="1" schemaVersion="2" title="upgrade-process" tier_default="2"/>
+      <aef:workflowMeta id="upgrade-process" uuid="fa213bfe-8608-43b4-a29c-7926f22d053d" version="1" schemaVersion="2" title="upgrade-process" tier_default="2" kind="documentation"/>
     </bpmn:extensionElements>
     <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="human" name="Human · Sovereignty">

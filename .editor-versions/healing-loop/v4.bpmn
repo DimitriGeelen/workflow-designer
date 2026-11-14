@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_healing-loop"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+
+  <bpmn:collaboration id="Collaboration_healing-loop">
+    <bpmn:participant id="Pool_healing_loop" name="healing-loop" processRef="Process_healing-loop"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_healing-loop" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="healing-loop" uuid="ca69542f-5a2e-4e69-a66b-d9f1b6e917ac" version="2" schemaVersion="2" title="healing-loop" tier_default="2" kind="documentation"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="human" name="Human · Sovereignty">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="hum" authority="sovereignty" height="216"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>hum_1_choose</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hum_gw_human</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="framework" name="Framework · Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="96"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>frw_start_auto</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_end_advisory</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_end_resolved</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_1_log</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_2_resume</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="agent" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="88"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>agt_1_classify</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_2_lookup</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_3_suggest</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_4_apply</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="frw_start_auto" name="Auto-trigger — task entered issues/blocked">
+      <bpmn:extensionElements>
+        <aef:uid value="n_trigger"/>
+        <aef:position x="120.0" y="308.0"/>
+        <aef:meta triggeredBy="task status -&gt; issues|blocked (update-task.sh:1714)"/>
+        <aef:io>
+          <aef:output name="task_id" type="task_id"/>
+          <aef:output name="issue_text" type="string"/>
+        </aef:io>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:endEvent id="frw_end_advisory" name="Advisory only — no pattern recorded">
+      <bpmn:extensionElements>
+        <aef:uid value="n_end_advisory"/>
+        <aef:position x="883.0" y="308.0"/>
+        <aef:meta note="diagnose fired but no resolve; memory NOT strengthened"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_6</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="frw_end_resolved" name="Resolved &amp; recorded (antifragile)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_end_resolved"/>
+        <aef:position x="1880.0" y="308.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_10</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:serviceTask id="agt_1_classify" name="Classify failure (keyword scoring)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_classify"/>
+        <aef:position x="300.0" y="386.0"/>
+        <aef:meta tier="2" agentType="primary"/>
+        <aef:endpoint>lib/diagnose.sh:classify_failure</aef:endpoint>
+        <aef:io>
+          <aef:input name="issue_text" type="string" required="true"/>
+          <aef:output name="failure_type" type="enum"/>
+        </aef:io>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_1</bpmn:incoming>
+      <bpmn:outgoing>flow_2</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:serviceTask id="agt_2_lookup" name="Lookup similar patterns (RAG)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_lookup"/>
+        <aef:position x="480.0" y="386.0"/>
+        <aef:meta tier="2" agentType="primary"/>
+        <aef:endpoint>lib/diagnose.sh:find_similar_patterns (python3 lib/ask.py)</aef:endpoint>
+        <aef:contextReads paths="patterns.yaml, episodic/"/>
+        <aef:io>
+          <aef:input name="failure_type" type="enum" required="true"/>
+          <aef:output name="matching_patterns" type="list"/>
+        </aef:io>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_2</bpmn:incoming>
+      <bpmn:outgoing>flow_3</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:serviceTask id="agt_3_suggest" name="Suggest recovery — Error Escalation Ladder A/B/C/D">
+      <bpmn:extensionElements>
+        <aef:uid value="n_suggest"/>
+        <aef:position x="680.0" y="386.0"/>
+        <aef:meta tier="2" agentType="primary"/>
+        <aef:endpoint>lib/diagnose.sh:157-204</aef:endpoint>
+        <aef:io>
+          <aef:input name="matching_patterns" type="list"/>
+          <aef:output name="recommendation" type="string"/>
+        </aef:io>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_3</bpmn:incoming>
+      <bpmn:outgoing>flow_4</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:serviceTask id="agt_4_apply" name="Apply the chosen recovery">
+      <bpmn:extensionElements>
+        <aef:uid value="n_apply"/>
+        <aef:position x="1280.0" y="386.0"/>
+        <aef:meta tier="2" agentType="primary" note="fix code (B) / add check (C) / draft practice (D), under human direction"/>
+        <aef:io>
+          <aef:input name="chosen_rung" type="enum" required="true"/>
+        </aef:io>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_7</bpmn:incoming>
+      <bpmn:outgoing>flow_8</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:userTask id="hum_1_choose" name="Choose ladder rung + direct the recovery">
+      <bpmn:extensionElements>
+        <aef:uid value="n_choose"/>
+        <aef:position x="1080.0" y="84.0"/>
+        <aef:meta tier="0"/>
+        <aef:decisionOutputs>A, B, C, D</aef:decisionOutputs>
+        <aef:io>
+          <aef:input name="recommendation" type="string" required="true"/>
+          <aef:output name="chosen_rung" type="enum"/>
+          <aef:output name="mitigation" type="string"/>
+        </aef:io>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_5</bpmn:incoming>
+      <bpmn:outgoing>flow_7</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:scriptTask id="frw_1_log" name="Log resolution — append pattern + learning + task note">
+      <bpmn:extensionElements>
+        <aef:uid value="n_resolve"/>
+        <aef:position x="1480.0" y="294.0"/>
+        <aef:meta tier="1" note="v2 (T-297): reachability ADVISORY — nothing auto-invokes resolve after apply (resolve.sh prints next-steps only); FP+L capture leg leaks by design (AEF G-016: 72% zero-learning bugfix tasks)"/>
+        <aef:endpoint>fw healing resolve ${task_id} --mitigation "..."</aef:endpoint>
+        <aef:artifactsWrites paths="patterns.yaml (FP-NNN), learnings.yaml (L-NNN), task Updates note"/>
+        <aef:io>
+          <aef:input name="mitigation" type="string" required="true"/>
+        </aef:io>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_8</bpmn:incoming>
+      <bpmn:outgoing>flow_9</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_2_resume" name="Resume task (→ started-work)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_resume"/>
+        <aef:position x="1680.0" y="294.0"/>
+        <aef:meta tier="1"/>
+        <aef:endpoint>fw task update ${task_id} --status started-work</aef:endpoint>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_9</bpmn:incoming>
+      <bpmn:outgoing>flow_10</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:exclusiveGateway id="hum_gw_human" name="Human acts on the advice?">
+      <bpmn:extensionElements>
+        <aef:uid value="n_acted"/>
+        <aef:position x="877.0" y="200.0"/>
+        <aef:meta decisionOwner="human"/>
+        <aef:decisionInput>${act}</aef:decisionInput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_4</bpmn:incoming>
+      <bpmn:outgoing>flow_5</bpmn:outgoing>
+      <bpmn:outgoing>flow_6</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:sequenceFlow id="flow_1" sourceRef="frw_start_auto" targetRef="agt_1_classify">
+      <bpmn:extensionElements>
+        <aef:uid value="e_01"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_2" sourceRef="agt_1_classify" targetRef="agt_2_lookup">
+      <bpmn:extensionElements>
+        <aef:uid value="e_02"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_3" sourceRef="agt_2_lookup" targetRef="agt_3_suggest">
+      <bpmn:extensionElements>
+        <aef:uid value="e_03"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_4" sourceRef="agt_3_suggest" targetRef="hum_gw_human">
+      <bpmn:extensionElements>
+        <aef:uid value="e_04"/>
+        <aef:anchors targetPort="W"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_5" name="acts on advice" sourceRef="hum_gw_human" targetRef="hum_1_choose">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${act == true}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_05"/>
+        <aef:anchors sourcePort="N"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_6" name="advisory only" sourceRef="hum_gw_human" targetRef="frw_end_advisory">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${act == false}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_06"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_7" sourceRef="hum_1_choose" targetRef="agt_4_apply">
+      <bpmn:extensionElements>
+        <aef:uid value="e_07"/>
+        <aef:anchors sourcePort="E"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_8" sourceRef="agt_4_apply" targetRef="frw_1_log">
+      <bpmn:extensionElements>
+        <aef:uid value="e_08"/>
+        <aef:anchors sourcePort="E"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_9" sourceRef="frw_1_log" targetRef="frw_2_resume">
+      <bpmn:extensionElements>
+        <aef:uid value="e_09"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_10" sourceRef="frw_2_resume" targetRef="frw_end_resolved">
+      <bpmn:extensionElements>
+        <aef:uid value="e_10"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+
+  <!-- BPMN DI (visual layout) omitted; node geometry travels as aef:position -->
+</bpmn:definitions>

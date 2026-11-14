@@ -13,7 +13,7 @@
 
   <bpmn:process id="Process_resume-status" isExecutable="true">
     <bpmn:extensionElements>
-      <aef:workflowMeta id="resume-status" uuid="44ddf330-0876-48b9-9f33-7e9e51f9774e" version="1" schemaVersion="2" title="resume-status" tier_default="2"/>
+      <aef:workflowMeta id="resume-status" uuid="44ddf330-0876-48b9-9f33-7e9e51f9774e" version="1" schemaVersion="2" title="resume-status" tier_default="2" kind="documentation"/>
     </bpmn:extensionElements>
     <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="agent" name="Agent · Initiative">

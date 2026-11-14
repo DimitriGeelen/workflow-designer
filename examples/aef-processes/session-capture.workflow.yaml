@@ -28,6 +28,7 @@
 #     aef.constituents (T-081); the x-captures workaround is retired.
 workflowMeta:
   id: session-capture
+  kind: documentation
   version: 1
   schemaVersion: 2
   source: agents/session-capture/AGENT.md

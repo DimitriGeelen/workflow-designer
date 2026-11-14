@@ -13,7 +13,7 @@
 
   <bpmn:process id="Process_revisit-due-scan" isExecutable="true">
     <bpmn:extensionElements>
-      <aef:workflowMeta id="revisit-due-scan" uuid="512cb756-2f01-4fb0-9d79-6015e6735c11" version="1" schemaVersion="2" title="revisit-due-scan" tier_default="2"/>
+      <aef:workflowMeta id="revisit-due-scan" uuid="512cb756-2f01-4fb0-9d79-6015e6735c11" version="1" schemaVersion="2" title="revisit-due-scan" tier_default="2" kind="documentation"/>
     </bpmn:extensionElements>
     <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="human" name="Human · Sovereignty">

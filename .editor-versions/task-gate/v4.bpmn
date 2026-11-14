@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_task-gate"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+
+  <bpmn:collaboration id="Collaboration_task-gate">
+    <bpmn:participant id="Pool_task_gate" name="task-gate" processRef="Process_task-gate"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_task-gate" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="task-gate" uuid="031a0126-222d-452b-a98d-163408525162" version="1" schemaVersion="2" title="task-gate" tier_default="2" kind="documentation"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="human" name="Human · Sovereignty">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="hum" authority="sovereignty" height="88"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>hum_1_authorise</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="framework" name="Framework · Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="324"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>frw_end_allow</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_end_block</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_1_pretooluse</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_2_log</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_gw_exempt</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_gw_active</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_gw_started</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="agent" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="96"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>agt_start_agent</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_1_create</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_2_write</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="agt_start_agent" name="Agent attempts Write/Edit/Bash">
+      <bpmn:extensionElements>
+        <aef:uid value="n_attempt"/>
+        <aef:position x="142.0" y="504.0"/>
+        <aef:io>
+          <aef:output name="tool" type="string"/>
+          <aef:output name="file_path" type="string"/>
+        </aef:io>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_14</bpmn:incoming>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:endEvent id="frw_end_allow" name="Allow — exit 0">
+      <bpmn:extensionElements>
+        <aef:uid value="n_allow"/>
+        <aef:position x="262.0" y="402.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_3</bpmn:incoming>
+      <bpmn:incoming>flow_9</bpmn:incoming>
+      <bpmn:incoming>flow_11</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="frw_end_block" name="Block — exit 2">
+      <bpmn:extensionElements>
+        <aef:uid value="n_block"/>
+        <aef:position x="1182.0" y="186.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_5</bpmn:incoming>
+      <bpmn:incoming>flow_8</bpmn:incoming>
+      <bpmn:outgoing>flow_12</bpmn:outgoing>
+    </bpmn:endEvent>
+
+    <bpmn:serviceTask id="agt_1_create" name="Create task + set focus">
+      <bpmn:extensionElements>
+        <aef:uid value="n_create"/>
+        <aef:position x="625.0" y="490.0"/>
+        <aef:endpoint>fw work-on "name" --type build</aef:endpoint>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_12</bpmn:incoming>
+      <bpmn:outgoing>flow_13</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:serviceTask id="agt_2_write" name="Write real acceptance criteria">
+      <bpmn:extensionElements>
+        <aef:uid value="n_scope"/>
+        <aef:position x="1025.0" y="490.0"/>
+        <aef:endpoint>edit .tasks/active/T-XXX (replace placeholder ACs)</aef:endpoint>
+        <aef:artifactsWrites paths=".tasks/active/${task_id}.md"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_13</bpmn:incoming>
+      <bpmn:outgoing>flow_14</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:userTask id="hum_1_authorise" name="Authorise Tier-2 bypass">
+      <bpmn:extensionElements>
+        <aef:uid value="n_override"/>
+        <aef:position x="625.0" y="74.0"/>
+        <aef:meta decisionOwner="human"/>
+        <aef:endpoint>FW_SWITCH_FOCUS=1 / FW_SAFE_MODE=1</aef:endpoint>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_6</bpmn:incoming>
+      <bpmn:outgoing>flow_10</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:scriptTask id="frw_1_pretooluse" name="PreToolUse hook intercepts (check-active-task.sh)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_intercept"/>
+        <aef:position x="105.0" y="280.0"/>
+        <aef:meta tier="1" trigger="PreToolUse (Write/Edit/Bash)"/>
+        <aef:endpoint>agents/context/check-active-task.sh</aef:endpoint>
+        <aef:contextReads paths=".context/working/focus.yaml, .context/working/session.yaml"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_1</bpmn:incoming>
+      <bpmn:outgoing>flow_2</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_2_log" name="Log Tier-2 bypass">
+      <bpmn:extensionElements>
+        <aef:uid value="n_log"/>
+        <aef:position x="1305.0" y="388.0"/>
+        <aef:meta tier="2"/>
+        <aef:endpoint>.context/working/.gate-bypass-log.yaml</aef:endpoint>
+        <aef:artifactsWrites paths=".context/working/.gate-bypass-log.yaml"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_10</bpmn:incoming>
+      <bpmn:outgoing>flow_11</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:exclusiveGateway id="frw_gw_exempt" name="Exempt path or safe command?">
+      <bpmn:extensionElements>
+        <aef:uid value="g_exempt"/>
+        <aef:position x="256.0" y="180.0"/>
+        <aef:meta decisionOwner="framework"/>
+        <aef:decisionInput>${path in [.context,.tasks,.claude,.git] || safe_bash_cmd}</aef:decisionInput>
+        <aef:decisionOutputs>exempt, modifies-source</aef:decisionOutputs>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_2</bpmn:incoming>
+      <bpmn:outgoing>flow_3</bpmn:outgoing>
+      <bpmn:outgoing>flow_4</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:exclusiveGateway id="frw_gw_active" name="Active task in focus?">
+      <bpmn:extensionElements>
+        <aef:uid value="g_active"/>
+        <aef:position x="656.0" y="180.0"/>
+        <aef:meta decisionOwner="framework"/>
+        <aef:decisionInput>${focus.current_task != null &amp;&amp; focus_session == session}</aef:decisionInput>
+        <aef:decisionOutputs>none, drift, active</aef:decisionOutputs>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_4</bpmn:incoming>
+      <bpmn:outgoing>flow_5</bpmn:outgoing>
+      <bpmn:outgoing>flow_6</bpmn:outgoing>
+      <bpmn:outgoing>flow_7</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:exclusiveGateway id="frw_gw_started" name="Started-work + real ACs?">
+      <bpmn:extensionElements>
+        <aef:uid value="g_ready"/>
+        <aef:position x="656.0" y="396.0"/>
+        <aef:meta decisionOwner="framework"/>
+        <aef:decisionInput>${status in [started-work,issues] &amp;&amp; acs_are_real}</aef:decisionInput>
+        <aef:decisionOutputs>ready, not-ready</aef:decisionOutputs>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_7</bpmn:incoming>
+      <bpmn:outgoing>flow_8</bpmn:outgoing>
+      <bpmn:outgoing>flow_9</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_start_agent" targetRef="frw_1_pretooluse">
+      <bpmn:extensionElements>
+        <aef:uid value="e_01"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_2" sourceRef="frw_1_pretooluse" targetRef="frw_gw_exempt">
+      <bpmn:extensionElements>
+        <aef:uid value="e_02"/>
+        <aef:routingHint role="seg_mid" offset="36.0"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_3" name="exempt path / safe cmd" sourceRef="frw_gw_exempt" targetRef="frw_end_allow">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${exempt == true}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_03"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_4" name="modifies source" sourceRef="frw_gw_exempt" targetRef="frw_gw_active">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${exempt == false}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_04"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_5" name="no active task (P-002)" sourceRef="frw_gw_active" targetRef="frw_end_block">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${task == 'none'}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_05"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_6" name="stale / focus-drift (T-560/T-1730)" sourceRef="frw_gw_active" targetRef="hum_1_authorise">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${task == 'drift'}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_06"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_7" name="active task in focus" sourceRef="frw_gw_active" targetRef="frw_gw_started">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${task == 'active'}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_07"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_8" name="captured / completed / placeholder ACs (G-020)" sourceRef="frw_gw_started" targetRef="frw_end_block">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${ready == false}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_08"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_9" name="started-work + real ACs" sourceRef="frw_gw_started" targetRef="frw_end_allow">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${ready == true}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_09"/>
+        <aef:loopDetour y="405.1"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_10" name="human authorises" sourceRef="hum_1_authorise" targetRef="frw_2_log">
+      <bpmn:extensionElements>
+        <aef:uid value="e_10"/>
+        <aef:anchors sourcePort="E" targetPort="N"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_11" sourceRef="frw_2_log" targetRef="frw_end_allow">
+      <bpmn:extensionElements>
+        <aef:uid value="e_11"/>
+        <aef:anchors targetPort="S"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_12" name="agent remediates" sourceRef="frw_end_block" targetRef="agt_1_create">
+      <bpmn:extensionElements>
+        <aef:uid value="e_12"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_13" sourceRef="agt_1_create" targetRef="agt_2_write">
+      <bpmn:extensionElements>
+        <aef:uid value="e_13"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_14" name="re-issue" sourceRef="agt_2_write" targetRef="agt_start_agent">
+      <bpmn:extensionElements>
+        <aef:uid value="e_14"/>
+        <aef:anchors targetPort="S"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+
+  <!-- BPMN DI (visual layout) omitted; node geometry travels as aef:position -->
+</bpmn:definitions>

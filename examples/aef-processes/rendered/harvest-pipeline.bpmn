@@ -13,7 +13,7 @@
 
   <bpmn:process id="Process_harvest-pipeline" isExecutable="true">
     <bpmn:extensionElements>
-      <aef:workflowMeta id="harvest-pipeline" uuid="5c34a671-b808-4f68-a3bf-ba6542d3fb10" version="1" schemaVersion="2" title="harvest-pipeline" tier_default="2" pageWidth="2369"/>
+      <aef:workflowMeta id="harvest-pipeline" uuid="5c34a671-b808-4f68-a3bf-ba6542d3fb10" version="1" schemaVersion="2" title="harvest-pipeline" tier_default="2" pageWidth="2369" kind="documentation"/>
     </bpmn:extensionElements>
     <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="agent" name="Agent · Initiative">

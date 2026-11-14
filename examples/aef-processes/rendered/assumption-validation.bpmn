@@ -13,7 +13,7 @@
 
   <bpmn:process id="Process_assumption-validation" isExecutable="true">
     <bpmn:extensionElements>
-      <aef:workflowMeta id="assumption-validation" uuid="ad82c053-1eef-48e1-a784-08b7679bfa51" version="1" schemaVersion="2" title="assumption-validation" tier_default="2"/>
+      <aef:workflowMeta id="assumption-validation" uuid="ad82c053-1eef-48e1-a784-08b7679bfa51" version="1" schemaVersion="2" title="assumption-validation" tier_default="2" kind="documentation"/>
     </bpmn:extensionElements>
     <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="human" name="Human · Sovereignty">

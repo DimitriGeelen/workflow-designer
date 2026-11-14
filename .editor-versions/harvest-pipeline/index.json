@@ -33,5 +33,12 @@
     "note": "T-300 dialect-preserving Clean re-bake",
     "bytes": 20617,
     "thumb": "v5.png"
+  },
+  {
+    "v": 6,
+    "ts": 1794682063195,
+    "note": "T-876 kind=documentation backfill (editor-derived delta)",
+    "bytes": 20660,
+    "thumb": "v6.png"
   }
 ]

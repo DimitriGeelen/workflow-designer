@@ -31,6 +31,7 @@
 # 92px pitch (28px gaps between 64px boxes). tools/check-lane-bands.py gates this.
 workflowMeta:
   id: inception-review
+  kind: documentation
   version: 1
   schemaVersion: 2
   source: lib/review.sh + lib/inception.sh

@@ -36,6 +36,7 @@
 #   check-lane-bands clean.
 workflowMeta:
   id: review-emission
+  kind: documentation
   version: 1
   schemaVersion: 2
   source: lib/review.sh

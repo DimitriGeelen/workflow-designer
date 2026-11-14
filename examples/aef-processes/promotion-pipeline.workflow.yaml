@@ -23,6 +23,7 @@
 #   framework row (y=460-470) with ≥50px clearance from the spine (y=350). check-lane-bands clean.
 workflowMeta:
   id: promotion-pipeline
+  kind: documentation
   version: 1
   schemaVersion: 2
   source: lib/promote.sh

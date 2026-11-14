@@ -13,7 +13,7 @@
 
   <bpmn:process id="Process_release-pipeline" isExecutable="true">
     <bpmn:extensionElements>
-      <aef:workflowMeta id="release-pipeline" uuid="c0c73e00-9c57-47f6-88a8-7f74e532b710" version="1" schemaVersion="2" title="release-pipeline" tier_default="2"/>
+      <aef:workflowMeta id="release-pipeline" uuid="c0c73e00-9c57-47f6-88a8-7f74e532b710" version="1" schemaVersion="2" title="release-pipeline" tier_default="2" kind="documentation"/>
     </bpmn:extensionElements>
     <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="agent" name="Agent / cron · Initiative">

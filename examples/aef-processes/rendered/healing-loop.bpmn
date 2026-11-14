@@ -13,7 +13,7 @@
 
   <bpmn:process id="Process_healing-loop" isExecutable="true">
     <bpmn:extensionElements>
-      <aef:workflowMeta id="healing-loop" uuid="ca69542f-5a2e-4e69-a66b-d9f1b6e917ac" version="2" schemaVersion="2" title="healing-loop" tier_default="2"/>
+      <aef:workflowMeta id="healing-loop" uuid="ca69542f-5a2e-4e69-a66b-d9f1b6e917ac" version="2" schemaVersion="2" title="healing-loop" tier_default="2" kind="documentation"/>
     </bpmn:extensionElements>
     <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="human" name="Human · Sovereignty">

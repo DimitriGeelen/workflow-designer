@@ -13,6 +13,7 @@
 # v3 (r3) design inputs, not defects in this file.
 workflowMeta:
   id: inception-lifecycle
+  kind: documentation
   version: 1
   schemaVersion: 2
   source: .agentic-framework/lib/inception.sh

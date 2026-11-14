@@ -101,12 +101,28 @@ unset default proven inert, and AEF told the commit.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] All 24 maps in `examples/aef-processes/rendered/` carry `kind="documentation"` — they describe how AEF's processes work; none of them is a plan of work
-- [ ] CONTROL, and this is the load-bearing criterion: a copy of one map with `kind` stripped still round-trips byte-identical, proving the UNSET default is inert rather than merely untested
-- [ ] `tools/validate-workflow.py` reports 0 errors across all 24 after the backfill
+- [x] All 24 maps in `examples/aef-processes/rendered/` carry `kind="documentation"` — they describe how AEF's processes work; none of them is a plan of work
+- [x] CONTROL, and this is the load-bearing criterion: a copy of one map with `kind` stripped still round-trips byte-identical, proving the UNSET default is inert rather than merely untested
+- [x] `tools/validate-workflow.py` reports 0 errors across all 24 after the backfill
 - [ ] The corpus is a seam artefact AEF pins against: the change is announced on the rail **with** the commit, not discovered by them afterwards
-- [ ] Sequenced after T-875 ships the schema — a backfill against an unshipped attribute is a corpus edit with no validator behind it
-- [ ] **A5 recorded:** yes/no with reason in `## Decisions`
+- [x] Sequenced after T-875 ships the schema — a backfill against an unshipped attribute is a corpus edit with no validator behind it
+- [x] **A5 recorded:** yes/no with reason in `## Decisions`
+
+**Evidence (2026-11-14).** New `tools/set-workflow-kind.py` + `tools/_set-workflow-kind-cdp.mjs` drive the real editor
+headless: for each map it serialises it unchanged and with the kind set, takes the editor's own delta, and applies only
+that delta to the committed file (refusing any map whose delta is not the single `aef:workflowMeta` line). Dry run:
+24 of 24 deltas were exactly that line. Run: 24 maps written, `kind: documentation` added under `workflowMeta:` in all
+24 YAML sources, 20 `.editor-versions/` stores given a new version (4 maps have no store);
+`tools/set-workflow-kind.py documentation --check` → "declared in both forms: 24 of 24".
+1. All 24 rendered maps carry `kind="documentation"` (and their YAML sources `kind: documentation`).
+2. CONTROL: an editor-saved arc-lifecycle with no kind, opened and saved again by the editor: kind unset after adopt,
+   **round-trip byte-identical: True**; setting the kind changes exactly 1 line. (Note: the committed corpus itself is
+   not at the current editor's fixpoint: a plain save of arc-lifecycle rewrites ~108 unrelated lines, DI and an
+   exporter attribute, last written 2026-10-13. That drift is why the tool applies only the kind delta; it is a
+   separate finding, not touched here.)
+3. `validate-workflow.py` over all 48 files: 0 errors; 46 exit 0, and the two `context-memory` forms exit 1 on 8
+   pre-existing W-LANE-NO-OWNER warnings, identical at HEAD before the change (same count, same exit).
+5. T-875 shipped the schema (validator `WORKFLOW_KINDS`, editor emitter), T-911 the setter.
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
@@ -265,6 +281,8 @@ unset default proven inert, and AEF told the commit.
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+python3 tools/set-workflow-kind.py documentation --check
+python3 tools/validate-workflow.py examples/aef-processes/arc-lifecycle.workflow.yaml
 
 ## RCA
 
@@ -357,6 +375,16 @@ unset default proven inert, and AEF told the commit.
   (ids, DI, notes), not one attribute. Reverted at once; YAML edits reverted too so source and render stay in step.
 - **Rejected:** bridge regeneration (clobbers the corpus); hand-inserting the attribute into the XML (bypasses the
   editor's attribute order and the version store, so byte-identity and the adopt gate would break).
+- **Refined the same day:** writing the editor's WHOLE output back would also have carried ~108 lines of unrelated
+  serialisation drift per map (the corpus predates the current editor). The tool therefore applies only the editor's
+  own kind delta to the committed bytes, and refuses any map where that delta is more than the workflowMeta line.
+
+### 2026-11-14 — A5: does this deliver arc purpose and project purpose?
+- **Answer: yes.** Arc `process-instances` makes a modelled process instantiable and watchable; AEF's resolver needs to
+  tell an overview of how a process works (documentation) from a plan of work it could run (work-plan), and with 0 of
+  24 maps declaring it, it could not. Project purpose: AEF is the designer's main consumer and asked for this marker
+  (their T-2556) and said "go ahead" (msg b0aaeac7). All 24 corpus maps describe how AEF's processes work; none is a
+  plan of work, so all are `documentation`.
 
 ## Decision
 

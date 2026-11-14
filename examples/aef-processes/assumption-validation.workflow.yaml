@@ -13,6 +13,7 @@
 # See docs/reports/T-028-assumption-validation-friction.md.
 workflowMeta:
   id: assumption-validation
+  kind: documentation
   version: 1
   schemaVersion: 2
   source: lib/assumption.sh

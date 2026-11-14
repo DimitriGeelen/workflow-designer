@@ -13,7 +13,7 @@
 
   <bpmn:process id="Process_task-gate" isExecutable="true">
     <bpmn:extensionElements>
-      <aef:workflowMeta id="task-gate" uuid="031a0126-222d-452b-a98d-163408525162" version="1" schemaVersion="2" title="task-gate" tier_default="2"/>
+      <aef:workflowMeta id="task-gate" uuid="031a0126-222d-452b-a98d-163408525162" version="1" schemaVersion="2" title="task-gate" tier_default="2" kind="documentation"/>
     </bpmn:extensionElements>
     <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="human" name="Human · Sovereignty">

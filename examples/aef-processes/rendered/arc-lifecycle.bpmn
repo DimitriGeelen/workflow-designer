@@ -13,7 +13,7 @@
 
   <bpmn:process id="Process_arc-lifecycle" isExecutable="true">
     <bpmn:extensionElements>
-      <aef:workflowMeta id="arc-lifecycle" uuid="ac50f6e3-6313-4536-a362-c8959b8a1ba5" version="1" schemaVersion="2" title="arc-lifecycle" tier_default="2"/>
+      <aef:workflowMeta id="arc-lifecycle" uuid="ac50f6e3-6313-4536-a362-c8959b8a1ba5" version="1" schemaVersion="2" title="arc-lifecycle" tier_default="2" kind="documentation"/>
     </bpmn:extensionElements>
     <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="human" name="Human · Sovereignty">

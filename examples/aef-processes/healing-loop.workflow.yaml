@@ -16,6 +16,7 @@
 # new; F1/F3/F5/F7 recur (F3/F5 now 3/3 = strongly systemic).
 workflowMeta:
   id: healing-loop
+  kind: documentation
   version: 2
   schemaVersion: 2
   source: agents/healing/healing.sh

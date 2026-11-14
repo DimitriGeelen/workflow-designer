@@ -13,7 +13,7 @@
 
   <bpmn:process id="Process_tier0-escalation" isExecutable="true">
     <bpmn:extensionElements>
-      <aef:workflowMeta id="tier0-escalation" uuid="d6fd723d-7e24-462d-96d5-6c042bebdd56" version="2" schemaVersion="2" title="tier0-escalation" tier_default="2"/>
+      <aef:workflowMeta id="tier0-escalation" uuid="d6fd723d-7e24-462d-96d5-6c042bebdd56" version="2" schemaVersion="2" title="tier0-escalation" tier_default="2" kind="documentation"/>
     </bpmn:extensionElements>
     <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="human" name="Human · Sovereignty">
