@@ -97,10 +97,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 9
-  commits: 2
-  files_changed: 21
-  lines_added: 6405
-  lines_removed: 137
+  commits: 3
+  files_changed: 23
+  lines_added: 6529
+  lines_removed: 141
+  footprint_refreshed_at: '2026-10-13T16:23:46Z'
+  footprint_refreshed_by_commit: 6077ee11
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1149-triage-the-138-pending-observations-oper.md

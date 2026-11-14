@@ -207,10 +207,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 79
-  commits: 3
-  files_changed: 109
-  lines_added: 1131
-  lines_removed: 18
+  commits: 5
+  files_changed: 113
+  lines_added: 1858
+  lines_removed: 24
+  footprint_refreshed_at: '2026-10-22T23:45:11Z'
+  footprint_refreshed_by_commit: dcae2a21
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1278-t-1241-follow-up-round-4-fix-the-codex-a.md

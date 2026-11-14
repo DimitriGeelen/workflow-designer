@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1196: deriveSlug also skips leading G-, OBS- and L- ids (AEF follow-up to T-1194)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-17T18:55:17Z
+# ============================================================================
+
+task_id: T-1196
+task_name: "deriveSlug also skips leading G-, OBS- and L- ids (AEF follow-up to T-1194)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-17T18:52:47Z
+completed: 2026-10-17T18:54:38Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-17T20:54:37+02:00
+last_commit: 2026-10-17T20:54:37+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  deriveSlug also skips leading G-, OBS- and L- ids (AEF's follow-up to T-1194): 'G-062 close gates' -> close
+
+# Key outcomes
+outcomes:
+  - 'deriveSlug skips a leading `G-<n>`, `OBS-<n>` or `L-<n>` id exactly as it skips `T-<n>` ("G-062 close gates" -> `close`); a name that is only such an id keeps its digits; words that merely start with those letters ("G-force", "L-shaped", "OBSERVE") are untouched'
+  - '832''s corpus and fixtures unchanged (`_t1168-node-id-map.mjs --check`); `_t1194` cases extended and green; the pre-change designer fails the new cases — `_t1194` 24/24, control fails exactly the 4 new prefix cases; corpus check PASS'
+  - 'AEF''s 8 affected draft nodes re-checked against the new rule (draft-arc-lifecycle, draft-task-creation) and the result recorded — on their 0.21.0-migrated maps: fwk_4_062 -> fwk_4_close (draft-arc-lifecycle v1-v4), fw_7_020 -> fw_7_build (draft-task-creation v2-v5); 8 renames, 0 inconsistent'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1196-deriveslug-also-skips-leading-g--obs--an.md'
+  - 'tools/_t1194-slug-task-id-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-17T20:54:37'
+    action: 'T-1196: deriveSlug also skips leading G-, OBS- and L- ids (AEF''s follow-up to T-1194): ''G-062 close gates'' -> close'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 1 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1
+  commits: 3
+  files_changed: 168
+  lines_added: 5214
+  lines_removed: 516
+  footprint_refreshed_at: '2026-11-14T16:07:11Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1196-deriveslug-also-skips-leading-g--obs--an.md
+generated_by: context-agent-hybrid

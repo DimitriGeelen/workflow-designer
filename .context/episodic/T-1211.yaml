@@ -171,10 +171,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 442
-  commits: 4
-  files_changed: 99
-  lines_added: 591
-  lines_removed: 111
+  commits: 5
+  files_changed: 101
+  lines_added: 795
+  lines_removed: 117
+  footprint_refreshed_at: '2026-10-19T08:52:22Z'
+  footprint_refreshed_by_commit: cd1aad4e
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1211-cdp-tools-one-readiness-budget-instead-o.md

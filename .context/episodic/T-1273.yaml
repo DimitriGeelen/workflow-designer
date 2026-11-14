@@ -88,10 +88,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 1848
-  commits: 5
-  files_changed: 84
-  lines_added: 937
-  lines_removed: 134
+  commits: 6
+  files_changed: 86
+  lines_added: 1058
+  lines_removed: 140
+  footprint_refreshed_at: '2026-10-23T16:56:07Z'
+  footprint_refreshed_by_commit: d2437615
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1273-instrument-sweep-90s-cap-can-leave-src-m.md

@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1137: Process: a feature inception's hypothesis belongs in the recommendation the operator sees BEFORE the go decision (operator 2026-10-12, W2)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-12T11:24:11Z
+# ============================================================================
+
+task_id: T-1137
+task_name: "Process: a feature inception's hypothesis belongs in the recommendation the operator sees BEFORE the go decision (operator 2026-10-12, W2)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-12T11:19:53Z
+completed: 2026-10-12T11:22:55Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-12T13:22:54+02:00
+last_commit: 2026-10-12T13:22:54+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  a feature inception's hypothesis belongs in the recommendation the operator sees before go (operator, W2 review) — learning recorded; T-1118's hypothesis stays the agent's draft (no human provenance claimed), with its three measures verified met after the build; AEF told on the T-3817 thread (msg e9046bd7)
+
+# Key outcomes
+outcomes:
+  - 'Learning recorded: for a feature/architecture inception the agent writes the hypothesis INTO the recommendation the operator reads before deciding; never back-fills it after a decide refusal; never asks the operator to claim authorship of agent text'
+  - 'T-1118 carries a note: its hypothesis is the agent''s draft (no hypothesis_source: human), written after the go was refused; all three measures verified met after the build, with the tests that measure them'
+  - 'AEF told on the T-3817 thread (E/0010, pickup I) that the hypothesis belongs in the recommendation the operator sees before go, with this case as evidence'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/learnings.yaml'
+  - '.tasks/active/T-1137-process-a-feature-inceptions-hypothesis-.md'
+  - '.tasks/completed/T-1118-unknown-content-kinds-become-designer-fi.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-12T13:22:54'
+    action: 'T-1137: a feature inception''s hypothesis belongs in the recommendation the operator sees before go (operator, W2 review) — learning recorded; T-1118''s hypothesis stays the agent''s draft (no human provenance claimed), with its three measures verified met after the build; AEF told on the T-3817 thread (msg e9046bd7)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 3
+  commits: 3
+  files_changed: 168
+  lines_added: 5179
+  lines_removed: 510
+  footprint_refreshed_at: '2026-11-14T16:07:07Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1137-process-a-feature-inceptions-hypothesis-.md
+generated_by: context-agent-hybrid

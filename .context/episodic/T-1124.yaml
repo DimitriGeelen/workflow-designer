@@ -1,0 +1,103 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1124: B1 (T-1118): properties panel hides empty fields behind '+ N empty fields'; a filled field is never hidden; Settings 'show all fields
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-11T13:59:01Z
+# ============================================================================
+
+task_id: T-1124
+task_name: "B1 (T-1118): properties panel hides empty fields behind '+ N empty fields'; a filled field is never hidden; Settings 'show all fields"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-11T12:58:30Z
+completed: 2026-10-11T13:57:48Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-11T15:57:41+02:00
+last_commit: 2026-10-11T15:57:41+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  B1 of T-1118 — the properties panel folds empty Extensions fields behind '+ N empty fields' (corpus median 14 -> 4 rows on 42 service tasks), a field with a value is never hidden, a handoff's target picker never folds (T-308 caught it), Settings 'Show all fields' (Reset turns it off), export unchanged. Test 10/10 (0.17.0 fails A), wired; panel tests open the fold as an author would (T-889 5/5, editor-behavior pass, T-589 back to its 2 pre-existing fails); T-1123 test wired; B1-B3 declared as T-1118's builds (T-949 triage passes). Bridge 257/3 before these two wirings: T-949 and the unwired census both fixed here, the third is the T-1103 sweep
+
+# Key outcomes
+outcomes:
+  - 'In a node''s Extensions section, a field with no value is not drawn; one row "+ N empty fields" (N = the count) stands in for them, and clicking it draws them in place, in their usual order'
+  - 'A field that carries a value is always drawn, whatever the settings (value-never-hidden rule); the derived Owner row is unchanged'
+  - 'Typing a value into a revealed field keeps it drawn after the panel re-renders; clearing it hides it again on the next selection'
+  - 'Settings has "Show all fields" (off by default, kept per browser like the other view settings); on, the panel is exactly today''s (every field drawn, no "+ N" row); Settings → Reset turns it off'
+  - 'Nothing changes in what is saved: a corpus round-trip export is byte-identical with the setting on and off'
+  - 'CDP test tools/_t1124-hide-empty-fields-cdp.mjs covers the above and measures, over the 42 service tasks in examples/, the median number of Extensions rows drawn by default (target ≤ 4, today 13 + Owner); wired into tests/run-bridge-tests.sh'
+  - 'Screenshots (a service task with 2 filled fields, folded and opened) read and recorded under ## Visual Verification (the designer has one colour scheme, dark; no light mode exists to check)'
+  - 'A handoff''s target picker ("Choose from project…") is never folded, even with no target yet — it is the element''s purpose and "← Make this a handoff" exists to show it (found by tools/_t308; leg G)'
+  - 'Panel-reading tests that author an empty field open the fold first, as an author would (_t889, _editor-behavior-verify, _t589); each back to its pre-change result'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'B1 of T-1118 — the properties panel folds empty Extensions fields behind ''+ N empty fields'' (corpus median 14 -> 4 rows on 42 service tasks), a field with a value is never hidden, a handoff''s target picker never folds (T-308 caught it), Settings ''Show all fields'' (Reset turns it off), export unchanged. Test 10/10 (0.17.0 fails A), wired; panel tests open the fold as an author would (T-889 5/5, editor-behavior pass, T-589 back to its 2 pre-existing fails); T-1123 test wired; B1-B3 declared as T-1118''s builds (T-949 triage passes). Bridge 257/3 before these two wirings: T-949 and the unwired census both fixed here, the third is the T-1103 sweep'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-10-11 — the handoff target picker is exempt from folding'
+    chose: 'a `workflowPicker` field ("Choose from project…") is always drawn, empty or not.'
+    rationale: 'on a handoff it is the element''s purpose, and "← Make this a handoff" exists only to show it; folding it undid that click (found by tools/_t308, n_bound).'
+    alternatives_rejected: ['folding it like any field (breaks binding); a general "pinned fields" list now (that is B2''s per-project / per-workflow profile).']
+  - decision: '2026-10-11 — the opened state lasts for one selection'
+    chose: '"+ N empty fields" opens for the current selection only; any new click folds again.'
+    rationale: 'a filled field stays visible anyway, so folding again only hides boxes still empty; a sticky per-node state would need storage and bring the clutter back.'
+    alternatives_rejected: ['per-node memory; a global toggle (that is the "Show all fields" setting).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-1124-evidence/t1124-folded.png'
+  - 'docs/reports/T-1124-evidence/t1124-opened.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1124-b1-t-1118-properties-panel-hides-empty-f.md'
+  - '.tasks/active/T-1125-b2-t-1118-field-profile-per-project-and-.md'
+  - '.tasks/active/T-1126-b3-t-1118-suggest-as-a-field-on-unknown-.md'
+  - '.tasks/completed/T-1118-unknown-content-kinds-become-designer-fi.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_editor-behavior-verify-cdp.mjs'
+  - 'tools/_t1124-hide-empty-fields-cdp.mjs'
+  - 'tools/_t589-panel-links-cdp.mjs'
+  - 'tools/_t889-authority-first-class-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-11T15:57:41'
+    action: 'T-1124: B1 of T-1118 — the properties panel folds empty Extensions fields behind ''+ N empty fields'' (corpus median 14 -> 4 rows on 42 service tasks), a field with a value is never hidden, a handoff''s target picker never folds (T-308 caught it), Settings ''Show all fields'' (Reset turns it off), export unchanged. Test 10/10 (0.17.0 fails A), wired; panel tests open the fold as an author would (T-889 5/5, editor-behavior pass, T-589 back to its 2 pre-existing fails); T-1123 test wired; B1-B3 declared as T-1118''s builds (T-949 triage passes). Bridge 257/3 before these two wirings: T-949 and the unwired census both fixed here, the third is the T-1103 sweep'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 59 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 59
+  commits: 3
+  files_changed: 177
+  lines_added: 6158
+  lines_removed: 522
+  footprint_refreshed_at: '2026-11-14T16:07:04Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1124-b1-t-1118-properties-panel-hides-empty-f.md
+generated_by: context-agent-hybrid

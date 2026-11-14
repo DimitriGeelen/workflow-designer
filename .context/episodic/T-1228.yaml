@@ -74,10 +74,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 111
-  commits: 4
-  files_changed: 6
-  lines_added: 821
-  lines_removed: 6
+  commits: 5
+  files_changed: 8
+  lines_added: 926
+  lines_removed: 10
+  footprint_refreshed_at: '2026-10-20T15:37:01Z'
+  footprint_refreshed_by_commit: 604b7950
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1228-write-up-for-aef-the-runme-job-queue-lau.md

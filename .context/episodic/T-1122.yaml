@@ -1,0 +1,136 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1122: Upgrade the framework AEF 1.8.8 to 1.8.9 (T-4032 claude-fw mid-turn kill hotfix) via the re-vendor protocol
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-11T11:06:21Z
+# ============================================================================
+
+task_id: T-1122
+task_name: "Upgrade the framework AEF 1.8.8 to 1.8.9 (T-4032 claude-fw mid-turn kill hotfix) via the re-vendor protocol"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-11T10:03:43Z
+completed: 2026-10-11T11:05:19Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-11T12:06:10+02:00
+last_commit: 2026-10-11T13:01:09+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  runme jobs 011 (upgrade AEF 1.8.8 -> 1.8.9 from tag v1.8.9 = b8229424, re-vendor protocol, dry-run sha d2500e09) and 012 (operator's GO on T-1118, dry-run sha 1368c826); T-1122 ACs written. pristine vendor commit — AEF 1.8.9 as fw upgrade wrote it (re-vendor protocol step 1, T-1000). advance the divergence baseline to the pristine AEF 1.8.9 commit (re-vendor protocol step 2, T-1000). re-apply our 36 local fixes on AEF 1.8.9 (re-vendor protocol step 3) — 3-way apply of diff(pristine 1.8.8 c421d964 -> pre-upgrade 2f289d8f) onto pristine 1.8.9 d11fca0e, all clean, no conflict markers; _t517 OK, re-vendor gate installed, syntax checked; designer pin back at 0.17.0; the upgrade left no *.bak. closed — AEF 1.8.9 in place (job 011 run by the operator, 36 local fixes re-applied, no *.bak, AEF told)
+
+# Key outcomes
+outcomes:
+  - 'A runme job (upgrade from tag v1.8.9 = b8229424, pristine vendor commit, divergence baseline, cron check) is prepared and its dry-run passes; the agent never runs it for real'
+  - 'After the operator''s run: .agentic-framework/VERSION reads 1.8.9 and our declared local fixes are re-applied (tools/_t517 OK, re-vendor gate check passes)'
+  - 'Every *.bak the upgrade left is diffed against the live file and removed only if nothing would be lost (CLAUDE.md backup rule); summary recorded here'
+  - 'AEF told on aef-release-v1.8.9 that 832 runs 1.8.9 (sidecar msg cc4d2f25)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'closed — AEF 1.8.9 in place (job 011 run by the operator, 36 local fixes re-applied, no *.bak, AEF told)'
+    source: git-mined
+  - description: 're-apply our 36 local fixes on AEF 1.8.9 (re-vendor protocol step 3) — 3-way apply of diff(pristine 1.8.8 c421d964 -> pre-upgrade 2f289d8f) onto pristine 1.8.9 d11fca0e, all clean, no conflict markers; _t517 OK, re-vendor gate installed, syntax checked; designer pin back at 0.17.0; the upgrade left no *.bak'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/active-task-scan.py'
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.agentic-framework/agents/audit/completed-task-scan.py'
+  - '.agentic-framework/agents/context/budget-gate.sh'
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.agentic-framework/agents/context/checkpoint.sh'
+  - '.agentic-framework/agents/context/lib/extract_decisions.py'
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/agents/context/stop-driver.sh'
+  - '.agentic-framework/agents/fabric/lib/drift.sh'
+  - '.agentic-framework/agents/fabric/lib/traverse.sh'
+  - '.agentic-framework/agents/git/lib/hooks.sh'
+  - '.agentic-framework/agents/handover/handover.sh'
+  - '.agentic-framework/agents/observe/observe.sh'
+  - '.agentic-framework/agents/task-create/create-task.sh'
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/agents/termlink/bvp-estimator/estimator.py'
+  - '.agentic-framework/bin/claude-fw'
+  - '.agentic-framework/bin/fw'
+  - '.agentic-framework/.fw-vendor-stamp.json'
+  - '.agentic-framework/lib/arc.sh'
+  - '.agentic-framework/lib/bvp.sh'
+  - '.agentic-framework/lib/delegation_cli.py'
+  - '.agentic-framework/lib/inception.sh'
+  - '.agentic-framework/lib/task-audit.sh'
+  - '.agentic-framework/lib/ts/dist/loop-detect.js'
+  - '.agentic-framework/lib/verification-port.sh'
+  - '.agentic-framework/policy/designer-pin.yaml'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/VERSION'
+  - '.agentic-framework/web/app.py'
+  - '.agentic-framework/web/blueprints/bvp.py'
+  - '.agentic-framework/web/blueprints/designer.py'
+  - '.agentic-framework/web/blueprints/fabric.py'
+  - '.agentic-framework/web/blueprints/tasks.py'
+  - '.agentic-framework/web/conftest.py'
+  - '.agentic-framework/web/shared.py'
+  - '.agentic-framework/web/templates/approvals.html'
+  - '.agentic-framework/web/templates/designer_landing.html'
+  - '.agentic-framework/web/templates/fabric_detail.html'
+  - '.agentic-framework/web/test_app.py'
+  - '.agentic-framework/web/test_costs.py'
+  - '.context/runme/011-upgrade-aef-1.8.9/dryrun.ok'
+  - '.context/runme/011-upgrade-aef-1.8.9/job.sh'
+  - '.context/runme/012-decide-t1118-go/dryrun.ok'
+  - '.context/runme/012-decide-t1118-go/job.sh'
+  - '.tasks/active/T-1122-upgrade-the-framework-aef-188-to-189-t-4.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-11T12:06:10'
+    action: 'T-1122: runme jobs 011 (upgrade AEF 1.8.8 -> 1.8.9 from tag v1.8.9 = b8229424, re-vendor protocol, dry-run sha d2500e09) and 012 (operator''s GO on T-1118, dry-run sha 1368c826); T-1122 ACs written'
+  - time: '2026-10-11T12:36:17'
+    action: 'T-1122: pristine vendor commit — AEF 1.8.9 as fw upgrade wrote it (re-vendor protocol step 1, T-1000)'
+  - time: '2026-10-11T12:37:19'
+    action: 'T-1122: advance the divergence baseline to the pristine AEF 1.8.9 commit (re-vendor protocol step 2, T-1000)'
+  - time: '2026-10-11T12:58:38'
+    action: 'T-1122: re-apply our 36 local fixes on AEF 1.8.9 (re-vendor protocol step 3) — 3-way apply of diff(pristine 1.8.8 c421d964 -> pre-upgrade 2f289d8f) onto pristine 1.8.9 d11fca0e, all clean, no conflict markers; _t517 OK, re-vendor gate installed, syntax checked; designer pin back at 0.17.0; the upgrade left no *.bak'
+  - time: '2026-10-11T13:01:09'
+    action: 'T-1122: closed — AEF 1.8.9 in place (job 011 run by the operator, 36 local fixes re-applied, no *.bak, AEF told)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 61 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 61
+  commits: 7
+  files_changed: 212
+  lines_added: 8999
+  lines_removed: 4040
+  footprint_refreshed_at: '2026-11-14T16:07:03Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1122-upgrade-the-framework-aef-188-to-189-t-4.md
+generated_by: context-agent-hybrid

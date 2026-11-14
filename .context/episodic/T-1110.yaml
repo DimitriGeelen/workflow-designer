@@ -71,10 +71,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 876
-  commits: 1
-  files_changed: 6
-  lines_added: 92
+  commits: 2
+  files_changed: 8
+  lines_added: 173
   lines_removed: 15
+  footprint_refreshed_at: '2026-10-10T12:25:56Z'
+  footprint_refreshed_by_commit: 08a1bc9b
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1110-greenfield-0160-re-test-mirror-l-option-.md

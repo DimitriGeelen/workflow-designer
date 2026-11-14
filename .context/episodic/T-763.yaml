@@ -69,12 +69,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 78098
-  commits: 1
-  files_changed: 7
-  lines_added: 388
-  lines_removed: 16
-  footprint_refreshed_at: '2026-11-14T15:17:13Z'
-  footprint_refreshed_by_commit: pre-commit
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+  footprint_refreshed_at: '2026-11-14T15:17:16Z'
+  footprint_refreshed_by_commit: 3084aa8f6
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-763-ra-052-the-audit-overwrote-its-own-only-.md

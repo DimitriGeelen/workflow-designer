@@ -141,9 +141,11 @@ metrics:
   git_mining: ok
   wall_clock_minutes: 111081
   commits: 9
-  files_changed: 57
+  files_changed: 58
   lines_added: 4075
   lines_removed: 422
+  footprint_refreshed_at: '2026-10-19T16:36:20Z'
+  footprint_refreshed_by_commit: 16dd3cfa
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-357-adopt-bpmn-di-as-the-designer-geometry-a.md

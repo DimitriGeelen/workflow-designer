@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1190: Install AEF's claude-fw router on PATH (T-4218 env pin active), old copies backed up
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-17T21:58:41Z
+# ============================================================================
+
+task_id: T-1190
+task_name: "Install AEF's claude-fw router on PATH (T-4218 env pin active), old copies backed up"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-17T14:00:20Z
+completed: 2026-10-17T21:58:30Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-17T16:03:14+02:00
+last_commit: 2026-10-17T23:58:29+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  operator job 036 — install AEF's claude-fw router at /usr/bin and ~/.local/bin (old copies backed up with sha256); routing proved in a dummy project, the test refuses any target that is not the router. claude-fw router is on PATH (installed by another route before job 036 ran); job 036 retired, not done; routing test passed on both copies; backup criterion struck as not met
+
+# Key outcomes
+outcomes:
+  - '~~Operator job 036 backs up both installed copies (sha256 recorded) before touching them~~ — SUPERSEDED, NOT MET: both copies were replaced by the router through another route (16:43 and 19:48 local, 2026-10-17; most likely another project''s install.sh) before job 036 ran, so no backup of the old fixed copies exists. They were a pre-T-4218 claude-fw (69580 B), reproducible from AEF git history; nothing 832-specific was lost. Job 036 retired with this reason (`.context/runme/036-install-claude-fw-router/retired`)'
+  - 'After the job, /usr/bin/claude-fw and ~/.local/bin/claude-fw are byte-identical to .agentic-framework/bin/claude-fw-router — cmp equal, both'
+  - 'The installed router, run in a dummy project, execs that project''s own claude-fw (proved with a marker script, no claude started) — job 036''s do_route_test run by the agent: both ok'
+  - '`fw doctor` no longer reports "Installed claude-fw (fixed copy) drifted" — doctor: "Installed claude-fw matches repo source (2 copies on PATH, all current)"'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/036-install-claude-fw-router/dryrun.ok'
+  - '.context/runme/036-install-claude-fw-router/job.sh'
+  - '.context/runme/036-install-claude-fw-router/retired'
+  - '.tasks/active/T-1190-install-aefs-claude-fw-router-on-path-t-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-17T16:03:14'
+    action: 'T-1190: operator job 036 — install AEF''s claude-fw router at /usr/bin and ~/.local/bin (old copies backed up with sha256); routing proved in a dummy project, the test refuses any target that is not the router'
+  - time: '2026-10-17T23:58:29'
+    action: 'T-1190: claude-fw router is on PATH (installed by another route before job 036 ran); job 036 retired, not done; routing test passed on both copies; backup criterion struck as not met'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 478 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 478
+  commits: 4
+  files_changed: 169
+  lines_added: 5293
+  lines_removed: 518
+  footprint_refreshed_at: '2026-11-14T16:07:10Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1190-install-aefs-claude-fw-router-on-path-t-.md
+generated_by: context-agent-hybrid

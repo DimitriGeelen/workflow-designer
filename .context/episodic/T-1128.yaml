@@ -1,0 +1,96 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1128: Settings: choose which fields show by default, per project and per map (per-map wins), saved through the gallery server
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-11T17:32:17Z
+# ============================================================================
+
+task_id: T-1128
+task_name: "Settings: choose which fields show by default, per project and per map (per-map wins), saved through the gallery server"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-11T17:21:15Z
+completed: 2026-10-11T17:30:43Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-11T19:30:36+02:00
+last_commit: 2026-10-11T19:30:36+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Settings → 'Fields shown by default', per project and per map (map wins for the fields it mentions, the rest falls through) — PUT /api/field-profile[?id=] with whole-profile validation, 409 on a profile changed since read, atomic writes, history log; per-map profile beside the map's versions (W1, external advice); rows show effective state and source, panel tag names the hiding layer; new id starts clean; standalone read-only. Server test 8/8, CDP 9/9, both wired; B1 10/10, B2 9/9
+
+# Key outcomes
+outcomes:
+  - 'Settings has "Fields shown by default": pick an element type, then for each of its fields choose Default / Always show / Hide; a scope switch "This project" / "This map" (map only when the open map came from the project server); Save writes, Cancel discards'
+  - 'Each row shows the effective state and where it comes from (designer default / project / map), so the operator can see why a field is shown or hidden'
+  - 'Write path: `PUT /api/field-profile` (project) and `GET`/`PUT /api/field-profile?id=<map>` (map, stored at `.editor-versions/<id>/field-profile.json`); the same validator as T-1125 refuses a malformed profile whole; an invalid id is refused (no traversal); writes are atomic (temp + rename)'
+  - 'Concurrency: a PUT carries the version it was based on; a profile changed meanwhile is refused (409) with the current one returned, never silently overwritten'
+  - 'History: every write appends one line (ts, scope, previous, new) to a `field-profile.history.jsonl` beside the profile, so a change can be traced and undone by hand'
+  - 'Merge rule, stated and tested: per element type and per field, the most specific layer that mentions the field (show or hide) wins: map > project > designer default; a field the map does not mention falls through to the project'
+  - 'The panel''s "hidden … shown: it has a value" tag names the layer that hides it (this map / this project); value-never-hidden and "Show all fields" unchanged'
+  - 'A map saved under a new id (copy) starts with no map settings (falls back to the project) and Settings says so; standalone (no server) shows the section read-only with the reason'
+  - 'Export byte-identical with any profile; tests: server legs (PUT valid/refused/409/bad id/atomic/history) and CDP legs (edit in Settings → save → reload applied, map overrides project per field, fall-through, provenance, copy, standalone); wired into tests/run-bridge-tests.sh'
+  - 'Screenshots of the Settings section (project and map scope) read and recorded under ## Visual Verification'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-10-11 — where the per-map settings live'
+    chose: 'on the project server beside the map''s versions, `.editor-versions/<id>/field-profile.json` (W1).'
+    rationale: 'both external reviewers (docs/reports/T-1125-external-review/) — a view setting is the team''s, not the process''s; in-map storage would amend the frozen mapping standard''s two-class partition and wait on AEF.'
+    alternatives_rejected: ['in-map `aef:` element (W2); both (W3, two sources of truth).']
+  - decision: '2026-10-11 — the reviewers'' gaps, each closed here'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-1128-evidence/t1128-settings-map.png'
+  - 'docs/reports/T-1128-evidence/t1128-settings-project.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1128-settings-choose-which-fields-show-by-def.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/gallery-serve.py'
+  - 'tools/_t1128-field-defaults-settings-cdp.mjs'
+  - 'tools/_t1128-field-profile-server.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-11T19:30:36'
+    action: 'T-1128: Settings → ''Fields shown by default'', per project and per map (map wins for the fields it mentions, the rest falls through) — PUT /api/field-profile[?id=] with whole-profile validation, 409 on a profile changed since read, atomic writes, history log; per-map profile beside the map''s versions (W1, external advice); rows show effective state and source, panel tag names the hiding layer; new id starts clean; standalone read-only. Server test 8/8, CDP 9/9, both wired; B1 10/10, B2 9/9'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 9 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 9
+  commits: 3
+  files_changed: 173
+  lines_added: 5847
+  lines_removed: 535
+  footprint_refreshed_at: '2026-11-14T16:07:05Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1128-settings-choose-which-fields-show-by-def.md
+generated_by: context-agent-hybrid

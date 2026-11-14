@@ -68,10 +68,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 3
-  commits: 1
-  files_changed: 2
-  lines_added: 377
-  lines_removed: 2
+  commits: 2
+  files_changed: 4
+  lines_added: 479
+  lines_removed: 7
+  footprint_refreshed_at: '2026-10-19T21:59:40Z'
+  footprint_refreshed_by_commit: 13438227
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1224-t589-probe-snapshots-the-pre-change-base.md

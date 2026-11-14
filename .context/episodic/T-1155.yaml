@@ -72,10 +72,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 148
-  commits: 2
-  files_changed: 4
-  lines_added: 207
-  lines_removed: 17
+  commits: 3
+  files_changed: 6
+  lines_added: 307
+  lines_removed: 23
+  footprint_refreshed_at: '2026-10-13T18:49:45Z'
+  footprint_refreshed_by_commit: f80b4957
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1155-designer-set-documenttitle-from-the-load.md

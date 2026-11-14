@@ -209,10 +209,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 1262
-  commits: 5
-  files_changed: 134
-  lines_added: 296
-  lines_removed: 27
+  commits: 6
+  files_changed: 136
+  lines_added: 543
+  lines_removed: 33
+  footprint_refreshed_at: '2026-10-27T08:34:31Z'
+  footprint_refreshed_by_commit: b268c7e3
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1310-io-row-req-and-x-are-small-and-faint-two.md

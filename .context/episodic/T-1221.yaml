@@ -78,10 +78,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 69
-  commits: 3
-  files_changed: 9
-  lines_added: 374
-  lines_removed: 234
+  commits: 4
+  files_changed: 14
+  lines_added: 518
+  lines_removed: 246
+  footprint_refreshed_at: '2026-10-19T18:49:09Z'
+  footprint_refreshed_by_commit: 3b58e1b9
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1221-re-wire-guards-the-triage-closures-orpha.md

@@ -1,0 +1,117 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1133: Release designer 0.19.0 (suggest-as-a-field, process data kept on save, nested plain tasks imported)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-12T07:58:24Z
+# ============================================================================
+
+task_id: T-1133
+task_name: "Release designer 0.19.0 (suggest-as-a-field, process data kept on save, nested plain tasks imported)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-12T00:52:03Z
+completed: 2026-10-12T07:57:05Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-12T02:54:00+02:00
+last_commit: 2026-10-12T09:56:36+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  0.19.0 prep — VERSION/APP_VERSION 0.19.0 (parity ok), release notes (process data kept on save, suggest-and-approve fields, nested plain task fix). release notes — state the measured data loss exactly (none survived), not an invented count. 0.19.0 kit calibrated PASS by codex, GLM-5.3 and Antigravity (3/3, 0 false each, one run each); job 015 written. runme job 015-release-designer-0.19.0, dry-run passed (sha 5405b418); bridge 268/3 = release-mode render check (needs the cut; --src leg green) + T-1103 sweep + T-511 under suite load (passes alone, negative control fires). release designer 0.19.0 — process data kept on save (T-1096), suggest-and-approve fields (T-1126), nested plain task imported (T-1131); kit re-issued with its own calibration. our Watchtower serves 0.19.0 (pin 0.18.0 -> 0.19.0 from the designer-v0.19.0 tag, sync --from-tag: anchors match, /designer/app serves 87cca1c3); divergence register updated, _t517 OK
+
+# Key outcomes
+outcomes:
+  - 'VERSION and APP_VERSION read 0.19.0 (T-808 parity); docs/releases/RELEASE-NOTES-0.19.0.md lists T-1126, T-1096, T-1131 with Greenfield re-test steps (incl. that field suggestions need the /api/field-suggestions endpoints on a portal)'
+  - 'The 0.19.0 kit carries a PASS calibration of its exact bytes by codex, GLM and Antigravity, one run each (ledger L16)'
+  - 'Bridge suite green apart from the T-1103 sweep, INCLUDING the source render check (tests/test_designer_render.py --src) — run before the job is handed over'
+  - 'A runme job (cut, commit, tag designer-v0.19.0, push) is prepared, dry-run passes, the watcher is armed; the agent never runs it for real'
+  - 'After the operator''s run: Watchtower re-pinned to 0.19.0 and Greenfield told by DM what 0.19.0 carries and how to re-test'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'release designer 0.19.0 — process data kept on save (T-1096), suggest-and-approve fields (T-1126), nested plain task imported (T-1131); kit re-issued with its own calibration'
+    source: git-mined
+  - description: '0.19.0 prep — VERSION/APP_VERSION 0.19.0 (parity ok), release notes (process data kept on save, suggest-and-approve fields, nested plain task fix)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/policy/designer-pin.yaml'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.context/runme/015-release-designer-0.19.0/dryrun.ok'
+  - '.context/runme/015-release-designer-0.19.0/job.sh'
+  - 'dist/aef-authoring-kit-0.19.0/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.19.0/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.19.0/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.19.0/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.19.0/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.19.0/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.19.0/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.19.0/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.19.0/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.19.0/loop.sh'
+  - 'dist/aef-authoring-kit-0.19.0/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.19.0/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.19.0/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.19.0/validate-workflow.py'
+  - 'dist/aef-workflow-designer-0.19.0.html'
+  - 'dist/MANIFEST.yaml'
+  - 'docs/authoring-kit/calibration-records/0.19.0.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.19.0.md'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1133-release-designer-0190-suggest-as-a-field.md'
+  - 'VERSION'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-12T02:54:00'
+    action: 'T-1133: 0.19.0 prep — VERSION/APP_VERSION 0.19.0 (parity ok), release notes (process data kept on save, suggest-and-approve fields, nested plain task fix)'
+  - time: '2026-10-12T02:55:05'
+    action: 'T-1133: release notes — state the measured data loss exactly (none survived), not an invented count'
+  - time: '2026-10-12T03:04:29'
+    action: 'T-1133: 0.19.0 kit calibrated PASS by codex, GLM-5.3 and Antigravity (3/3, 0 false each, one run each); job 015 written'
+  - time: '2026-10-12T03:48:53'
+    action: 'T-1133: runme job 015-release-designer-0.19.0, dry-run passed (sha 5405b418); bridge 268/3 = release-mode render check (needs the cut; --src leg green) + T-1103 sweep + T-511 under suite load (passes alone, negative control fires)'
+  - time: '2026-10-12T09:15:55'
+    action: 'T-1133: release designer 0.19.0 — process data kept on save (T-1096), suggest-and-approve fields (T-1126), nested plain task imported (T-1131); kit re-issued with its own calibration'
+  - time: '2026-10-12T09:56:36'
+    action: 'T-1133: our Watchtower serves 0.19.0 (pin 0.18.0 -> 0.19.0 from the designer-v0.19.0 tag, sync --from-tag: anchors match, /designer/app serves 87cca1c3); divergence register updated, _t517 OK'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 425 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 425
+  commits: 8
+  files_changed: 190
+  lines_added: 22801
+  lines_removed: 533
+  footprint_refreshed_at: '2026-11-14T16:07:06Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1133-release-designer-0190-suggest-as-a-field.md
+generated_by: context-agent-hybrid

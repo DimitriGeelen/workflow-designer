@@ -1,0 +1,103 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1126: B3 (T-1118): 'Suggest as a field' on unknown keys; a field appears only after the operator approves it via a runme job writing the project profile
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-11T22:18:06Z
+# ============================================================================
+
+task_id: T-1126
+task_name: "B3 (T-1118): 'Suggest as a field' on unknown keys; a field appears only after the operator approves it via a runme job writing the project profile"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-11T12:58:39Z
+completed: 2026-10-11T22:16:51Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-11T23:37:04+02:00
+last_commit: 2026-10-12T00:16:50+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  B3 of T-1118 — 'Suggest as a field' under Other extensions (evidence: on N of M elements of the type) records a suggestion in field-suggestions.json (GET/POST /api/field-suggestions), never a field; tools/field-suggestion.py approve|reject|list is the operator's (runme): approve writes the project profile's fields section (refused whole without approved_by/approved_at), then the key is a normal Extensions field marked approved; derived keys get no button; standalone disabled. Boundary inventory classifies the 2 new routes (13, T-958 pin 13). Test 8/8 wired; B1/B2/T-1128/T-1127/T-566/render --src unchanged. bridge after B3 — T-955 teeth re-anchored on the POST allowlist that now includes /api/field-suggestions (7/7, teeth still strip only /api/validate); the B3 test names tools/field-suggestion.py literally so the unwired-guard census sees its caller (ratchet 86 = 86). Bridge 265/3 -> only the T-1103 sweep remains
+
+# Key outcomes
+outcomes:
+  - 'Each entry under "Other extensions" (an aef: scalar the element type has no field for) gets "Suggest as a field", showing its evidence in the open map ("approvalLimit · on 7 of 12 userTask elements"); it is disabled with the reason when no project server is present'
+  - 'A suggestion is a RECORD, never a field: `POST /api/field-suggestions` appends/merges it in `field-suggestions.json` at the repo root (key, element type, count, up to 3 example values, map id, first/last seen); `GET` lists them; a key already suggested shows "suggested", a rejected one "rejected"'
+  - 'Approval is the operator''s, through a runme job: `tools/field-suggestion.py approve --type T --key K --label L --by NAME` writes the key into the project field profile (`fields` section: label, element types, approved_by, approved_at) and marks the suggestion approved; `reject --reason` marks it rejected; `list` shows them; the server validator accepts the `fields` section and still refuses anything malformed whole'
+  - 'After approval the key is a normal Extensions field for that element type (editable, foldable when empty, subject to show/hide, in the details view) and leaves "Other extensions"; its value is saved exactly as before (export byte-identical for unchanged values; an edit lands in the map)'
+  - 'Nothing becomes a field without an approval record: a profile `fields` entry missing approved_by/approved_at is refused'
+  - 'Tests: server + CLI legs (suggest, merge, list, approve, reject, refused malformed) and CDP legs (button + evidence, suggested state, approved field drawn/editable/exported, standalone disabled); wired into tests/run-bridge-tests.sh; render check --src, T-1124/T-1125/T-1127/T-1128 tests unchanged'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-10-11 — approval through a CLI the operator runs, not a button'
+    chose: '`tools/field-suggestion.py approve|reject|list`, run via a runme job; the editor can only POST a suggestion.'
+    rationale: 'the T-347 ruling — a field appears "on suggestion ... with operator"; a button in the editor would let any author create fields. The CLI writes through the same validated, history-logged, 409-guarded path as Settings.'
+    alternatives_rejected: ['an Approve button in Settings (no operator authentication in the designer).']
+  - decision: '2026-10-11 — approved fields live in the PROJECT profile only'
+    chose: '`fields` section of `<repo>/field-profile.json`; map profiles cannot add fields.'
+    rationale: 'approval is per project; a map-level field would bypass it. Show/hide of an approved field still works at both levels like any field.'
+  - decision: '2026-10-11 — keys derived from the diagram get no button'
+    chose: 'owner, gatewayKind, scopeOf, constituents are never offered.'
+    rationale: 'they are written by the diagram''s shape (T-566 comment); a field for them would be a box the export overwrites.'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-1126-evidence/t1126-approved.png'
+  - 'docs/reports/T-1126-evidence/t1126-suggested.png'
+  - 'docs/reports/T-682-arc-2-boundary-inventory.md'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1126-b3-t-1118-suggest-as-a-field-on-unknown-.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_t955_validate_endpoint.py'
+  - 'tools/field-suggestion.py'
+  - 'tools/gallery-serve.py'
+  - 'tools/_t1126-field-suggestions-cdp.mjs'
+  - 'tools/_t682-boundary-inventory.py'
+  - 'tools/_t958-boundary-row-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-11T23:37:04'
+    action: 'T-1126: B3 of T-1118 — ''Suggest as a field'' under Other extensions (evidence: on N of M elements of the type) records a suggestion in field-suggestions.json (GET/POST /api/field-suggestions), never a field; tools/field-suggestion.py approve|reject|list is the operator''s (runme): approve writes the project profile''s fields section (refused whole without approved_by/approved_at), then the key is a normal Extensions field marked approved; derived keys get no button; standalone disabled. Boundary inventory classifies the 2 new routes (13, T-958 pin 13). Test 8/8 wired; B1/B2/T-1128/T-1127/T-566/render --src unchanged'
+  - time: '2026-10-12T00:16:50'
+    action: 'T-1126: bridge after B3 — T-955 teeth re-anchored on the POST allowlist that now includes /api/field-suggestions (7/7, teeth still strip only /api/validate); the B3 test names tools/field-suggestion.py literally so the unwired-guard census sees its caller (ratchet 86 = 86). Bridge 265/3 -> only the T-1103 sweep remains'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 558 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 558
+  commits: 4
+  files_changed: 177
+  lines_added: 5453
+  lines_removed: 559
+  footprint_refreshed_at: '2026-11-14T16:07:05Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1126-b3-t-1118-suggest-as-a-field-on-unknown-.md
+generated_by: context-agent-hybrid

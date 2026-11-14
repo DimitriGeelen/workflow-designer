@@ -70,10 +70,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 65
-  commits: 1
-  files_changed: 5
-  lines_added: 505
-  lines_removed: 7
+  commits: 2
+  files_changed: 7
+  lines_added: 608
+  lines_removed: 12
+  footprint_refreshed_at: '2026-10-26T23:38:07Z'
+  footprint_refreshed_by_commit: 7031b758
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1315-host-contract-notes-test-reads-the-publi.md

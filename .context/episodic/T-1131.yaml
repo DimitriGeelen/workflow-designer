@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1131: Export writes a sequenceFlow targetRef to a node id that is not in the output (third-party fixtures boundary-events, simple: targetRef=\"Task_1\")
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-12T00:49:10Z
+# ============================================================================
+
+task_id: T-1131
+task_name: "Export writes a sequenceFlow targetRef to a node id that is not in the output (third-party fixtures boundary-events, simple: targetRef=\"Task_1\")"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-11T23:14:33Z
+completed: 2026-10-12T00:48:06Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-12T02:12:18+02:00
+last_commit: 2026-10-12T02:12:18+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  a non-allowlisted node (plain bpmn:task) nested in a subProcess is imported (flattened like allowlisted nested nodes), so its flows no longer point at an id the export lacks (simple.bpmn, boundary-events.bpmn: targetRef=Task_1). New guard scans every third-party export for dangling references: 9/11 -> 11/11 (BPMN/DI namespaces only — a vendor attribute named 'default' is not a reference). Goldens reviewed (recovered node + DI + same-lane display-id renumbering) and re-recorded; T-523/T-338/T-1096/T-1119/round-trip green; wired
+
+# Key outcomes
+outcomes:
+  - 'A flow node with a tag outside the allowlist (e.g. plain bpmn:task) nested inside a subProcess is imported (flattened, like an allowlisted nested node, foreignTag kept), so the flows that name it no longer dangle'
+  - 'Non-node children of a subProcess (incoming, outgoing, documentation, extensionElements, loop characteristics, ioSpecification, property, data associations) are not mistaken for nodes'
+  - 'Guard: every third-party fixture''s export is scanned for dangling references (sequenceFlow/attribute/element refs); 0 after the fix (2 files before); wired into tests/run-bridge-tests.sh'
+  - 'Changed third-party goldens are reviewed as a diff (additions of the recovered node only) before re-recording; T-523 / T-338 / round-trip tests unchanged'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1131-export-writes-a-sequenceflow-targetref-t.md'
+  - 'tests/goldens/third-party/boundary-events.bpmn.golden'
+  - 'tests/goldens/third-party/simple.bpmn.golden'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1131-dangling-refs-thirdparty-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-12T02:12:18'
+    action: 'T-1131: a non-allowlisted node (plain bpmn:task) nested in a subProcess is imported (flattened like allowlisted nested nodes), so its flows no longer point at an id the export lacks (simple.bpmn, boundary-events.bpmn: targetRef=Task_1). New guard scans every third-party export for dangling references: 9/11 -> 11/11 (BPMN/DI namespaces only — a vendor attribute named ''default'' is not a reference). Goldens reviewed (recovered node + DI + same-lane display-id renumbering) and re-recorded; T-523/T-338/T-1096/T-1119/round-trip green; wired'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 93 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 93
+  commits: 3
+  files_changed: 171
+  lines_added: 5020
+  lines_removed: 535
+  footprint_refreshed_at: '2026-11-14T16:07:06Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1131-export-writes-a-sequenceflow-targetref-t.md
+generated_by: context-agent-hybrid

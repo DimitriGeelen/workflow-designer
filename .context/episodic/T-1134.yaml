@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1134: Field settings and 'Suggest as a field' stay editable on a project server WITHOUT the endpoints (any 404 read as 'no settings yet'; Save -> 403)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-12T10:06:08Z
+# ============================================================================
+
+task_id: T-1134
+task_name: "Field settings and 'Suggest as a field' stay editable on a project server WITHOUT the endpoints (any 404 read as 'no settings yet'; Save -> 403)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-12T07:49:00Z
+completed: 2026-10-12T10:04:45Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-12T09:54:35+02:00
+last_commit: 2026-10-12T09:54:35+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  field settings and 'Suggest as a field' are offered only when the project server has the endpoints — only gallery-serve.py's own answer (200 profile, or its JSON 404 with base) counts; any other 404/403/HTML = 'unsupported': Settings read-only saying the server does not offer field settings, no map scope, suggest button disabled with the reason; non-JSON 404 no longer logged as a fault. Greenfield 0.18.0 re-test (DM 73) reproduced by a stub portal (health/list/save only): 0.18.0 1/4, now 4/4; T-1124/T-1125/T-1126/T-1128 unchanged; wired
+
+# Key outcomes
+outcomes:
+  - 'On a project server that answers /api/health but has NO /api/field-profile (any non-own 404/403/HTML), the field-profile status is ''unsupported'', Settings -> "Fields shown by default" is read-only and says "this project server does not offer field settings", and Save is disabled'
+  - 'Our own 404 (JSON with `base`, from gallery-serve.py) still means "no settings yet" and stays editable (T-1125/T-1128 tests unchanged)'
+  - 'Same for "Suggest as a field": without /api/field-suggestions the button is disabled with the reason; with it, unchanged (T-1126 test unchanged)'
+  - 'The map scope follows the same rule (a server without the endpoint offers no map settings)'
+  - 'CDP test against a stub server with health/list/save only (Greenfield''s shape) — fails on 0.19.0 and passes after; wired into tests/run-bridge-tests.sh'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1134-field-settings-and-suggest-as-a-field-st.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1134-portal-without-endpoints-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-12T09:54:35'
+    action: 'T-1134: field settings and ''Suggest as a field'' are offered only when the project server has the endpoints — only gallery-serve.py''s own answer (200 profile, or its JSON 404 with base) counts; any other 404/403/HTML = ''unsupported'': Settings read-only saying the server does not offer field settings, no map scope, suggest button disabled with the reason; non-JSON 404 no longer logged as a fault. Greenfield 0.18.0 re-test (DM 73) reproduced by a stub portal (health/list/save only): 0.18.0 1/4, now 4/4; T-1124/T-1125/T-1126/T-1128 unchanged; wired'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 135 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 135
+  commits: 3
+  files_changed: 169
+  lines_added: 5349
+  lines_removed: 521
+  footprint_refreshed_at: '2026-11-14T16:07:07Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1134-field-settings-and-suggest-as-a-field-st.md
+generated_by: context-agent-hybrid

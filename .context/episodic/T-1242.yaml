@@ -102,10 +102,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 1044
-  commits: 13
-  files_changed: 7
-  lines_added: 1050
-  lines_removed: 38
+  commits: 14
+  files_changed: 9
+  lines_added: 1218
+  lines_removed: 48
+  footprint_refreshed_at: '2026-10-21T14:33:17Z'
+  footprint_refreshed_by_commit: ace40338
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1242-structured-attributes-on-aefio-the-shape.md

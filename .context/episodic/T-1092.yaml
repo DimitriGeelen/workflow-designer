@@ -1,0 +1,93 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1092: Greenfield T-172 #6: review their patch 'Show authority marker on nodes' (Settings, default off) — operator decides the default before adoption
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-12T22:13:23Z
+# ============================================================================
+
+task_id: T-1092
+task_name: "Greenfield T-172 #6: review their patch 'Show authority marker on nodes' (Settings, default off) — operator decides the default before adoption"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-08T08:38:15Z
+completed: 2026-10-12T22:12:12Z
+duration_days: 4
+updates_count: 2
+first_commit: 2026-10-09T09:13:58+02:00
+last_commit: 2026-10-09T09:53:30+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  authority markers — Greenfield's Settings option adopted with default ON (T-888 clause 4 kept); a map that declares no authority anywhere shows ONE summary in the advisory dock instead of a marker per element; any declared authority brings per-element markers back. Test 11/11 (pre-change designer fails 9/11; the 2 passing are the unchanged-behaviour controls), wired in the bridge; census 0; corpus round-trip passes; screenshots read. T-1069 clearance test keeps measuring 'missing' markers — stripping all authority now yields the one-summary map, so its M1 leg declares authority elsewhere (stubs mapDeclaresAuthority); 306 markers measured, 0 crossings; poison arm still fails (104)
+
+# Key outcomes
+outcomes:
+  - 'Settings → "Show authority markers" exists, default ON, persisted in aefLabelPrefs (Greenfield''s patch, default flipped per the operator''s ruling); OFF draws no authority marker and no summary'
+  - 'A map that declares NO authority anywhere (no element authority, no lane with an effective default) draws no per-node "⚠ no authority" markers and instead shows ONE advisory in the T-1078 dock (as built: "⚠ This map declares no authority: none of its N elements carries one and no lane offers a default (markers summarised here, not drawn per element)" — on such a map every element lacks one, so "N of M" reduced to N), dismissible, re-shown when another map loads (keyed by pool id = the file''s process id; the workflow id changes on re-import)'
+  - 'A map that declares authority somewhere keeps per-node markers exactly as before (T-893/T-1069 unchanged): `missing` drawn (test leg 7, 3/3); the `differs` branch is untouched code (only the showAuthority gate wraps it), not separately tested here'
+  - 'CDP test `tools/_t1092-authority-summary-cdp.mjs` covers: default on; no-authority fixture → 0 markers + summary with the right count; mixed fixture → markers, no summary; toggle off → 0 markers, no summary; persisted across reload; fails on the pre-change designer for the summary legs. Wired in the bridge suite (11/11; pre-change designer FAILS 9 of 11 — the 2 that pass are legs 7-8, the unchanged-behaviour controls)'
+  - 'Screenshots of both fixtures (summary shown; mixed map with markers) read and referenced under ## Visual Verification'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-10-09 — default of the authority-marker setting (operator, option 3)'
+    chose: 'adopt Greenfield''s Settings option with default ON, and on a map that declares no authority anywhere show ONE summary in the advisory dock instead of a marker per element. Any declared authority brings per-element markers back.'
+    rationale: 'T-888 clause 4 keeps missing authority visible; on an imported map with none at all the thirty markers say one fact thirty times. One summary keeps the fact visible without the clutter.'
+    alternatives_rejected: ['default OFF as offered (amends clause 4 for every user); toggle only, default ON (Greenfield would still see the clutter until they find the setting); not adopting.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/screenshots/T-1092/mixed-authority-markers.png'
+  - 'docs/screenshots/T-1092/no-authority-summary.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1092-greenfield-t-172-6-review-their-patch-sh.md'
+  - 'tests/fixtures/aef-bpmn/t1092-mixed-authority.bpmn'
+  - 'tests/fixtures/aef-bpmn/t1092-no-authority.bpmn'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1069-authority-marker-clearance-cdp.mjs'
+  - 'tools/_t1092-authority-summary-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-09T09:13:58'
+    action: 'T-1092: authority markers — Greenfield''s Settings option adopted with default ON (T-888 clause 4 kept); a map that declares no authority anywhere shows ONE summary in the advisory dock instead of a marker per element; any declared authority brings per-element markers back. Test 11/11 (pre-change designer fails 9/11; the 2 passing are the unchanged-behaviour controls), wired in the bridge; census 0; corpus round-trip passes; screenshots read'
+  - time: '2026-10-09T09:53:30'
+    action: 'T-1092: T-1069 clearance test keeps measuring ''missing'' markers — stripping all authority now yields the one-summary map, so its M1 leg declares authority elsewhere (stubs mapDeclaresAuthority); 306 markers measured, 0 crossings; poison arm still fails (104)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 6573 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 6573
+  commits: 4
+  files_changed: 174
+  lines_added: 5154
+  lines_removed: 531
+  footprint_refreshed_at: '2026-11-14T16:07:02Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1092-greenfield-t-172-6-review-their-patch-sh.md
+generated_by: context-agent-hybrid

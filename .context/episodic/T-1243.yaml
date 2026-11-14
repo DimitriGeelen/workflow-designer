@@ -76,10 +76,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 4365
-  commits: 2
-  files_changed: 7
-  lines_added: 278
-  lines_removed: 16
+  commits: 3
+  files_changed: 9
+  lines_added: 389
+  lines_removed: 22
+  footprint_refreshed_at: '2026-10-23T22:06:38Z'
+  footprint_refreshed_by_commit: f1bb0b47
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1243-designer-keeps-unknown-child-elements-in.md

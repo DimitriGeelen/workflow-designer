@@ -293,10 +293,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 1177
-  commits: 11
-  files_changed: 203
-  lines_added: 18599
-  lines_removed: 4547
+  commits: 12
+  files_changed: 205
+  lines_added: 18927
+  lines_removed: 4553
+  footprint_refreshed_at: '2026-10-20T18:11:07Z'
+  footprint_refreshed_by_commit: 941c4fa7
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1225-upgrade-aef-to-the-bleeding-edge-tip-wit.md

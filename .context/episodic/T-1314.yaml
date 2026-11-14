@@ -71,10 +71,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 38
-  commits: 2
-  files_changed: 3
-  lines_added: 436
-  lines_removed: 15
+  commits: 3
+  files_changed: 5
+  lines_added: 545
+  lines_removed: 21
+  footprint_refreshed_at: '2026-10-26T16:38:51Z'
+  footprint_refreshed_by_commit: 5d10cc88
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1314-new-aeffield-lands-after-aefexample-inse.md

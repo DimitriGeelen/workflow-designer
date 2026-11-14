@@ -164,10 +164,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 463
-  commits: 8
-  files_changed: 84
-  lines_added: 33754
-  lines_removed: 37
+  commits: 9
+  files_changed: 86
+  lines_added: 33956
+  lines_removed: 42
+  footprint_refreshed_at: '2026-10-18T17:10:07Z'
+  footprint_refreshed_by_commit: ec5d26ba
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1202-release-designer-0230-kit-with-conventio.md

@@ -72,10 +72,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 1774
-  commits: 1
-  files_changed: 5
-  lines_added: 179
-  lines_removed: 17
+  commits: 2
+  files_changed: 7
+  lines_added: 279
+  lines_removed: 23
+  footprint_refreshed_at: '2026-10-14T21:55:53Z'
+  footprint_refreshed_by_commit: 195e899c
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1159-yaml-form-iw-9-check-ignores-element-aef.md

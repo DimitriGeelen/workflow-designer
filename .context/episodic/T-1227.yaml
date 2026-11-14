@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1227: runme menu: batch selection in the operator's order
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-20T13:44:06Z
+# ============================================================================
+
+task_id: T-1227
+task_name: "runme menu: batch selection in the operator's order"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-20T13:34:59Z
+completed: 2026-10-20T13:42:59Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-20T15:42:53+02:00
+last_commit: 2026-10-20T15:42:53+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  runme batches in the operator's order — arrow keys + space mark jobs (their place in the sequence shows), or typed 3,1,2 / x = all; refused up front if any is unready; stops at the first that does not complete; legs 16-25
+
+# Key outcomes
+outcomes:
+  - 'Typed batch: `x`/`all` runs every pending job in listed order; `3,1,2` / `3 1 2` / `3, 1` in the typed order;'
+  - 'A batch stops at the first job that does not complete (leg 18), and is refused before anything runs when'
+  - 'Arrow-key picker on a real terminal: up/down moves, space marks/unmarks (its number in the sequence shows),'
+  - 'Each job in a batch still asks y/N per step, keeps its own log, `done` and events; one BATCH summary line'
+  - 'All legs of `tests/test_t1055_runme_launcher.py` and `tests/test_t1003_runme_signal.sh` pass in the repo'
+  - 'CLAUDE.md''s runme rule names the batch selection'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'CLAUDE.md'
+  - '.tasks/active/T-1227-runme-menu-batch-selection-in-the-operat.md'
+  - 'tests/test_t1055_runme_launcher.py'
+  - 'tools/runme-launcher.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-20T15:42:53'
+    action: 'T-1227: runme batches in the operator''s order — arrow keys + space mark jobs (their place in the sequence shows), or typed 3,1,2 / x = all; refused up front if any is unready; stops at the first that does not complete; legs 16-25'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 8 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 8
+  commits: 2
+  files_changed: 168
+  lines_added: 5136
+  lines_removed: 565
+  footprint_refreshed_at: '2026-11-14T16:07:12Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1227-runme-menu-batch-selection-in-the-operat.md
+generated_by: context-agent-hybrid

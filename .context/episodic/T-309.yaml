@@ -698,9 +698,11 @@ metrics:
   git_mining: ok
   wall_clock_minutes: 117866
   commits: 34
-  files_changed: 543
+  files_changed: 548
   lines_added: 44588
   lines_removed: 20628
+  footprint_refreshed_at: '2026-10-19T16:36:20Z'
+  footprint_refreshed_by_commit: 16dd3cfa
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-309-surface-workflow-validator-findings-in-t.md

@@ -1,0 +1,91 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1096: Designer keeps BPMN collaboration content on save: extra participants, messageFlow, dataObject/dataObjectReference, dataStoreReference, data associations (today only aef:io survives) — or warns on import
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-11T23:56:47Z
+# ============================================================================
+
+task_id: T-1096
+task_name: "Designer keeps BPMN collaboration content on save: extra participants, messageFlow, dataObject/dataObjectReference, dataStoreReference, data associations (today only aef:io survives) — or warns on import"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-08T09:10:54Z
+completed: 2026-10-11T23:55:38Z
+duration_days: 3
+updates_count: 2
+first_commit: 2026-10-12T00:33:09+02:00
+last_commit: 2026-10-12T01:15:34+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  process data survives a save — dataObject, dataObjectReference, dataStoreReference and each task's property / dataInputAssociation / dataOutputAssociation kept verbatim (keyed by uid, written in tActivity order) with their DI (only for elements still present). Measured on a probe map: 0.18.0 dropped ALL of it silently (2/10), now 12/12 incl. second save and delete-a-task; T-338 'property' ratcheted DROPPED -> PRESERVED; T-1119/T-1120/T-1129 unchanged; wired. bridge after keeping process data — fixture follows the aef-bpmn corpus convention (laneMeta, uids; 5 corpus harnesses green again); ioSpecification kept at task AND process level (caseagile: an association from a task output to a process output dangled without it); associations whose refs are not in the file are left out and NAMED in the import notice, never written dangling; import notice says data is kept, not drawn. Third-party goldens re-recorded after review: caseagile + kitchen-sink, additions only, 0 dangling introduced (11/11 identical). Pre-existing dangling targetRef=Task_1 in boundary-events/simple filed separately. Test 13/13
+
+# Key outcomes
+outcomes:
+  - 'Participants and message flows survive save (T-1119/T-1120; Greenfield re-test 0.17.0 4/4, DM 67)'
+  - 'Measured, on a probe map: does a save keep dataObject, dataObjectReference, dataStoreReference (with their DI) and dataInput/OutputAssociation on tasks? Result recorded here with the exported fragment'
+  - 'Whatever is dropped is kept and written back unchanged on save (references still resolve; DI kept), or — where it cannot be kept safely — named in an import notice; never lost silently'
+  - 'A round-trip test (probe map → import → export) fails on the current code for every element that was dropped and passes after; wired into tests/run-bridge-tests.sh; T-338 / T-1119 / T-1120 tests unchanged'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'bridge after keeping process data — fixture follows the aef-bpmn corpus convention (laneMeta, uids; 5 corpus harnesses green again); ioSpecification kept at task AND process level (caseagile: an association from a task output to a process output dangled without it); associations whose refs are not in the file are left out and NAMED in the import notice, never written dangling; import notice says data is kept, not drawn. Third-party goldens re-recorded after review: caseagile + kitchen-sink, additions only, 0 dangling introduced (11/11 identical). Pre-existing dangling targetRef=Task_1 in boundary-events/simple filed separately. Test 13/13'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1096-designer-keeps-bpmn-collaboration-conten.md'
+  - '.tasks/active/T-1127-element-detail-view-clicking-an-element-.md'
+  - '.tasks/active/T-1131-export-writes-a-sequenceflow-targetref-t.md'
+  - 'tests/fixtures/aef-bpmn/t1096-data-objects.bpmn'
+  - 'tests/goldens/third-party/caseagile-local-ns.bpmn.golden'
+  - 'tests/goldens/third-party/kitchen-sink.bpmn.golden'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1096-data-objects-roundtrip-cdp.mjs'
+  - 'tools/_t338-input-fidelity-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-12T00:33:09'
+    action: 'T-1096: process data survives a save — dataObject, dataObjectReference, dataStoreReference and each task''s property / dataInputAssociation / dataOutputAssociation kept verbatim (keyed by uid, written in tActivity order) with their DI (only for elements still present). Measured on a probe map: 0.18.0 dropped ALL of it silently (2/10), now 12/12 incl. second save and delete-a-task; T-338 ''property'' ratcheted DROPPED -> PRESERVED; T-1119/T-1120/T-1129 unchanged; wired'
+  - time: '2026-10-12T01:15:34'
+    action: 'T-1096: bridge after keeping process data — fixture follows the aef-bpmn corpus convention (laneMeta, uids; 5 corpus harnesses green again); ioSpecification kept at task AND process level (caseagile: an association from a task output to a process output dangled without it); associations whose refs are not in the file are left out and NAMED in the import notice, never written dangling; import notice says data is kept, not drawn. Third-party goldens re-recorded after review: caseagile + kitchen-sink, additions only, 0 dangling introduced (11/11 identical). Pre-existing dangling targetRef=Task_1 in boundary-events/simple filed separately. Test 13/13'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 5204 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 5204
+  commits: 5
+  files_changed: 177
+  lines_added: 6049
+  lines_removed: 550
+  footprint_refreshed_at: '2026-11-14T16:07:02Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1096-designer-keeps-bpmn-collaboration-conten.md
+generated_by: context-agent-hybrid

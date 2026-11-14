@@ -145,10 +145,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 241
-  commits: 8
-  files_changed: 60
-  lines_added: 5494
-  lines_removed: 3781
+  commits: 9
+  files_changed: 64
+  lines_added: 5892
+  lines_removed: 3793
+  footprint_refreshed_at: '2026-10-23T14:12:45Z'
+  footprint_refreshed_by_commit: 2608562d
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1280-upgrade-aef-be5---v1815-be6-t-4683-revie.md

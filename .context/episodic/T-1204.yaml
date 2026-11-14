@@ -221,10 +221,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 131
-  commits: 11
-  files_changed: 127
-  lines_added: 13277
+  commits: 12
+  files_changed: 129
+  lines_added: 13508
   lines_removed: 4718
+  footprint_refreshed_at: '2026-10-18T22:20:34Z'
+  footprint_refreshed_by_commit: c5dcb8a4
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1204-upgrade-aef-956f05f36---v1811-and-field-.md

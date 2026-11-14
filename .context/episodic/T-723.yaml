@@ -78,9 +78,11 @@ metrics:
   git_mining: ok
   wall_clock_minutes: 47702
   commits: 2
-  files_changed: 9
+  files_changed: 10
   lines_added: 374
   lines_removed: 14
+  footprint_refreshed_at: '2026-10-19T16:30:21Z'
+  footprint_refreshed_by_commit: 114778cf
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-723-ra-027-fail-d2-human-review-queue-has-12.md

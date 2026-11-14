@@ -143,10 +143,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 10988
-  commits: 11
-  files_changed: 43
-  lines_added: 1478
-  lines_removed: 80
+  commits: 12
+  files_changed: 49
+  lines_added: 1666
+  lines_removed: 88
+  footprint_refreshed_at: '2026-10-19T08:15:03Z'
+  footprint_refreshed_by_commit: 4c5d35ba
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1127-element-detail-view-clicking-an-element-.md

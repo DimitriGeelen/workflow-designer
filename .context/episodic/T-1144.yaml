@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1144: Untrack the 991 MB vector index .context/working/fw-vec-index.db (committed by accident in T-854) and gitignore it
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-13T11:33:17Z
+# ============================================================================
+
+task_id: T-1144
+task_name: "Untrack the 991 MB vector index .context/working/fw-vec-index.db (committed by accident in T-854) and gitignore it"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-12T21:54:33Z
+completed: 2026-10-13T11:33:08Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-12T23:55:59+02:00
+last_commit: 2026-10-12T23:55:59+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  captured — untrack the 991 MB vector index committed in T-854 (history rewrite stays the operator's Tier-0 call)
+
+# Key outcomes
+outcomes:
+  - '`.context/working/fw-vec-index.db` is no longer tracked (`git rm --cached`), and the file on disk is untouched (same size) — 1052135424 bytes before and after'
+  - 'Ignored with a comment naming the class (4th instance after T-222, T-410, T-417 in `.context/working/.gitignore`), so `git add -A` cannot re-add it — `git check-ignore -v` → `.context/working/.gitignore:37`; `-wal/-shm` sidecars covered too'
+  - 'Whether the blob reached the GitHub mirror is checked and reported; shrinking history is NOT done — it reached GitHub at 36 KB (commit 54b1dfe2 present on DimitriGeelen/workflow-designer, repo 72 MB), so there is nothing to shrink; no history rewrite needed or proposed'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1144-untrack-the-991-mb-vector-index-contextw.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-12T23:55:59'
+    action: 'T-1144: captured — untrack the 991 MB vector index committed in T-854 (history rewrite stays the operator''s Tier-0 call)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 818 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 818
+  commits: 3
+  files_changed: 168
+  lines_added: 5203
+  lines_removed: 518
+  footprint_refreshed_at: '2026-11-14T16:07:09Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1144-untrack-the-991-mb-vector-index-contextw.md
+generated_by: context-agent-hybrid

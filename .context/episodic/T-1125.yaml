@@ -1,0 +1,104 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1125: B2 (T-1118): field profile per project and per workflow decides which fields show (designer default < project < workflow; a filled field is never hidden)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-11T17:20:46Z
+# ============================================================================
+
+task_id: T-1125
+task_name: "B2 (T-1118): field profile per project and per workflow decides which fields show (designer default < project < workflow; a filled field is never hidden)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-11T12:58:35Z
+completed: 2026-10-11T17:18:41Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-11T16:19:56+02:00
+last_commit: 2026-10-11T18:56:50+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  B2 project layer — field-profile.json at the gallery repo root, GET /api/field-profile (404 none, 422 malformed refused whole); designer loads it once, fieldPlanFor() applies hide/pin over AEF_FIELDS; a hidden field with a value stays drawn and tagged; hidden fields are not offered in the fold; Settings readout of the profile state; standalone = designer default. Test 9/9, wired; B1 10/10, gallery suites green. Workflow layer waits on the operator's storage ruling. decision W external advice — brief (facts, options, value drivers, steelman/strawman/fold asked) and two independent reviews: GLM-5.3 (Z.ai) recommends 'W1.5' (W1 now + AEF proposal as a §1 partition amendment, override gated on AEF's answer), Antigravity (Google) recommends W1; codex hit its usage limit (resets 19:47), not yet run
+
+# Key outcomes
+outcomes:
+  - 'Project profile: `field-profile.json` at the gallery repo root (one project = one gallery repository; a map id is one workflow), shape `{version:1, types:{<elementType>:{show:[keys], hide:[keys]}}}`; served read-only by `GET /api/field-profile` (404 = no profile → designer default); malformed JSON or unknown keys are refused with a reason, never half-applied'
+  - 'The designer fetches the profile once per load when the API is available; standalone (file://, no API) it uses the designer default with no error and no request loop'
+  - 'Precedence implemented in one function: designer default (AEF_FIELDS) < project profile < workflow profile; `hide` removes a field from the panel, `show` pins it so it is drawn even when empty (not folded by B1); a key not in AEF_FIELDS[type] is ignored in B2 (new fields are B3''s, operator-approved)'
+  - 'Value-never-hidden holds above all layers: a hidden field that carries a value is drawn, marked "hidden in this project"'
+  - '"Show all fields" (B1) still shows every AEF_FIELDS field, profile hide included'
+  - 'Export unchanged by any profile (byte-identical corpus export with and without a profile)'
+  - 'Workflow layer: stored where the operator rules (in the map as an aef: setting, or server-side per map id) — not built before that ruling'
+  - 'Tests: gallery endpoint (served, 404, malformed refused) and CDP legs for precedence, pin, hide, value-never-hidden, standalone fallback, export parity; wired into tests/run-bridge-tests.sh'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-10-11 — the per-workflow layer is deferred (operator ruling R1)'
+    chose: 'B2 ships the project layer only; the per-workflow layer is not built now.'
+    rationale: 'external advice (GLM-5.3: "W1.5", Antigravity: W1 — docs/reports/T-1125-external-review/) showed in-map storage (W2) amends the frozen standard''s normative two-class partition, and asked what per-workflow pins are for. Operator: "per default, just to show populated fields. Once a field is populated, it shows up ... if we click on an element, we should get a larger view ... that then shows all the information of this element where you can manually edit it" → B1 already does the first; the second is inception T-1127. Per-workflow pins have no remaining job, and nothing needs to travel in the map. Then: "proceed as suggested" (R1), and, made explicit: "we said filtering plus details page, but all config with all options. Once I double click or whatever ... I get the option to get all options" — the details view is BUILT now (T-1127), not shelved.'
+    alternatives_rejected: ['W1 per-map server files (work for an unshown need: write path, versioning, rename drift); W2 in-map (frozen-standard amendment, waits on AEF); W3 both (two sources of truth); leaving B2 open (R3).']
+  - decision: '2026-10-11 — what "project" means for the profile'
+    chose: 'one profile per gallery repository (`<repo>/field-profile.json`, `GET /api/field-profile`).'
+    rationale: 'in gallery-serve.py an `id` is one map (one workflow); the repository is the project (832''s corpus, Greenfield''s portal). A per-id file would be the WORKFLOW layer, not the project one.'
+    alternatives_rejected: ['a profile per map id as "project" (conflates the two layers the operator asked for).']
+  - decision: '2026-10-11 — a project-hidden field is not offered under "+ N empty fields"'
+    chose: 'hidden fields are left out of the fold too; only "Show all fields" (or a value) brings them back.'
+    rationale: 'the operator: "not everything is desirable" — a hidden field offered one click away is not hidden.'
+    alternatives_rejected: ['folding hidden fields with the empty ones (a profile would then change nothing visible but a count).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-1125-evidence/t1125-profile.png'
+  - 'docs/reports/T-1125-external-review/antigravity.md'
+  - 'docs/reports/T-1125-external-review/glm.md'
+  - 'docs/reports/T-1125-workflow-profile-storage-brief.md'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1125-b2-t-1118-field-profile-per-project-and-.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/gallery-serve.py'
+  - 'tools/_t1125-field-profile-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-11T16:19:56'
+    action: 'T-1125: B2 project layer — field-profile.json at the gallery repo root, GET /api/field-profile (404 none, 422 malformed refused whole); designer loads it once, fieldPlanFor() applies hide/pin over AEF_FIELDS; a hidden field with a value stays drawn and tagged; hidden fields are not offered in the fold; Settings readout of the profile state; standalone = designer default. Test 9/9, wired; B1 10/10, gallery suites green. Workflow layer waits on the operator''s storage ruling'
+  - time: '2026-10-11T18:56:50'
+    action: 'T-1125: decision W external advice — brief (facts, options, value drivers, steelman/strawman/fold asked) and two independent reviews: GLM-5.3 (Z.ai) recommends ''W1.5'' (W1 now + AEF proposal as a §1 partition amendment, override gated on AEF''s answer), Antigravity (Google) recommends W1; codex hit its usage limit (resets 19:47), not yet run'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 260 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 260
+  commits: 4
+  files_changed: 174
+  lines_added: 5406
+  lines_removed: 528
+  footprint_refreshed_at: '2026-11-14T16:07:04Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1125-b2-t-1118-field-profile-per-project-and-.md
+generated_by: context-agent-hybrid

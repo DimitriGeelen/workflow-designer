@@ -153,10 +153,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 2245
-  commits: 6
-  files_changed: 76
-  lines_added: 168
-  lines_removed: 24
+  commits: 7
+  files_changed: 78
+  lines_added: 359
+  lines_removed: 30
+  footprint_refreshed_at: '2026-10-26T11:26:25Z'
+  footprint_refreshed_by_commit: 268caeae
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1305-io-name-box-cuts-long-field-paths-greenf.md

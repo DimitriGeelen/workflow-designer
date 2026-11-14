@@ -72,10 +72,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 2356
-  commits: 2
-  files_changed: 4
-  lines_added: 113
-  lines_removed: 16
+  commits: 3
+  files_changed: 6
+  lines_added: 218
+  lines_removed: 22
+  footprint_refreshed_at: '2026-10-26T11:10:23Z'
+  footprint_refreshed_by_commit: c58b64bd
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1299-concurrent-core-tier-runs-delete-each-ot.md

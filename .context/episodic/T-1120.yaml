@@ -77,10 +77,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 36
-  commits: 1
-  files_changed: 10
-  lines_added: 364
+  commits: 2
+  files_changed: 12
+  lines_added: 451
   lines_removed: 79
+  footprint_refreshed_at: '2026-10-10T13:31:40Z'
+  footprint_refreshed_by_commit: f8c853c3
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1120-p2-show-every-pool-on-the-canvas-read-on.md

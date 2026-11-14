@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1142: _t631 leg 3 predates AEF's no-dead-link Tier-0 block: sandbox has no Watchtower, so the /approvals URL is (rightly) omitted
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-12T21:38:01Z
+# ============================================================================
+
+task_id: T-1142
+task_name: "_t631 leg 3 predates AEF's no-dead-link Tier-0 block: sandbox has no Watchtower, so the /approvals URL is (rightly) omitted"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-12T21:34:24Z
+completed: 2026-10-12T21:36:36Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  After ed683536a, check-tier0.sh prints ${WT_URL}/approvals only when a Watchtower is identified, else 'No Watchtower reachable (start one with: fw serve)'. tools/_t631 runs the hook in a sandbox with no Watchtower, so leg 3 goes red (bridge 0191d). Fix the test: give the URL leg a WATCHTOWER_URL, and add a leg for the no-Watchtower branch.
+
+# Key outcomes
+outcomes:
+  - 'Leg 3 hands the hook a known Watchtower (WATCHTOWER_URL fast path, never contacted) and still requires the terminal route, the /approvals URL and "human-only"'
+  - 'A new leg covers the no-Watchtower branch: no /approvals link, "No Watchtower reachable" said, terminal route still shown'
+  - 'The hook runs hermetically: an inherited WATCHTOWER_URL is unset unless a leg sets one (`env -u WATCHTOWER_URL`)'
+  - 'Teeth still bite: mutant (b) with a known Watchtower shows no operator route; `_t631` passes on the live hook (17 passed, 0 failed)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2
+  commits: 2
+  files_changed: 167
+  lines_added: 5508
+  lines_removed: 511
+  footprint_refreshed_at: '2026-11-14T16:07:08Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1142-t631-leg-3-predates-aefs-no-dead-link-ti.md
+generated_by: context-agent-hybrid

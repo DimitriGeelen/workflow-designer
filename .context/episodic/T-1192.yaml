@@ -73,10 +73,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 4
-  commits: 1
-  files_changed: 7
-  lines_added: 542
-  lines_removed: 1
+  commits: 3
+  files_changed: 10
+  lines_added: 650
+  lines_removed: 7
+  footprint_refreshed_at: '2026-10-17T14:35:36Z'
+  footprint_refreshed_by_commit: e07d45f0
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1192-upgrade-jobs-commit-the-task-templates-f.md

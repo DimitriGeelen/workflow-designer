@@ -1,0 +1,103 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1193: Check: a node slug edited in the designer may be lost on save/reload (slugManual not exported)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-17T18:52:23Z
+# ============================================================================
+
+task_id: T-1193
+task_name: "Check: a node slug edited in the designer may be lost on save/reload (slugManual not exported)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-17T14:41:29Z
+completed: 2026-10-17T18:51:53Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-17T20:40:27+02:00
+last_commit: 2026-10-17T20:51:31+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  confirmed — a hand-edited node slug is lost on reload (agt_1_write -> agt_1_myslug exported -> agt_1_write), and the next save changes the id unasked; options written up for the operator. the Slug field is read-only and follows the name (a hand-typed slug was lost on reload and the next save changed the id unasked); no file change. reviewer verdict. Slug field uses the exact UID/Owner read-only style (reviewer amber)
+
+# Key outcomes
+outcomes:
+  - 'Reproduced (or refuted) in a real browser: edit a node''s slug in the properties panel, save (export), reload the exported file; record whether the id keeps the edited slug, with the exact ids before and after — confirmed: agt_1_write -> agt_1_myslug (exported) -> agt_1_write after reload'
+  - 'If confirmed: the options (persist the slug in the BPMN, or remove/relabel the field) written up with their consequences for saved files and ids, and the choice put to the operator before any change to the export — see Context; put to the operator 2026-10-17'
+  - 'Operator decision applied (2026-10-17, "whatever you think" after the background): the Slug field is READ-ONLY and follows the name (option 2); renaming the step changes it. No file change. `tools/_t1193-slug-readonly-cdp.mjs` 4/4 (read-only; typing changes nothing; rename changes slug and id; export reloads with identical ids); the pre-change designer fails the two editing legs; wired into the bridge suite'
+  - '[REVIEW] The read-only Slug field reads as derived, not editable, and its hint says how to change it'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/evidence/T-1193/AC1-judge-t-1193-r3-29728604a583.md'
+  - '.context/reviews/evidence/T-1193/AC1-judge-t-1193-r3-91fc078d9339.md'
+  - '.context/reviews/evidence/T-1193/t1193-1024-panel-crop-judge-t-1193-r3-29728604a583.png'
+  - '.context/reviews/evidence/T-1193/t1193-1024-props.png'
+  - '.context/reviews/evidence/T-1193/t1193-1440-panel-crop-judge-t-1193-r3-29728604a583.png'
+  - '.context/reviews/evidence/T-1193/t1193-1440-props-crop-judge-t-1193-r3-91fc078d9339.png'
+  - '.context/reviews/evidence/T-1193/t1193-1440-props.png'
+  - '.context/reviews/evidence/T-1193/t1193-1920-panel-crop-judge-t-1193-r3-29728604a583.png'
+  - '.context/reviews/evidence/T-1193/t1193-1920-props.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.fabric/components/tools-_t1193-slug-readonly-cdp.yaml'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1193-check-a-node-slug-edited-in-the-designer.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1193-slug-readonly-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-17T20:40:27'
+    action: 'T-1193: confirmed — a hand-edited node slug is lost on reload (agt_1_write -> agt_1_myslug exported -> agt_1_write), and the next save changes the id unasked; options written up for the operator'
+  - time: '2026-10-17T20:48:13'
+    action: 'T-1193: the Slug field is read-only and follows the name (a hand-typed slug was lost on reload and the next save changed the id unasked); no file change'
+  - time: '2026-10-17T20:49:31'
+    action: 'T-1193: reviewer verdict'
+  - time: '2026-10-17T20:50:21'
+    action: 'T-1193: Slug field uses the exact UID/Owner read-only style (reviewer amber)'
+  - time: '2026-10-17T20:51:31'
+    action: 'T-1193: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 250 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 250
+  commits: 9
+  files_changed: 188
+  lines_added: 5438
+  lines_removed: 538
+  footprint_refreshed_at: '2026-11-14T16:07:10Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1193-check-a-node-slug-edited-in-the-designer.md
+generated_by: context-agent-hybrid

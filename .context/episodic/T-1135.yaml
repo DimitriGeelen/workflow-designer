@@ -1,0 +1,114 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1135: Release designer 0.19.1 (field settings / suggestions read-only on a server without the endpoints)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-12T21:45:17Z
+# ============================================================================
+
+task_id: T-1135
+task_name: "Release designer 0.19.1 (field settings / suggestions read-only on a server without the endpoints)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-12T09:25:54Z
+completed: 2026-10-12T21:44:04Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-12T12:08:23+02:00
+last_commit: 2026-10-12T20:05:18+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  0.19.1 prep — VERSION/APP_VERSION 0.19.1 (parity ok), release notes (T-1134). 0.19.1 notes name the calibration-map correction (T-1136); job 019 written. job 019 (release 0.19.1) dry-run passed, sha 7a8403d3, 9/9 checks; handover waits on the bridge re-run. release designer 0.19.1 — field settings and suggestions offered only where the server has the endpoints (T-1134); kit re-issued with corrected calibration maps (T-1136). our Watchtower serves 0.19.1 (pin 0.19.0 -> 0.19.1 from the designer-v0.19.1 tag, sync --from-tag: anchors match, /designer/app serves 296a51a7); divergence register updated, _t517 OK. 0.19.1 released by the operator (job 019, 4/4, tag designer-v0.19.1 on 039a146f), Watchtower re-pinned, Greenfield told (DM 83); bridge AC open — the pre-handover re-run was overtaken by the run and killed by the system crash, re-running on the released code
+
+# Key outcomes
+outcomes:
+  - 'VERSION and APP_VERSION read 0.19.1 (T-808 parity); docs/releases/RELEASE-NOTES-0.19.1.md describes T-1134 with Greenfield re-test steps (job 019 preflight: both ok)'
+  - 'The 0.19.1 kit carries a PASS calibration of its exact bytes by codex, GLM and Antigravity, one run each (ledger L16) (job 019 preflight: kit-calibration-gate ok)'
+  - 'Bridge suite green apart from the T-1103 sweep, including the source render check, before the job is handed over — NOT MET AS WRITTEN: the operator started job 019 (17:01) while the bridge re-run after the T-983 fix was still in its sweep (failures so far: only the release-mode render check), and the system crash (~19:50) killed that run. Re-run on the released code started after the crash; this box is ticked only on its result — RESULT (run 0191d at aa5ace7e, released code + framework ed683536a): 269 passed, 3 failed. Source render check (T-1130) silent = pass. Failures: (1) the T-1103 sweep class (_t509: probes driving live server PIDs exceed the 90 s cap), the allowed exception; (2) _t631 and (3) _t654, both stale TESTS broken by the framework upgrade, not by designer code — fixed under T-1142 (17/17) and T-1143 (7/7). The ordering ("before hand-over") stays unmet; the released code is verified green after the fact'
+  - 'A runme job (cut, commit, tag designer-v0.19.1, push) is prepared, dry-run passes, the watcher is armed; the agent never runs it for real (job 019, sha 7a8403d3; the operator ran it 4/4, rc=0, tag designer-v0.19.1 -> 039a146f on origin)'
+  - 'After the operator''s run: Watchtower re-pinned to 0.19.1 and Greenfield told by DM (pin 39fff79c, /designer/app serves 296a51a7; Greenfield DM 83)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'release designer 0.19.1 — field settings and suggestions offered only where the server has the endpoints (T-1134); kit re-issued with corrected calibration maps (T-1136)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/policy/designer-pin.yaml'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.context/runme/019-release-designer-0.19.1/dryrun.ok'
+  - '.context/runme/019-release-designer-0.19.1/job.sh'
+  - 'dist/aef-authoring-kit-0.19.1/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.19.1/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.19.1/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.19.1/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.19.1/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.19.1/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.19.1/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.19.1/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.19.1/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.19.1/loop.sh'
+  - 'dist/aef-authoring-kit-0.19.1/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.19.1/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.19.1/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.19.1/validate-workflow.py'
+  - 'dist/aef-workflow-designer-0.19.1.html'
+  - 'dist/MANIFEST.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.19.1.md'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1135-release-designer-0191-field-settings--su.md'
+  - 'VERSION'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-12T12:08:23'
+    action: 'T-1135: 0.19.1 prep — VERSION/APP_VERSION 0.19.1 (parity ok), release notes (T-1134)'
+  - time: '2026-10-12T14:55:23'
+    action: 'T-1135: 0.19.1 notes name the calibration-map correction (T-1136); job 019 written'
+  - time: '2026-10-12T16:49:59'
+    action: 'T-1135: job 019 (release 0.19.1) dry-run passed, sha 7a8403d3, 9/9 checks; handover waits on the bridge re-run'
+  - time: '2026-10-12T17:03:03'
+    action: 'T-1135: release designer 0.19.1 — field settings and suggestions offered only where the server has the endpoints (T-1134); kit re-issued with corrected calibration maps (T-1136)'
+  - time: '2026-10-12T20:03:40'
+    action: 'T-1135: our Watchtower serves 0.19.1 (pin 0.19.0 -> 0.19.1 from the designer-v0.19.1 tag, sync --from-tag: anchors match, /designer/app serves 296a51a7); divergence register updated, _t517 OK'
+  - time: '2026-10-12T20:05:18'
+    action: 'T-1135: 0.19.1 released by the operator (job 019, 4/4, tag designer-v0.19.1 on 039a146f), Watchtower re-pinned, Greenfield told (DM 83); bridge AC open — the pre-handover re-run was overtaken by the run and killed by the system crash, re-running on the released code'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 738 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 738
+  commits: 8
+  files_changed: 189
+  lines_added: 22807
+  lines_removed: 545
+  footprint_refreshed_at: '2026-11-14T16:07:07Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1135-release-designer-0191-field-settings--su.md
+generated_by: context-agent-hybrid

@@ -1,0 +1,115 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1195: Release designer 0.21.0: sticky lane labels (T-1091), pool border fits labels (T-1154), task-id-free node slugs (T-1194); deliver to AEF
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-17T18:42:34Z
+# ============================================================================
+
+task_id: T-1195
+task_name: "Release designer 0.21.0: sticky lane labels (T-1091), pool border fits labels (T-1154), task-id-free node slugs (T-1194); deliver to AEF"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-17T17:14:11Z
+completed: 2026-10-17T18:42:21Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-17T19:15:15+02:00
+last_commit: 2026-10-17T19:54:35+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  0.21.0 — VERSION and APP_VERSION bumped (T-808 parity ok), release notes (T-1194 task-id-free slugs, T-1091 sticky lane labels, T-1154 pool encloses labels). release notes — 0.20.0 tag date is 2026-10-15. operator job 037 — calibrate the 0.21.0 kit (codex, GLM-5.3), then cut, commit, tag designer-v0.21.0, push; rehearsed 12/12. release designer 0.21.0 — task-id-free node slugs (T-1194), sticky lane labels (T-1091), pool encloses its labels (T-1154); kit re-issued unchanged, calibrated on its bytes. our Watchtower serves 0.21.0 (pin 0.20.0 -> 0.21.0 from the designer-v0.21.0 tag, sync --from-tag: anchors match, /designer/app serves da161971, APP_VERSION 0.21.0); divergence register updated, _t517 OK. released and served — 3/5 (AEF delivery and their re-pin open)
+
+# Key outcomes
+outcomes:
+  - 'VERSION and APP_VERSION read 0.21.0 (T-808 parity green); release notes docs/releases/RELEASE-NOTES-0.21.0.md committed'
+  - 'One operator job, rehearsed: calibrate the 0.21.0 kit with codex and GLM-5.3 (gate PASS on its exact bytes), then cut, commit, tag designer-v0.21.0, push — job 037, 7/7, rc 0 (2026-10-17 17:50Z): codex PASS 3/3, GLM-5.3 PASS 3/3, release commit ddc6f47e, tag designer-v0.21.0 pushed; artefact sha256 da161971…, 1164928 B'
+  - 'After the tag: our Watchtower serves 0.21.0 (pin from the tag via `fw designer sync --from-tag`, /designer/app sha matches, divergence register OK) — d2f2e547: anchors match, /designer/app serves da161971, APP_VERSION 0.21.0, _t517 OK'
+  - 'AEF told version, tag, sha256, bytes and what changes; the uid-paired table for their 47 maps re-run against the released 0.21.0 artefact and delivered when they name a listening session — announced 2026-10-17; patch, md and JSON sent by TermLink to tl-yd7b7ylr, all three sha256-verified by AEF and applied at their 0be892d87 (msg 7f48f09b)'
+  - '`tools/_t1187-aef-pin-lag.sh` followed until it reads CURRENT for 0.21.0 (stays open until then) — CURRENT 2026-10-17'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'release designer 0.21.0 — task-id-free node slugs (T-1194), sticky lane labels (T-1091), pool encloses its labels (T-1154); kit re-issued unchanged, calibrated on its bytes'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/policy/designer-pin.yaml'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.context/runme/037-release-designer-0.21.0/dryrun.ok'
+  - '.context/runme/037-release-designer-0.21.0/job.sh'
+  - 'dist/aef-authoring-kit-0.21.0/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.21.0/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.21.0/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.21.0/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.21.0/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.21.0/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.21.0/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.21.0/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.21.0/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.21.0/loop.sh'
+  - 'dist/aef-authoring-kit-0.21.0/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.21.0/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.21.0/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.21.0/validate-workflow.py'
+  - 'dist/aef-workflow-designer-0.21.0.html'
+  - 'dist/MANIFEST.yaml'
+  - 'docs/authoring-kit/calibration-records/0.21.0.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.21.0.md'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1195-release-designer-0210-sticky-lane-labels.md'
+  - 'VERSION'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-17T19:15:15'
+    action: 'T-1195: 0.21.0 — VERSION and APP_VERSION bumped (T-808 parity ok), release notes (T-1194 task-id-free slugs, T-1091 sticky lane labels, T-1154 pool encloses labels)'
+  - time: '2026-10-17T19:15:28'
+    action: 'T-1195: release notes — 0.20.0 tag date is 2026-10-15'
+  - time: '2026-10-17T19:16:20'
+    action: 'T-1195: operator job 037 — calibrate the 0.21.0 kit (codex, GLM-5.3), then cut, commit, tag designer-v0.21.0, push; rehearsed 12/12'
+  - time: '2026-10-17T19:44:21'
+    action: 'T-1195: release designer 0.21.0 — task-id-free node slugs (T-1194), sticky lane labels (T-1091), pool encloses its labels (T-1154); kit re-issued unchanged, calibrated on its bytes'
+  - time: '2026-10-17T19:52:03'
+    action: 'T-1195: our Watchtower serves 0.21.0 (pin 0.20.0 -> 0.21.0 from the designer-v0.21.0 tag, sync --from-tag: anchors match, /designer/app serves da161971, APP_VERSION 0.21.0); divergence register updated, _t517 OK'
+  - time: '2026-10-17T19:54:35'
+    action: 'T-1195: released and served — 3/5 (AEF delivery and their re-pin open)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 88 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 88
+  commits: 9
+  files_changed: 191
+  lines_added: 23170
+  lines_removed: 540
+  footprint_refreshed_at: '2026-11-14T16:07:11Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1195-release-designer-0210-sticky-lane-labels.md
+generated_by: context-agent-hybrid

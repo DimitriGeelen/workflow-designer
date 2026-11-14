@@ -1,0 +1,91 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1123: Inception readiness check omits the GO hypothesis gate: review and Watchtower invite a GO that fw inception decide refuses
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-11T12:38:52Z
+# ============================================================================
+
+task_id: T-1123
+task_name: "Inception readiness check omits the GO hypothesis gate: review and Watchtower invite a GO that fw inception decide refuses"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-11T12:24:39Z
+completed: 2026-10-11T12:37:49Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-11T14:32:19+02:00
+last_commit: 2026-10-11T14:35:41+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  hand-off readiness predicate gains the GO hypothesis gate (vendored local fix, declared) — inception_handoff_blockers reports hypothesis-unready when the recommendation is GO and audit_inception_hypothesis would refuse; NO-GO/DEFER stay decidable. tools/_t1123 8/8 (2 fail on the old code); fw task review now refuses T-1093, passes T-1118; gap G-085. correction — the hypothesis gate is 832's own local fix (T-866, proposed upstream as E/0010), not AEF code; register, gap G-085, RCA and comment say so. Pickup I: addendum to E/0010 (format-patch + MANIFEST), 8/8 on v1.8.9 lib + 0010, 6/8 without
+
+# Key outcomes
+outcomes:
+  - 'The vendored inception_handoff_blockers reports `hypothesis-unready` for a GO-recommended inception whose hypothesis the decide gate would refuse, and stays clear for NO-GO / DEFER and for a checkable GO (tools/_t1123 8/8; 2 of 8 fail on the old code)'
+  - '`fw task review` refuses the hand-off of such an inception (T-1093: BLOCKED, hypothesis-unready) and passes T-1118'
+  - 'The local fix is declared in .agentic-framework/.vendor-divergence.yaml (tools/_t517 OK) and the gap registered (G-085)'
+  - 'Pickup I sent to AEF with the bug (evidence, root cause) and the fix as a patch plus its test'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'correction — the hypothesis gate is 832''s own local fix (T-866, proposed upstream as E/0010), not AEF code; register, gap G-085, RCA and comment say so. Pickup I: addendum to E/0010 (format-patch + MANIFEST), 8/8 on v1.8.9 lib + 0010, 6/8 without'
+    source: git-mined
+  - description: 'hand-off readiness predicate gains the GO hypothesis gate (vendored local fix, declared) — inception_handoff_blockers reports hypothesis-unready when the recommendation is GO and audit_inception_hypothesis would refuse; NO-GO/DEFER stay decidable. tools/_t1123 8/8 (2 fail on the old code); fw task review now refuses T-1093, passes T-1118; gap G-085'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/lib/inception-readiness.sh'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.context/project/concerns.yaml'
+  - 'docs/upstream-pickups/I-t1123-handoff-hypothesis-gate/0001-inception_handoff_blockers-ask-the-GO-hypothesis-gat.patch'
+  - 'docs/upstream-pickups/I-t1123-handoff-hypothesis-gate/MANIFEST.md'
+  - 'docs/upstream-pickups/README.md'
+  - '.tasks/active/T-1123-inception-readiness-check-omits-the-go-h.md'
+  - 'tools/_t1123-handoff-hypothesis.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-11T14:32:19'
+    action: 'T-1123: hand-off readiness predicate gains the GO hypothesis gate (vendored local fix, declared) — inception_handoff_blockers reports hypothesis-unready when the recommendation is GO and audit_inception_hypothesis would refuse; NO-GO/DEFER stay decidable. tools/_t1123 8/8 (2 fail on the old code); fw task review now refuses T-1093, passes T-1118; gap G-085'
+  - time: '2026-10-11T14:35:41'
+    action: 'T-1123: correction — the hypothesis gate is 832''s own local fix (T-866, proposed upstream as E/0010), not AEF code; register, gap G-085, RCA and comment say so. Pickup I: addendum to E/0010 (format-patch + MANIFEST), 8/8 on v1.8.9 lib + 0010, 6/8 without'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 13 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 13
+  commits: 4
+  files_changed: 173
+  lines_added: 5500
+  lines_removed: 528
+  footprint_refreshed_at: '2026-11-14T16:07:04Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1123-inception-readiness-check-omits-the-go-h.md
+generated_by: context-agent-hybrid

@@ -72,10 +72,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 1522
-  commits: 2
-  files_changed: 4
-  lines_added: 390
-  lines_removed: 18
+  commits: 3
+  files_changed: 6
+  lines_added: 490
+  lines_removed: 24
+  footprint_refreshed_at: '2026-10-16T21:27:11Z'
+  footprint_refreshed_by_commit: 3ca7f732
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1184-after-the-next-aef-upgrade-move-t525t549.md

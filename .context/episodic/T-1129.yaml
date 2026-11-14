@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1129: Optional select fields Agent type and Decision owner show a value that is not set (no empty option)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-11T17:57:42Z
+# ============================================================================
+
+task_id: T-1129
+task_name: "Optional select fields Agent type and Decision owner show a value that is not set (no empty option)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-11T17:51:43Z
+completed: 2026-10-11T17:56:21Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-11T19:56:20+02:00
+last_commit: 2026-10-11T19:56:20+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Agent type and Decision owner get the empty choice every other optional select has — an unset field displayed (and wrote on any change) its first option. Guard over every FIELD_META select, live-DOM legs, export of the examples identical to 0.17.0 (uuid minted on load excluded). Test 5/5 (0.17.0: 3/5, A+B fail), wired
+
+# Key outcomes
+outcomes:
+  - 'agentType and decisionOwner carry a leading '''' option like every other optional select; an element without the value shows the empty choice, not the first real option'
+  - 'Choosing a value writes it; choosing the empty choice again removes it (export carries no empty attribute); an element that HAS a value still shows it'
+  - 'A guard checks EVERY `special: ''select''` field in FIELD_META starts with '''' (so the next optional select cannot repeat this), and the panel test reads the unset value from the live DOM'
+  - 'Export of the examples corpus byte-identical before and after (only the empty choice is added; no value changes)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1129-optional-select-fields-agent-type-and-de.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1129-optional-select-empty-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-11T19:56:20'
+    action: 'T-1129: Agent type and Decision owner get the empty choice every other optional select has — an unset field displayed (and wrote on any change) its first option. Guard over every FIELD_META select, live-DOM legs, export of the examples identical to 0.17.0 (uuid minted on load excluded). Test 5/5 (0.17.0: 3/5, A+B fail), wired'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 4
+  commits: 3
+  files_changed: 169
+  lines_added: 5321
+  lines_removed: 511
+  footprint_refreshed_at: '2026-11-14T16:07:05Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1129-optional-select-fields-agent-type-and-de.md
+generated_by: context-agent-hybrid

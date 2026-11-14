@@ -1,0 +1,131 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1145: Guard decision hand-overs: a Watchtower decision link in the agent's reply must pass the inception readiness check
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-13T11:27:36Z
+# ============================================================================
+
+task_id: T-1145
+task_name: "Guard decision hand-overs: a Watchtower decision link in the agent's reply must pass the inception readiness check"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-13T10:19:27Z
+completed: 2026-10-13T11:26:11Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-13T12:21:38+02:00
+last_commit: 2026-10-13T13:24:13+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  captured — guard decision hand-overs (a Watchtower decision link in the agent's reply must pass inception_handoff_blockers), operator request after T-1094. pickup to AEF sent (c69abf0f, conversation decision-handover-readiness) — decision links only via fw task review, a Stop-hook guard (832 patch to follow), scaffold inception sections on --type inception. Stop hook guard-decision-handover.py — a reply naming /inception/T-XXX or /review/T-XXX runs inception_handoff_blockers on that task and blocks the stop when unready (fails open, one block per stop chain); test 10/10 incl. teeth, bridge-wired; installer for the operator (B-005). Live: blocks T-1094 on IW-1, passes T-1127. take back 29 fabric cards 0b0216cd swept in by a directory-wide git add — pre-existing uncommitted rewrites from an earlier run, not T-1145's; restored to their prior committed state (27) or untracked again (2). Working-tree changes untouched, still uncommitted as before. T-1145's own two hook cards stay. job 021 — operator installs the decision-handover guard (Stop hook) and refreshes the enforcement baseline; dry-run passed (4/4 checks). criteria 1-3 ticked with evidence; verification lines (test, registration, bridge wiring); registration waits on job 021. operator registered the decision-handover guard (Stop hook) and refreshed the enforcement baseline
+
+# Key outcomes
+outcomes:
+  - 'A Stop hook reads the last assistant message; for each Watchtower decision link in it (`/inception/T-XXX`, `/review/T-XXX`) it runs `inception_handoff_blockers` on that task and, when any task has blockers, blocks the stop with the task id and the blockers — `tools/hooks/guard-decision-handover.py` (0b0216cd); live: blocks a reply naming T-1094 ("IW-1 disposition=false"), passes T-1127 (not an inception)'
+  - 'A reply without such links, or whose linked tasks are ready (or not inceptions), passes untouched; the hook fails OPEN (never blocks) when it cannot read the transcript or the task, and says so on stderr — plus one block per stop chain (`stop_hook_active`), so a reply that must name the link cannot loop'
+  - 'A test drives the hook with fixture transcripts: unready inception link → blocked naming the blocker; ready inception → passes; no link → passes; unreadable transcript → passes with a warning; teeth: the blocker check removed → the unready case passes, the test goes red — `tests/test_t1145_decision_handover_guard.py` 10/10 (also: /review/ link, earlier-turn link, task not active, last_assistant_message), bridge-wired as an orphan leg'
+  - 'Registered in `.claude/settings.json` and listed in `.vendor-divergence.yaml` if it touches vendored files; the enforcement baseline refreshed if `fw doctor` requires it — operator ran job 021 (rc 0, commit 77ccaf22): one entry added to the Stop group, baseline e54de4f4…, doctor "Enforcement baseline intact". Touches no vendored file (tools/, tests/ only), so no divergence entry'
+  - 'Pickup sent to AEF (sidecar, delivery RECEIVED) proposing the rule for the framework workflow; message id recorded here — c69abf0f-e9d8-4f2f-af43-be7900cf403c, conversation decision-handover-readiness (2026-10-13): rule (links only via fw task review), Stop hook (832 patch to follow), scaffold sections on --type inception'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.claude/settings.json'
+  - '.context/project/enforcement-baseline.sha256'
+  - '.context/runme/021-install-decision-handover-guard/dryrun.ok'
+  - '.context/runme/021-install-decision-handover-guard/job.sh'
+  - '.fabric/components/src-aef-workflow-designer.yaml'
+  - '.fabric/components/tests-fixtures-warn-W-XML-LANE-NO-AUTHORITY.yaml'
+  - '.fabric/components/tests-fixtures-warn-W-XML-NO-WORKFLOWMETA.yaml'
+  - '.fabric/components/tests-run-bridge-tests.yaml'
+  - '.fabric/components/tests-test_bridge_aef_passthrough.yaml'
+  - '.fabric/components/tests-test_bridge_seam_roundtrip.yaml'
+  - '.fabric/components/tests-test_corpus_fixture_pins.yaml'
+  - '.fabric/components/tests-test_designer_export_contract.yaml'
+  - '.fabric/components/tests-test_editor_bridge_field_coverage.yaml'
+  - '.fabric/components/tests-test_editor_bridge_meta_parity.yaml'
+  - '.fabric/components/tests-test_editor_bridge_structured_parity.yaml'
+  - '.fabric/components/tests-test_editor_extension_shape_consistency.yaml'
+  - '.fabric/components/tests-test_editor_namespace_consistency.yaml'
+  - '.fabric/components/tests-test_finding_anchorability.yaml'
+  - '.fabric/components/tests-test_forward_fixtures.yaml'
+  - '.fabric/components/tests-test_mapping_standard_conformance.yaml'
+  - '.fabric/components/tests-test_roundtrip_serialization.yaml'
+  - '.fabric/components/tests-test_rule_dialect_axis.yaml'
+  - '.fabric/components/tests-test_rule_form_parity.yaml'
+  - '.fabric/components/tests-test_t259_eventdef_preservation.yaml'
+  - '.fabric/components/tests-test_t311_doc_comment_roundtrip.yaml'
+  - '.fabric/components/tests-test_two_lane_joint_contract.yaml'
+  - '.fabric/components/tests-test_typed_event_fixture_contract.yaml'
+  - '.fabric/components/tests-test_typed_events.yaml'
+  - '.fabric/components/tests-test_validate_iw9.yaml'
+  - '.fabric/components/tests-test_xml_node_type_vocab.yaml'
+  - '.fabric/components/tools-bpmn-cli.yaml'
+  - '.fabric/components/tools-hooks-guard-decision-handover.yaml'
+  - '.fabric/components/tools-hooks-install-decision-handover-guard.yaml'
+  - '.fabric/components/tools-validate-workflow.yaml'
+  - '.fabric/components/tools-yaml-to-bpmn.yaml'
+  - '.tasks/active/T-1145-guard-decision-hand-overs-a-watchtower-d.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_t1145_decision_handover_guard.py'
+  - 'tools/hooks/guard-decision-handover.py'
+  - 'tools/hooks/install-decision-handover-guard.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-13T12:21:38'
+    action: 'T-1145: captured — guard decision hand-overs (a Watchtower decision link in the agent''s reply must pass inception_handoff_blockers), operator request after T-1094'
+  - time: '2026-10-13T12:23:29'
+    action: 'T-1145: pickup to AEF sent (c69abf0f, conversation decision-handover-readiness) — decision links only via fw task review, a Stop-hook guard (832 patch to follow), scaffold inception sections on --type inception'
+  - time: '2026-10-13T12:51:59'
+    action: 'T-1145: Stop hook guard-decision-handover.py — a reply naming /inception/T-XXX or /review/T-XXX runs inception_handoff_blockers on that task and blocks the stop when unready (fails open, one block per stop chain); test 10/10 incl. teeth, bridge-wired; installer for the operator (B-005). Live: blocks T-1094 on IW-1, passes T-1127'
+  - time: '2026-10-13T12:53:49'
+    action: 'T-1145: take back 29 fabric cards 0b0216cd swept in by a directory-wide git add — pre-existing uncommitted rewrites from an earlier run, not T-1145''s; restored to their prior committed state (27) or untracked again (2). Working-tree changes untouched, still uncommitted as before. T-1145''s own two hook cards stay'
+  - time: '2026-10-13T12:55:27'
+    action: 'T-1145: job 021 — operator installs the decision-handover guard (Stop hook) and refreshes the enforcement baseline; dry-run passed (4/4 checks)'
+  - time: '2026-10-13T12:57:09'
+    action: 'T-1145: criteria 1-3 ticked with evidence; verification lines (test, registration, bridge wiring); registration waits on job 021'
+  - time: '2026-10-13T13:24:13'
+    action: 'T-1145: operator registered the decision-handover guard (Stop hook) and refreshed the enforcement baseline'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 7 commit(s), 66 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 66
+  commits: 9
+  files_changed: 206
+  lines_added: 8790
+  lines_removed: 3259
+  footprint_refreshed_at: '2026-11-14T16:07:09Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1145-guard-decision-hand-overs-a-watchtower-d.md
+generated_by: context-agent-hybrid

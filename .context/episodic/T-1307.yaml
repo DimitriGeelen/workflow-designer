@@ -74,10 +74,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 351
-  commits: 3
-  files_changed: 89
-  lines_added: 18087
-  lines_removed: 24
+  commits: 4
+  files_changed: 91
+  lines_added: 18194
+  lines_removed: 30
+  footprint_refreshed_at: '2026-10-26T15:36:31Z'
+  footprint_refreshed_by_commit: 01d82268
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1307-t344-via-t345-guard-went-red-inside-the-.md

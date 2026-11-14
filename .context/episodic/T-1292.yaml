@@ -61,10 +61,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 156
-  commits: 0
-  files_changed: 0
-  lines_added: 0
-  lines_removed: 0
+  commits: 1
+  files_changed: 2
+  lines_added: 124
+  lines_removed: 7
+  footprint_refreshed_at: '2026-10-24T02:02:51Z'
+  footprint_refreshed_by_commit: d614dee1
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1292-testt974-kit-file-list-lacks-verify-find.md

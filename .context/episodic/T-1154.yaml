@@ -104,10 +104,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 5789
-  commits: 4
-  files_changed: 25
-  lines_added: 439
-  lines_removed: 38
+  commits: 5
+  files_changed: 31
+  lines_added: 590
+  lines_removed: 45
+  footprint_refreshed_at: '2026-10-17T16:52:31Z'
+  footprint_refreshed_by_commit: 4d9ef2f7
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1154-pool-border-sized-to-node-boxes-not-rend.md

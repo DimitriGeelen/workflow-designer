@@ -104,10 +104,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 104628
-  commits: 5
-  files_changed: 22
-  lines_added: 755
-  lines_removed: 52
+  commits: 6
+  files_changed: 26
+  lines_added: 1061
+  lines_removed: 63
+  footprint_refreshed_at: '2026-10-20T23:39:12Z'
+  footprint_refreshed_by_commit: 590137e6
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-402-budget-gate-allow-regex-matches-anywhere.md

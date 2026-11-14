@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1141: Answer AEF T-4123: estate knowledge platform requirements from 832's real use
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-12T21:52:50Z
+# ============================================================================
+
+task_id: T-1141
+task_name: "Answer AEF T-4123: estate knowledge platform requirements from 832's real use"
+workflow_type: specification
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-12T18:25:06Z
+completed: 2026-10-12T21:51:43Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-12T21:24:40+02:00
+last_commit: 2026-10-12T21:24:40+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  captured — answer AEF T-4123 (estate knowledge platform requirements, areas A-G) from 832's real use
+
+# Key outcomes
+outcomes:
+  - 'Answer written to docs/reports/T-1141-aef-t4123-estate-knowledge-answer.md covering A-E, the 832-specific question, G(1)-(4), missed requirements and conflicts; every claim about 832 cites a file, task or measured number'
+  - 'Sent on estate-knowledge-requirements in reply to 12fb0401, delivery RECEIVED; message id recorded here — a0a4789f-989c-4124-8c4e-02b9317df846 (2026-10-12)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1141-answer-aef-t-4123-estate-knowledge-platf.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-12T21:24:40'
+    action: 'T-1141: captured — answer AEF T-4123 (estate knowledge platform requirements, areas A-G) from 832''s real use'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 206 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 206
+  commits: 3
+  files_changed: 167
+  lines_added: 5322
+  lines_removed: 516
+  footprint_refreshed_at: '2026-11-14T16:07:08Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1141-answer-aef-t-4123-estate-knowledge-platf.md
+generated_by: context-agent-hybrid

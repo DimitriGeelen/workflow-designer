@@ -153,10 +153,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 1394
-  commits: 9
-  files_changed: 67
-  lines_added: 4940
+  commits: 10
+  files_changed: 69
+  lines_added: 5103
   lines_removed: 3756
+  footprint_refreshed_at: '2026-10-09T20:00:17Z'
+  footprint_refreshed_by_commit: 54bcc09a
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1104-upgrade-the-framework-aef-186-to-187-via.md

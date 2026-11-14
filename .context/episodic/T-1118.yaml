@@ -1,0 +1,88 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1118: Unknown content kinds become designer fields only on operator approval, with per-project and per-workflow field visibility (R2 of the T-347 ruling)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-11T12:57:06Z
+# ============================================================================
+
+task_id: T-1118
+task_name: "Unknown content kinds become designer fields only on operator approval, with per-project and per-workflow field visibility (R2 of the T-347 ruling)"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-10T12:37:38Z
+completed: 2026-10-11T12:56:03Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-10-11T09:36:01+02:00
+last_commit: 2026-10-11T14:21:54+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  exploration done, recommendation GO — panel draws all 13 service-task fields while the corpus fills a median 2; three builds: B1 hide empty fields, B2 project/workflow field profile (filled field never hidden), B3 suggest-as-field with operator approval via runme. hypothesis with checkable signals (decide refused job 012 on the placeholder); job 012 retired, job 013 rehearses against the framework's own decide predicates. job 013 dry-run passed (sha 1f226156), framework decide predicates included
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/012-decide-t1118-go/retired'
+  - '.context/runme/012-decide-t1118-go/run-20261011T131732.log'
+  - '.context/runme/013-decide-t1118-go-gated/dryrun.ok'
+  - '.context/runme/013-decide-t1118-go-gated/job.sh'
+  - 'docs/reports/T-1118-fields-on-approval-and-visibility.md'
+  - '.tasks/active/T-1118-unknown-content-kinds-become-designer-fi.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-11T09:36:01'
+    action: 'T-1118: exploration done, recommendation GO — panel draws all 13 service-task fields while the corpus fills a median 2; three builds: B1 hide empty fields, B2 project/workflow field profile (filled field never hidden), B3 suggest-as-field with operator approval via runme'
+  - time: '2026-10-11T14:20:50'
+    action: 'T-1118: hypothesis with checkable signals (decide refused job 012 on the placeholder); job 012 retired, job 013 rehearses against the framework''s own decide predicates'
+  - time: '2026-10-11T14:21:54'
+    action: 'T-1118: job 013 dry-run passed (sha 1f226156), framework decide predicates included'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 1458 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1458
+  commits: 5
+  files_changed: 171
+  lines_added: 5061
+  lines_removed: 555
+  footprint_refreshed_at: '2026-11-14T16:07:03Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1118-unknown-content-kinds-become-designer-fi.md
+generated_by: context-agent-hybrid

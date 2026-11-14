@@ -1,0 +1,128 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1130: Release designer 0.18.0 (fields: populated-only panel, field profile, Settings defaults per project/map, element details view, optional-select fix)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-11T21:19:20Z
+# ============================================================================
+
+task_id: T-1130
+task_name: "Release designer 0.18.0 (fields: populated-only panel, field profile, Settings defaults per project/map, element details view, optional-select fix)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-11T17:58:53Z
+completed: 2026-10-11T21:18:13Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-11T20:02:00+02:00
+last_commit: 2026-10-11T23:17:12+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  0.18.0 prep — VERSION/APP_VERSION 0.18.0 (parity ok), release notes (populated-only panel, field defaults per project/map, element details view, optional-select fix). release notes — portal note: field defaults need GET/PUT /api/field-profile (contract given); without them the designer uses its defaults and the Settings section is read-only. 0.18.0 kit (61952493) calibrated PASS by codex (OpenAI), GLM-5.3 (Z.AI) and Antigravity (Google), 3/3 and 0 false each, one run each. bridge after the 0.18.0 work — boundary inventory now derives PUT routes (it could not see do_PUT at all) and classifies GET/PUT /api/field-profile, report regenerated, T-958 size pin 9 -> 11; field-profile JSON reads record a fault instead of swallowing it (T-821 census 0 findings, controls 5/5); T-1067 finds its pre-T-1067 editor by the commit that introduced the marker instead of a 20-commit window (6/6). runme job 014-release-designer-0.18.0 (cut, commit, tag designer-v0.18.0, push), dry-run passed (sha f0440ebd); bridge 263/3 = render check (waits on the cut) + T-1103 sweep + fabric teeth that refused while a cron audit held the lock (8/8 on re-run). render gate stopped the operator's 0.18.0 run (job 014 step 1) — it looks for the Horizon/Workflow type dropdowns, which B1 now folds when empty. The check now opens '+ N empty fields' as an author would (the dropdowns must stay REACHABLE). Root cause of the miss: the check only ran on a cut artifact, so every pre-cut suite run said 'artifact not found' and it was written off; added --src (checks the current source) and a bridge leg running it every time — proven to catch this break (fold click removed -> same 2 failures). Leftover dist/aef-workflow-designer-0.18.0.html (== src) removed. Learning recorded. release designer 0.18.0 — populated-only panel (T-1124), field defaults per project and map (T-1125, T-1128), element details view (T-1127), optional-select fix (T-1129); kit re-issued with its own calibration. our Watchtower serves 0.18.0 (pin 0.17.0 -> 0.18.0 from the designer-v0.18.0 tag, fw designer sync --from-tag: MANIFEST and pin anchors match, /designer/app serves sha 3486362c); divergence register updated, _t517 OK
+
+# Key outcomes
+outcomes:
+  - 'VERSION and APP_VERSION read 0.18.0 (T-808 parity); docs/releases/RELEASE-NOTES-0.18.0.md lists T-1124, T-1125, T-1128, T-1127, T-1129 with re-test steps for Greenfield (incl. how a project sets up field-profile.json)'
+  - 'The 0.18.0 kit carries a PASS calibration of its exact bytes by codex, GLM and Antigravity, one run each, every run recorded (ledger L16)'
+  - 'Bridge suite green apart from known load-only timeouts (T-1103) and the render check that waits on the cut'
+  - 'A runme job (cut, commit, tag designer-v0.18.0, push) is prepared, dry-run passes, the watcher is armed; the agent never runs it for real'
+  - 'After the operator''s run: Watchtower re-pinned to 0.18.0 and Greenfield told by DM what 0.18.0 carries and how to re-test'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'release designer 0.18.0 — populated-only panel (T-1124), field defaults per project and map (T-1125, T-1128), element details view (T-1127), optional-select fix (T-1129); kit re-issued with its own calibration'
+    source: git-mined
+  - description: '0.18.0 prep — VERSION/APP_VERSION 0.18.0 (parity ok), release notes (populated-only panel, field defaults per project/map, element details view, optional-select fix)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/policy/designer-pin.yaml'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.context/project/learnings.yaml'
+  - '.context/runme/014-release-designer-0.18.0/dryrun.ok'
+  - '.context/runme/014-release-designer-0.18.0/job.sh'
+  - 'dist/aef-authoring-kit-0.18.0/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.18.0/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.18.0/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.18.0/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.18.0/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.18.0/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.18.0/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.18.0/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.18.0/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.18.0/loop.sh'
+  - 'dist/aef-authoring-kit-0.18.0/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.18.0/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.18.0/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.18.0/validate-workflow.py'
+  - 'dist/aef-workflow-designer-0.18.0.html'
+  - 'dist/MANIFEST.yaml'
+  - 'docs/authoring-kit/calibration-records/0.18.0.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.18.0.md'
+  - 'docs/reports/T-682-arc-2-boundary-inventory.md'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1130-release-designer-0180-fields-populated-o.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_designer_render.py'
+  - 'tools/_t1067-side-label-wrap-cdp.mjs'
+  - 'tools/_t682-boundary-inventory.py'
+  - 'tools/_t958-boundary-row-teeth.py'
+  - 'VERSION'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-11T20:02:00'
+    action: 'T-1130: 0.18.0 prep — VERSION/APP_VERSION 0.18.0 (parity ok), release notes (populated-only panel, field defaults per project/map, element details view, optional-select fix)'
+  - time: '2026-10-11T20:03:38'
+    action: 'T-1130: release notes — portal note: field defaults need GET/PUT /api/field-profile (contract given); without them the designer uses its defaults and the Settings section is read-only'
+  - time: '2026-10-11T20:13:40'
+    action: 'T-1130: 0.18.0 kit (61952493) calibrated PASS by codex (OpenAI), GLM-5.3 (Z.AI) and Antigravity (Google), 3/3 and 0 false each, one run each'
+  - time: '2026-10-11T20:54:52'
+    action: 'T-1130: bridge after the 0.18.0 work — boundary inventory now derives PUT routes (it could not see do_PUT at all) and classifies GET/PUT /api/field-profile, report regenerated, T-958 size pin 9 -> 11; field-profile JSON reads record a fault instead of swallowing it (T-821 census 0 findings, controls 5/5); T-1067 finds its pre-T-1067 editor by the commit that introduced the marker instead of a 20-commit window (6/6)'
+  - time: '2026-10-11T21:37:06'
+    action: 'T-1130: runme job 014-release-designer-0.18.0 (cut, commit, tag designer-v0.18.0, push), dry-run passed (sha f0440ebd); bridge 263/3 = render check (waits on the cut) + T-1103 sweep + fabric teeth that refused while a cron audit held the lock (8/8 on re-run)'
+  - time: '2026-10-11T22:09:44'
+    action: 'T-1130: render gate stopped the operator''s 0.18.0 run (job 014 step 1) — it looks for the Horizon/Workflow type dropdowns, which B1 now folds when empty. The check now opens ''+ N empty fields'' as an author would (the dropdowns must stay REACHABLE). Root cause of the miss: the check only ran on a cut artifact, so every pre-cut suite run said ''artifact not found'' and it was written off; added --src (checks the current source) and a bridge leg running it every time — proven to catch this break (fold click removed -> same 2 failures). Leftover dist/aef-workflow-designer-0.18.0.html (== src) removed. Learning recorded'
+  - time: '2026-10-11T23:10:34'
+    action: 'T-1130: release designer 0.18.0 — populated-only panel (T-1124), field defaults per project and map (T-1125, T-1128), element details view (T-1127), optional-select fix (T-1129); kit re-issued with its own calibration'
+  - time: '2026-10-11T23:17:12'
+    action: 'T-1130: our Watchtower serves 0.18.0 (pin 0.17.0 -> 0.18.0 from the designer-v0.18.0 tag, fw designer sync --from-tag: MANIFEST and pin anchors match, /designer/app serves sha 3486362c); divergence register updated, _t517 OK'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 8 commit(s), 199 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 199
+  commits: 10
+  files_changed: 197
+  lines_added: 22726
+  lines_removed: 572
+  footprint_refreshed_at: '2026-11-14T16:07:06Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1130-release-designer-0180-fields-populated-o.md
+generated_by: context-agent-hybrid

@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1147: Resolve 29 uncommitted fabric card rewrites (edges changed ~2026-10-01, never committed): regenerate fresh and commit the truth
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-13T15:10:46Z
+# ============================================================================
+
+task_id: T-1147
+task_name: "Resolve 29 uncommitted fabric card rewrites (edges changed ~2026-10-01, never committed): regenerate fresh and commit the truth"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-13T15:06:06Z
+completed: 2026-10-13T15:10:31Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Found while untangling T-1145's commit: 27 modified + 2 untracked cards under .fabric/components, depends_on/depended_by changed (172 added, 237 removed, last_enriched dropped), origin unknown (~2026-10-01; a 10-08 git stash/pop rewrote mtimes). Save copies, reset to HEAD, run fw fabric enrich on those cards, compare fresh vs saved vs HEAD, commit the fresh result.
+
+# Key outcomes
+outcomes:
+  - 'The 29 working copies are saved outside the tree before anything is reset (nothing lost) — session scratchpad `t1147-saved/`; the 154 edges only they held are preserved in docs/reports/T-1147-fabric-edges-the-enricher-misses.md'
+  - 'The 27 tracked cards are regenerated with today''s `fw fabric enrich` from their committed state, and fresh vs saved vs HEAD is compared and reported (edges added/removed, dangling targets) — HEAD 570, fresh 588 (+34, none removed), saved 505 (dropped real HEAD edges, held 154 real ones fresh misses); 0 dangling targets; report names the enricher''s blind spots (scripts run by path, files read by teeth, module imports)'
+  - 'Only the regenerated cards are committed (no other paths); the 2 untracked fixture cards are kept or dropped with a stated reason — kept: both describe tracked fixtures that exist (tests/fixtures/warn/W-XML-LANE-NO-AUTHORITY.xml, W-XML-NO-WORKFLOWMETA.xml)'
+  - '`fw fabric drift` runs clean of errors afterwards — orphaned 0, stale 0; no-edge cards 176 → 172; unregistered 85 / under-populated 179 pre-existing'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 4
+  commits: 2
+  files_changed: 191
+  lines_added: 5568
+  lines_removed: 694
+  footprint_refreshed_at: '2026-11-14T16:07:09Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1147-resolve-29-uncommitted-fabric-card-rewri.md
+generated_by: context-agent-hybrid

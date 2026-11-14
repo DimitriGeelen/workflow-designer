@@ -105,10 +105,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 103
-  commits: 4
-  files_changed: 35
-  lines_added: 1319
-  lines_removed: 35
+  commits: 5
+  files_changed: 37
+  lines_added: 1454
+  lines_removed: 42
+  footprint_refreshed_at: '2026-10-14T19:10:41Z'
+  footprint_refreshed_by_commit: 80aecd93
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1177-designer-left-and-right-panels-fold-away.md

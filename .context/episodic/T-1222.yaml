@@ -148,10 +148,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 813
-  commits: 17
-  files_changed: 46
-  lines_added: 2027
-  lines_removed: 212
+  commits: 18
+  files_changed: 52
+  lines_added: 2321
+  lines_removed: 220
+  footprint_refreshed_at: '2026-10-20T10:31:47Z'
+  footprint_refreshed_by_commit: bc86ab1c
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1222-save-drops-44-of-45-native-bpmn-event-de.md

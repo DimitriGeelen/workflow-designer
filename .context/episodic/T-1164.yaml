@@ -1,0 +1,143 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1164: Designer: mark the lane band for lane-anchored validator findings (LANE-CAPACITY, LANE-GEOMETRY, ABBR-DUP, LANE-AUTHORING-DEFAULT)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-17T18:32:43Z
+# ============================================================================
+
+task_id: T-1164
+task_name: "Designer: mark the lane band for lane-anchored validator findings (LANE-CAPACITY, LANE-GEOMETRY, ABBR-DUP, LANE-AUTHORING-DEFAULT)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-13T16:21:20Z
+completed: 2026-10-17T18:31:29Z
+duration_days: 4
+updates_count: 2
+first_commit: 2026-10-17T20:12:11+02:00
+last_commit: 2026-10-17T20:29:46+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  lane-anchored validator findings mark their lane (OBS-465) — header strip edged in the severity colour with the ✖/⚠ pill, dock row anchored and selects the lane, counted on the map. reviewer verdict. reviewer amber fixed, not reframed — the toast rises above the open findings dock; a pinned lane name is centred in the visible part of its lane (no longer under the dock). pinned names re-centre only when they fit the visible room, never leave their lane, clear the finding pill; test no longer provokes the autosave toast. closed — 5/5 agent, review criterion ticked by reviewer verdict (green), verification 5/5. reviewer ledger rows and evidence copies
+
+# Key outcomes
+outcomes:
+  - 'A finding whose location names a lane (`lane ''<id>''`, the first quoted id when two are named) that matches an exported lane id marks that lane: its header strip carries the severity (ERROR red / WARN orange, worst wins) and a ✖/⚠ pill; node findings keep resolving to nodes first'
+  - 'The dock row of a lane finding is anchored (no "not on the map"), clicking it selects the lane, and the header count "N on the map" includes marked lanes'
+  - 'Markers come only from the latest check (a lane fixed and re-checked loses its mark; an unavailable check clears every mark); `FINDING_MARKER_EXCLUDED` applies to lane findings too; the BPMN export is unchanged by a mark — the exclusion is checked before either resolver runs (by construction, no separate leg)'
+  - 'CDP test: a node moved clear of every lane band gives LANE-GEOMETRY/LANE-CAPACITY marks on the right lane(s) with anchored rows; fixing it and re-checking clears them; the pre-change designer fails it (control); wired into the bridge suite; T-962''s test stays green — `_t1164` 11/11 (control 4/11); T-962 11/11 after its lane leg was updated to the new contract (control fails it)'
+  - 'Screenshots at 1024, 1440 and 1920 (lane marked, dock open; and scrolled with the sticky lane strip), read control by control in `## Visual Verification`, independent review green — green on dea57767 after two ambers, both fixed in the product or the test, not reframed'
+  - '[REVIEW] A lane-anchored finding is visibly on the map: the marked lane is recognisable as the one in trouble, the lane name stays readable, and nothing in the canvas or dock is covered or clipped'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'reviewer amber fixed, not reframed — the toast rises above the open findings dock; a pinned lane name is centred in the visible part of its lane (no longer under the dock)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-10-17 — Mark the header strip, not the whole band'
+    chose: 'the lane''s HEADER strip carries the mark (severity edge + the node marker''s ✖/⚠ pill at its top); the label is fitted below the pill when marked. It travels with the T-1091 sticky copy, so it stays visible when scrolled.'
+    alternatives_rejected: ['tinting the whole lane band (it already carries the authority tint, and a full-width colour would fight every node marker in the lane).']
+  - decision: '2026-10-17 — Fixed in this task: a node outside the lanes must not stretch the drawn pool (an interaction with the closed T-1154)'
+  - decision: '2026-10-17 — Reviewer amber: two covered things, both fixed rather than reframed'
+    alternatives_rejected: ['re-framing the screenshots so the overlap does not show (would pass the review and leave the defect).']
+  - decision: '2026-10-17 — Second amber: the raised toast now sat on the canvas; and my re-centring had two flaws'
+  - decision: '2026-10-17 — T-962''s lane leg updated, not deleted'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1164/AC1-judge-t-1164-r3-2def7c2f72ca.md'
+  - '.context/reviews/evidence/T-1164/AC1-judge-t-1164-r3-4571fa4aa0d8.md'
+  - '.context/reviews/evidence/T-1164/AC1-judge-t-1164-r3-9efd288b23e1.md'
+  - '.context/reviews/evidence/T-1164/crop-1024-sticky-label.png'
+  - '.context/reviews/evidence/T-1164/crop-1920-marked-header.png'
+  - '.context/reviews/evidence/T-1164/judge-t-1164-r3-2def7c2f72ca-crop-1024-marked-header.png'
+  - '.context/reviews/evidence/T-1164/judge-t-1164-r3-2def7c2f72ca-crop-1440-marked-header.png'
+  - '.context/reviews/evidence/T-1164/judge-t-1164-r3-2def7c2f72ca-crop-1440-sticky-toast.png'
+  - '.context/reviews/evidence/T-1164/judge-t-1164-r3-2def7c2f72ca-crop-1920-marked-header.png'
+  - '.context/reviews/evidence/T-1164/judge-t-1164-r3-2def7c2f72ca-t1164-1024-marked.png'
+  - '.context/reviews/evidence/T-1164/judge-t-1164-r3-2def7c2f72ca-t1164-1024-sticky.png'
+  - '.context/reviews/evidence/T-1164/judge-t-1164-r3-2def7c2f72ca-t1164-1440-marked.png'
+  - '.context/reviews/evidence/T-1164/judge-t-1164-r3-2def7c2f72ca-t1164-1440-sticky.png'
+  - '.context/reviews/evidence/T-1164/judge-t-1164-r3-2def7c2f72ca-t1164-1920-marked.png'
+  - '.context/reviews/evidence/T-1164/judge-t-1164-r3-2def7c2f72ca-t1164-1920-sticky.png'
+  - '.context/reviews/evidence/T-1164/judge-t-1164-r3-9efd288b23e1-crop-1024-marked-header.png'
+  - '.context/reviews/evidence/T-1164/judge-t-1164-r3-9efd288b23e1-t1164-1024-marked.png'
+  - '.context/reviews/evidence/T-1164/judge-t-1164-r3-9efd288b23e1-t1164-1024-sticky.png'
+  - '.context/reviews/evidence/T-1164/judge-t-1164-r3-9efd288b23e1-t1164-1440-marked.png'
+  - '.context/reviews/evidence/T-1164/judge-t-1164-r3-9efd288b23e1-t1164-1440-sticky.png'
+  - '.context/reviews/evidence/T-1164/judge-t-1164-r3-9efd288b23e1-t1164-1920-marked.png'
+  - '.context/reviews/evidence/T-1164/judge-t-1164-r3-9efd288b23e1-t1164-1920-sticky.png'
+  - '.context/reviews/evidence/T-1164/t1164-1024-marked.png'
+  - '.context/reviews/evidence/T-1164/t1164-1024-sticky.png'
+  - '.context/reviews/evidence/T-1164/t1164-1440-marked.png'
+  - '.context/reviews/evidence/T-1164/t1164-1440-sticky.png'
+  - '.context/reviews/evidence/T-1164/t1164-1920-marked.png'
+  - '.context/reviews/evidence/T-1164/t1164-1920-sticky.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.fabric/components/tools-_t1164-lane-findings-cdp.yaml'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-1164-designer-mark-the-lane-band-for-lane-anc.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_t962_findings_on_map.py'
+  - 'tools/_t1164-lane-findings-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-17T20:12:11'
+    action: 'T-1164: lane-anchored validator findings mark their lane (OBS-465) — header strip edged in the severity colour with the ✖/⚠ pill, dock row anchored and selects the lane, counted on the map'
+  - time: '2026-10-17T20:14:40'
+    action: 'T-1164: reviewer verdict'
+  - time: '2026-10-17T20:20:22'
+    action: 'T-1164: reviewer amber fixed, not reframed — the toast rises above the open findings dock; a pinned lane name is centred in the visible part of its lane (no longer under the dock)'
+  - time: '2026-10-17T20:22:09'
+    action: 'T-1164: reviewer verdict'
+  - time: '2026-10-17T20:27:05'
+    action: 'T-1164: pinned names re-centre only when they fit the visible room, never leave their lane, clear the finding pill; test no longer provokes the autosave toast'
+  - time: '2026-10-17T20:28:14'
+    action: 'T-1164: reviewer verdict'
+  - time: '2026-10-17T20:29:38'
+    action: 'T-1164: closed — 5/5 agent, review criterion ticked by reviewer verdict (green), verification 5/5'
+  - time: '2026-10-17T20:29:46'
+    action: 'T-1164: reviewer ledger rows and evidence copies'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 8 commit(s), 5890 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [observations]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 5890
+  commits: 11
+  files_changed: 207
+  lines_added: 5394
+  lines_removed: 563
+  footprint_refreshed_at: '2026-11-14T16:07:10Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1164-designer-mark-the-lane-band-for-lane-anc.md
+generated_by: context-agent-hybrid

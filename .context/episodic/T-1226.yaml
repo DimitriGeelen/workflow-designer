@@ -81,10 +81,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 291
-  commits: 5
-  files_changed: 7
-  lines_added: 782
-  lines_removed: 8
+  commits: 6
+  files_changed: 9
+  lines_added: 895
+  lines_removed: 13
+  footprint_refreshed_at: '2026-10-20T18:26:53Z'
+  footprint_refreshed_by_commit: 80eb4251
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1226-push-block-remove-superseded-reviewer-ro.md

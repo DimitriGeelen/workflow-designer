@@ -84,10 +84,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 7
-  commits: 1
-  files_changed: 5
-  lines_added: 600
-  lines_removed: 17
+  commits: 3
+  files_changed: 7
+  lines_added: 727
+  lines_removed: 26
+  footprint_refreshed_at: '2026-10-18T09:16:05Z'
+  footprint_refreshed_by_commit: 5ecb394b
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1200-rule-dialect-axis-derive-conventional-fr.md

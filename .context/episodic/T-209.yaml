@@ -143,10 +143,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 134395
-  commits: 20
-  files_changed: 38
-  lines_added: 1265
-  lines_removed: 104
+  commits: 21
+  files_changed: 42
+  lines_added: 1571
+  lines_removed: 115
+  footprint_refreshed_at: '2026-10-20T23:39:12Z'
+  footprint_refreshed_by_commit: 590137e6
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-209-832-side-compile-promote-create-producer.md

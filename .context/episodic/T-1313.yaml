@@ -215,10 +215,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 529
-  commits: 3
-  files_changed: 144
-  lines_added: 111
-  lines_removed: 8520
+  commits: 4
+  files_changed: 146
+  lines_added: 359
+  lines_removed: 8525
+  footprint_refreshed_at: '2026-10-26T23:36:46Z'
+  footprint_refreshed_by_commit: 1ec1275c
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1313-core-tier-sandboxes-stage-files-in-the-r.md

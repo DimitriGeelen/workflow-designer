@@ -1,0 +1,74 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1148: Report two AEF tool findings: fabric enricher blind spots (T-1147) and the Human-AC tick guard blocking docs/reports/T-NNNN-* writes
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-13T15:22:21Z
+# ============================================================================
+
+task_id: T-1148
+task_name: "Report two AEF tool findings: fabric enricher blind spots (T-1147) and the Human-AC tick guard blocking docs/reports/T-NNNN-* writes"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-13T15:19:19Z
+completed: 2026-10-13T15:22:01Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Operator asked 2026-10-13 to send both upstream. (1) fw fabric enrich misses 154 real edges (scripts run by path, files read by teeth, module imports), evidence docs/reports/T-1147-fabric-edges-the-enricher-misses.md. (2) check-human-ac-tick refuses shell writes whose target is docs/reports/T-1147-*.md, not a task file.
+
+# Key outcomes
+outcomes:
+  - 'Guard false positive sent to AEF with the exact pattern (lib/shell_write_scan.py MENTION_RE `\bT-\d+[-\w]*\.md\b`), the field case and a suggested fix; delivery RECEIVED, id recorded — 9403fd00-b22c-4f4e-b711-e09b3bc51d08 (conversation shell-write-guard-docs-false-positive)'
+  - 'Enricher blind spots sent to AEF with the evidence report path and the three patterns; delivery RECEIVED, id recorded — fe17ed5c-ca03-4498-a42b-4ef812d39207 (conversation fabric-enrich-blind-spots)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2
+  commits: 2
+  files_changed: 165
+  lines_added: 5154
+  lines_removed: 509
+  footprint_refreshed_at: '2026-11-14T16:07:10Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1148-report-two-aef-tool-findings-fabric-enri.md
+generated_by: context-agent-hybrid

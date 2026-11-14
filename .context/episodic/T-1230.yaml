@@ -1,0 +1,88 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1230: runme picker is flaky on the operator's terminal (redraw with wrapped lines, ESC O arrows, no number priority)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-20T14:45:32Z
+# ============================================================================
+
+task_id: T-1230
+task_name: "runme picker is flaky on the operator's terminal (redraw with wrapped lines, ESC O arrows, no number priority)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-20T14:39:06Z
+completed: 2026-10-20T14:44:24Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-20T16:44:11+02:00
+last_commit: 2026-10-20T16:44:23+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  runme picker fixed after the operator found it flaky — full repaint with lines cut to the terminal width (wrapped lines broke the in-place redraw), ESC O arrows, digits 1-9 set a job's place, 0/Backspace remove, cursor hidden and restored; legs 26-29 fail on the old picker. evidence as text inside the criteria block (a heading had closed it)
+
+# Key outcomes
+outcomes:
+  - 'Each redraw clears and repaints the whole menu; every job line is cut to the terminal width, so nothing wraps'
+  - 'Arrows work in both encodings, `ESC [ A/B` and `ESC O A/B` (test leg)'
+  - 'A digit 1-9 on the highlighted job puts it at that place in the order (moving the others); space adds or'
+  - 'The cursor is hidden while picking and restored on every exit (Enter, q, Esc, Ctrl-C)'
+  - 'All legs of `tests/test_t1055_runme_launcher.py` and `tests/test_t1003_runme_signal.sh` pass'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'runme picker fixed after the operator found it flaky — full repaint with lines cut to the terminal width (wrapped lines broke the in-place redraw), ESC O arrows, digits 1-9 set a job''s place, 0/Backspace remove, cursor hidden and restored; legs 26-29 fail on the old picker'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'CLAUDE.md'
+  - '.context/project/learnings.yaml'
+  - 'docs/reports/runme-job-queue-for-aef.md'
+  - '.tasks/active/T-1230-runme-picker-is-flaky-on-the-operators-t.md'
+  - 'tests/test_t1055_runme_launcher.py'
+  - 'tools/runme-launcher.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-20T16:44:11'
+    action: 'T-1230: runme picker fixed after the operator found it flaky — full repaint with lines cut to the terminal width (wrapped lines broke the in-place redraw), ESC O arrows, digits 1-9 set a job''s place, 0/Backspace remove, cursor hidden and restored; legs 26-29 fail on the old picker'
+  - time: '2026-10-20T16:44:23'
+    action: 'T-1230: evidence as text inside the criteria block (a heading had closed it)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 5
+  commits: 4
+  files_changed: 172
+  lines_added: 5358
+  lines_removed: 556
+  footprint_refreshed_at: '2026-11-14T16:07:01Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1230-runme-picker-is-flaky-on-the-operators-t.md
+generated_by: context-agent-hybrid

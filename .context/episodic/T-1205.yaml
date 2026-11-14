@@ -69,10 +69,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 65
-  commits: 1
-  files_changed: 4
-  lines_added: 127
-  lines_removed: 48
+  commits: 3
+  files_changed: 7
+  lines_added: 230
+  lines_removed: 55
+  footprint_refreshed_at: '2026-10-18T23:56:48Z'
+  footprint_refreshed_by_commit: 66e4b6e9
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1205-repair-stale-teeth-in-t390-and-t640-muta.md

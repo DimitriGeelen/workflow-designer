@@ -71,10 +71,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 5315
-  commits: 1
-  files_changed: 4
-  lines_added: 124
-  lines_removed: 9
+  commits: 2
+  files_changed: 6
+  lines_added: 228
+  lines_removed: 15
+  footprint_refreshed_at: '2026-10-17T08:57:22Z'
+  footprint_refreshed_by_commit: bf19af14
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1161-gate-the-t-682-boundary-inventory-on-com.md

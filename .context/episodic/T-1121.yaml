@@ -108,10 +108,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 1220
-  commits: 6
-  files_changed: 30
-  lines_added: 17395
-  lines_removed: 35
+  commits: 7
+  files_changed: 47
+  lines_added: 17795
+  lines_removed: 117
+  footprint_refreshed_at: '2026-10-11T09:59:25Z'
+  footprint_refreshed_by_commit: 408b17a8
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1121-release-designer-0170-p1p2-pools--messag.md

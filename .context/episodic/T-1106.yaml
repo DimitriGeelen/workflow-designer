@@ -89,10 +89,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 1085
-  commits: 7
-  files_changed: 12
-  lines_added: 373
+  commits: 8
+  files_changed: 14
+  lines_added: 472
   lines_removed: 20
+  footprint_refreshed_at: '2026-10-09T23:43:55Z'
+  footprint_refreshed_by_commit: 1df4fdb4
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1106-greenfield-hub-credential-stopgap-runme-.md

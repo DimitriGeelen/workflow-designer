@@ -92,10 +92,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 13339
-  commits: 2
-  files_changed: 20
-  lines_added: 371
-  lines_removed: 12
+  commits: 4
+  files_changed: 26
+  lines_added: 523
+  lines_removed: 19
+  footprint_refreshed_at: '2026-10-17T14:58:48Z'
+  footprint_refreshed_by_commit: 144124fc
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1091-greenfield-t-172-3-settings-option-stick.md

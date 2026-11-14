@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1132: T-589 panel-links test went stale: metaKeys total pinned at 20 and a frozen pre-T-589 build as byte-identity control
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-10-12T00:04:51Z
+# ============================================================================
+
+task_id: T-1132
+task_name: "T-589 panel-links test went stale: metaKeys total pinned at 20 and a frozen pre-T-589 build as byte-identity control"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-12T00:01:09Z
+completed: 2026-10-12T00:03:42Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-10-12T02:03:40+02:00
+last_commit: 2026-10-12T02:03:40+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  T-589 panel-links test made honest and scheduled — 'no-contract-change' asserts fabricRef/links are absent from metaKeys (was: total pinned at 20; T-889 added authority on purpose); byte-identity control is THIS build with the two fields ablated (was: a frozen pre-T-589 build, so lane-handling changes read as T-589). 10/10; teeth T589_ABLATION_TEETH=1 -> identity leg red; wired into the bridge
+
+# Key outcomes
+outcomes:
+  - '''no-contract-change'' asserts what T-589 claimed — neither fabricRef nor links is in metaKeys — instead of pinning the total that other tasks legitimately move'
+  - '''byte-identical-when-unused'' uses THIS build with T-589''s two fields ablated as its control, so only T-589 is the variable'
+  - 'tools/_t589-panel-links-cdp.mjs passes all legs; the ablation leg is shown to bite (a plain export perturbed by a field → red)'
+  - 'Wired into tests/run-bridge-tests.sh so it cannot go stale unseen again'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1132-t-589-panel-links-test-went-stale-metake.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t589-panel-links-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-12T02:03:40'
+    action: 'T-1132: T-589 panel-links test made honest and scheduled — ''no-contract-change'' asserts fabricRef/links are absent from metaKeys (was: total pinned at 20; T-889 added authority on purpose); byte-identity control is THIS build with the two fields ablated (was: a frozen pre-T-589 build, so lane-handling changes read as T-589). 10/10; teeth T589_ABLATION_TEETH=1 -> identity leg red; wired into the bridge'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2
+  commits: 3
+  files_changed: 168
+  lines_added: 5208
+  lines_removed: 516
+  footprint_refreshed_at: '2026-11-14T16:07:06Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1132-t-589-panel-links-test-went-stale-metake.md
+generated_by: context-agent-hybrid

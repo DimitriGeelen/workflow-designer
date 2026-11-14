@@ -202,10 +202,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 1067
-  commits: 24
-  files_changed: 75
-  lines_added: 6991
-  lines_removed: 3911
+  commits: 28
+  files_changed: 104
+  lines_added: 10741
+  lines_removed: 3991
+  footprint_refreshed_at: '2026-10-19T17:22:00Z'
+  footprint_refreshed_by_commit: f18b2917
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1208-upgrade-aef-v1811---v1812-security-hotfi.md

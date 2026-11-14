@@ -71,10 +71,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 181
-  commits: 2
-  files_changed: 3
-  lines_added: 454
-  lines_removed: 13
+  commits: 3
+  files_changed: 5
+  lines_added: 557
+  lines_removed: 18
+  footprint_refreshed_at: '2026-10-20T18:24:30Z'
+  footprint_refreshed_by_commit: b91f1a2b
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1231-runme-a-sourced-job-can-redefine-confirm.md
