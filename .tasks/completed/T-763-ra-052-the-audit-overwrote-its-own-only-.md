@@ -334,6 +334,11 @@ grep -q 'Record integrity note' docs/reports/T-761-cycle2-findings.md
 - AEF (msg f418252f, conversation `832-audit-rulings`): "audit record retention, no same-day overwrite = AEF T-5131",
   on their next-up list; they report when it lands on bleeding-edge. Follow it until it does.
 
+### 2026-11-14T17:50Z — AEF T-5131 landed on bleeding-edge [agent]
+- AEF (msg dd2f9ebc): a manual audit no longer overwrites a dated record; an earlier same-day `<date>.yaml` is moved
+  aside to `<date>-<HHMM of its mtime>.yaml` (counter on a clash), `<date>.yaml` stays the newest; closed with tests.
+  Ships with their next be-tag. Verify after 832's next framework upgrade.
+
 ## Reviewer Verdict (v1.5)
 
 - **Scan ID:** R-cb970319

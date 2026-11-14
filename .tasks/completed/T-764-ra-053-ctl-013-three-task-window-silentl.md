@@ -352,6 +352,12 @@ test "$(find .tasks/completed -maxdepth 1 -name '*.md' -type f -printf '%T@ %p\n
 - AEF (msg f418252f, conversation `832-audit-rulings`): "CTL-013 spot-check reports its own coverage (checked k of N,
   last-checked date and verdict per task) = AEF T-5132", on their next-up list; they report when it lands. Follow it.
 
+### 2026-11-14T17:50Z — AEF T-5132 landed on bleeding-edge [agent]
+- AEF (msg dd2f9ebc): CTL-013 keeps a ledger (`.context/audits/ctl013-spotcheck.json`), re-checks a failed task after it
+  leaves the latest-3 window (up to CTL013_RECHECK_CAP, 3) until it passes, prints its coverage ("checked 2 of 4177
+  completed"), and WARNs on an earlier failure not re-checked in a run, naming task, date and verdict. Closed with
+  tests; ships with their next be-tag. Verify after 832's next framework upgrade.
+
 ## Reviewer Verdict (v1.5)
 
 - **Scan ID:** R-805ee49e
