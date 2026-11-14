@@ -1,0 +1,75 @@
+# ============================================================================
+# EPISODIC MEMORY - T-750: RA-041: CTL-029 arc-003 task T-723 is completable but not closed
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-14T16:16:33Z
+# ============================================================================
+
+task_id: T-750
+task_name: "RA-041: CTL-029 arc-003 task T-723 is completable but not closed"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-21T07:59:06Z
+completed: 2026-11-14T16:16:24Z
+duration_days: 54
+updates_count: 4
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Audit reports [WARN] CTL-029: T-723 has all Agent ACs ticked but status='started-work'. T-723 is itself arc-003 remediation task RA-027.
+
+# Key outcomes
+outcomes:
+  - 'T-723 reaches a terminal state through the proper verb — closed by the operator, or re-opened with a named outstanding criterion. The agent does not close it and does not change its ownership away from human.'
+  - '`fw audit --section quality` no longer reports T-723 under CTL-029.'
+  - 'The generic defect is stated separately from this instance: whether an agent-produced task should ever be born `owner: human` with zero Human ACs, which is the condition that produced all four of this cycle''s CTL-029 findings. If that needs an architectural ruling, it is filed as a Sovereign question, not decided here.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 78257 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [audit-remediation, cycle-1]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 78257
+  commits: 2
+  files_changed: 7
+  lines_added: 333
+  lines_removed: 24
+  footprint_refreshed_at: '2026-11-14T16:16:44Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-750-ra-041-ctl-029-arc-003-task-t-723-is-com.md
+generated_by: context-agent-hybrid

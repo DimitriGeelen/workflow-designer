@@ -1,26 +1,26 @@
 ---
-id: T-709
-name: "RA-013: CTL-029 T-041 has all Agent ACs ticked but status started-work"
+id: T-750
+name: "RA-041: CTL-029 arc-003 task T-723 is completable but not closed"
 description: >
-  Audit WARN cycle 1 2026-09-16: completable, not closed. Whether it closes clean
-  or lands partial-complete depends on its Human ACs, which only the operator may
-  tick.
+  Audit reports [WARN] CTL-029: T-723 has all Agent ACs ticked but status='started-work'.
+  T-723 is itself arc-003 remediation task RA-027.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
-tags: [arc-003, audit-remediation, RA-013]
-components: []
-related_tasks: []
+horizon: null
+tags: [audit-remediation, cycle-1]
+components: [.tasks/active/T-723-ra-027-fail-d2-human-review-queue-has-12.md]
+related_tasks: [T-749, T-713, T-715]
 arc_id: arc-003
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-09-16T13:25:27Z
-last_update: 2026-09-29T17:31:17Z
-date_finished:
+created: 2026-09-21T07:59:06Z
+last_update: 2026-11-14T16:16:24Z
+date_finished: 2026-11-14T16:16:24Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -32,127 +32,80 @@ date_finished:
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 bvp_scores_proposed:
-  - ts: '2026-09-16T13:30:35Z'
+  - ts: '2026-09-21T08:00:51Z'
     estimator: bvp-estimator-v1-heuristic
     scores:
       D1: 4
       D2: 4
-      D3: 4
+      D3: 0
       D4: 2
       F-RECALL: 0
       F2: 0
       F4: 0
       F3: 0
       F1: 1
-    rationale: D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=4
-      (body:framework-level-ux); D4=2 (body:env-class-handled); F-RECALL=0 
-      (no-signal); F2=0 (no-signal); F4=0 (no-signal); F3=0 (no-signal); F1=1 
+    rationale: D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=0
+      (no-signal); D4=2 (body:env-class-handled); F-RECALL=0 (no-signal); F2=0 
+      (no-signal); F4=0 (no-signal); F3=0 (no-signal); F1=1 
       (prose:process-enablement-incidental)
     rubric_sha: e4a00f38e801
 cost_estimate_proposed:
-  - ts: '2026-09-16T13:30:51Z'
+  - ts: '2026-09-21T08:01:04Z'
     estimator: bvp-estimator-v1-heuristic
     cost_estimate:
       tier: 2
-      effort: 8
-    rationale: blast_radius=absent (no-signal); tier=2 (no-signal); effort=8 
+      effort: 5
+    rationale: blast_radius=absent (no-signal); tier=2 (no-signal); effort=5 
+      (no-signal)
+    rubric_sha: e4a00f38e801
+  - ts: '2026-09-24T21:59:35Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 6
+      blast_radius: 1
+    rationale: blast_radius=1 (no-signal); tier=2 (no-signal); effort=6 
       (no-signal)
     rubric_sha: e4a00f38e801
 ---
 
-# T-709: RA-013: CTL-029 T-041 has all Agent ACs ticked but status started-work
+# T-750: RA-041: CTL-029 arc-003 task T-723 is completable but not closed
 
 ## Context
 
-**Finding RA-013** - cycle 1, 2026-09-16. Source: fw audit. Severity: WARN.
+**Background / trigger:** the September residue audit (RA-041) saw CTL-029 report arc-003 task T-723 as completable
+but not closed.
+**Problem / hypothesis:** T-723 was born `owner: human` with no Human criteria, so the agent could not close it and nobody did.
+**Goal:** T-723 reaches a terminal state through the proper verb, and the generic defect is ruled.
+**Expected outcome:** CTL-029 no longer reports T-723.
 
-Cycle-1 baseline for regression detection: audit Pass 166 / Warn 31 / Fail 1; doctor 3 warn / 0 fail.
-
-**Verbatim tool output:**
+### Verbatim tool output
 
 ```
-[WARN] CTL-029: T-041 has all Agent ACs ticked but status='started-work' - completable, not closed
+[WARN] CTL-029: T-723 has all Agent ACs ticked but status='started-work' — completable, not closed
 ```
 
-**The invariant that is not held:**
+### The invariant that is not held
 
-T-041 has satisfied every criterion the agent can verify and has not moved out of started-work. The invariant not held is that task status reflects task state. Whether T-041 closes clean or lands partial-complete depends on whether it carries unticked Human ACs - which only the operator may tick. Until the status is flipped, T-041 is counted as in-flight work by the velocity, lifecycle and task-debt checks simultaneously, so a single unflipped status inflates four findings at once.
+T-723 is arc-003's own remediation task RA-027 (human review queue has tasks waiting over 30 days). Every Agent acceptance criterion on it is ticked and none is outstanding, yet it is neither closed nor parked: it is `owner: human` and `status: started-work`. The invariant not held is that a task with no outstanding agent work should not be occupying an in-progress state. The structural point is sharper than the warning: the remediation arc has begun generating the findings it exists to remediate, and it cannot clear them itself, because completing an `owner: human` task is not delegated to the agent.
 
-**Root-cause siblings:** T-723 (RA-027), T-724 (RA-028), T-727 (RA-031)
+### Root-cause links
 
-**Operator action / sovereignty boundary:**
-Copy-pasteable: cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task verify T-041
-
-**Verification is the next cycle's re-run of the originating check, not this task's own assertion that it is fixed.**
+One class of four, same root cause. Siblings: T-747 (RA-006), T-748 (RA-007), T-749 (RA-012).
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `fw audit --section oe-daily` no longer names T-041 under CTL-029
-- [ ] T-041 is either in .tasks/completed/ with status work-completed, or is explicitly partial-complete with owner: human and its remaining Human ACs enumerated
-- [ ] No skip or force flag was used to achieve either state
+- [x] T-723 reaches a terminal state through the proper verb — closed by the operator, or re-opened with a named outstanding criterion. The agent does not close it and does not change its ownership away from human.
+- [x] `fw audit --section quality` no longer reports T-723 under CTL-029.
+- [x] The generic defect is stated separately from this instance: whether an agent-produced task should ever be born `owner: human` with zero Human ACs, which is the condition that produced all four of this cycle's CTL-029 findings. If that needs an architectural ruling, it is filed as a Sovereign question, not decided here.
 
-**Why all three stay unticked — measured 2026-09-20, not assumed (T-723 run):**
-
-T-041 has **every acceptance criterion ticked, Agent and Human** (`agentOpen=0`,
-`humanTicked=1/1`). The operator already performed the review this task is waiting on.
-What is missing is only `status: started-work` → `work-completed`.
-
-Neither limb of AC2 is reachable by an agent:
-
-- **Limb 1** ("in `.tasks/completed/` with status work-completed") needs the completion verb.
-  Attempted; refused twice over. The **focus-drift gate** (T-1730) blocked it outright — its
-  only exits are `fw context focus T-041`, `--switch-focus`, or `FW_SWITCH_FOCUS=1`, and the
-  latter two are Tier-2 bypasses this run is not authorised to take. Past that gate the
-  **sovereignty gate** refuses `work-completed` on `owner: human` — demonstrated live today on
-  T-723 and T-708, both of which routed to `/review/` and stayed `started-work`.
-- **Limb 2** ("explicitly partial-complete with owner: human and its remaining Human ACs
-  enumerated") has nothing to enumerate: T-041's remaining Human ACs number **zero**. And it is
-  not in partial-complete state — it is `started-work`. Both halves of the limb fail.
-
-AC3 would pass **vacuously** — no flag was used because no state was achieved. Ticking it would
-record a bypass-free transition that never happened (PL-205).
-
-**`fw task archive-eligible` cannot reach this class.** That sweep requires
-`status: work-completed` (audit.sh:3788-3830), which is why it cleared T-093/T-178 but leaves
-T-041 untouched. CTL-029's *second* detector (audit.sh:3921, "all Agent ACs ticked but
-status='started-work'") has no sweep verb behind it at all.
-
-**Eight tasks are in exactly this state** — every Agent and Human AC ticked, waiting only on the
-verb: **T-041, T-101, T-102, T-105, T-293, T-309, T-357, T-681**. Six others in the CTL-029 set
-genuinely await judgement (Human AC unticked): T-189, T-209, T-286, T-344, T-345, T-402.
-
-### Human
-<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
-     Remove this section if all criteria are agent-verifiable.
-     Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
-
-     ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
-     If your Expected clause is grep-able / file-exists / structural (a deterministic
-     shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
-     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
-     verification genuinely needs human taste (tone, feel, layout rhythm).
-     See CLAUDE.md §AC Classification Guidance for the conversion rule.
-
-     [REVIEW] example (genuine human judgment):
-       - [ ] [REVIEW] Dashboard renders correctly
-         **Steps:**
-         1. Open https://example.com/dashboard in browser
-         2. Verify all panels load within 2 seconds
-         3. Check browser console for errors
-         **Expected:** All panels visible, no console errors
-         **If not:** Screenshot the broken panel and note the console error
-
-     [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
-       - [ ] [REVIEWER] Block message names both bypass mechanisms
-         **Steps:**
-         1. Run `bin/fw reviewer T-709`
-         **Expected:** Verdict: PASS; no findings on `block-message-completeness`
-         **If not:** Inspect hook block-message string and add missing mechanism
-       Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-709 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
--->
+**Evidence (2026-11-14):** T-723 is work-completed in `.tasks/completed/` (date_finished 2026-10-19), closed through
+`fw task update` on its own path, not by this task. CTL-029 on 2026-11-14 names only T-1212 and T-1241 (the check
+runs in the daily section on this framework build). The generic defect was filed and ruled: **SQ-2 RULED NO (PD-297,
+recorded by T-766):** an agent-produced task must never be born `owner: human` with zero Human ACs; the fault was
+reported upstream as T-766 records.
 
 ## Verification
 
@@ -202,8 +155,8 @@ genuinely await judgement (Human AC unticked): T-189, T-209, T-286, T-344, T-345
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
-
-# Parked: `fw task update T-041 --status work-completed` on a human-owned task is the operator's act.
+grep -q '^status: work-completed' .tasks/completed/T-723-*.md
+grep -q 'SQ-2 RULED NO' .context/project/decisions.yaml
 
 ## RCA
 
@@ -245,6 +198,11 @@ genuinely await judgement (Human AC unticked): T-189, T-209, T-286, T-344, T-345
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-11-14 — closed on its own; the generic question was ruled
+- **What changed:** T-723 closed 2026-10-19; SQ-2 (PD-297) ruled the born-human-with-no-ACs pattern wrong.
+- **Plan impact:** none.
+- **Triggered:** nothing new.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -259,7 +217,7 @@ genuinely await judgement (Human AC unticked): T-189, T-209, T-286, T-344, T-345
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-709 go|no-go|defer --rationale "..."
+     fw inception decide T-750 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -268,13 +226,37 @@ genuinely await judgement (Human AC unticked): T-189, T-209, T-286, T-344, T-345
 
 ## Updates
 
-### 2026-09-16T13:25:27Z — task-created [task-create-agent]
+### 2026-09-21T07:59:06Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-709-ra-013-ctl-029-t-041-has-all-agent-acs-t.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-750-ra-041-ctl-029-arc-003-task-t-723-is-com.md
 - **Context:** Initial task creation
 
-### 2026-09-20T18:39:12Z — status-update [task-update-agent]
+### 2026-09-24T22:06:00Z — investigation [T-837 round 2]
+- **AC1/AC2 confirmed still open:** T-723 (`owner: human`) has all three Agent ACs ticked
+  ([x]) but `status: started-work`, verified directly. Same structural block as T-749/T-708:
+  the AC text bars the agent from closing it or changing its ownership, so this cannot reach
+  a terminal state under agent initiative. Evidence for the operator: all 3 Agent ACs ticked,
+  no placeholders, no Human ACs section to block on.
+- **AC3 answered — see T-749 for the full population check.** T-723 is one of exactly four
+  CTL-029-flagged tasks (with T-189/T-713, T-286/T-715, T-708/T-749) that are `owner: human`
+  with zero `### Human` AC bullets, out of 16 tasks CTL-029 named this cycle. The other 12
+  each carry a genuine Human AC. Surfaced as a Sovereign question in the T-837 round 2
+  handback (see that report) rather than resolved here.
+- **Left as:** `started-work`, parked pending the operator closing T-723 (or T-723 acquiring
+  a real Human AC).
+
+### 2026-09-24T22:00:03Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 
-### 2026-09-29T17:31:17Z — status-update [task-update-agent]
-- **Change:** owner: human → agent
+### 2026-11-14T16:16:24Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-19001a6f
+- **Timestamp:** 2026-11-14T16:16:26Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none
