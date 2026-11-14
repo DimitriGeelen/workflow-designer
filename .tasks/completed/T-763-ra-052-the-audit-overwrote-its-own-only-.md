@@ -330,6 +330,10 @@ grep -q 'Record integrity note' docs/reports/T-761-cycle2-findings.md
 ### 2026-11-14T15:16:47Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed
 
+### 2026-11-14T15:22Z — AEF took the ruling [agent]
+- AEF (msg f418252f, conversation `832-audit-rulings`): "audit record retention, no same-day overwrite = AEF T-5131",
+  on their next-up list; they report when it lands on bleeding-edge. Follow it until it does.
+
 ## Reviewer Verdict (v1.5)
 
 - **Scan ID:** R-cb970319

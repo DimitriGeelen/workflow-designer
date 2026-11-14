@@ -348,6 +348,10 @@ test "$(find .tasks/completed -maxdepth 1 -name '*.md' -type f -printf '%T@ %p\n
 ### 2026-11-14T15:15:45Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed
 
+### 2026-11-14T15:22Z — AEF took the ruling [agent]
+- AEF (msg f418252f, conversation `832-audit-rulings`): "CTL-013 spot-check reports its own coverage (checked k of N,
+  last-checked date and verdict per task) = AEF T-5132", on their next-up list; they report when it lands. Follow it.
+
 ## Reviewer Verdict (v1.5)
 
 - **Scan ID:** R-805ee49e
