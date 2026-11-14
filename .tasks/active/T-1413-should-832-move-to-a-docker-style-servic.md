@@ -1,19 +1,22 @@
 ---
 id: T-1413
-name: "Should 832 move to a Docker-style service (ring20 swarm), and what would it serve?"
+name: "Should 832 move to a Docker-style service (ring20 swarm), and what would it
+  serve?"
 description: >
-  Inception: Should 832 move to a Docker-style service (ring20 swarm), and what would it serve?
+  Inception: Should 832 move to a Docker-style service (ring20 swarm), and what would
+  it serve?
 
-status: captured
+status: started-work
 workflow_type: inception
+current_node: frw_1_start
 owner: human
 horizon: now
 tags: []
 components: []
 related_tasks: []
 created: 2026-11-14T00:58:09Z
-last_update: 2026-11-14T00:58:09Z
-date_finished: null
+last_update: '2026-11-14T09:12:06Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -33,6 +36,29 @@ target_blast_radius: 3            # int 0..9. Anticipated component count of the
                                   # Guide: 0=docs only, 1=single file, 3=small subsystem (S), 5=cross-subsystem (M), 7=multi-arc (L), 9=framework-wide (XL).
 voi_score: 0.5                    # float 0..1. Value of Information — expected value of resolving this question,
                                   # independent of build cost. Higher when answer affects many tasks or unblocks a strategic decision. Required.
+bvp_scores_proposed:
+  - ts: '2026-11-14T09:12:06Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 3
+      D2: 3
+      D3: 3
+      D4: 3
+      F-RECALL: 3
+      F2: 3
+      F4: 3
+      F3: 3
+      F1: 3
+    rationale: D1=3 (voi:decision-with-alternatives~'either way'); D2=3 
+      (voi:decision-with-alternatives~'either way'); D3=3 
+      (voi:decision-with-alternatives~'either way'); D4=3 
+      (voi:decision-with-alternatives~'either way'); F-RECALL=3 
+      (voi:decision-with-alternatives~'either way'); F2=3 
+      (voi:decision-with-alternatives~'either way'); F4=3 
+      (voi:decision-with-alternatives~'either way'); F3=3 
+      (voi:decision-with-alternatives~'either way'); F1=3 
+      (voi:decision-with-alternatives~'either way')
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1413: Should 832 move to a Docker-style service (ring20 swarm), and what would it serve?
@@ -247,3 +273,6 @@ No evidence yet. Today 832 ships one HTML file that AEF vendors and serves; the 
 
 <!-- Auto-populated by git mining at task completion.
      Manual entries optional during execution. -->
+
+### 2026-11-14T09:12:05Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
