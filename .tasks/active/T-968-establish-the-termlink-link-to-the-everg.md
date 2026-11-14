@@ -40,9 +40,14 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
-
-## Context
+**Background / trigger:** the operator wants the workflow corpus of the Evergreen deployment (a separate installation
+that runs our designer) to learn how the designer behaves in other hands; on 2026-11-14 the operator confirmed it
+("5a", keep working with Evergreen).
+**Problem / hypothesis:** TermLink to that host is refused ("invalid signature"): its hub has its own secret, which
+only the operator may fetch through TermLink's declared bootstrap (Tier-2).
+**Goal:** a working TermLink link to Evergreen, set up by the operator's own step, with no secret passing through the
+agent; then the corpus request dispatched into Evergreen's own session.
+**Expected outcome:** `remote doctor` answers for that hub and the corpus request is delivered.
 
 The operator wants the Evergreen deployment's workflow corpus, so we can learn what our own
 product produces in hands that are not ours. Evergreen runs **our** Workflow Designer, which is
