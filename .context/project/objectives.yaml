@@ -37,11 +37,12 @@ objectives:
       until that test is run: every carrier, pseudocode included, exists and round-trips.
   - id: O-2
     text: >-
-      A map says whether it is a template or a work-plan, so a picture of a process is refused
-      when something tries to promote it into real governed work.
+      A map says whether it is a picture of a process (documentation) or a plan of work, so AEF
+      can tell the two apart when something is promoted into real governed work. The designer
+      never promotes and never refuses; what a promote does with the marker is AEF's decision.
     measure: >-
-      The marker exists and survives a save and load, and AEF's promote path refuses an
-      unmarked documentation map.
+      The marker is authorable, survives save, load and export, and reaches AEF in the exported
+      contract; the designer has no promote action and blocks nothing on the marker.
   - id: O-3
     text: >-
       Every real instance (a task, an inception, a sprint item) knows which template it
@@ -53,14 +54,20 @@ objectives:
     text: >-
       A running process is observable, and the designer guards with advice and friction, never
       a hard block: it warns when a step is out of order, a human gateway is skipped or an input
-      contract is unmet, always lets the author override with a record, and grows stricter only
-      as a process earns it by repetition. Refusal is AEF's runtime behaviour, which the designer
-      shows faithfully; the designer itself never blocks authoring.
+      contract is unmet, always lets the author override with a record of who and why, and grows
+      stricter only as a process matures from draft to ratified. Absence is a signal: a step can
+      declare when it is expected to finish, and a step that neither finishes nor fails by then is
+      shown as stalled. Humans are asked only where it matters: a step can be marked as needing a
+      human, with its reason (destructive, risky, or uncertain), and other steps are not. Refusal
+      is AEF's runtime behaviour, which the designer shows faithfully; the designer itself never
+      blocks authoring.
     measure: >-
-      An out-of-order advance, a skipped human gateway and an unmet input contract each raise a
-      visible warning and a logged override, never a block; a refusal by AEF's runtime is shown
-      on the step it refused; and the operator can see which step an instance is on, which it
-      failed at, and why. The override is never removed (the hatch never closes).
+      An out-of-order advance, a skipped human-required step and an unmet input contract each
+      raise a visible warning and an override logged with who and why, never a block; a refusal
+      by AEF's runtime is shown on the step it refused; a step past its declared deadline with no
+      outcome is shown as stalled; a human-required mark carries one of the three reasons and
+      survives export; and the operator can see which step an instance is on, which it failed or
+      stalled at, and why. The override is never removed (the hatch never closes).
   - id: O-5
     text: >-
       The machinery is tenant-neutral: a second, unrelated application models and runs its own

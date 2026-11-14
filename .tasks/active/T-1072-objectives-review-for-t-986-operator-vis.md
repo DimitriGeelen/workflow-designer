@@ -73,7 +73,10 @@ operator a revised draft with the conflicts put as questions.
       (§1-§5 of that file: vector-memory result, the operator's vision and ways of working verbatim with sources, EWCR, and the gap analysis per objective.)
 - [x] AEF asked for input on the objectives (sidecar), answer recorded
       (asked 2026-11-14, conversation `832-objectives`, msg 1f92aa5a; answered msg 7c7d72db; recorded as §6 of the sources file.)
-- [ ] External cross-vendor review (fw external scan) run with a brief that carries the draft, the operator's own words and AEF's input; findings answered; a revised draft (if any) written and handed to T-986's existing Human check (ratification lives there, not here)
+- [x] External cross-vendor review (fw external scan) run with a brief that carries the draft, the operator's own words and AEF's input; findings answered; a revised draft (if any) written and handed to T-986's existing Human check (ratification lives there, not here)
+      (2026-11-14: consult `t1072-objectives`, 5 of 5 answered, paid proposal RP-2a8817eb approved by the operator in
+      job 139; all 11 findings answered in docs/reports/T-1072-external-review-answers.md; F1-F5 applied to
+      `.context/project/objectives.yaml`; F6-F8 put to the operator as Q1-Q3; ratification stays with T-986.)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.

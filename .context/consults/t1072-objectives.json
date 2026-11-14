@@ -1,0 +1,167 @@
+{
+  "name": "t1072-objectives",
+  "created": "2026-11-14T21:57:04Z",
+  "brief_path": "docs/reports/T-1072-external-review-brief.md",
+  "brief_sha256": "64c5e77b1b508d204ba526adb65cdf1743461817e0fd4c6deb9e519a4674a736",
+  "prompt_sent": "You are being consulted as an outside reviewer. The author has already decided they\nlike this proposal, which is exactly why your agreement is worth very little to them.\n\nDo NOT validate it. Give your STRONGEST OBJECTION.\n\nSpecifically:\n1. What is the best argument AGAINST this proposal?\n2. What would have to be true for it to be the wrong choice?\n3. What has the author probably not considered?\n4. If you think the proposal is right, say so in one line \u2014 then still give the\n   strongest objection you can construct, and say what evidence would settle it.\n\nBe concrete and technical. Brevity over hedging. If you need information you have\nnot been given, name exactly what is missing rather than assuming it.\n\n\n--- THE PROPOSAL UNDER REVIEW ---\n\n# Brief for an external review: the project objectives of a workflow designer (T-1072)\n\nYou are reviewing a set of written project objectives before the project's owner (the \"operator\") ratifies them.\nYour job is to find the **strongest objection**: where an objective is wrong, unmeasurable, contradicts the\noperator's own words below, contradicts the main consumer's position below, or where something important is missing.\nBe concrete; cite the objective id. Do not rewrite the whole document; name problems and propose the smallest fix.\n\n## The product\n\nA browser-based workflow designer (a single HTML file, BPMN as the portable format) used as the process-authoring\nsurface of an agentic engineering framework (\"AEF\", its main consumer). Humans and AI agents draw processes as\ntemplates; instances of those processes are tracked; AEF has (or is building) a runtime that executes ratified\nprocedures exported from the designer. The designer never executes anything itself.\n\n## The operator's own words (verbatim, from recorded conversations)\n\n- The yardstick: \"The workflow designer and its integration with AEF, and our ability to facilitate the agent and\n  human collaboration to iterate from the workflow to actual working applications.\"\n- On guarding: \"I always want to override, or have to override option. Yes, it can give me friction. Can it really\n  ask me\u2026 or ask me not to do it lightly. But I want to be the final authority.\" Ruled: advisory plus friction, never a\n  hard block; \"the hatch never closes\"; strictness is earned by repetition.\n- On drafts vs runs: \"When you're still drafting a process \u2026 the instance can be run and the boundaries are less\n  strict. \u2026 you need to have the ability to navigate around blockades.\"\n- On execution: \"we want to go very much to deterministic execution. That's most effective. Repeatable, reliable,\n  quick. However we do want to fall back on stochastic if it goes wrong, or is an error, or an edge case, or on\n  unclarity.\" And: \"the more we get confident, the more we go to deterministic execution of our processes.\"\n- On routing: worker kinds \"framework, primary, coder or any \u2026 needs to be expandable \u2026 this will also tie in to\n  orchestration \u2026 we want it in the box\" (i.e. captured on the workflow element).\n- On observability: \"If we fire something off and it has no output, I want to know that. \u2026 I want to know if it\n  succeeds in an hour, or if it just fades into darkness.\" And: \"If I am not getting data or telemetry showing that\n  they are executed, that warrants an investigation.\"\n- On learning: \"how do we build in signals that we can have a feedback loop for learning and adjusting that risk\n  assessment. That's key. Otherwise we just keep doing stupid things.\"\n- On humans in the loop: \"We want them in the spots where it really matters, which is destructive actions, risky\n  actions, or just where the agent is just not sure what to do.\"\n- Product constraint: plugins must be independent and standalone, no dependency on any service.\n\n## The main consumer's position (AEF, 2026-11-14, on an earlier version of this draft)\n\n1. Advisory-not-block fits the designer, but hard refusal must stay on the runtime side: the designer warns and adds\n   friction and never blocks authoring; refusal is runtime behaviour the designer shows faithfully.\n2. The designer must not ratify, resolve secrets, launch actions or approve gates; authoring conforming definitions\n   and the diagram-to-procedure export are the designer's side.\n3. Routing should be phrased as a captured preference, not a guarantee (the runtime selects and refuses). A learning\n   loop must be a proposal (a new version, re-ratified), never a silent edit: a ratified procedure is immutable.\n4. Missing objective they want: a lossless round trip of the versioned interchange contract (BPMN to procedure) within\n   the frozen mapping-standard boundaries; \"that is what we consume\".\n\n## The draft under review (verbatim)\n\nHeadline: Workflow Designer is AEF's process add-on, for process authors, AEF agents and operators: it captures a\nprocess completely enough to execute it, so that a human and an agent can work the same picture from idea to running\nimplementation. Processes are modelled once as templates (classes) and run many times as instances, for AEF and for\nother tenants.\n\n- **O-1** A step on the diagram carries everything an implementer needs (its inputs, outputs, decisions, the artifacts\n  it reads and writes, and its pseudocode), so the picture alone is enough to implement from. *Measure:* a reader\n  implements a step from the diagram with no recourse to the task text; proxy until then: every carrier, pseudocode\n  included, exists and round-trips.\n- **O-2** A map says whether it is a template or a work-plan, so a picture of a process is refused when something tries\n  to promote it into real governed work. *Measure:* the marker exists and survives save and load, and AEF's promote\n  path refuses an unmarked documentation map.\n- **O-3** Every real instance knows which template it follows and which step it is on, and the system can answer that.\n  *Measure:* asked \"what process is T-NNN following?\", the framework answers with its template and its current node.\n- **O-4** A running process is observable, and the designer guards with advice and friction, never a hard block: it\n  warns when a step is out of order, a human gateway is skipped or an input contract is unmet, always lets the author\n  override with a record, and grows stricter only as a process earns it by repetition. Refusal is AEF's runtime\n  behaviour, which the designer shows faithfully; the designer itself never blocks authoring. *Measure:* each case\n  raises a visible warning and a logged override, never a block; a runtime refusal is shown on the step it refused;\n  the operator can see which step an instance is on, which it failed at, and why; the override is never removed.\n- **O-5** The machinery is tenant-neutral: a second, unrelated application models and runs its own processes with it.\n  *Measure:* the second tenant (a named second application) carries its own templates and instances.\n- **O-6** Work can start as a picture and existing work can be seen as one: forward-compile and reverse-render both\n  hold between the designer and AEF. *Measure:* a re-pin round-trips the corpus byte-identically with no hand repair;\n  rendering existing work as a picture: not measured yet.\n- **O-7** A step can declare how it is meant to run: deterministic first (script or service), with an agentic fallback,\n  and which kind of worker or model should take it. This routing is a preference captured in the workflow element;\n  selection and refusal stay with the runtime. *Measure:* executor kind and a routing preference are authorable on a\n  step, survive save, load and export, and reach AEF as declared preferences; nothing in the designer selects or\n  guarantees a worker.\n- **O-8** A process learns from use: deviations from the template can be turned into a proposed change, sent to AEF as a\n  new version for ratification, never applied silently to a ratified procedure. *Measure:* a recorded deviation can be\n  raised as a template-change proposal naming the version it departs from; the ratified template stays unchanged until\n  AEF ratifies the new version.\n- **O-9** The interchange with AEF is lossless: a map round-trips through the versioned interchange contract (BPMN to\n  procedure and back) within the frozen mapping standard's boundaries. *Measure:* every corpus map exports to the\n  procedure form and back with no loss and no hand repair under the current frozen version, and a change outside those\n  boundaries is refused by the conformance tests.\n\nOut of scope: a general-purpose BPMN editor; replacing the task system (tasks are canonical); executing or\nauthorising (the designer never executes, ratifies, resolves secrets, launches actions or approves gates; authoring\nfor execution and the diagram-to-procedure seam are in scope).\n\n## What we especially want challenged\n\n1. Does any objective still contradict the operator's words above (O-2's \"refused\" in particular, next to O-4)?\n2. Are the measures checkable by someone who was not in the room, or are some untestable?\n3. O-5 names a second tenant; no operator quote names one. Is O-5 earned?\n4. Is anything the operator said above still missing (observability of *absence*, humans only where it matters)?\n",
+  "panel": [
+    "openai/gpt-4o",
+    "google/gemini-2.5-pro",
+    "x-ai/grok-4.7",
+    "deepseek/deepseek-chat",
+    "qwen/qwen-2.5-72b-instruct"
+  ],
+  "responses": [
+    {
+      "model": "openai/gpt-4o",
+      "asked_at": "2026-11-14T21:54:47Z",
+      "ok": true,
+      "answer": "1. The best argument against this proposal is the potential contradiction between objectives O-2 and O-4 regarding the refusal to promote an unmarked documentation map. The operator clearly emphasizes a preference for advisory and friction-based warnings rather than hard blocks. Objective O-2's mention of \"refused\" may imply a hard block, which contradicts the operator's stance and main consumer's expectations. \n\n2. It would be the wrong choice for the workflow designer to include a refusal mechanism at the design stage if the system were to enforce hard stops or blocks on process authoring, which would contradict the operator's preference for advisory warnings and flexibility during the drafting process. The proposal would be flawed if \"refusal\" in O-2 implies any kind of hard block during authoring rather than during execution.\n\n3. The author has probably not considered the nuanced interpretation required by users when distinguishing between advisory warnings and what constitutes a refusal mechanically within the system. There is potential ambiguity in how \"refusal\" in O-2 aligns with the \"advisory-not-block\" directive. Furthermore, the proposal may overlook the need for additional specification on which party (designer or runtime) enforces the refusal.\n\n4. If the proposal is right, say so in one line \u2014 then still give the strongest objection.\n   \n   The proposal is right if all aspects of the refusal mechanism in O-2 are clarified to ensure they apply only during execution, aligning with runtime behavior.\n\n   Strongest objection: Objective O-2's use of \"refused\" could imply a blockage in authoring, contrary to the advisory-first philosophy. To settle this, clear documentation and a precise definition are needed to ensure \"refusal\" strictly pertains to the runtime environment, unambiguously differentiating it from designer behavior. It requires evidence through detailed technical documentation or demonstrations showing how refusal messages are merely communicated by the designer as part of runtime execution, satisfying the operator's need for \"advisory plus friction.\"",
+      "reported_model": "openai/gpt-4o",
+      "usage": {
+        "prompt_tokens": 2057,
+        "completion_tokens": 397,
+        "total_tokens": 2454,
+        "cost": 0.0091125,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.0091125,
+          "upstream_inference_prompt_cost": 0.0051425,
+          "upstream_inference_completions_cost": 0.00397
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      }
+    },
+    {
+      "model": "google/gemini-2.5-pro",
+      "asked_at": "2026-11-14T21:54:49Z",
+      "ok": true,
+      "answer": "Here is the strongest objection, structured as requested.\n\n---\n\n### 1. What is the best argument AGAINST this proposal?\n\nThe objectives over-index on the workflow diagram as a static, complete specification (`O-1`, `O-6`, `O-9`), creating a tool for \"compiling\" processes. This directly conflicts with the operator's primary yardstick: \"facilitate the agent and human collaboration to *iterate*.\" The operator describes a dynamic, exploratory process where drafts have loose boundaries and confidence is earned over time. The objectives, however, describe a rigid world of templates, instances, and lossless round-trips, which is optimized for hardened, deterministic processes that already exist, not for the messy, iterative discovery of new ones.\n\nThe proposal builds a blueprinting tool when the operator needs a workbench.\n\n### 2. What would have to be true for it to be the wrong choice?\n\nThis proposal is the wrong choice if:\n\n*   The primary value of the AEF framework is in the early-stage, low-confidence phase of process development, where human/agent teams are discovering the \"happy path\" through trial and error.\n*   The \"stochastic fallback\" (`O-7`) is a common mode of operation for new processes, not a rare exception for mature ones.\n*   \"Reverse-render\" (`O-6`) of a non-trivial, agent-led deviation from a template cannot be represented on the original BPMN diagram without either significant information loss (e.g., the *reasoning* behind the deviation) or a loss of clarity (i.e., producing a \"spaghetti diagram\"), making the \"single picture\" promise a lie.\n\n### 3. What has the author probably not considered?\n\nThe author has likely not considered the impedance mismatch between a declarative BPMN graph and the operational trace of a stochastic agent.\n\nSpecifically:\n*   **The \"Draft\" Lifecycle:** The operator describes a \"drafting\" mode with loose boundaries. The objectives lack this concept, offering only a binary between a documentation map and a template (`O-2`). There is no defined state for an experimental, low-confidence process that is being run to be discovered, not to be followed.\n*   **Observability of Absence:** The operator explicitly wants to know if something \"fades into darkness.\" The objectives focus on observing discrete events like failures and overrides (`O-4`). They are missing the concept of liveness, timeouts, or heartbeats, which are critical for observing non-events. The designer must have a way to model and display these states, even if the runtime is responsible for detecting them.\n*   **Human Intervention as a First-Class Primitive:** The operator wants humans \"where it really matters.\" `O-4` treats this as a \"gateway\" to be skipped. It misses the more common use case: an ad-hoc intervention when a process is stuck. How is an unplanned, off-diagram human action captured and reverse-rendered (`O-6`) back into the \"single picture\"? It isn't.\n\n### 4. If you think the proposal is right...\n\nThe proposal is right to enforce a strict separation of concerns between the designer and the runtime.\n\nThe strongest objection remains the unresolved tension between the static, prescriptive model (BPMN) and the dynamic, exploratory execution reality (agentic work). The objectives assume the map *is* the territory.\n\n**Evidence to settle it:** Demonstrate a lossless round-trip (`O-6`, `O-9`) for a process instance that went \"off the rails.\" Specifically:\n1.  Author a 5-step process.\n2.  In a test run, force an agentic fallback (`O-7`) at step 3.\n3.  Have the agent perform three novel, unforeseen recovery actions.\n4.  Have the agent then successfully complete step 4.\n5.  Show the \"reverse-rendered\" result of this execution trace.\n\nIf the resulting diagram is both a faithful, lossless record of what actually happened *and* is still comprehensible to an operator, the objection is resolved. If it is lossy, incomprehensible, or requires manual annotation to make sense, the core premise of the tool is flawed.",
+      "reported_model": "google/gemini-2.5-pro",
+      "usage": {
+        "prompt_tokens": 2127,
+        "completion_tokens": 3043,
+        "total_tokens": 5170,
+        "cost": 0.03308875,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.03308875,
+          "upstream_inference_prompt_cost": 0.00265875,
+          "upstream_inference_completions_cost": 0.03043
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 2162,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      }
+    },
+    {
+      "model": "x-ai/grok-4.7",
+      "asked_at": "2026-11-14T21:55:18Z",
+      "ok": true,
+      "answer": "Do not ratify this set. The strongest objection is that **O-1 and O-2 contradict the document\u2019s own rules and the operator\u2019s authority rule, and their measures cannot catch that.**\n\n**1. Best argument against**\n\n**O-1** says a reader implements a step from the diagram with no recourse to the task text. The out-of-scope line says tasks are canonical and the designer does not replace the task system. Those cannot both be true. If the task text is canonical, the picture is a view, not an implementation spec; if the picture is sufficient alone, the task system is no longer canonical. The proxy measure (carriers exist and round-trip) never compares diagram pseudocode to the task text, so O-1 can pass while the two sources disagree. That is the yardstick failing in the only place it can fail: two humans/agents \u201cworking the same picture\u201d from different texts.\n\n**O-2** then hard-closes the hatch the operator forbade. Objective text: a picture \u201cis refused\u201d on promote. Measure: AEF\u2019s promote path refuses an unmarked documentation map. No override, no record, no \u201chatch never closes.\u201d **O-4** says the opposite (warning, logged override, override never removed, designer never blocks). The operator was explicit: final authority, friction allowed, blockade navigation while drafting, draft instances may run under looser boundaries. O-2 also names two different predicates: objective = template vs work-plan; measure = unmarked documentation map. An unmarked draft is exactly what the operator said must still be runnable.\n\nSmallest fix: strike O-1\u2019s \u201cno recourse to the task text.\u201d Replace the measure with a disagreement oracle: for each corpus step, diagram carriers and canonical task text are either identical on the frozen field list or the export is non-conformant. Strike the refusal sentence from O-2; keep only \u201cmarker is authored, survives save/load/export, designer never promotes.\u201d Promote/refuse, including an operator override record, is an AEF objective. If a refusal is shown, it is already O-4.\n\n**2. What would have to be true for this to be the wrong call**\n\nOnly if (a) \u201ctasks are canonical\u201d means something other than \u201ctask text wins on conflict,\u201d and (b) promote-refusal is defined to include a non-removable operator override that still lets a draft instance run. Neither is written. The frozen field list that would make (a) testable is not in this brief.\n\n**3. Not considered**\n\n- **O-6 vs O-9 are incompatible oracles.** O-6 demands a byte-identical corpus re-pin and then admits reverse-render is unmeasured. O-9 demands losslessness only inside a frozen mapping boundary, and refusal outside it. Byte-identity fails on serializer noise the boundary exists to exclude; boundary-losslessness fails O-6. You cannot have one interchange oracle. Also: do not ratify a measure that says \u201cnot measured yet.\u201d\n- **O-4\u2019s \u201cearns it by repetition\u201d erases draft vs ratified.** Repetition-count strictness can make a much-run draft stricter than a new ratified procedure. The operator\u2019s split was draft (loose, navigate blockades) vs confident/ratified (deterministic). No counter, no threshold, no owner. Untestable as written.\n- **Absence is unowned.** O-3/O-4 detect a current node and an explicit failure. They do not detect no output, no telemetry, or \u201cfades into darkness\u201d after a deadline. A step that never starts has no failed-at and no why; O-4 still passes. Missing: who arms the silence timer (designer cannot; it does not execute), the deadline, and the investigation signal.\n- **Human placement is inverted.** Operator: humans only for destructive, risky, or uncertain steps. O-4 only warns when a human gateway is skipped, which pressures gates everywhere. No objective to author a human-required mark with a reason in {destructive, risky, uncertain}, and no objective that other steps must not require one. Designer still must not approve the gate.\n- **Risk learning is not O-8.** O-8 is a new template version, which the consumer already required. The operator\u2019s loop was adjusting risk assessment and shifting a step toward deterministic as confidence rises. O-7 stores a static preference. Nothing records \u201cdeterministic path failed / unclear / edge case\u201d and emits a re-ratified routing proposal. Silent confidence edits would violate O-8; the signal that should become that proposal is missing.\n- **O-5 is not earned.** No operator quote names a second tenant. \u201cPlugins are standalone, no service dependency\u201d is not \u201ca second application models and runs processes.\u201d \u201cRuns\u201d assigns execution to a designer objective. With no named second application, the measure is not checkable by an outsider. Drop O-5, or reduce it to: export has no hardcoded tenant id and no service call. Do not claim a runtime.\n\n**4. Not right.**\n\nEvidence that would settle the O-1/O-2 objection: the frozen carrier-field list, one corpus step where diagram and canonical task text conflict, and a written promote rule that shows an override record and still allows a draft instance to run. If that rule does not exist, O-2 is the wrong objective.",
+      "reported_model": "x-ai/grok-4.7",
+      "usage": {
+        "prompt_tokens": 3291,
+        "completion_tokens": 4986,
+        "total_tokens": 8277,
+        "cost": 0.03477,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 1152,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.03477,
+          "upstream_inference_prompt_cost": 0.004854,
+          "upstream_inference_completions_cost": 0.029916
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 3857,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      }
+    },
+    {
+      "model": "deepseek/deepseek-chat",
+      "asked_at": "2026-11-14T21:56:33Z",
+      "ok": true,
+      "answer": "Here is the strongest objection I can construct:\n\n**The most critical flaw is in O-4's handling of observability and absence detection.** The operator explicitly stated: \"If we fire something off and it has no output, I want to know that... If I am not getting data or telemetry showing that they are executed, that warrants an investigation.\" However, O-4 only measures visibility of *active* failures (e.g., \"shows why a step failed\") but does not account for silent failures or stalls where execution simply stops without reaching a failed state. This is a direct contradiction of the operator's most emphatic requirement about detecting \"fading into darkness.\"\n\n**Concrete evidence needed to settle this:**\n- The measure should explicitly include tracking \"heartbeat\" signals for active execution and timeouts for steps that neither complete nor fail. Without this, the designer could faithfully show runtime refusals (as measured) while missing the more dangerous case of silent disappearance.\n\n**Supporting concerns:**\n1. On O-2 vs. O-4: While the distinction between designer warnings and runtime refusals is correct, the operator's \"hatch never closes\" principle isn't fully reflected in the measures. The override record (O-4) should explicitly show *who* overrode and *why*, not just that it happened, to align with \"not doing it lightly.\"\n   \n2. On O-5 (tenant neutrality): The operator didn't mention multi-tenancy, but the constraint \"plugins must be independent and standalone\" implicitly supports it. This is earned, but the measure should verify plugin isolation, not just template separation.\n\n3. Missing operator requirement: Humans \"where it really matters\" (destructive/risky actions) isn't captured. A step should be taggable as high-risk to force human review, with this surviving round-trips (O-9). Currently, human gates are only mentioned as skippable warnings (O-4).\n\n**If you fix nothing else, add to O-4's measure:**\n- \"For running instances, the designer surfaces steps that exceed their expected duration without completion or failure, with investigation triggers for absence of progress.\" \n\nThis addresses the most severe oversight while being minimally disruptive to the existing structure.",
+      "reported_model": "deepseek/deepseek-chat",
+      "usage": {
+        "prompt_tokens": 2059,
+        "completion_tokens": 465,
+        "total_tokens": 2524,
+        "cost": 0.0010083321,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.0010083321,
+          "upstream_inference_prompt_cost": 0.0005299866,
+          "upstream_inference_completions_cost": 0.0004783455
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      }
+    },
+    {
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "asked_at": "2026-11-14T21:56:43Z",
+      "ok": true,
+      "answer": "### Strongest Objection Analysis\n\n#### 1. What is the best argument AGAINST this proposal?\n**O-4** is the most problematic objective. It states that the designer provides advice and friction but never blocks authoring. However, this conflicts with the operator's emphasis on the need for strictness to be earned by repetition. The operator mentions, \"the more we get confident, the more we go to deterministic execution of our processes.\" This implies that there should be a mechanism for increasing strictness over time, which is not fully addressed in O-4. The current wording of O-4 suggests a fixed level of friction without the possibility of increasing strictness, which could undermine the operator's goals.\n\n#### 2. What would have to be true for it to be the wrong choice?\nFor O-4 to be the wrong choice, it would have to be true that the designer cannot dynamically adjust the level of strictness based on the process's performance and repetition. If the designer always provides the same level of friction without the ability to increase strictness, it would fail to meet the operator's requirement of gradually moving towards deterministic execution.\n\n#### 3. What has the author probably not considered?\nThe author has likely not considered the dynamic adjustment of strictness based on process performance and repetition. This includes mechanisms for measuring the process's reliability and using that information to adjust the level of friction or advice provided by the designer. Without this, the designer might not be able to effectively support the operator's goal of increasing deterministic execution over time.\n\n#### 4. If you think the proposal is right, say so in one line \u2014 then still give the strongest objection you can construct, and say what evidence would settle it.\nThe proposal is mostly right, but O-4 needs adjustment to support dynamic strictness.\n\n**Strongest Objection:**\nO-4 should be modified to explicitly state that the designer can dynamically adjust the level of strictness based on the process's performance and repetition. The current wording does not align with the operator's requirement for increasing deterministic execution over time.\n\n**Evidence to Settle It:**\n- **Test Case 1:** Implement a mechanism in the designer that measures the reliability of a process based on its performance history.\n- **Test Case 2:** Show that the designer can increase the level of friction or advice as the process earns confidence over multiple successful runs.\n- **Test Case 3:** Demonstrate that the designer can provide more strict warnings and fewer overrides as the process becomes more reliable, while maintaining the operator's final authority to override.\n\n### Specific Fixes\n**O-4** should be revised to:\n- **O-4 (Revised):** A running process is observable, and the designer guards with advice and friction, which can dynamically adjust based on the process's performance and repetition, never a hard block: it warns when a step is out of order, a human gateway is skipped, or an input contract is unmet, always lets the author override with a record, and grows stricter as a process earns it by repetition. Refusal is AEF's runtime behaviour, which the designer shows faithfully; the designer itself never blocks authoring. *Measure:* each case raises a visible warning and a logged override, never a block; a runtime refusal is shown on the step it refused; the operator can see which step an instance is on, which it failed at, and why; the override is never removed, and the level of friction increases over time based on process reliability metrics.",
+      "reported_model": "qwen/qwen-2.5-72b-instruct",
+      "usage": {
+        "prompt_tokens": 2066,
+        "completion_tokens": 712,
+        "total_tokens": 2778,
+        "cost": 0.00102856,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.00102856,
+          "upstream_inference_prompt_cost": 0.00074376,
+          "upstream_inference_completions_cost": 0.0002848
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      }
+    }
+  ],
+  "changed_decision": "yes: O-2 refusal removed; O-4 gained absence (stalled past deadline), human-required with reason, override who/why, strictness tied to draft-to-ratified (F1-F5). See docs/reports/T-1072-external-review-answers.md"
+}
