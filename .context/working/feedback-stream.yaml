@@ -22221,3 +22221,21 @@ scan_id: R-e304a37e
 task_id: T-760
 payload:
   task_file: .tasks/active/T-760-ra-051-regression---inception-t-587-stil.md
+---
+kind: scan_emitted
+timestamp: '2026-11-14T14:28:37Z'
+scan_id: R-8df69672
+task_id: T-756
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-14T14:28:37Z'
+scan_id: R-8df69672
+task_id: T-756
+payload:
+  task_file: .tasks/active/T-756-ra-047-ctl-013-reports-t-093-verificatio.md

@@ -7,10 +7,11 @@ description: >
   failing. One is the gallery-mirror diff, which the project has decided must NOT
   be fixed by rebuilding build/gallery/.
 
-status: captured
+status: work-completed
 workflow_type: test
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [audit-remediation, cycle-1]
 components: []
 related_tasks: []
@@ -20,8 +21,8 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T08:15:15Z
-last_update: '2026-09-26T09:06:29Z'
-date_finished:
+last_update: 2026-11-14T14:28:34Z
+date_finished: 2026-11-14T14:28:34Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -66,6 +67,25 @@ bvp_scores_proposed:
       (body:portability-abstraction); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=1
       (L1:keyword=lane); F3=0 (L0: no signal); F1=2 (L1:keyword=designer,L1:keyword=bpmn)'
     rubric_sha: e4a00f38e801
+  - ts: '2026-11-14T14:26:13Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 0
+      D3: 0
+      D4: 3
+      F-RECALL: 0
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 2
+    rationale: 'D1=2 (body:learning-ref,body:concern-ref); D2=0 (no-signal); D3=0
+      (no-signal); D4=3 (body:portability-abstraction); F-RECALL=0 (no-signal); F2=0
+      (no-signal); F4=1 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L1:keyword=lane); F3=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F1=2 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L2:path=src/aef-workflow-designer.html~src/aef-workflow-designer.html)'
+    rubric_sha: e4a00f38e801
 cost_estimate_proposed:
   - ts: '2026-09-21T08:16:12Z'
     estimator: bvp-estimator-v1-heuristic
@@ -82,6 +102,14 @@ cost_estimate_proposed:
 # T-756: RA-047: CTL-013 reports T-093 verification failing, and one cause is deliberately unfixable
 
 ## Context
+
+**Background / trigger:** the residue audit (RA-047) found CTL-013 reporting two of T-093's verification legs
+failing; one is the gallery-mirror diff, red by a recorded decision (T-102/T-105 were blocked on that drift).
+**Problem / hypothesis:** CTL-013 cannot tell "this leg regressed" from "this leg is red by decision", and the second
+failing leg was never named.
+**Goal:** name the second failing leg with measured output, record the mirror leg's disposition, and get the generic
+question ruled.
+**Expected outcome:** nobody re-derives this next cycle, and no leg is edited or the mirror rebuilt to turn it green.
 
 ### Verbatim tool output
 
@@ -116,10 +144,30 @@ Parent finding: RA-046/T-755 (oe-daily cost localisation) — CTL-013 is the sam
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The second failing leg is identified by name. Four of T-093's ten legs are full test suites and were not run in this cycle's cheap pass; one of them is the second failure. It is named, with the measured output, not guessed at.
-- [ ] The disposition of the gallery-mirror leg is recorded explicitly: it is red by decision, not by neglect, and the decision (T-102/T-105 blocked on this drift) is cited. Nobody re-derives this from scratch next cycle.
-- [ ] The generic defect is stated as a Sovereign question and NOT decided here: should CTL-013 be able to distinguish 'this leg regressed' from 'this leg is red by a recorded decision'? Without that distinction the check produces a permanent warning, and a permanent warning is one the reader learns to skip — which costs the check its ability to report a real regression on the other two tasks in its window.
-- [ ] No leg of T-093 is edited, deleted or relaxed, and `build/gallery/` is not rebuilt. Either remedy would turn the check green by removing what it measures.
+- [x] The second failing leg is identified by name. Four of T-093's ten legs are full test suites and were not run in this cycle's cheap pass; one of them is the second failure. It is named, with the measured output, not guessed at.
+- [x] The disposition of the gallery-mirror leg is recorded explicitly: it is red by decision, not by neglect, and the decision (T-102/T-105 blocked on this drift) is cited. Nobody re-derives this from scratch next cycle.
+- [x] The generic defect is stated as a Sovereign question and NOT decided here: should CTL-013 be able to distinguish 'this leg regressed' from 'this leg is red by a recorded decision'? Without that distinction the check produces a permanent warning, and a permanent warning is one the reader learns to skip — which costs the check its ability to report a real regression on the other two tasks in its window.
+- [x] No leg of T-093 is edited, deleted or relaxed, and `build/gallery/` is not rebuilt. Either remedy would turn the check green by removing what it measures.
+
+**Evidence (2026-11-14, measured):**
+1. *The legs today.* Run one by one, nine of T-093's ten legs: `run-validator-tests.sh` PASS ("passed, 0 failed"),
+   `check-corpus-geometry.sh` PASS ("geometry sweep: 24 clean, 0 known-legacy, 0 new-fail, 0 stale, 0 tool-err"),
+   `test_editor_bridge_structured_parity.py` PASS ("OK:"), the three `grep -q` legs PASS, the two `.playwright-mcp`
+   screenshot legs PASS, and `diff -q src/aef-workflow-designer.html build/gallery/designer.html` **FAIL**. The tenth,
+   the full `tests/run-bridge-tests.sh`, was not re-run here (it is every tier, long under this load); its two tiers ran
+   green on 2026-11-13/14 (core 227/0 on the pool and here for ab78f3910; browser 142/0, 2026-11-13). So the
+   September second failure is **not reproducible today**: the only failing leg is the mirror diff. Which full-suite leg
+   failed in September cannot be recovered now (no output was kept); it is stated as unknown, not guessed.
+2. *The mirror leg's disposition, updated.* In September it was red by decision (T-102/T-105 blocked on the drift).
+   Both have since closed: the T-1208 triage (2026-10-19/20) found that `build/gallery/` is untracked and regenerated
+   from `src` by `tools/serve-gallery.sh` (`cp … "$OUT/designer.html"`), so `diff -q` measured whether a *local build
+   was fresh*, not the fix; T-102 and T-105 retargeted their own legs to the fix. T-093's leg was never retargeted (it
+   is closed, and this task forbids editing it), so it stays red for that reason: a stale local copy (last built
+   2026-10-05), not a regression.
+3. *The Sovereign question* was filed and has been ruled: **SQ-4 RULED YES (PD-298, T-766)** — a check may carry a
+   recorded exemption, as a *substituted* assertion, not a suppression. Its build is T-769. The window problem (a
+   finding leaving CTL-013's 3-task window unrepaired) is T-764's separate question.
+4. No T-093 leg was edited and `build/gallery/` was not rebuilt (`ls -la` shows `designer.html` dated 2026-10-05).
 
 ## Verification
 
@@ -172,6 +220,8 @@ Parent finding: RA-046/T-755 (oe-daily cost localisation) — CTL-013 is the sam
 
 # T-1015: removed a G-015 serve-root diff carrier: it asserted nothing this task delivered (added by the adcc7785 sweep)
 grep -q 'CTL-013' .agentic-framework/agents/audit/audit.sh
+grep -q 'SQ-4 RULED YES' .context/project/decisions.yaml
+grep -q 'T-1208 triage' .tasks/completed/T-105-baked-verification-gate-gateway-label-collision.md
 
 ## RCA
 
@@ -213,6 +263,12 @@ grep -q 'CTL-013' .agentic-framework/agents/audit/audit.sh
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-11-14 — the premise moved: the mirror is a stale local build, and the question was ruled
+- **What changed:** T-1208 showed the mirror diff measures local build freshness; T-102/T-105 closed with retargeted
+  legs. The September second failure no longer reproduces. SQ-4 answered the generic question.
+- **Plan impact:** nothing to build here; T-769 (exemptions) and T-764 (CTL-013 window coverage) carry what remains.
+- **Triggered:** nothing new.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -240,3 +296,19 @@ grep -q 'CTL-013' .agentic-framework/agents/audit/audit.sh
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-756-ra-047-ctl-013-reports-t-093-verificatio.md
 - **Context:** Initial task creation
+
+### 2026-11-14T14:26:09Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+### 2026-11-14T14:28:34Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-8df69672
+- **Timestamp:** 2026-11-14T14:28:37Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

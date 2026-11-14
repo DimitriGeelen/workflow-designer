@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-756: RA-047: CTL-013 reports T-093 verification failing, and one cause is deliberately unfixable
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-14T14:28:52Z
+# ============================================================================
+
+task_id: T-756
+task_name: "RA-047: CTL-013 reports T-093 verification failing, and one cause is deliberately unfixable"
+workflow_type: test
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-21T08:15:15Z
+completed: 2026-11-14T14:28:34Z
+duration_days: 54
+updates_count: 3
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Full oe-daily run reports [WARN] CTL-013: T-093 verification re-run: 2 command(s) failing. One is the gallery-mirror diff, which the project has decided must NOT be fixed by rebuilding build/gallery/.
+
+# Key outcomes
+outcomes:
+  - 'The second failing leg is identified by name. Four of T-093''s ten legs are full test suites and were not run in this cycle''s cheap pass; one of them is the second failure. It is named, with the measured output, not guessed at.'
+  - 'The disposition of the gallery-mirror leg is recorded explicitly: it is red by decision, not by neglect, and the decision (T-102/T-105 blocked on this drift) is cited. Nobody re-derives this from scratch next cycle.'
+  - 'The generic defect is stated as a Sovereign question and NOT decided here: should CTL-013 be able to distinguish ''this leg regressed'' from ''this leg is red by a recorded decision''? Without that distinction the check produces a permanent warning, and a permanent warning is one the reader learns to skip — which costs the check its ability to report a real regression on the other two tasks in its window.'
+  - 'No leg of T-093 is edited, deleted or relaxed, and `build/gallery/` is not rebuilt. Either remedy would turn the check green by removing what it measures.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 78133 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [audit-remediation, cycle-1]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 78133
+  commits: 1
+  files_changed: 3
+  lines_added: 174
+  lines_removed: 8
+  footprint_refreshed_at: '2026-11-14T14:29:05Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-756-ra-047-ctl-013-reports-t-093-verificatio.md
+generated_by: context-agent-hybrid
