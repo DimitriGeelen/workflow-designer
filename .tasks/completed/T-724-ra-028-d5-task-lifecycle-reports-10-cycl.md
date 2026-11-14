@@ -6,10 +6,11 @@ description: >
   ten is blocked on an operator decision, so the anomaly is a measurement of decision
   latency, not of agent throughput.
 
-status: captured
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [arc-003, audit-remediation, RA-028]
 components: []
 related_tasks: []
@@ -19,8 +20,8 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-16T13:26:08Z
-last_update: 2026-09-29T17:31:22Z
-date_finished:
+last_update: 2026-11-14T15:40:24Z
+date_finished: 2026-11-14T15:40:24Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -49,6 +50,25 @@ bvp_scores_proposed:
       (no-signal); F2=0 (no-signal); F4=0 (no-signal); F3=0 (no-signal); F1=1 
       (prose:process-enablement-incidental)
     rubric_sha: e4a00f38e801
+  - ts: '2026-11-14T15:35:18Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 4
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=2 (body:learning-ref); D2=4 (body:fw-audit-or-doctor); D3=0 (no-signal);
+      D4=0 (no-signal); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=0 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 cost_estimate_proposed:
   - ts: '2026-09-16T13:30:54Z'
     estimator: bvp-estimator-v1-heuristic
@@ -63,6 +83,14 @@ cost_estimate_proposed:
 # T-724: RA-028: D5 task lifecycle reports 10 cycle-time anomalies
 
 ## Context
+
+**Background / trigger:** the September residue audit (RA-028) saw D5 flag ten tasks as lifecycle anomalies (open
+more than 7 days).
+**Problem / hypothesis:** D5 cannot tell a genuinely stalled task from one blocked on a decision, so its count mixes
+real neglect with legitimate waiting.
+**Goal:** classify each flagged task as stalled or blocked-on-decision, naming the blocker.
+**Expected outcome:** the flagged set is understood, nothing is closed just to clear the count, and whether D5 can
+tell the two states apart is recorded.
 
 **Finding RA-028** - cycle 1, 2026-09-16. Source: fw audit. Severity: WARN.
 
@@ -88,9 +116,26 @@ D5 measures elapsed time in active/ and reads a long tail as a process problem. 
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Each of the ten tasks is classified as either genuinely stalled or blocked-on-decision, with the blocking decision named
-- [ ] D5 stops naming any task that has been correctly reclassified, or this task records why the check cannot distinguish the two states
-- [ ] No task is closed merely to clear the anomaly
+- [x] Each of the ten tasks is classified as either genuinely stalled or blocked-on-decision, with the blocking decision named
+- [x] D5 stops naming any task that has been correctly reclassified, or this task records why the check cannot distinguish the two states
+- [x] No task is closed merely to clear the anomaly
+
+**Evidence (2026-11-14).** The ten September tasks today:
+| task | state now | class | blocker |
+|---|---|---|---|
+| T-105, T-309, T-357, T-681, T-341, T-669, T-358 | work-completed (2026-09-30 … 11-12), each on its own path | resolved | — |
+| T-189 | started-work, owner human; all Agent ACs ticked | blocked-on-decision | operator `[REVIEW]` sign-off to graduate the IW-9 delta into the frozen v1 standard (v1 → v1.1) |
+| T-286 | started-work, owner human; all Agent ACs ticked | blocked-on-decision | operator `[REVIEW]` of the arrow-over-badge feel, after AEF T-5108 (the badge layering upstream) |
+| T-575 | started-work, owner agent (landing umbrella) | partly blocked, partly stalled | its FREE tasks need the operator's completion (the agent may not); its DEAD-PREMISE rewrites are agent work untouched since 2026-09 |
+None was closed to clear the count (the seven closed through their own work, weeks before this task resumed).
+**Why D5 cannot tell the states apart, measured:** D5 already means to skip partial-complete tasks (T-100122: all
+Agent ACs ticked, a Human AC open), which is exactly T-189 and T-286, yet it flags them. Cause: `is_partial_complete()`
+(`audit.sh` ~8442-8443, be.48) finds sections with `re.findall(r'### Agent[^\n]*\n…')`, **not anchored to line
+start**; the task template's Human-section help comment contains "…should be moved to ### Agent and…", so it opens a
+second "Agent" block there and counts the Human box below as an unticked Agent criterion. Run on a copy of T-189: 2
+Agent blocks, 5 ticked + 1 "unticked" (the Human box) → not excluded. Reported to AEF as a bug (conversation
+`832-audit-rulings`, msg 1fd137c2). Beyond that bug, D5 has no notion of "waiting on a peer or the operator" for
+agent-owned tasks, so it cannot separate those from stalled ones; today it flags 54 tasks (T-731 partitions them).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -173,6 +218,8 @@ D5 measures elapsed time in active/ and reads a long tail as a process problem. 
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
 # Parked: eight of ten are blocked on operator rulings.
+for t in 105 309 357 681 341 669 358; do grep -q '^status: work-completed' .tasks/completed/T-$t-*.md || exit 1; done
+grep -q 'Conversion: this AC should be moved to ### Agent' .tasks/active/T-189-*.md
 
 ## RCA
 
@@ -214,6 +261,12 @@ D5 measures elapsed time in active/ and reads a long tail as a process problem. 
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-11-14 — D5's partial-complete exclusion is broken by the task template
+- **What changed:** seven of the ten closed on their own; the two human-review tasks are flagged because D5's section
+  regex reads the template's help comment as an Agent section.
+- **Plan impact:** the fix is AEF's (reported, msg 1fd137c2); nothing to change in 832.
+- **Triggered:** the AEF bug report; the full 54-task partition is T-731's.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -244,3 +297,19 @@ D5 measures elapsed time in active/ and reads a long tail as a process problem. 
 
 ### 2026-09-29T17:31:22Z — status-update [task-update-agent]
 - **Change:** owner: human → agent
+
+### 2026-11-14T15:35:17Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+### 2026-11-14T15:40:24Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-bf522d76
+- **Timestamp:** 2026-11-14T15:40:26Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none
