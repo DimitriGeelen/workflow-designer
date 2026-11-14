@@ -51,6 +51,17 @@ the real question is whether a hosted service would be useful.
   2026-11-14, conversation `832-docker-service`, msg 33498293.
 - Independent review of this write-up before the operator decides: planned (`fw reviewer judge`).
 
+## Answers received
+
+### AEF, 2026-11-14 (msg 1d7d8b4b, in reply to 33498293)
+- **IW-4:** "The vendored single HTML file stays our contract." Every consumer serves the designer from its own
+  Watchtower, offline, at a pinned version. A hosted 832 "would change nothing we depend on"; at most "an optional extra
+  (browse the latest version), not a replacement". AEF takes 0.42.0 through the normal pin bump (T-1399).
+- **IW-1 (AEF's part):** "We know of no users or agents outside AEF who open the designer directly. Everyone we know
+  reaches it through Watchtower /designer, so a hosted service would need its own audience to justify the upkeep."
+- **IW-5:** the deployment section is opt-in, "never by default or from cron, so a project that is not a service never
+  meets it. No declaration is needed." Confirms our own reading of `audit.sh`.
+
 ## Dialogue log
 
 - 2026-11-14 (operator): asked whether to move 832 to a Docker-type service; wants external review or consultation
