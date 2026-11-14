@@ -1,0 +1,243 @@
+# ============================================================================
+# EPISODIC MEMORY - T-701: RA-005: 100 real files modified and uncommitted
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-14T16:09:13Z
+# ============================================================================
+
+task_id: T-701
+task_name: "RA-005: 100 real files modified and uncommitted"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-16T13:25:05Z
+completed: 2026-11-14T16:08:57Z
+duration_days: 59
+updates_count: 3
+first_commit: 2026-11-14T17:06:43+01:00
+last_commit: 2026-11-14T17:07:46+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  commit 162 episodic records of closed tasks (34 never committed, 128 refreshed by the framework) and 2 session handovers never committed; explicit paths only. episodic footprints settled after the record commit (the housekeeping commit is not part of any task's footprint)
+
+# Key outcomes
+outcomes:
+  - 'The 100 modified files are either committed under a task reference, or each is individually identified and its uncommitted state justified in this task'
+  - '`fw git status` shows no unattributed real-file modifications, or the residue is enumerated by path with a reason'
+  - 'No file is committed by a directory-wide stage - explicit paths only (T-571)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/episodic/T-1091.yaml'
+  - '.context/episodic/T-1092.yaml'
+  - '.context/episodic/T-1094.yaml'
+  - '.context/episodic/T-1096.yaml'
+  - '.context/episodic/T-1104.yaml'
+  - '.context/episodic/T-1105.yaml'
+  - '.context/episodic/T-1106.yaml'
+  - '.context/episodic/T-1108.yaml'
+  - '.context/episodic/T-1109.yaml'
+  - '.context/episodic/T-1110.yaml'
+  - '.context/episodic/T-1111.yaml'
+  - '.context/episodic/T-1112.yaml'
+  - '.context/episodic/T-1113.yaml'
+  - '.context/episodic/T-1116.yaml'
+  - '.context/episodic/T-1117.yaml'
+  - '.context/episodic/T-1118.yaml'
+  - '.context/episodic/T-1119.yaml'
+  - '.context/episodic/T-1120.yaml'
+  - '.context/episodic/T-1121.yaml'
+  - '.context/episodic/T-1122.yaml'
+  - '.context/episodic/T-1123.yaml'
+  - '.context/episodic/T-1124.yaml'
+  - '.context/episodic/T-1125.yaml'
+  - '.context/episodic/T-1126.yaml'
+  - '.context/episodic/T-1127.yaml'
+  - '.context/episodic/T-1128.yaml'
+  - '.context/episodic/T-1129.yaml'
+  - '.context/episodic/T-1130.yaml'
+  - '.context/episodic/T-1131.yaml'
+  - '.context/episodic/T-1132.yaml'
+  - '.context/episodic/T-1133.yaml'
+  - '.context/episodic/T-1134.yaml'
+  - '.context/episodic/T-1135.yaml'
+  - '.context/episodic/T-1137.yaml'
+  - '.context/episodic/T-1138.yaml'
+  - '.context/episodic/T-1140.yaml'
+  - '.context/episodic/T-1141.yaml'
+  - '.context/episodic/T-1142.yaml'
+  - '.context/episodic/T-1143.yaml'
+  - '.context/episodic/T-1144.yaml'
+  - '.context/episodic/T-1145.yaml'
+  - '.context/episodic/T-1146.yaml'
+  - '.context/episodic/T-1147.yaml'
+  - '.context/episodic/T-1148.yaml'
+  - '.context/episodic/T-1149.yaml'
+  - '.context/episodic/T-1150.yaml'
+  - '.context/episodic/T-1151.yaml'
+  - '.context/episodic/T-1152.yaml'
+  - '.context/episodic/T-1153.yaml'
+  - '.context/episodic/T-1154.yaml'
+  - '.context/episodic/T-1155.yaml'
+  - '.context/episodic/T-1156.yaml'
+  - '.context/episodic/T-1158.yaml'
+  - '.context/episodic/T-1159.yaml'
+  - '.context/episodic/T-1160.yaml'
+  - '.context/episodic/T-1161.yaml'
+  - '.context/episodic/T-1162.yaml'
+  - '.context/episodic/T-1163.yaml'
+  - '.context/episodic/T-1164.yaml'
+  - '.context/episodic/T-1165.yaml'
+  - '.context/episodic/T-1166.yaml'
+  - '.context/episodic/T-1167.yaml'
+  - '.context/episodic/T-1170.yaml'
+  - '.context/episodic/T-1172.yaml'
+  - '.context/episodic/T-1173.yaml'
+  - '.context/episodic/T-1175.yaml'
+  - '.context/episodic/T-1176.yaml'
+  - '.context/episodic/T-1177.yaml'
+  - '.context/episodic/T-1178.yaml'
+  - '.context/episodic/T-1179.yaml'
+  - '.context/episodic/T-1180.yaml'
+  - '.context/episodic/T-1181.yaml'
+  - '.context/episodic/T-1182.yaml'
+  - '.context/episodic/T-1183.yaml'
+  - '.context/episodic/T-1184.yaml'
+  - '.context/episodic/T-1185.yaml'
+  - '.context/episodic/T-1186.yaml'
+  - '.context/episodic/T-1187.yaml'
+  - '.context/episodic/T-1188.yaml'
+  - '.context/episodic/T-1190.yaml'
+  - '.context/episodic/T-1191.yaml'
+  - '.context/episodic/T-1192.yaml'
+  - '.context/episodic/T-1193.yaml'
+  - '.context/episodic/T-1194.yaml'
+  - '.context/episodic/T-1195.yaml'
+  - '.context/episodic/T-1196.yaml'
+  - '.context/episodic/T-1197.yaml'
+  - '.context/episodic/T-1198.yaml'
+  - '.context/episodic/T-1199.yaml'
+  - '.context/episodic/T-1200.yaml'
+  - '.context/episodic/T-1201.yaml'
+  - '.context/episodic/T-1202.yaml'
+  - '.context/episodic/T-1204.yaml'
+  - '.context/episodic/T-1205.yaml'
+  - '.context/episodic/T-1206.yaml'
+  - '.context/episodic/T-1207.yaml'
+  - '.context/episodic/T-1208.yaml'
+  - '.context/episodic/T-1209.yaml'
+  - '.context/episodic/T-1210.yaml'
+  - '.context/episodic/T-1211.yaml'
+  - '.context/episodic/T-1214.yaml'
+  - '.context/episodic/T-1215.yaml'
+  - '.context/episodic/T-1216.yaml'
+  - '.context/episodic/T-1221.yaml'
+  - '.context/episodic/T-1222.yaml'
+  - '.context/episodic/T-1224.yaml'
+  - '.context/episodic/T-1225.yaml'
+  - '.context/episodic/T-1226.yaml'
+  - '.context/episodic/T-1227.yaml'
+  - '.context/episodic/T-1228.yaml'
+  - '.context/episodic/T-1230.yaml'
+  - '.context/episodic/T-1231.yaml'
+  - '.context/episodic/T-1234.yaml'
+  - '.context/episodic/T-1237.yaml'
+  - '.context/episodic/T-1242.yaml'
+  - '.context/episodic/T-1243.yaml'
+  - '.context/episodic/T-1245.yaml'
+  - '.context/episodic/T-1254.yaml'
+  - '.context/episodic/T-1272.yaml'
+  - '.context/episodic/T-1273.yaml'
+  - '.context/episodic/T-1277.yaml'
+  - '.context/episodic/T-1278.yaml'
+  - '.context/episodic/T-1280.yaml'
+  - '.context/episodic/T-1282.yaml'
+  - '.context/episodic/T-1285.yaml'
+  - '.context/episodic/T-1286.yaml'
+  - '.context/episodic/T-1287.yaml'
+  - '.context/episodic/T-1288.yaml'
+  - '.context/episodic/T-1289.yaml'
+  - '.context/episodic/T-1290.yaml'
+  - '.context/episodic/T-1292.yaml'
+  - '.context/episodic/T-1293.yaml'
+  - '.context/episodic/T-1298.yaml'
+  - '.context/episodic/T-1299.yaml'
+  - '.context/episodic/T-1301.yaml'
+  - '.context/episodic/T-1302.yaml'
+  - '.context/episodic/T-1305.yaml'
+  - '.context/episodic/T-1306.yaml'
+  - '.context/episodic/T-1307.yaml'
+  - '.context/episodic/T-1308.yaml'
+  - '.context/episodic/T-1310.yaml'
+  - '.context/episodic/T-1313.yaml'
+  - '.context/episodic/T-1314.yaml'
+  - '.context/episodic/T-1315.yaml'
+  - '.context/episodic/T-1316.yaml'
+  - '.context/episodic/T-1317.yaml'
+  - '.context/episodic/T-1394.yaml'
+  - '.context/episodic/T-209.yaml'
+  - '.context/episodic/T-281.yaml'
+  - '.context/episodic/T-309.yaml'
+  - '.context/episodic/T-357.yaml'
+  - '.context/episodic/T-402.yaml'
+  - '.context/episodic/T-669.yaml'
+  - '.context/episodic/T-723.yaml'
+  - '.context/episodic/T-725.yaml'
+  - '.context/episodic/T-728.yaml'
+  - '.context/episodic/T-752.yaml'
+  - '.context/episodic/T-753.yaml'
+  - '.context/episodic/T-763.yaml'
+  - '.context/episodic/T-917.yaml'
+  - '.context/episodic/T-969.yaml'
+  - '.context/episodic/T-974.yaml'
+  - '.context/handovers/S-2026-1008-1224.md'
+  - '.context/handovers/S-2026-1019-1812.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-14T17:06:43'
+    action: 'T-701: commit 162 episodic records of closed tasks (34 never committed, 128 refreshed by the framework) and 2 session handovers never committed; explicit paths only'
+  - time: '2026-11-14T17:07:46'
+    action: 'T-701: episodic footprints settled after the record commit (the housekeeping commit is not part of any task''s footprint)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 85123 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc-003, audit-remediation, RA-005]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 85123
+  commits: 3
+  files_changed: 167
+  lines_added: 5352
+  lines_removed: 721
+  footprint_refreshed_at: '2026-11-14T16:09:22Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-701-ra-005-100-real-files-modified-and-uncom.md
+generated_by: context-agent-hybrid
