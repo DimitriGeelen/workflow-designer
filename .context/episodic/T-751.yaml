@@ -1,0 +1,75 @@
+# ============================================================================
+# EPISODIC MEMORY - T-751: RA-042: deploy gate counts 746 uncommitted source files
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-14T11:52:50Z
+# ============================================================================
+
+task_id: T-751
+task_name: "RA-042: deploy gate counts 746 uncommitted source files"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-21T07:59:09Z
+completed: 2026-11-14T11:52:39Z
+duration_days: 54
+updates_count: 3
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Audit deployment section reports [FAIL] Deploy gate: 746 uncommitted source file(s). Shares a root cause with RA-005/T-701 but is a different check.
+
+# Key outcomes
+outcomes:
+  - 'The 746 is decomposed by class with the command that produced each count: retention-sweep deletions, audit-record modifications, and genuine source changes.'
+  - 'Either the deploy gate excludes the retention-sweep class and reports a count that means what it says, or a Sovereign question is filed proposing that change — the gate is NOT weakened to make the number smaller.'
+  - 'The residual genuine-source count is stated, and is the number any later cycle compares against.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 77993 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [audit-remediation, cycle-1]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 77993
+  commits: 1
+  files_changed: 3
+  lines_added: 167
+  lines_removed: 7
+  footprint_refreshed_at: '2026-11-14T11:53:05Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-751-ra-042-deploy-gate-counts-746-uncommitte.md
+generated_by: context-agent-hybrid

@@ -5,10 +5,11 @@ description: >
   Audit deployment section reports [FAIL] Deploy gate: 746 uncommitted source file(s).
   Shares a root cause with RA-005/T-701 but is a different check.
 
-status: captured
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [audit-remediation, cycle-1]
 components: []
 related_tasks: []
@@ -18,8 +19,8 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T07:59:09Z
-last_update: '2026-09-21T08:01:04Z'
-date_finished:
+last_update: 2026-11-14T11:52:39Z
+date_finished: 2026-11-14T11:52:39Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -48,6 +49,25 @@ bvp_scores_proposed:
       F4=0 (no-signal); F3=0 (no-signal); F1=1 
       (prose:process-enablement-incidental)
     rubric_sha: e4a00f38e801
+  - ts: '2026-11-14T11:51:46Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 1
+      F2: 1
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=2 (body:learning-ref); D2=0 (no-signal); D3=0 (no-signal); D4=0
+      (no-signal); F-RECALL=1 (body:episodic-only); F2=1 (body/components:component-fabric-incidental);
+      F4=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F3=0 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L0: no signal); F1=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 cost_estimate_proposed:
   - ts: '2026-09-21T08:01:04Z'
     estimator: bvp-estimator-v1-heuristic
@@ -64,6 +84,13 @@ cost_estimate_proposed:
 # T-751: RA-042: deploy gate counts 746 uncommitted source files
 
 ## Context
+
+**Background / trigger:** the September residue audit (RA-042) ran the opt-in deployment section, which reported
+"746 uncommitted source file(s)".
+**Problem / hypothesis:** the count mixes framework housekeeping (retention-sweep deletions, episodic refreshes) with
+real source, so it does not mean what it says.
+**Goal:** split the count by class and state the genuine-source residue.
+**Expected outcome:** a number later cycles can compare against, and the gate question settled.
 
 ### Verbatim tool output
 
@@ -85,9 +112,26 @@ Shares a root cause with RA-005 (T-701, '100 real files modified and uncommitted
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The 746 is decomposed by class with the command that produced each count: retention-sweep deletions, audit-record modifications, and genuine source changes.
-- [ ] Either the deploy gate excludes the retention-sweep class and reports a count that means what it says, or a Sovereign question is filed proposing that change — the gate is NOT weakened to make the number smaller.
-- [ ] The residual genuine-source count is stated, and is the number any later cycle compares against.
+- [x] The 746 is decomposed by class with the command that produced each count: retention-sweep deletions, audit-record modifications, and genuine source changes.
+- [x] Either the deploy gate excludes the retention-sweep class and reports a count that means what it says, or a Sovereign question is filed proposing that change — the gate is NOT weakened to make the number smaller.
+- [x] The residual genuine-source count is stated, and is the number any later cycle compares against.
+
+**Evidence (2026-11-14).** The gate's own command (`audit.sh` deployment section):
+`git diff --name-only HEAD -- '*.py' '*.sh' '*.yml' '*.yaml' 'Dockerfile'` now counts **918**. Split with
+`git diff --name-status HEAD -- <same pathspecs>`, grouped by status and the first two path parts:
+| class | count |
+|---|---|
+| retention-sweep deletions (`D .context/audits/cron/…`) | 758 |
+| episodic records modified by the framework (`M .context/episodic/…`) | 127 |
+| component cards modified (`M .fabric/components/…`) | 15 |
+| other `.context` housekeeping (`audits` 4 M, `working` 6 D + 2 M, `project` 3 M, `approvals` 3 D) | 18 |
+| **genuine source** (`git diff --name-only HEAD -- src tools tests`, code only) | **0** |
+(The one `tests/` path is `tests/.run-history.tsv`, a run log, not code.) The residual genuine-source count is **0**; a
+later cycle compares against that.
+**The gate:** the question became broader than this task asked. The operator ruled T-1413 **NO-GO** (job 137, commit
+ea646ec85): 832 is not a deployed service, so the deployment section (opt-in, `--section deployment` only) is out of
+scope for 832 altogether. No Sovereign question about the gate's counting is needed any more, and the gate was not
+changed or weakened. The uncommitted framework-maintained files themselves are T-701's subject.
 
 ## Verification
 
@@ -137,6 +181,7 @@ Shares a root cause with RA-005 (T-701, '100 real files modified and uncommitted
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+grep -q '^\*\*Decision\*\*: NO-GO' .tasks/completed/T-1413-*.md
 
 ## RCA
 
@@ -178,6 +223,12 @@ Shares a root cause with RA-005 (T-701, '100 real files modified and uncommitted
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-11-14 — the gate left 832's scope
+- **What changed:** the count was split (918 today, 0 genuine source), and the operator's NO-GO (T-1413; first ruled
+  as PD-296 via T-766 in October) put the whole deployment section out of 832's scope.
+- **Plan impact:** no gate change and no Sovereign question are needed any more.
+- **Triggered:** nothing new; the uncommitted housekeeping files stay T-701's subject.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -207,3 +258,19 @@ Shares a root cause with RA-005 (T-701, '100 real files modified and uncommitted
 - **Context:** Initial task creation
 
 test "$(cd /opt/832-Workflow-designer && git status --porcelain | grep -c '^ D .context/audits/cron/')" -gt 0
+
+### 2026-11-14T11:51:45Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+### 2026-11-14T11:52:39Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-23c460d5
+- **Timestamp:** 2026-11-14T11:52:41Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none
