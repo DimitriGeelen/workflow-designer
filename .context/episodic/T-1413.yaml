@@ -1,0 +1,95 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1413: Should 832 move to a Docker-style service (ring20 swarm), and what would it serve?
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-14T11:21:07Z
+# ============================================================================
+
+task_id: T-1413
+task_name: "Should 832 move to a Docker-style service (ring20 swarm), and what would it serve?"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-14T00:58:09Z
+completed: 2026-11-14T11:20:57Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-14T01:59:37+01:00
+last_commit: 2026-11-14T10:46:59+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  inception filed and framed — should 832 run as a ring20 swarm service? Five open questions, external consultation (ring20, AEF) and an independent review planned; DEFER until evidence. research artifact — the deployment audit section is opt-in (never runs unasked); gallery-serve binds 0.0.0.0 with unauthenticated writes; ring20 and AEF consulted (conversation 832-docker-service). AEF's answer — the vendored single file stays the contract, no known users outside AEF/Watchtower, the deployment section needs no opt-out (opt-in already). ring20's answer (workshop-designer moved off swarm; static designer needs no swarm; no known users); all five questions disposed; recommendation NO-GO. reviewer verdict
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1413/AC1-judge-t-1413-r3-45fcf9e17b01.md'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - 'docs/reports/T-1413-docker-service-inception.md'
+  - '.tasks/active/T-1413-should-832-move-to-a-docker-style-servic.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-14T01:59:37'
+    action: 'T-1413: inception filed and framed — should 832 run as a ring20 swarm service? Five open questions, external consultation (ring20, AEF) and an independent review planned; DEFER until evidence'
+  - time: '2026-11-14T10:13:02'
+    action: 'T-1413: research artifact — the deployment audit section is opt-in (never runs unasked); gallery-serve binds 0.0.0.0 with unauthenticated writes; ring20 and AEF consulted (conversation 832-docker-service)'
+  - time: '2026-11-14T10:36:27'
+    action: 'T-1413: AEF''s answer — the vendored single file stays the contract, no known users outside AEF/Watchtower, the deployment section needs no opt-out (opt-in already)'
+  - time: '2026-11-14T10:42:45'
+    action: 'T-1413: ring20''s answer (workshop-designer moved off swarm; static designer needs no swarm; no known users); all five questions disposed; recommendation NO-GO'
+  - time: '2026-11-14T10:46:59'
+    action: 'T-1413: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 622 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 622
+  commits: 6
+  files_changed: 13
+  lines_added: 664
+  lines_removed: 32
+  footprint_refreshed_at: '2026-11-14T11:21:09Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1413-should-832-move-to-a-docker-style-servic.md
+generated_by: context-agent-hybrid

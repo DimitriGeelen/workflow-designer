@@ -22033,3 +22033,29 @@ scan_id: R-8161a855
 task_id: T-1412
 payload:
   task_file: .tasks/active/T-1412-sprind-video-serve-the-designer-read-onl.md
+---
+kind: scan_emitted
+timestamp: '2026-11-14T11:20:58Z'
+scan_id: R-17093cd0
+task_id: T-1413
+payload:
+  overall: CONCERN
+  finding_count: 3
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-14T11:20:58Z'
+scan_id: R-17093cd0
+task_id: T-1413
+payload:
+  task_file: .tasks/active/T-1413-should-832-move-to-a-docker-style-servic.md
+---
+kind: recommendation_claims_verdict
+timestamp: '2026-11-14T11:20:58Z'
+scan_id: RC-dc4fa23b
+task_id: T-1413
+payload:
+  overall: CONTRADICTED
+  claim_count: 6
