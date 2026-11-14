@@ -11,13 +11,13 @@ description: >
   to break it. examples/aef-processes/rendered is also a seam artefact AEF pins against,
   so the backfill is a seam change and is sequenced after B1 ships the schema.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [arc:process-instances]
-components: []
+components: [tests/run-bridge-tests.sh]
 related_tasks: []
 arc_id: process-instances
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
@@ -30,8 +30,8 @@ arc_id: process-instances
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-26T22:41:45Z
-last_update: '2026-11-14T17:20:03Z'
-date_finished:
+last_update: 2026-11-14T19:58:19Z
+date_finished: 2026-11-14T19:58:19Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -104,7 +104,9 @@ unset default proven inert, and AEF told the commit.
 - [x] All 24 maps in `examples/aef-processes/rendered/` carry `kind="documentation"` — they describe how AEF's processes work; none of them is a plan of work
 - [x] CONTROL, and this is the load-bearing criterion: a copy of one map with `kind` stripped still round-trips byte-identical, proving the UNSET default is inert rather than merely untested
 - [x] `tools/validate-workflow.py` reports 0 errors across all 24 after the backfill
-- [ ] The corpus is a seam artefact AEF pins against: the change is announced on the rail **with** the commit, not discovered by them afterwards
+- [x] The corpus is a seam artefact AEF pins against: the change is announced on the rail **with** the commit, not discovered by them afterwards
+      (2026-11-14: AEF said go first, msg b0aaeac7; after the push (core 229/0 on the pool and here) the commits
+      d0fca0cd9 + fce46dcbe were sent to AEF on conversation `832-ewcr-progress`, msg 5faa0cea, before their pin bump.)
 - [x] Sequenced after T-875 ships the schema — a backfill against an unshipped attribute is a corpus edit with no validator behind it
 - [x] **A5 recorded:** yes/no with reason in `## Decisions`
 
@@ -324,6 +326,13 @@ python3 tools/validate-workflow.py examples/aef-processes/arc-lifecycle.workflow
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-11-14 — the corpus is not at the current editor's fixpoint
+- **What changed:** writing through the editor showed the committed corpus (last saved 2026-10-13) differs from what
+  today's editor would serialise by ~108 lines per map (DI, exporter attribute). The backfill therefore applies only
+  the editor's one-line kind delta; a bridge regen was tried first and reverted (G-012).
+- **Plan impact:** none for this task; the corpus-vs-editor drift is its own question for a later task.
+- **Triggered:** `tools/set-workflow-kind.py` (+ CDP driver) and the core leg `test_t876_corpus_kind.py`.
+
 ## Recommendation
 
 <!-- T-2945: same shape as inception.md's block — the gate that reads it
@@ -405,3 +414,16 @@ python3 tools/validate-workflow.py examples/aef-processes/arc-lifecycle.workflow
 
 ### 2026-11-14T17:20:00Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-14T19:58:19Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-cc42d2fc
+- **Timestamp:** 2026-11-14T19:58:21Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

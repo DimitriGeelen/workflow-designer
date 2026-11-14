@@ -1,0 +1,189 @@
+# ============================================================================
+# EPISODIC MEMORY - T-876: Backfill kind=documentation across the 24 corpus maps, with a control proving an unmarked map still round-trips byte-identical
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-14T19:58:30Z
+# ============================================================================
+
+task_id: T-876
+task_name: "Backfill kind=documentation across the 24 corpus maps, with a control proving an unmarked map still round-trips byte-identical"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-26T22:41:45Z
+completed: 2026-11-14T19:58:19Z
+duration_days: 49
+updates_count: 3
+first_commit: 2026-11-14T18:23:54+01:00
+last_commit: 2026-11-14T20:07:16+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  AEF said go (msg b0aaeac7); the backfill must go through the real editor + version store, not the bridge (a bridge re-render changed 8k lines, reverted); plan recorded. all 24 corpus maps declare kind=documentation (aef:workflowMeta/@kind in the rendered BPMN, workflowMeta.kind in the YAML source); written by tools/set-workflow-kind.py through the real editor, applying only the editor's own one-line delta; 20 version stores advanced; unset kind proven to round-trip byte-identical. core leg test_t876_corpus_kind (every corpus map keeps kind in both forms; control strips one and must fail) — wires set-workflow-kind.py and its driver into the suite (unwired census back to 94); runme job 138 to drop T-1412's hard-coded-port verification line (G-015), rehearsed
+
+# Key outcomes
+outcomes:
+  - 'All 24 maps in `examples/aef-processes/rendered/` carry `kind="documentation"` — they describe how AEF''s processes work; none of them is a plan of work'
+  - 'CONTROL, and this is the load-bearing criterion: a copy of one map with `kind` stripped still round-trips byte-identical, proving the UNSET default is inert rather than merely untested'
+  - '`tools/validate-workflow.py` reports 0 errors across all 24 after the backfill'
+  - 'The corpus is a seam artefact AEF pins against: the change is announced on the rail **with** the commit, not discovered by them afterwards'
+  - 'Sequenced after T-875 ships the schema — a backfill against an unshipped attribute is a corpus edit with no validator behind it'
+  - '**A5 recorded:** yes/no with reason in `## Decisions`'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'AEF said go (msg b0aaeac7); the backfill must go through the real editor + version store, not the bridge (a bridge re-render changed 8k lines, reverted); plan recorded'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  - decision: '2026-11-14 — how the backfill must be written (first attempt reverted)'
+    chose: 'write `kind` the way the corpus is actually produced: through the real editor, headless (as `tools/bake-clean-layout.py` + `tools/_clean-layout-cdp.mjs` do for Clean), setting `workflowMeta.kind` and saving with the editor''s own `buildBpmnXml()`, minting a new `.editor-versions/` store version per map (the T-145 adopt gate: rendered must equal the latest store save); and add `kind: documentation` to each YAML source''s `workflowMeta` (one line, the semantic source).'
+    rationale: 'the committed `rendered/*.bpmn` are EDITOR-SAVED dialect; regenerating them with `tools/yaml-to-bpmn.py` is forbidden (G-012, T-300) and was measured today: a bridge re-render of the 24 maps changed 3,383 + 4,862 lines (ids, DI, notes), not one attribute. Reverted at once; YAML edits reverted too so source and render stay in step.'
+    alternatives_rejected: ['bridge regeneration (clobbers the corpus); hand-inserting the attribute into the XML (bypasses the editor''s attribute order and the version store, so byte-identity and the adopt gate would break).']
+  - decision: '2026-11-14 — A5: does this deliver arc purpose and project purpose?'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/138-fix-t1412-port-line/dryrun.ok'
+  - '.context/runme/138-fix-t1412-port-line/job.sh'
+  - '.editor-versions/arc-lifecycle/index.json'
+  - '.editor-versions/arc-lifecycle/v6.bpmn'
+  - '.editor-versions/arc-lifecycle/v6.png'
+  - '.editor-versions/assumption-validation/index.json'
+  - '.editor-versions/assumption-validation/v5.bpmn'
+  - '.editor-versions/assumption-validation/v5.png'
+  - '.editor-versions/audit-process/index.json'
+  - '.editor-versions/audit-process/v3.bpmn'
+  - '.editor-versions/audit-process/v3.png'
+  - '.editor-versions/context-memory/index.json'
+  - '.editor-versions/context-memory/v4.bpmn'
+  - '.editor-versions/context-memory/v4.png'
+  - '.editor-versions/error-escalation-ladder/index.json'
+  - '.editor-versions/error-escalation-ladder/v5.bpmn'
+  - '.editor-versions/error-escalation-ladder/v5.png'
+  - '.editor-versions/fabric-blast-radius/index.json'
+  - '.editor-versions/fabric-blast-radius/v4.bpmn'
+  - '.editor-versions/fabric-blast-radius/v4.png'
+  - '.editor-versions/git-commit-flow/index.json'
+  - '.editor-versions/git-commit-flow/v5.bpmn'
+  - '.editor-versions/git-commit-flow/v5.png'
+  - '.editor-versions/harvest-pipeline/index.json'
+  - '.editor-versions/harvest-pipeline/v6.bpmn'
+  - '.editor-versions/harvest-pipeline/v6.png'
+  - '.editor-versions/healing-loop/index.json'
+  - '.editor-versions/healing-loop/v4.bpmn'
+  - '.editor-versions/healing-loop/v4.png'
+  - '.editor-versions/resume-status/index.json'
+  - '.editor-versions/resume-status/v3.bpmn'
+  - '.editor-versions/resume-status/v3.png'
+  - '.editor-versions/review-emission/index.json'
+  - '.editor-versions/review-emission/v4.bpmn'
+  - '.editor-versions/review-emission/v4.png'
+  - '.editor-versions/task-gate/index.json'
+  - '.editor-versions/task-gate/v4.bpmn'
+  - '.editor-versions/task-gate/v4.png'
+  - '.editor-versions/task-lifecycle/index.json'
+  - '.editor-versions/task-lifecycle/v3.bpmn'
+  - '.editor-versions/task-lifecycle/v3.png'
+  - '.editor-versions/tier0-escalation/index.json'
+  - '.editor-versions/tier0-escalation/v4.bpmn'
+  - '.editor-versions/tier0-escalation/v4.png'
+  - '.editor-versions/verification-gate/index.json'
+  - '.editor-versions/verification-gate/v3.bpmn'
+  - '.editor-versions/verification-gate/v3.png'
+  - '.tasks/active/T-876-backfill-kinddocumentation-across-the-24.md'
+  - 'examples/aef-processes/arc-lifecycle.workflow.yaml'
+  - 'examples/aef-processes/assumption-validation.workflow.yaml'
+  - 'examples/aef-processes/audit-process.workflow.yaml'
+  - 'examples/aef-processes/context-memory.workflow.yaml'
+  - 'examples/aef-processes/cross-host-dispatch.workflow.yaml'
+  - 'examples/aef-processes/error-escalation-ladder.workflow.yaml'
+  - 'examples/aef-processes/fabric-blast-radius.workflow.yaml'
+  - 'examples/aef-processes/git-commit-flow.workflow.yaml'
+  - 'examples/aef-processes/harvest-pipeline.workflow.yaml'
+  - 'examples/aef-processes/healing-loop.workflow.yaml'
+  - 'examples/aef-processes/inception-lifecycle.workflow.yaml'
+  - 'examples/aef-processes/inception-review.workflow.yaml'
+  - 'examples/aef-processes/promotion-pipeline.workflow.yaml'
+  - 'examples/aef-processes/release-pipeline.workflow.yaml'
+  - 'examples/aef-processes/rendered/arc-lifecycle.bpmn'
+  - 'examples/aef-processes/rendered/assumption-validation.bpmn'
+  - 'examples/aef-processes/rendered/audit-process.bpmn'
+  - 'examples/aef-processes/rendered/context-memory.bpmn'
+  - 'examples/aef-processes/rendered/cross-host-dispatch.bpmn'
+  - 'examples/aef-processes/rendered/error-escalation-ladder.bpmn'
+  - 'examples/aef-processes/rendered/fabric-blast-radius.bpmn'
+  - 'examples/aef-processes/rendered/git-commit-flow.bpmn'
+  - 'examples/aef-processes/rendered/harvest-pipeline.bpmn'
+  - 'examples/aef-processes/rendered/healing-loop.bpmn'
+  - 'examples/aef-processes/rendered/inception-lifecycle.bpmn'
+  - 'examples/aef-processes/rendered/inception-review.bpmn'
+  - 'examples/aef-processes/rendered/promotion-pipeline.bpmn'
+  - 'examples/aef-processes/rendered/release-pipeline.bpmn'
+  - 'examples/aef-processes/rendered/resume-status.bpmn'
+  - 'examples/aef-processes/rendered/review-emission.bpmn'
+  - 'examples/aef-processes/rendered/revisit-due-scan.bpmn'
+  - 'examples/aef-processes/rendered/session-capture.bpmn'
+  - 'examples/aef-processes/rendered/session-handover.bpmn'
+  - 'examples/aef-processes/rendered/task-gate.bpmn'
+  - 'examples/aef-processes/rendered/task-lifecycle.bpmn'
+  - 'examples/aef-processes/rendered/tier0-escalation.bpmn'
+  - 'examples/aef-processes/rendered/upgrade-process.bpmn'
+  - 'examples/aef-processes/rendered/verification-gate.bpmn'
+  - 'examples/aef-processes/resume-status.workflow.yaml'
+  - 'examples/aef-processes/review-emission.workflow.yaml'
+  - 'examples/aef-processes/revisit-due-scan.workflow.yaml'
+  - 'examples/aef-processes/session-capture.workflow.yaml'
+  - 'examples/aef-processes/session-handover.workflow.yaml'
+  - 'examples/aef-processes/task-gate.workflow.yaml'
+  - 'examples/aef-processes/task-lifecycle.workflow.yaml'
+  - 'examples/aef-processes/tier0-escalation.workflow.yaml'
+  - 'examples/aef-processes/upgrade-process.workflow.yaml'
+  - 'examples/aef-processes/verification-gate.workflow.yaml'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_t876_corpus_kind.py'
+  - 'tools/_set-workflow-kind-cdp.mjs'
+  - 'tools/set-workflow-kind.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-14T18:23:54'
+    action: 'T-876: AEF said go (msg b0aaeac7); the backfill must go through the real editor + version store, not the bridge (a bridge re-render changed 8k lines, reverted); plan recorded'
+  - time: '2026-11-14T19:50:12'
+    action: 'T-876: all 24 corpus maps declare kind=documentation (aef:workflowMeta/@kind in the rendered BPMN, workflowMeta.kind in the YAML source); written by tools/set-workflow-kind.py through the real editor, applying only the editor''s own one-line delta; 20 version stores advanced; unset kind proven to round-trip byte-identical'
+  - time: '2026-11-14T20:07:16'
+    action: 'T-876: core leg test_t876_corpus_kind (every corpus map keeps kind in both forms; control strips one and must fail) — wires set-workflow-kind.py and its driver into the suite (unwired census back to 94); runme job 138 to drop T-1412''s hard-coded-port verification line (G-015), rehearsed'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 70396 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:process-instances]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 70396
+  commits: 4
+  files_changed: 103
+  lines_added: 5325
+  lines_removed: 39
+  footprint_refreshed_at: '2026-11-14T19:58:41Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-876-backfill-kinddocumentation-across-the-24.md
+generated_by: context-agent-hybrid
