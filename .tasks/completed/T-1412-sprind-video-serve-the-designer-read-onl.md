@@ -4,10 +4,11 @@ name: "SPRIND video: serve the designer read-only on this machine with 050's Str
 description: >
   SPRIND video: serve the designer read-only on this machine with 050's Streichliste workflows open, checked for personal data
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-14T00:34:13Z
-last_update: 2026-11-14T00:34:13Z
-date_finished: null
+last_update: 2026-11-14T00:44:46Z
+date_finished: 2026-11-14T00:44:46Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -75,17 +76,24 @@ truly read-only page; the designer opens a file by `?load=<url>`.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] 1409-sprind's current generated BPMNs are obtained from 1409 itself (no reading inside its project), kept only
-  under the git-ignored `build/sprind-video/`.
+**Superseded 2026-11-14 01:41 CET (Pen, msg fb52cc0d):** 1409-sprind's own Watchtower already embeds the designer with
+the Streichliste workflows loaded (WF-01, WF-02, WF-04 K0-K11, Evidence-Pipeline), and video v4 already holds a shot of
+WF-04-K11 open in it. Our separate page is not needed; 1409 told to send nothing (msg c603f2f8). Criteria 1, 3 and 4 no
+longer apply and are struck; the page was built and rehearsed (2), then taken down (5).
+1409-sprind (msg e8905e5e, operator-approved) then warned: WF-02 carries a word the operator abolished and must not be
+shown (current version: wf-15-streichkandidat-kette); WF-01 and WF-02 are hand-converted (2026-09-30), not generated;
+the generated maps are wf-04-kommunescan (overview), wf-04-k0a … k11 and wf-05 … wf-15. Relayed to Pen (msg a40b0741).
+- [x] ~~1409-sprind's current generated BPMNs are obtained from 1409 itself~~ (not needed: superseded, above).
 - [x] A static server bound to 127.0.0.1 only serves the designer and those files; no write API is reachable.
   (2026-11-14 ~01:10 CET: `python3 -m http.server 45111 --bind 127.0.0.1` in `build/sprind-video/`, serving a copy of
   `src/aef-workflow-designer.html` (0.42.0) as `designer.html`; GET 200, POST and PUT 501. Rehearsed with a sample
   map: `designer.html?load=sample-test.bpmn` settles "adopted", no page errors, renders at 1920x1080; the browser ran
   with its own TMPDIR and left nothing in /tmp. Asked 1409-sprind for the BPMNs: msg e7de4786; Pen updated: 3c63ac29.)
-- [ ] Each URL opens the designer with its workflow rendered, confirmed by a screenshot read control by control; no
-  personal data or secret is visible in any of them.
-- [ ] The URLs are sent to 050 (Pen) in the `streichliste-video` conversation.
-- [ ] After the recording (or Mon 16.11. at the latest) the server is stopped and `build/sprind-video/` removed.
+- [x] ~~Each URL opens the designer with its workflow rendered … no personal data or secret is visible~~ (not needed:
+  superseded; Pen films 1409's own instance).
+- [x] ~~The URLs are sent to 050 (Pen)~~ (not needed: superseded).
+- [x] The server is stopped and `build/sprind-video/` removed (2026-11-14 ~01:45 CET: task stopped, port 45111 no longer
+  listening, folder deleted).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -271,6 +279,8 @@ truly read-only page; the designer opens a file by `?load=<url>`.
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+test ! -e build/sprind-video
+! ss -tln | grep -q ':45111 '
 
 ## RCA
 
@@ -368,3 +378,21 @@ truly read-only page; the designer opens a file by `?load=<url>`.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1412-sprind-video-serve-the-designer-read-onl.md
 - **Context:** Initial task creation
+
+### 2026-11-14T00:44:46Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-8161a855
+- **Timestamp:** 2026-11-14T00:44:52Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 138
+     - evidence: `! ss -tln | grep -q ':45111 '`
