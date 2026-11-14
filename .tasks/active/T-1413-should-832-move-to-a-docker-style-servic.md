@@ -141,29 +141,34 @@ with no hand restart, the deploy gate's three checks PASS, and AEF's vendored co
      FW_SKIP_DISPOSITION_GATE=1 (env-var, T-1890 producer/consumer parity).
 -->
 - **IW-1: Who would use a hosted 832 designer that does not already get it through AEF, and how often?**
-  confidence: 0
-  disposition: (open)
-  rationale: (to research: AEF, 1409-sprind, 050, the operator)
+  confidence: 2
+  disposition: answered
+  rationale: none known — AEF (msg 1d7d8b4b) and ring20 (msg b86d15f0) know of no user outside AEF/Watchtower; the
+    only open audience is the public (SPRIND video), which only the operator can name. docs/reports/T-1413-*.md
 - **IW-2: What exactly would the container serve: only the static designer, or the gallery server with its write
   APIs (versions, field profiles, suggestions), and what auth would writes need?**
-  confidence: 0
-  disposition: (open)
-  rationale: (to research: tools/gallery-serve.py routes; ring20 traefik/auth practice)
+  confidence: 3
+  disposition: answered
+  rationale: static designer = safe but needs no swarm (ring20: a Surfer static app is cheaper); gallery-serve.py writes
+    (save/delete/field-profile/suggestions) have no auth and bind 0.0.0.0 (line 399), so hosting it needs auth + backups
 - **IW-3: What does ring20 expect of a swarm service (image registry, ports, traefik routes, secrets, backups), and is
   there capacity and an owner for it?**
-  confidence: 0
-  disposition: (open)
-  rationale: (external consultation: ring20 management agent)
+  confidence: 3
+  disposition: answered
+  rationale: ring20 msg b86d15f0 — registry image via OneDev CI, traefik route on both proxy nodes, Infisical secrets,
+    app-level or Keycloak auth, PBS + own volume export; capacity yes; ring20 runs the platform, 832 the app
 - **IW-4: Does AEF want anything different from 832 if 832 runs as a service (e.g. fetch the designer from it instead
   of vendoring), or must the vendored single file stay the contract?**
-  confidence: 0
-  disposition: (open)
-  rationale: (external consultation: AEF)
+  confidence: 3
+  disposition: answered
+  rationale: AEF msg 1d7d8b4b — "The vendored single HTML file stays our contract"; a hosted 832 changes nothing AEF
+    depends on
 - **IW-5: If NO-GO, is the right fix to declare the deploy section not applicable to 832 (and can a consumer project
   say so), instead of scaffolding files to silence it?**
-  confidence: 0
-  disposition: (open)
-  rationale: (to research: the framework's deploy gate and its opt-out)
+  confidence: 3
+  disposition: dissolved
+  rationale: nothing to declare — the deployment section is opt-in (audit.sh:9147-9151, "--section deployment" only;
+    confirmed by AEF msg 1d7d8b4b); 832 never meets it unless someone asks for it
 
 ## Exploration Plan
 
@@ -242,13 +247,25 @@ tiers (the dispatch pool already covers those).
 
 ## Recommendation
 
-**Recommendation:** DEFER
+**Recommendation:** NO-GO
 
 **Rationale:**
 
-No evidence yet. Today 832 ships one HTML file that AEF vendors and serves; the dev server (tools/gallery-serve.py) and Watchtower run on .107 by hand. The audit's deploy gate (T-752..T-754) assumes every project is a swarm service. Whether a container would serve real users (a hosted designer, the gallery, the pool runner) or only silence a check is unknown; ring20's operator and AEF should be consulted before a decision.
+No named user needs a hosted 832 (AEF and ring20 both know of none); AEF's contract stays the vendored single file and
+a hosted 832 changes nothing for it; ring20's closest precedent (workshop-designer, one HTML designer) was moved OFF
+swarm in May 2026 to a static app; the only part that would justify a service, the gallery server, would first need
+auth and backups nobody has asked for. The deploy gate is opt-in, so no change in 832 is needed; T-752..T-754 close on
+this ruling. If the operator wants a public, always-on designer to show, the cheap path is a read-only static app
+(as workshop-designer), as its own small task, not this decision.
 
 **Evidence:**
+- AEF, msg 1d7d8b4b (2026-11-14): single vendored file stays the contract; no users outside AEF/Watchtower; deployment
+  section opt-in, no declaration needed.
+- ring20, msg b86d15f0 (2026-11-14): workshop-designer moved off swarm (their T-849/T-850); static designer not worth a
+  swarm service; only a writing server justifies one, with auth + backup; no known fleet users.
+- `.agentic-framework/agents/audit/audit.sh:9147-9200`: deployment section runs only with `--section deployment`.
+- `tools/gallery-serve.py:399, 1104-1140`: binds 0.0.0.0, writes without auth.
+- Full write-up: `docs/reports/T-1413-docker-service-inception.md`.
 
 <!-- Add evidence bullets as exploration progresses (file paths,
      commit hashes, test results). The filing-time recommendation

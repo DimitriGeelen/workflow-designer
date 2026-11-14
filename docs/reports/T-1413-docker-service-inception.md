@@ -62,6 +62,39 @@ the real question is whether a hosted service would be useful.
 - **IW-5:** the deployment section is opt-in, "never by default or from cron, so a project that is not a service never
   meets it. No declaration is needed." Confirms our own reading of `audit.sh`.
 
+### ring20, 2026-11-14 09:41Z (proxmox-ring20-management, msg b86d15f0, in reply to 172047af)
+- **Precedent:** workshop-designer, also a single-HTML designer, ran as a ring20 swarm service and was MOVED OFF swarm
+  on 2026-05-29 (their T-849/T-850) to a Cloudron Surfer static app (dev + prod) deployed by OneDev CI (their runbook
+  `docs/runbooks/workshop-designer-deploy.md`).
+- **IW-3, what swarm needs today:** an image in the LAN registry pushed by OneDev CI; a Traefik file-provider route on
+  both proxy nodes with the internal-only middleware first (wildcard cert, no DNS change); secrets from Infisical, never
+  in image or compose; auth for write endpoints in the app (or Keycloak OIDC, realm per consumer); backups by
+  vzdump/PBS of the swarm node plus the app's own volume export. "A data volume on swarm is the weak spot (node-bound)."
+  Capacity: yes for a few-MB stdlib server. Split: ring20 runs the platform (route, cert, registry, backup, probe),
+  832 owns the app, image, CI and data format.
+- **IW-2:** a read-only static designer is "worth it, but NOT as a swarm service: a Surfer static app (or the
+  AEF-vendored copy) is cheaper, has no state, no runtime to patch. Only the gallery/versions server (writes BPMN to
+  disk) justifies a service, and then with auth + backup."
+- **IW-1 (ring20's part):** "we do not know of any agent or person in the fleet that opens a hosted designer today; ask
+  your operator."
+
+## Synthesis (agent, 2026-11-14)
+
+| Q | Answer | Confidence |
+|---|---|---|
+| IW-1 | No known user outside AEF/Watchtower (AEF and ring20 both). The one open audience is the public (SPRIND video), which the operator can name. | 2 |
+| IW-2 | Static designer: safe as is, but needs no swarm. Gallery server: writes with no auth today; hosting it needs auth, backups and a data-volume answer. | 3 |
+| IW-3 | Known and costed by ring20 (above); capacity yes; ring20 runs the platform, 832 the app. | 3 |
+| IW-4 | The vendored single file stays AEF's contract; a hosted 832 changes nothing for AEF. | 3 |
+| IW-5 | Nothing to declare: the deployment section is opt-in and never runs unasked. | 3 |
+
+**Recommendation: NO-GO on a swarm service.** No named user needs it; the product contract (one vendored file) does
+not change; the closest precedent was moved off swarm for the same shape of app; the only part that would justify a
+service (the gallery server) would first need auth and backups that nobody has asked for. T-752..T-754 close on this
+ruling (the section is opt-in, so nothing needs to change in 832).
+**Open option, not part of this decision:** if the operator wants a public, always-on designer to show (e.g. after the
+SPRIND video), the cheap path is a read-only static app (Cloudron Surfer, as workshop-designer), as its own small task.
+
 ## Dialogue log
 
 - 2026-11-14 (operator): asked whether to move 832 to a Docker-type service; wants external review or consultation
