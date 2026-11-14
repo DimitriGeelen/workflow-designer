@@ -22059,3 +22059,57 @@ task_id: T-1413
 payload:
   overall: CONTRADICTED
   claim_count: 6
+---
+kind: scan_emitted
+timestamp: '2026-11-14T11:26:18Z'
+scan_id: R-fc8d21fc
+task_id: T-752
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-14T11:26:18Z'
+scan_id: R-fc8d21fc
+task_id: T-752
+payload:
+  task_file: .tasks/active/T-752-ra-043-deploy-gate-finds-no-dockerfile-i.md
+---
+kind: scan_emitted
+timestamp: '2026-11-14T11:26:51Z'
+scan_id: R-ee199406
+task_id: T-753
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-14T11:26:51Z'
+scan_id: R-ee199406
+task_id: T-753
+payload:
+  task_file: .tasks/active/T-753-ra-044-deploy-gate-finds-no-deploydocker.md
+---
+kind: scan_emitted
+timestamp: '2026-11-14T11:27:55Z'
+scan_id: R-ce04f992
+task_id: T-754
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-14T11:27:55Z'
+scan_id: R-ce04f992
+task_id: T-754
+payload:
+  task_file: .tasks/active/T-754-ra-045-deploy-gate-finds-no-deploytraefi.md

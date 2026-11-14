@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-754: RA-045: deploy gate finds no deploy/traefik-routes.yml
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-14T11:28:44Z
+# ============================================================================
+
+task_id: T-754
+task_name: "RA-045: deploy gate finds no deploy/traefik-routes.yml"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-21T07:59:18Z
+completed: 2026-11-14T11:27:43Z
+duration_days: 54
+updates_count: 3
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Audit deployment section reports [FAIL] Deploy gate: deploy/traefik-routes.yml missing.
+
+# Key outcomes
+outcomes:
+  - 'PARKED pending a Sovereign ruling. This task is NOT executed under agent initiative: creating deployment scaffolding decides that this project is a deployed service, which is an architectural decision the mandate forbids the agent from taking to keep momentum.'
+  - 'The Sovereign question is recorded verbatim on this task: does 832-Workflow-designer deploy as a Ring20 swarm service? If no, the deployment audit section is out of scope for this project and the correct fix is to scope the check — not to scaffold files to silence it.'
+  - 'Whichever way the ruling goes, the originating check reports PASS or the section is recorded as not-applicable with the ruling cited.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  - decision: '2026-09-21 — SQ-1 ruled NO by the operator'
+    chose: '832-Workflow-designer does **not** deploy as a Ring20 swarm service. The deployment audit section is out of scope for this project, and this FAIL is dispositioned by the ruling rather than by producing the file it asks for.'
+    rationale: 'Operator ruling of 2026-09-21, recorded in `.context/project/decisions.yaml` (SQ-1). The operator held the ruling open — *"Unless you have another compelling reason why we would benefit from that"* — and the agent was asked for one and found none: the product is a single-file HTML artifact that consumers vendor rather than fetch; the AEF↔832 seam is contract-and-fixture based, with `file_send` explicitly not a delivery mechanism for seam bytes; and a container would add a release surface over bytes already under a G-007 sovereignty promise.'
+    alternatives_rejected: ['Running `fw deploy scaffold`. It would manufacture a deployment posture nobody decided on, and turn the check green by giving it what it asked for rather than by making it right. Also rejected: deleting or weakening the check. - **Still open, and why this task is not closed:** the ruling settles *whether this project deploys*. It does not settle *how the audit should represent a section that does not apply*. Today that section is silently skipped by the `[ -n "$SECTIONS" ]` guard at `audit.sh:5228` — invisible rather than not-applicable, which is the defect RA-049/T-758 owns. **This task is blocked on T-758** and closes when the section is explicitly recorded as not-applicable with this ruling cited.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 77968 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [audit-remediation, cycle-1]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 77968
+  commits: 1
+  files_changed: 7
+  lines_added: 462
+  lines_removed: 21
+  footprint_refreshed_at: '2026-11-14T11:29:34Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-754-ra-045-deploy-gate-finds-no-deploytraefi.md
+generated_by: context-agent-hybrid

@@ -1,13 +1,14 @@
 ---
-id: T-752
-name: "RA-043: deploy gate finds no Dockerfile in project root"
+id: T-754
+name: "RA-045: deploy gate finds no deploy/traefik-routes.yml"
 description: >
-  Audit deployment section reports [FAIL] Deploy gate: Dockerfile missing.
+  Audit deployment section reports [FAIL] Deploy gate: deploy/traefik-routes.yml missing.
 
-status: captured
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [audit-remediation, cycle-1]
 components: []
 related_tasks: []
@@ -16,9 +17,9 @@ arc_id: arc-003
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-09-21T07:59:12Z
-last_update: '2026-09-26T09:06:29Z'
-date_finished:
+created: 2026-09-21T07:59:18Z
+last_update: 2026-11-14T11:27:43Z
+date_finished: 2026-11-14T11:27:43Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -30,7 +31,7 @@ date_finished:
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 bvp_scores_proposed:
-  - ts: '2026-09-21T08:00:52Z'
+  - ts: '2026-09-21T08:00:53Z'
     estimator: bvp-estimator-v1-heuristic
     scores:
       D1: 4
@@ -63,8 +64,27 @@ bvp_scores_proposed:
       (body:env-class-handled); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (L0:
       no signal); F3=0 (L0: no signal); F1=1 (L1:keyword=designer,L1:keyword=bpmn)'
     rubric_sha: e4a00f38e801
+  - ts: '2026-11-14T11:25:11Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=2 (body:learning-ref,body:concern-ref); D2=0 (no-signal); D3=0
+      (no-signal); D4=0 (no-signal); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0
+      (basis: task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F3=0 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L0: no signal); F1=0 (basis: task body — no hypothesis, so
+      this score has no claim to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 cost_estimate_proposed:
-  - ts: '2026-09-21T08:01:04Z'
+  - ts: '2026-09-21T08:01:05Z'
     estimator: bvp-estimator-v1-heuristic
     cost_estimate:
       tier: 2
@@ -83,33 +103,39 @@ cost_estimate_proposed:
     rubric_sha: e4a00f38e801
 ---
 
-# T-752: RA-043: deploy gate finds no Dockerfile in project root
+# T-754: RA-045: deploy gate finds no deploy/traefik-routes.yml
 
 ## Context
 
 ### Verbatim tool output
 
 ```
-[FAIL] Deploy gate: Dockerfile missing
-       Evidence: Dockerfile not found in project root
+[FAIL] Deploy gate: deploy/traefik-routes.yml missing
+       Evidence: deploy/traefik-routes.yml not found in project root
        Mitigation: Run: fw deploy scaffold --app <name> --pattern swarm --port-prod <N> --port-dev <N>
 ```
 
 ### The invariant that is not held
 
-The deployment audit section asserts that every project holds Ring20 swarm deployment scaffolding, and reports its absence as FAIL. `Dockerfile` does not exist. The invariant not held is stated by the check; whether it SHOULD hold for this project is not something the check can answer. 832-Workflow-designer is served by Watchtower on a LAN port and ships its product as a single-file HTML artifact vendored by a consumer — it has never been a containerised service. Running `fw deploy scaffold` would manufacture a deployment posture nobody has decided on.
+The deployment audit section asserts that every project holds Ring20 swarm deployment scaffolding, and reports its absence as FAIL. `deploy/traefik-routes.yml` does not exist. The invariant not held is stated by the check; whether it SHOULD hold for this project is not something the check can answer. 832-Workflow-designer is served by Watchtower on a LAN port and ships its product as a single-file HTML artifact vendored by a consumer — it has never been a containerised service. Running `fw deploy scaffold` would manufacture a deployment posture nobody has decided on.
 
 ### Root-cause links
 
-One class of three, same root cause and same Sovereign question. Siblings: T-753 (deploy/docker-compose.swarm.yml), T-754 (deploy/traefik-routes.yml). Related: RA-042/T-751 (deploy gate uncommitted-file count) is the same audit section but a different root cause.
+One class of three, same root cause and same Sovereign question. Siblings: T-752 (Dockerfile), T-753 (deploy/docker-compose.swarm.yml). Related: RA-042/T-751 (deploy gate uncommitted-file count) is the same audit section but a different root cause.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] PARKED pending a Sovereign ruling. This task is NOT executed under agent initiative: creating deployment scaffolding decides that this project is a deployed service, which is an architectural decision the mandate forbids the agent from taking to keep momentum.
-- [ ] The Sovereign question is recorded verbatim on this task: does 832-Workflow-designer deploy as a Ring20 swarm service? If no, the deployment audit section is out of scope for this project and the correct fix is to scope the check — not to scaffold files to silence it.
-- [ ] Whichever way the ruling goes, the originating check reports PASS or the section is recorded as not-applicable with the ruling cited.
+- [x] PARKED pending a Sovereign ruling. This task is NOT executed under agent initiative: creating deployment scaffolding decides that this project is a deployed service, which is an architectural decision the mandate forbids the agent from taking to keep momentum.
+- [x] The Sovereign question is recorded verbatim on this task: does 832-Workflow-designer deploy as a Ring20 swarm service? If no, the deployment audit section is out of scope for this project and the correct fix is to scope the check — not to scaffold files to silence it.
+- [x] Whichever way the ruling goes, the originating check reports PASS or the section is recorded as not-applicable with the ruling cited.
+
+**Ruling (2026-11-14):** the operator decided T-1413 **NO-GO** (job 137, commit ea646ec85): 832 does not deploy as a
+ring20 swarm service; it stays one vendored HTML file. The deployment section is therefore out of scope for 832, and
+nothing needs scoping: it is opt-in (`audit.sh` runs it only with `--section deployment`, confirmed by AEF msg
+1d7d8b4b), so 832 never meets it unless someone asks. No traefik routes were created. Siblings T-752, T-753 close on the
+same ruling.
 
 ## Verification
 
@@ -160,6 +186,9 @@ One class of three, same root cause and same Sovereign question. Siblings: T-753
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+grep -q '^\*\*Decision\*\*: NO-GO' .tasks/completed/T-1413-*.md
+test ! -e deploy/traefik-routes.yml
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -200,6 +229,12 @@ One class of three, same root cause and same Sovereign question. Siblings: T-753
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-11-14 — the question went to an inception, and the ruling was NO-GO
+- **What changed:** the "Sovereign question" became inception T-1413, with external consultation (AEF, ring20) and an
+  independent review. It found the deployment section is opt-in, so the FAIL came from one explicit run, not a standing check.
+- **Plan impact:** no scoping change is needed in 832; the ruling alone closes this.
+- **Triggered:** nothing new (an optional public static designer was named as its own future task, not filed).
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -238,7 +273,7 @@ One class of three, same root cause and same Sovereign question. Siblings: T-753
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-752 go|no-go|defer --rationale "..."
+     fw inception decide T-754 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -247,9 +282,25 @@ One class of three, same root cause and same Sovereign question. Siblings: T-753
 
 ## Updates
 
-### 2026-09-21T07:59:12Z — task-created [task-create-agent]
+### 2026-09-21T07:59:18Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-752-ra-043-deploy-gate-finds-no-dockerfile-i.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-754-ra-045-deploy-gate-finds-no-deploytraefi.md
 - **Context:** Initial task creation
 
-test ! -e /opt/832-Workflow-designer/Dockerfile || test -e /opt/832-Workflow-designer/Dockerfile
+test ! -e /opt/832-Workflow-designer/deploy/traefik-routes.yml || test -e /opt/832-Workflow-designer/deploy/traefik-routes.yml
+
+### 2026-11-14T11:25:01Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+### 2026-11-14T11:27:43Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-ce04f992
+- **Timestamp:** 2026-11-14T11:27:55Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none
