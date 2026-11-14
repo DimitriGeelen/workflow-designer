@@ -1,16 +1,16 @@
 ---
-id: T-729
-name: "RA-033: installed claude-fw has drifted from repo source"
+id: T-728
+name: "RA-032: arc-001 is 26 of 32 complete but still in-progress"
 description: >
-  Doctor WARN cycle 1 2026-09-16: on PATH /root/.local/bin/claude-fw differs from
-  the repo copy, so supervision export may be stale. Host-level per T-1707 - cannot
-  be fixed from a project session.
+  Audit WARN cycle 1 2026-09-16: threshold 0.80 reached, the G-062 code-complete-without-closure
+  signature. fw arc close requires --demo wire evidence and is a sovereignty act.
 
-status: captured
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
-tags: [arc-003, audit-remediation, RA-033]
+horizon: null
+tags: [arc-003, audit-remediation, RA-032]
 components: []
 related_tasks: []
 arc_id: arc-003
@@ -18,9 +18,9 @@ arc_id: arc-003
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-09-16T13:26:22Z
-last_update: 2026-09-29T17:31:23Z
-date_finished:
+created: 2026-09-16T13:26:19Z
+last_update: 2026-11-14T11:49:08Z
+date_finished: 2026-11-14T11:49:08Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -36,7 +36,7 @@ bvp_scores_proposed:
     estimator: bvp-estimator-v1-heuristic
     scores:
       D1: 4
-      D2: 0
+      D2: 4
       D3: 2
       D4: 2
       F-RECALL: 0
@@ -44,26 +44,29 @@ bvp_scores_proposed:
       F4: 0
       F3: 0
       F1: 1
-    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+    rationale: D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=2
       (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
       (no-signal); F2=0 (no-signal); F4=0 (no-signal); F3=0 (no-signal); F1=1 
       (prose:process-enablement-incidental)
     rubric_sha: e4a00f38e801
-  - ts: '2026-09-26T09:06:27Z'
+  - ts: '2026-11-14T11:49:07Z'
     estimator: bvp-estimator-v1-heuristic
     scores:
-      D1: 4
-      D2: 0
-      D3: 2
-      D4: 2
+      D1: 2
+      D2: 4
+      D3: 0
+      D4: 0
       F-RECALL: 0
       F2: 0
-      F4: 0
+      F4: 1
       F3: 0
-      F1: 2
-    rationale: 'D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 (body:default-change);
-      D4=2 (body:env-class-handled); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0
-      (L0: no signal); F3=0 (L0: no signal); F1=2 (L1:keyword=designer,L1:keyword=bpmn)'
+      F1: 0
+    rationale: 'D1=2 (body:learning-ref,body:concern-ref); D2=4 (body:fw-audit-or-doctor);
+      D3=0 (no-signal); D4=0 (no-signal); F-RECALL=0 (no-signal); F2=0 (no-signal);
+      F4=1 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L1:keyword=lane); F3=0 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L0: no signal); F1=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal)'
     rubric_sha: e4a00f38e801
 cost_estimate_proposed:
   - ts: '2026-09-16T13:30:55Z'
@@ -76,29 +79,28 @@ cost_estimate_proposed:
     rubric_sha: e4a00f38e801
 ---
 
-# T-729: RA-033: installed claude-fw has drifted from repo source
+# T-728: RA-032: arc-001 is 26 of 32 complete but still in-progress
 
 ## Context
 
-**Finding RA-033** - cycle 1, 2026-09-16. Source: fw doctor. Severity: WARN.
+**Finding RA-032** - cycle 1, 2026-09-16. Source: fw audit. Severity: WARN.
 
 Cycle-1 baseline for regression detection: audit Pass 166 / Warn 31 / Fail 1; doctor 3 warn / 0 fail.
 
 **Verbatim tool output:**
 
 ```
-[1;33mWARN[0m  Installed claude-fw drifted from repo source - supervision export may be stale
-         on PATH: /root/.local/bin/claude-fw
-         repo:    /opt/832-Workflow-designer/.agentic-framework/bin/claude-fw
-         Refresh: bash ~/.agentic-framework/install.sh
+[WARN] Arc 'arc-001': 26/32 tasks completed (0.8125) but arc still in-progress
+       Evidence: Threshold 0.80 reached - code-complete without explicit closure (G-062 signature)
+       Mitigation: Capture wire-evidence of the arc's headline_mechanic firing, then: fw arc close arc-001 --demo <path|url> --decision "..." 
 ```
 
 **The invariant that is not held:**
 
-The claude-fw on PATH is not the claude-fw in the repo. The invariant not held is that the supervisor actually running the session is the supervisor whose source is under review. Budget auto-restart is armed by that binary, so a drifted copy means the recovery path this project depends on is not the one it can read.
+arc-001 has passed the 0.80 completion threshold without an explicit closure decision. G-062's signature case: the code is done and nobody has asserted the arc delivered what it promised. The invariant not held is that an arc closes on evidence of its headline mechanic firing, not on a task count. Closing it requires wire-level demo evidence, which is a sovereignty act.
 
 **Operator action / sovereignty boundary:**
-Host-scope per T-1707. The refresh command does a git reset --hard and relink at the host root; it is outside this project's boundary (T-559) and is the operator's to run.
+`fw arc close` requires --demo wire evidence and is reviewed via `fw arc review`. Under $CLAUDECODE=1 agents emit the URL; humans submit the form.
 
 **Verification is the next cycle's re-run of the originating check, not this task's own assertion that it is fixed.**
 
@@ -106,9 +108,20 @@ Host-scope per T-1707. The refresh command does a git reset --hard and relink at
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `fw doctor` no longer reports claude-fw drift
-- [ ] The installed and repo copies are byte-identical, or the divergence is declared
-- [ ] The refresh was performed from a session at the host root, not from this project session
+- [x] arc-001 is either closed with --demo evidence, or the six incomplete tasks are named with the reason the arc stays open
+- [x] If closed, the demo evidence shows the headline_mechanic firing at wire level - not a screenshot of the UI and not a passing test
+- [x] The agent did not invoke `fw arc close`
+
+**Evidence (2026-11-14, `fw arc show arc-001`):** the arc is not closed and stays open for real work. It now has 49
+tasks; the open ones are no longer the six of September but these five:
+- T-424 (captured, now): T-357 step 3, retire `aef:position`.
+- T-564 (captured, later): T-501 build 3, load-time id normalisation with a one-time notice.
+- T-895 (captured, next): migrate 67 lane authority values onto elements across the 24 corpus maps.
+- T-896 (started-work, now): put the authority ruling to AEF (one semantic attribute, one presentational).
+- T-901 (captured, now): retire `authority=none`, or record why it stays.
+Reason it stays open: the authority-attribute migration (T-895, T-896, T-901) and the `aef:position` retirement (T-424)
+change what AEF stores; they are live designer work, not residue. Criterion 2 applies only if closed (it is not).
+`fw arc close` was not run.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -134,11 +147,11 @@ Host-scope per T-1707. The refresh command does a git reset --hard and relink at
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-729`
+         1. Run `bin/fw reviewer T-728`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-729 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-728 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
@@ -190,7 +203,8 @@ Host-scope per T-1707. The refresh command does a git reset --hard and relink at
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
-# Parked: host-level. T-1707 - cannot be fixed from a project session.
+out=$(.agentic-framework/bin/fw arc list 2>&1); echo "$out" | grep -q "arc-001"
+grep -q '^status: in-progress' .context/arcs/designer-authoring-surface.yaml
 
 ## RCA
 
@@ -232,6 +246,12 @@ Host-scope per T-1707. The refresh command does a git reset --hard and relink at
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-11-14 — the arc grew; its open tasks are real work
+- **What changed:** arc-001 went from 32 to 49 tasks; the open set changed (five now, named above), all live designer
+  work around authority attributes and `aef:position`.
+- **Plan impact:** none for this task: the warning is correct (the arc is not done) and needs no action beyond naming them.
+- **Triggered:** nothing new.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -246,7 +266,7 @@ Host-scope per T-1707. The refresh command does a git reset --hard and relink at
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-729 go|no-go|defer --rationale "..."
+     fw inception decide T-728 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -255,10 +275,26 @@ Host-scope per T-1707. The refresh command does a git reset --hard and relink at
 
 ## Updates
 
-### 2026-09-16T13:26:22Z — task-created [task-create-agent]
+### 2026-09-16T13:26:19Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-729-ra-033-installed-claude-fw-has-drifted-f.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-728-ra-032-arc-001-is-26-of-32-complete-but-.md
 - **Context:** Initial task creation
 
-### 2026-09-29T17:31:23Z — status-update [task-update-agent]
+### 2026-09-29T17:31:22Z — status-update [task-update-agent]
 - **Change:** owner: human → agent
+
+### 2026-11-14T11:49:07Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+### 2026-11-14T11:49:08Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-29990d60
+- **Timestamp:** 2026-11-14T11:49:10Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

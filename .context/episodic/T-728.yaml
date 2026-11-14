@@ -1,0 +1,75 @@
+# ============================================================================
+# EPISODIC MEMORY - T-728: RA-032: arc-001 is 26 of 32 complete but still in-progress
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-14T11:49:17Z
+# ============================================================================
+
+task_id: T-728
+task_name: "RA-032: arc-001 is 26 of 32 complete but still in-progress"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-16T13:26:19Z
+completed: 2026-11-14T11:49:08Z
+duration_days: 59
+updates_count: 4
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Audit WARN cycle 1 2026-09-16: threshold 0.80 reached, the G-062 code-complete-without-closure signature. fw arc close requires --demo wire evidence and is a sovereignty act.
+
+# Key outcomes
+outcomes:
+  - 'arc-001 is either closed with --demo evidence, or the six incomplete tasks are named with the reason the arc stays open'
+  - 'If closed, the demo evidence shows the headline_mechanic firing at wire level - not a screenshot of the UI and not a passing test'
+  - 'The agent did not invoke `fw arc close`'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 84862 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc-003, audit-remediation, RA-032]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 84862
+  commits: 1
+  files_changed: 7
+  lines_added: 446
+  lines_removed: 21
+  footprint_refreshed_at: '2026-11-14T11:50:24Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-728-ra-032-arc-001-is-26-of-32-complete-but-.md
+generated_by: context-agent-hybrid

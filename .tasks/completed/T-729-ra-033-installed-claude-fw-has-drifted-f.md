@@ -1,17 +1,17 @@
 ---
-id: T-725
-name: "RA-029: D13 inception limbo - 3 tasks have a decision recorded but are stuck
-  in active"
+id: T-729
+name: "RA-033: installed claude-fw has drifted from repo source"
 description: >
-  Audit WARN cycle 1 2026-09-16: T-309 T-357 T-681. The audit mitigation recommends
-  fw inception sweep; that verb ticks Human ACs and is the operator's act alone, so
-  the recommendation is surfaced here and deliberately not followed.
+  Doctor WARN cycle 1 2026-09-16: on PATH /root/.local/bin/claude-fw differs from
+  the repo copy, so supervision export may be stale. Host-level per T-1707 - cannot
+  be fixed from a project session.
 
-status: captured
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
-tags: [arc-003, audit-remediation, RA-029]
+horizon: null
+tags: [arc-003, audit-remediation, RA-033]
 components: []
 related_tasks: []
 arc_id: arc-003
@@ -19,9 +19,9 @@ arc_id: arc-003
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-09-16T13:26:11Z
-last_update: 2026-09-29T17:31:22Z
-date_finished:
+created: 2026-09-16T13:26:22Z
+last_update: 2026-11-14T11:49:19Z
+date_finished: 2026-11-14T11:49:19Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -33,11 +33,11 @@ date_finished:
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 bvp_scores_proposed:
-  - ts: '2026-09-16T13:30:40Z'
+  - ts: '2026-09-16T13:30:41Z'
     estimator: bvp-estimator-v1-heuristic
     scores:
       D1: 4
-      D2: 4
+      D2: 0
       D3: 2
       D4: 2
       F-RECALL: 0
@@ -45,10 +45,45 @@ bvp_scores_proposed:
       F4: 0
       F3: 0
       F1: 1
-    rationale: D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=2
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
       (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
       (no-signal); F2=0 (no-signal); F4=0 (no-signal); F3=0 (no-signal); F1=1 
       (prose:process-enablement-incidental)
+    rubric_sha: e4a00f38e801
+  - ts: '2026-09-26T09:06:27Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 2
+    rationale: 'D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 (body:default-change);
+      D4=2 (body:env-class-handled); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0
+      (L0: no signal); F3=0 (L0: no signal); F1=2 (L1:keyword=designer,L1:keyword=bpmn)'
+    rubric_sha: e4a00f38e801
+  - ts: '2026-11-14T11:49:19Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 2
+    rationale: 'D1=2 (body:learning-ref); D2=0 (no-signal); D3=0 (no-signal); D4=0
+      (no-signal); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body
+      — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=2 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L2:keyword=export)'
     rubric_sha: e4a00f38e801
 cost_estimate_proposed:
   - ts: '2026-09-16T13:30:55Z'
@@ -61,30 +96,29 @@ cost_estimate_proposed:
     rubric_sha: e4a00f38e801
 ---
 
-# T-725: RA-029: D13 inception limbo - 3 tasks have a decision recorded but are stuck in active
+# T-729: RA-033: installed claude-fw has drifted from repo source
 
 ## Context
 
-**Finding RA-029** - cycle 1, 2026-09-16. Source: fw audit. Severity: WARN.
+**Finding RA-033** - cycle 1, 2026-09-16. Source: fw doctor. Severity: WARN.
 
 Cycle-1 baseline for regression detection: audit Pass 166 / Warn 31 / Fail 1; doctor 3 warn / 0 fail.
 
 **Verbatim tool output:**
 
 ```
-[WARN] D13: Inception limbo - 3 task(s): A=0/B=3 T-309(B) T-357(B) T-681(B)
-       Evidence: Decision recorded but workflow stuck in active/
-       Mitigation: Recover both classes with: bin/fw inception sweep (T-1514)
+[1;33mWARN[0m  Installed claude-fw drifted from repo source - supervision export may be stale
+         on PATH: /root/.local/bin/claude-fw
+         repo:    /opt/832-Workflow-designer/.agentic-framework/bin/claude-fw
+         Refresh: bash ~/.agentic-framework/install.sh
 ```
 
 **The invariant that is not held:**
 
-Three inceptions reached a recorded decision and did not leave active/. The invariant not held is that a decided inception is a closed inception. Class B means the decision exists; only the move is missing.
-
-**Root-cause siblings:** T-717 (RA-021), T-720 (RA-024), T-722 (RA-026)
+The claude-fw on PATH is not the claude-fw in the repo. The invariant not held is that the supervisor actually running the session is the supervisor whose source is under review. Budget auto-restart is armed by that binary, so a drifted copy means the recovery path this project depends on is not the one it can read.
 
 **Operator action / sovereignty boundary:**
-The audit's own mitigation text recommends `bin/fw inception sweep`. That verb ticks Human ACs, which is the operator's act alone. The recommendation is surfaced here and deliberately NOT followed - a mitigation suggested by a tool is not authorisation.
+Host-scope per T-1707. The refresh command does a git reset --hard and relink at the host root; it is outside this project's boundary (T-559) and is the operator's to run.
 
 **Verification is the next cycle's re-run of the originating check, not this task's own assertion that it is fixed.**
 
@@ -92,9 +126,13 @@ The audit's own mitigation text recommends `bin/fw inception sweep`. That verb t
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] D13 reports 0 tasks in inception limbo
-- [ ] T-309, T-357 and T-681 are each either completed or have their remaining blocker named
-- [ ] The sweep verb was not invoked by the agent
+- [x] `fw doctor` no longer reports claude-fw drift
+- [x] The installed and repo copies are byte-identical, or the divergence is declared
+- [x] The refresh was performed from a session at the host root, not from this project session
+
+**Evidence (2026-11-14 ~13:00 CET, `fw doctor`):** "OK  Installed claude-fw matches repo source (2 copies on PATH, all
+current)" and "OK  Running claude-fw wrapper(s) (1) newer than their script". No 832 session refreshed it (no 832
+commit touches an installed claude-fw); it was refreshed host-side, outside this project, as the task required.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -120,11 +158,11 @@ The audit's own mitigation text recommends `bin/fw inception sweep`. That verb t
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-725`
+         1. Run `bin/fw reviewer T-729`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-725 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-729 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
@@ -176,7 +214,8 @@ The audit's own mitigation text recommends `bin/fw inception sweep`. That verb t
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
-# Parked: `fw inception sweep` ticks Human ACs and is the operator's act alone.
+# Parked: host-level. T-1707 - cannot be fixed from a project session.
+out=$(.agentic-framework/bin/fw doctor 2>&1); grep -q 'Installed claude-fw matches repo source' <<<"$out"
 
 ## RCA
 
@@ -218,6 +257,11 @@ The audit's own mitigation text recommends `bin/fw inception sweep`. That verb t
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-11-14 — fixed host-side, as required
+- **What changed:** nothing was done from 832; the installed claude-fw was brought current outside this project.
+- **Plan impact:** none.
+- **Triggered:** nothing new.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -232,7 +276,7 @@ The audit's own mitigation text recommends `bin/fw inception sweep`. That verb t
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-725 go|no-go|defer --rationale "..."
+     fw inception decide T-729 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -241,10 +285,26 @@ The audit's own mitigation text recommends `bin/fw inception sweep`. That verb t
 
 ## Updates
 
-### 2026-09-16T13:26:11Z — task-created [task-create-agent]
+### 2026-09-16T13:26:22Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-725-ra-029-d13-inception-limbo---3-tasks-hav.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-729-ra-033-installed-claude-fw-has-drifted-f.md
 - **Context:** Initial task creation
 
-### 2026-09-29T17:31:22Z — status-update [task-update-agent]
+### 2026-09-29T17:31:23Z — status-update [task-update-agent]
 - **Change:** owner: human → agent
+
+### 2026-11-14T11:49:18Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+### 2026-11-14T11:49:19Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-89ffa0d1
+- **Timestamp:** 2026-11-14T11:50:05Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

@@ -22113,3 +22113,57 @@ scan_id: R-ce04f992
 task_id: T-754
 payload:
   task_file: .tasks/active/T-754-ra-045-deploy-gate-finds-no-deploytraefi.md
+---
+kind: scan_emitted
+timestamp: '2026-11-14T11:48:57Z'
+scan_id: R-86a49eb6
+task_id: T-725
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-14T11:48:57Z'
+scan_id: R-86a49eb6
+task_id: T-725
+payload:
+  task_file: .tasks/active/T-725-ra-029-d13-inception-limbo---3-tasks-hav.md
+---
+kind: scan_emitted
+timestamp: '2026-11-14T11:49:10Z'
+scan_id: R-29990d60
+task_id: T-728
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-14T11:49:10Z'
+scan_id: R-29990d60
+task_id: T-728
+payload:
+  task_file: .tasks/active/T-728-ra-032-arc-001-is-26-of-32-complete-but-.md
+---
+kind: scan_emitted
+timestamp: '2026-11-14T11:50:05Z'
+scan_id: R-89ffa0d1
+task_id: T-729
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-14T11:50:05Z'
+scan_id: R-89ffa0d1
+task_id: T-729
+payload:
+  task_file: .tasks/active/T-729-ra-033-installed-claude-fw-has-drifted-f.md

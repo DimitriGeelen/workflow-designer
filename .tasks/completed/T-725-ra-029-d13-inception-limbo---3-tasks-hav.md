@@ -1,15 +1,18 @@
 ---
-id: T-728
-name: "RA-032: arc-001 is 26 of 32 complete but still in-progress"
+id: T-725
+name: "RA-029: D13 inception limbo - 3 tasks have a decision recorded but are stuck
+  in active"
 description: >
-  Audit WARN cycle 1 2026-09-16: threshold 0.80 reached, the G-062 code-complete-without-closure
-  signature. fw arc close requires --demo wire evidence and is a sovereignty act.
+  Audit WARN cycle 1 2026-09-16: T-309 T-357 T-681. The audit mitigation recommends
+  fw inception sweep; that verb ticks Human ACs and is the operator's act alone, so
+  the recommendation is surfaced here and deliberately not followed.
 
-status: captured
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
-tags: [arc-003, audit-remediation, RA-032]
+horizon: null
+tags: [arc-003, audit-remediation, RA-029]
 components: []
 related_tasks: []
 arc_id: arc-003
@@ -17,9 +20,9 @@ arc_id: arc-003
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-09-16T13:26:19Z
-last_update: 2026-09-29T17:31:22Z
-date_finished:
+created: 2026-09-16T13:26:11Z
+last_update: 2026-11-14T11:48:55Z
+date_finished: 2026-11-14T11:48:55Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -31,7 +34,7 @@ date_finished:
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 bvp_scores_proposed:
-  - ts: '2026-09-16T13:30:41Z'
+  - ts: '2026-09-16T13:30:40Z'
     estimator: bvp-estimator-v1-heuristic
     scores:
       D1: 4
@@ -48,6 +51,25 @@ bvp_scores_proposed:
       (no-signal); F2=0 (no-signal); F4=0 (no-signal); F3=0 (no-signal); F1=1 
       (prose:process-enablement-incidental)
     rubric_sha: e4a00f38e801
+  - ts: '2026-11-14T11:48:54Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 4
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=2 (body:learning-ref); D2=4 (body:fw-audit-or-doctor); D3=0 (no-signal);
+      D4=0 (no-signal); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=0 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 cost_estimate_proposed:
   - ts: '2026-09-16T13:30:55Z'
     estimator: bvp-estimator-v1-heuristic
@@ -59,28 +81,30 @@ cost_estimate_proposed:
     rubric_sha: e4a00f38e801
 ---
 
-# T-728: RA-032: arc-001 is 26 of 32 complete but still in-progress
+# T-725: RA-029: D13 inception limbo - 3 tasks have a decision recorded but are stuck in active
 
 ## Context
 
-**Finding RA-032** - cycle 1, 2026-09-16. Source: fw audit. Severity: WARN.
+**Finding RA-029** - cycle 1, 2026-09-16. Source: fw audit. Severity: WARN.
 
 Cycle-1 baseline for regression detection: audit Pass 166 / Warn 31 / Fail 1; doctor 3 warn / 0 fail.
 
 **Verbatim tool output:**
 
 ```
-[WARN] Arc 'arc-001': 26/32 tasks completed (0.8125) but arc still in-progress
-       Evidence: Threshold 0.80 reached - code-complete without explicit closure (G-062 signature)
-       Mitigation: Capture wire-evidence of the arc's headline_mechanic firing, then: fw arc close arc-001 --demo <path|url> --decision "..." 
+[WARN] D13: Inception limbo - 3 task(s): A=0/B=3 T-309(B) T-357(B) T-681(B)
+       Evidence: Decision recorded but workflow stuck in active/
+       Mitigation: Recover both classes with: bin/fw inception sweep (T-1514)
 ```
 
 **The invariant that is not held:**
 
-arc-001 has passed the 0.80 completion threshold without an explicit closure decision. G-062's signature case: the code is done and nobody has asserted the arc delivered what it promised. The invariant not held is that an arc closes on evidence of its headline mechanic firing, not on a task count. Closing it requires wire-level demo evidence, which is a sovereignty act.
+Three inceptions reached a recorded decision and did not leave active/. The invariant not held is that a decided inception is a closed inception. Class B means the decision exists; only the move is missing.
+
+**Root-cause siblings:** T-717 (RA-021), T-720 (RA-024), T-722 (RA-026)
 
 **Operator action / sovereignty boundary:**
-`fw arc close` requires --demo wire evidence and is reviewed via `fw arc review`. Under $CLAUDECODE=1 agents emit the URL; humans submit the form.
+The audit's own mitigation text recommends `bin/fw inception sweep`. That verb ticks Human ACs, which is the operator's act alone. The recommendation is surfaced here and deliberately NOT followed - a mitigation suggested by a tool is not authorisation.
 
 **Verification is the next cycle's re-run of the originating check, not this task's own assertion that it is fixed.**
 
@@ -88,9 +112,13 @@ arc-001 has passed the 0.80 completion threshold without an explicit closure dec
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] arc-001 is either closed with --demo evidence, or the six incomplete tasks are named with the reason the arc stays open
-- [ ] If closed, the demo evidence shows the headline_mechanic firing at wire level - not a screenshot of the UI and not a passing test
-- [ ] The agent did not invoke `fw arc close`
+- [x] D13 reports 0 tasks in inception limbo
+- [x] T-309, T-357 and T-681 are each either completed or have their remaining blocker named
+- [x] The sweep verb was not invoked by the agent
+
+**Evidence (2026-11-14):** `fw audit --section discovery-trends` at ~13:00 CET: `[PASS] D13: Inception limbo — no
+stuck inceptions`. T-309 (closed 2026-10-19), T-357 (2026-10-19) and T-681 (2026-09-30) are all work-completed in
+`.tasks/completed/`, each through its own path. `fw inception sweep` was not run.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -116,11 +144,11 @@ arc-001 has passed the 0.80 completion threshold without an explicit closure dec
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-728`
+         1. Run `bin/fw reviewer T-725`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-728 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-725 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
@@ -172,7 +200,8 @@ arc-001 has passed the 0.80 completion threshold without an explicit closure dec
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
-out=$(.agentic-framework/bin/fw arc list 2>&1); echo "$out" | grep -q "arc-001"
+# Parked: `fw inception sweep` ticks Human ACs and is the operator's act alone.
+for t in 309 357 681; do grep -q '^status: work-completed' .tasks/completed/T-$t-*.md || exit 1; done
 
 ## RCA
 
@@ -214,6 +243,11 @@ out=$(.agentic-framework/bin/fw arc list 2>&1); echo "$out" | grep -q "arc-001"
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-11-14 — the limbo cleared as the three inceptions were closed
+- **What changed:** nothing was built here; T-309, T-357 and T-681 were each closed on their own paths, and D13 passes.
+- **Plan impact:** none.
+- **Triggered:** nothing new.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -228,7 +262,7 @@ out=$(.agentic-framework/bin/fw arc list 2>&1); echo "$out" | grep -q "arc-001"
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-728 go|no-go|defer --rationale "..."
+     fw inception decide T-725 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -237,10 +271,26 @@ out=$(.agentic-framework/bin/fw arc list 2>&1); echo "$out" | grep -q "arc-001"
 
 ## Updates
 
-### 2026-09-16T13:26:19Z — task-created [task-create-agent]
+### 2026-09-16T13:26:11Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-728-ra-032-arc-001-is-26-of-32-complete-but-.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-725-ra-029-d13-inception-limbo---3-tasks-hav.md
 - **Context:** Initial task creation
 
 ### 2026-09-29T17:31:22Z — status-update [task-update-agent]
 - **Change:** owner: human → agent
+
+### 2026-11-14T11:48:54Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+### 2026-11-14T11:48:55Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-86a49eb6
+- **Timestamp:** 2026-11-14T11:48:57Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none
