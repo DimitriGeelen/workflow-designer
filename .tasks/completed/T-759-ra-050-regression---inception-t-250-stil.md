@@ -292,6 +292,12 @@ T-706's red leg (a T-250 document appearing) stays as the guard against the forb
 ### 2026-11-14T14:19:42Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed
 
+### 2026-11-14T14:45Z — correction after close [agent]
+- The Disposition above says the T-250 warning "remains" until T-769 lands. That is wrong: measured minutes later
+  (T-760), `fw audit --section research` passes on all 64 completed inceptions, T-250 included, because the framework's
+  T-3569 now accepts research kept in the inception's own task record. No exemption is needed for T-250; the ruling
+  (no T-250 document under `docs/reports/`) still holds and its guard leg stays.
+
 ## Reviewer Verdict (v1.5)
 
 - **Scan ID:** R-397a03e9

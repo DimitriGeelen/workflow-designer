@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-760: RA-051: REGRESSION - inception T-587 still has no research artifact after RA-011 closed
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-14T14:24:55Z
+# ============================================================================
+
+task_id: T-760
+task_name: "RA-051: REGRESSION - inception T-587 still has no research artifact after RA-011 closed"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-21T08:47:48Z
+completed: 2026-11-14T14:24:31Z
+duration_days: 54
+updates_count: 3
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Complete 19-section audit reports [WARN] Inception task T-587 has no research artifact in docs/reports/. RA-011 (T-707) was created for this exact finding and is work-completed.
+
+# Key outcomes
+outcomes:
+  - 'The check''s search path is established from its implementation, and whether `docs/research/` is a legitimate location for inception research in this project is answered from the repo''s own convention rather than assumed.'
+  - 'Either the check searches wherever this project actually keeps research, or the project''s convention is stated and the check is corrected to match it. The artifact is NOT moved to satisfy a hardcoded path — that would be relocating 20KB of real work to please a grep.'
+  - 'The false-positive rate of this check is stated: of the instances it has reported, how many were genuinely missing (T-015, T-103) versus present-elsewhere (T-587) versus ruled-not-required (T-250). A check that is wrong more often than right on a known population is a different problem from one that is occasionally wrong.'
+  - 'The originating check reports PASS on re-run for T-587, or the reason it cannot is recorded as a defect of the check with the evidence above.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 78096 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [audit-remediation, cycle-2]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 78096
+  commits: 1
+  files_changed: 4
+  lines_added: 182
+  lines_removed: 8
+  footprint_refreshed_at: '2026-11-14T14:25:42Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-760-ra-051-regression---inception-t-587-stil.md
+generated_by: context-agent-hybrid

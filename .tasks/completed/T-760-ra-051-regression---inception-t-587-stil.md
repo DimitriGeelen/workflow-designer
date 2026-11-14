@@ -6,10 +6,11 @@ description: >
   Complete 19-section audit reports [WARN] Inception task T-587 has no research artifact
   in docs/reports/. RA-011 (T-707) was created for this exact finding and is work-completed.
 
-status: captured
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [audit-remediation, cycle-2]
 components: []
 related_tasks: []
@@ -19,8 +20,8 @@ arc_id: arc-003
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-21T08:47:48Z
-last_update: '2026-09-26T09:06:29Z'
-date_finished:
+last_update: 2026-11-14T14:24:31Z
+date_finished: 2026-11-14T14:24:31Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -65,6 +66,25 @@ bvp_scores_proposed:
       (body:env-class-handled); F-RECALL=2 (body:lightly-promoted); F2=0 (no-signal);
       F4=0 (L0: no signal); F3=0 (L0: no signal); F1=1 (L1:keyword=designer,L1:keyword=bpmn)'
     rubric_sha: e4a00f38e801
+  - ts: '2026-11-14T14:20:47Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 0
+      D3: 0
+      D4: 1
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=2 (body:learning-ref); D2=0 (no-signal); D3=0 (no-signal); D4=1
+      (body:hard-coded-removed); F-RECALL=2 (body:lightly-promoted); F2=0 (no-signal);
+      F4=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F3=0 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L0: no signal); F1=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 cost_estimate_proposed:
   - ts: '2026-09-21T08:49:30Z'
     estimator: bvp-estimator-v1-heuristic
@@ -81,6 +101,14 @@ cost_estimate_proposed:
 # T-760: RA-051: REGRESSION - inception T-587 still has no research artifact after RA-011 closed
 
 ## Context
+
+**Background / trigger:** the residue audit (RA-051) warned that inception T-587 has no research document under
+`docs/reports/`, although its research exists under `docs/research/executable-workflow/`.
+**Problem / hypothesis:** the check looked only in `docs/reports/`, so research kept elsewhere by this project's own
+convention read as missing.
+**Goal:** establish where the check looks today, whether `docs/research/` is a legitimate home, and how often the
+check has been wrong.
+**Expected outcome:** the check passes for T-587, or its defect is recorded with evidence; nothing is moved to please it.
 
 ### Correction: this task's NAME says REGRESSION. That is wrong.
 
@@ -123,10 +151,26 @@ Predecessor: RA-011/T-707 (work-completed; it FOUND the artifact). Sibling insta
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The check's search path is established from its implementation, and whether `docs/research/` is a legitimate location for inception research in this project is answered from the repo's own convention rather than assumed.
-- [ ] Either the check searches wherever this project actually keeps research, or the project's convention is stated and the check is corrected to match it. The artifact is NOT moved to satisfy a hardcoded path — that would be relocating 20KB of real work to please a grep.
-- [ ] The false-positive rate of this check is stated: of the instances it has reported, how many were genuinely missing (T-015, T-103) versus present-elsewhere (T-587) versus ruled-not-required (T-250). A check that is wrong more often than right on a known population is a different problem from one that is occasionally wrong.
-- [ ] The originating check reports PASS on re-run for T-587, or the reason it cannot is recorded as a defect of the check with the evidence above.
+- [x] The check's search path is established from its implementation, and whether `docs/research/` is a legitimate location for inception research in this project is answered from the repo's own convention rather than assumed.
+- [x] Either the check searches wherever this project actually keeps research, or the project's convention is stated and the check is corrected to match it. The artifact is NOT moved to satisfy a hardcoded path — that would be relocating 20KB of real work to please a grep.
+- [x] The false-positive rate of this check is stated: of the instances it has reported, how many were genuinely missing (T-015, T-103) versus present-elsewhere (T-587) versus ruled-not-required (T-250). A check that is wrong more often than right on a known population is a different problem from one that is occasionally wrong.
+- [x] The originating check reports PASS on re-run for T-587, or the reason it cannot is recorded as a defect of the check with the evidence above.
+
+**Evidence (2026-11-14):**
+1. *Search path, from the implementation:* `audit.sh` section "research" (line ~6853) warns for each id in
+   `missing_research` from `agents/audit/completed-task-scan.py <tasks> <episodic> <reports_dir>`, whose reports dir is
+   `docs/reports/`. Since the framework's T-3569 the scan also accepts an inception whose own task record carries the
+   research (`lib/research_preserved.py`); those go to `research_in_task_record`, not `missing_research`. It does not
+   search `docs/research/`. *Convention:* this project's CLAUDE.md (Inception Discipline, C-001) puts inception
+   research at `docs/reports/T-XXX-*.md`; `docs/research/executable-workflow/` is the EWCR source packet T-587
+   ingested, not a second home for inception research.
+2. *Match without moving anything:* nothing was moved; the check was not changed by 832. T-587 now passes through the
+   task-record rule (there is no `docs/reports/*587*`), which is where its exploration is recorded.
+3. *False-positive rate on the known population:* of the 4 instances it reported (T-015, T-103, T-587, T-250), 2 were
+   genuinely missing and 2 were wrong (T-587 present elsewhere, T-250 ruled not required): wrong half the time on that
+   population. Both wrong cases now pass.
+4. *Re-run:* `fw audit --section research` at ~13:40 CET: `[PASS] All completed inceptions have research artifacts —
+   examined 64 completed inception(s)`.
 
 ## Verification
 
@@ -196,6 +240,14 @@ test "$(stat -c %s docs/research/executable-workflow/reflection-designer.md)" -g
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
+**Symptom:** the audit warned that inception T-587 had no research artifact, although its research exists.
+**Root cause:** the scan treated one folder (`docs/reports/`) as the only proof of research and could not see research
+kept in the task record (or elsewhere).
+**Why structurally allowed:** location was used as a proxy for existence, with no way to recognise another record.
+(Not a regression: the name says so, the Context corrects it.)
+**Prevention:** the framework's T-3569 (`lib/research_preserved.py`) now accepts research in the inception's own
+record, shared by both scans; the re-run passes on all 64 completed inceptions.
+
 ## Evolution
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
@@ -219,6 +271,12 @@ test "$(stat -c %s docs/research/executable-workflow/reflection-designer.md)" -g
      section exists but is empty/template-only. Use --skip-evolution to bypass
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
+
+### 2026-11-14 — the framework fixed the check upstream
+- **What changed:** AEF's T-3569 taught the scan to accept research kept in the inception's own task record; T-587
+  and T-250 both pass now, with nothing moved and no exemption needed.
+- **Plan impact:** no 832 change; SQ-4 exemptions (T-769) are no longer needed for these two.
+- **Triggered:** a correction note on T-759, which said the T-250 warning would remain until T-769.
 
 ## Decisions
 
@@ -247,3 +305,19 @@ test "$(stat -c %s docs/research/executable-workflow/reflection-designer.md)" -g
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-760-ra-051-regression---inception-t-587-stil.md
 - **Context:** Initial task creation
+
+### 2026-11-14T14:20:41Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+### 2026-11-14T14:24:31Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-e304a37e
+- **Timestamp:** 2026-11-14T14:24:34Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none
