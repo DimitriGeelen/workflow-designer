@@ -3363,3 +3363,17 @@ decisions:
     date: 2026-11-14
     task: T-764
     rationale: "RA-053: CTL-013's latest-3-by-mtime window silently dropped RA-047 while its condition still held"
+
+  - id: PD-460
+    decision: "write `kind` the way the corpus is actually produced: through the real editor, headless (as"
+    scope: project
+    date: 2026-11-14
+    task: T-876
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-461
+    decision: "Objectives (T-1072), operator 2026-11-14 '1a 2a 3a 4a': O-4 guards with advice and friction, never a hard block, override always recorded, strictness earned; refusal is AEF runtime behaviour the designer shows. out_of_scope: the designer never executes or authorises; execution authoring and the seam to a runtime are in scope. New O-7 deterministic-first + routing as captured preference; O-8 learning loop as a proposal to AEF (new version, ratified); O-9 lossless BPMN-to-procedure round trip within the frozen Mapping Standard (AEF's ask)."
+    scope: project
+    date: 2026-11-14
+    task: T-1072
+    rationale: "Sources review found the draft contradicted the operator's own words on O-4 and execution scope; AEF (msg 7c7d72db) agreed and added O-9"
