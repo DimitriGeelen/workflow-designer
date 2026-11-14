@@ -3307,3 +3307,59 @@ decisions:
     date: 2026-11-11
     task: T-1297
     rationale: "A release commit that names a shipped task and adds the calibration record makes that task's reviewer verdict stale (verdict_ledger _stale_fault; cost T-347 a re-judge on 2026-11-10). Release notes keep listing the shipped tasks, so nothing is lost."
+
+  - id: PD-452
+    decision: "Bake tidied y/lane-height into the `*.workflow.yaml` SOURCE, then re-render."
+    scope: project
+    date: 2026-11-12
+    task: T-101
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-453
+    decision: "Run `cleanLayout()` repeatedly (to a fixpoint, cap 12) per map during the bake."
+    scope: project
+    date: 2026-11-12
+    task: T-101
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-454
+    decision: "Drive the real editor in headless Chromium over the DevTools Protocol using Node's native WebSocket/fetch (no npm install)."
+    scope: project
+    date: 2026-11-12
+    task: T-101
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-455
+    decision: "832-Workflow-designer does **not** deploy as a Ring20 swarm service. The"
+    scope: project
+    date: 2026-11-14
+    task: T-752
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-456
+    decision: "832-Workflow-designer does **not** deploy as a Ring20 swarm service. The"
+    scope: project
+    date: 2026-11-14
+    task: T-753
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-457
+    decision: "832-Workflow-designer does **not** deploy as a Ring20 swarm service. The"
+    scope: project
+    date: 2026-11-14
+    task: T-754
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-458
+    decision: "SQ (T-763) RULED: a dated audit record is never overwritten; a second run of the same scope on the same date writes its own record (nothing lost). Operator 2026-11-14: '1a'."
+    scope: project
+    date: 2026-11-14
+    task: T-763
+    rationale: "RA-052: a same-day re-run overwrote the only full-coverage baseline before it was committed; the operator chose no-loss over fewer files"
+
+  - id: PD-459
+    decision: "SQ (T-764) RULED: a spot-check reports its own coverage, e.g. 'checked 3 of N completed; T-093 last checked <date>, last verdict WARN', so a finding leaving its window is never read as repaired. Operator 2026-11-14: '2a'."
+    scope: project
+    date: 2026-11-14
+    task: T-764
+    rationale: "RA-053: CTL-013's latest-3-by-mtime window silently dropped RA-047 while its condition still held"

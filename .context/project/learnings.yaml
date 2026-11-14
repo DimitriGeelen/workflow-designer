@@ -3007,3 +3007,9 @@ learnings:
   task: T-1297
   date: 2026-11-14
   context: Added via context agent
+- id: PL-437
+  learning: "T-677's retention rule (.context/audits/ keeps the last run of each date per scope; earlier runs live in git history) has an unstated precondition: a dated audit record survives only if it is committed before the next run of the same scope on the same date. On 2026-09-21 the only 19-of-19 coverage record was overwritten before it was committed (RA-052). Operator ruling 2026-11-14 (1a): records are never overwritten; a same-day re-run writes its own record — requested from AEF (conversation 832-audit-rulings, msg 2e36719a)."
+  source: P-001
+  task: T-763
+  date: 2026-11-14
+  context: Added via context agent

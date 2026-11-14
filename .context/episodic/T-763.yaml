@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-763: RA-052: the audit overwrote its own only full-coverage baseline before it was ever committed
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-14T15:16:54Z
+# ============================================================================
+
+task_id: T-763
+task_name: "RA-052: the audit overwrote its own only full-coverage baseline before it was ever committed"
+workflow_type: test
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-21T09:38:02Z
+completed: 2026-11-14T15:16:47Z
+duration_days: 54
+updates_count: 3
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  The full-coverage audit record was overwritten by a same-scope run before it was ever committed, so T-677's git-history retention invariant did not hold.
+
+# Key outcomes
+outcomes:
+  - 'T-677''s unstated precondition is written down where the retention rule is stated: a dated audit record survives only if it is committed before the next run of the same scope on the same date.'
+  - 'Whether the framework should enforce that — a pre-run commit, a write-if-absent, a content-addressed filename, or an explicit accept-the-loss ruling — is filed as a Sovereign question. It changes retention semantics, which the operator owns, so it is NOT decided here.'
+  - 'The lost record is not reconstructed and nothing is back-filled into `.context/audits/`. Cycle 2''s counts are reported as observed-in-output with their provenance stated. Manufacturing a record that was never written would be fabricating the exact evidence this finding is about.'
+  - 'This cycle''s record is committed, preserving the instance. That is mitigation, not prevention (G-019): the class stays open until the ruling above exists.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # 1 decision(s) below are recorded in the register (.context/project/decisions.yaml) for this task but absent from the task file's Decisions section (T-4193).
+  - decision: 'PD-458'
+    chose: 'SQ (T-763) RULED: a dated audit record is never overwritten; a second run of the same scope on the same date writes its own record (nothing lost). Operator 2026-11-14: ''1a''.'
+    rationale: 'RA-052: a same-day re-run overwrote the only full-coverage baseline before it was committed; the operator chose no-loss over fewer files'
+    id: 'PD-458'
+    source: register
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 78098 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 78098
+  commits: 1
+  files_changed: 7
+  lines_added: 388
+  lines_removed: 16
+  footprint_refreshed_at: '2026-11-14T15:17:13Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-763-ra-052-the-audit-overwrote-its-own-only-.md
+generated_by: context-agent-hybrid

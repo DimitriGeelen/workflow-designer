@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-764: RA-053: CTL-013 three-task window silently retired RA-047 while its condition is unchanged
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-14T15:15:53Z
+# ============================================================================
+
+task_id: T-764
+task_name: "RA-053: CTL-013 three-task window silently retired RA-047 while its condition is unchanged"
+workflow_type: test
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-09-21T09:38:05Z
+completed: 2026-11-14T15:15:45Z
+duration_days: 54
+updates_count: 3
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  CTL-013 re-runs verification for only the 3 most recently completed tasks, so a reported regression disappears when two unrelated tasks complete.
+
+# Key outcomes
+outcomes:
+  - 'CTL-013''s window size and selection rule are quoted from the implementation (`audit.sh:3619`, `audit.sh:3622`) so ''latest 3 by mtime'' is established rather than assumed.'
+  - 'It is stated that window membership is determined by the completion order of unrelated tasks, and that a finding leaving the window is not evidence of repair. RA-047 is the worked example, with its condition measured and reported unchanged.'
+  - 'Whether a spot-check that silently drops findings should report its own coverage — for instance ''checked 3 of N completed; T-093 last checked <date>, last verdict WARN'' — is filed as a Sovereign question and is NOT decided here.'
+  - 'RA-047/T-756 is NOT closed on the strength of its warning having disappeared. Closing it would be the precise error this finding describes.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # 1 decision(s) below are recorded in the register (.context/project/decisions.yaml) for this task but absent from the task file's Decisions section (T-4193).
+  - decision: 'PD-459'
+    chose: 'SQ (T-764) RULED: a spot-check reports its own coverage, e.g. ''checked 3 of N completed; T-093 last checked <date>, last verdict WARN'', so a finding leaving its window is never read as repaired. Operator 2026-11-14: ''2a''.'
+    rationale: 'RA-053: CTL-013''s latest-3-by-mtime window silently dropped RA-047 while its condition still held'
+    id: 'PD-459'
+    source: register
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 78097 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 78097
+  commits: 1
+  files_changed: 7
+  lines_added: 388
+  lines_removed: 16
+  footprint_refreshed_at: '2026-11-14T15:17:13Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-764-ra-053-ctl-013-three-task-window-silentl.md
+generated_by: context-agent-hybrid

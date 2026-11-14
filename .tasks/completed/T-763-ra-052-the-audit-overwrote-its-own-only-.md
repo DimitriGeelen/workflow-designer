@@ -1,15 +1,16 @@
 ---
-id: T-764
-name: "RA-053: CTL-013 three-task window silently retired RA-047 while its condition
-  is unchanged"
+id: T-763
+name: "RA-052: the audit overwrote its own only full-coverage baseline before it was
+  ever committed"
 description: >
-  CTL-013 re-runs verification for only the 3 most recently completed tasks, so a
-  reported regression disappears when two unrelated tasks complete.
+  The full-coverage audit record was overwritten by a same-scope run before it was
+  ever committed, so T-677's git-history retention invariant did not hold.
 
-status: captured
+status: work-completed
 workflow_type: test
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -18,9 +19,9 @@ arc_id: arc-003
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-09-21T09:38:05Z
-last_update: '2026-09-26T09:06:30Z'
-date_finished:
+created: 2026-09-21T09:38:02Z
+last_update: 2026-11-14T15:16:47Z
+date_finished: 2026-11-14T15:16:47Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -39,31 +40,50 @@ bvp_scores_proposed:
       D2: 0
       D3: 2
       D4: 2
-      F-RECALL: 0
+      F-RECALL: 2
       F2: 0
       F4: 0
       F3: 0
       F1: 1
     rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
-      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
-      (no-signal); F2=0 (no-signal); F4=0 (no-signal); F3=0 (no-signal); F1=1 
-      (prose:process-enablement-incidental)
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F2=0 (no-signal); F4=0 (no-signal); F3=0 
+      (no-signal); F1=1 (prose:process-enablement-incidental)
     rubric_sha: e4a00f38e801
-  - ts: '2026-09-26T09:06:30Z'
+  - ts: '2026-09-26T09:06:29Z'
     estimator: bvp-estimator-v1-heuristic
     scores:
       D1: 4
       D2: 0
       D3: 2
       D4: 2
-      F-RECALL: 0
+      F-RECALL: 2
       F2: 0
       F4: 0
       F3: 0
       F1: 2
     rationale: 'D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 (body:default-change);
-      D4=2 (body:env-class-handled); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0
-      (L0: no signal); F3=0 (L0: no signal); F1=2 (L1:keyword=designer,L1:keyword=bpmn)'
+      D4=2 (body:env-class-handled); F-RECALL=2 (body:lightly-promoted); F2=0 (no-signal);
+      F4=0 (L0: no signal); F3=0 (L0: no signal); F1=2 (L1:keyword=designer,L1:keyword=bpmn)'
+    rubric_sha: e4a00f38e801
+  - ts: '2026-11-14T15:14:14Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=2 (body:learning-ref,body:concern-ref); D2=0 (no-signal); D3=0
+      (no-signal); D4=0 (no-signal); F-RECALL=2 (body:lightly-promoted); F2=0 (no-signal);
+      F4=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F3=0 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L0: no signal); F1=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal)'
     rubric_sha: e4a00f38e801
 cost_estimate_proposed:
   - ts: '2026-09-21T20:24:53Z'
@@ -73,69 +93,79 @@ cost_estimate_proposed:
       effort: 8
       blast_radius: 3
     rationale: blast_radius=3 
-      (paths:.agentic-framework/agents/audit/audit.sh,build/gallery/designer.html,src/aef-workflow-designer.html);
+      (paths:.context/audits/2026-09-21.yaml,docs/reports/T-761-cycle2-findings.md);
       tier=1 (no-signal); effort=8 (no-signal)
     rubric_sha: e4a00f38e801
 ---
 
-# T-764: RA-053: CTL-013 three-task window silently retired RA-047 while its condition is unchanged
+# T-763: RA-052: the audit overwrote its own only full-coverage baseline before it was ever committed
 
 ## Context
+
+**Background / trigger:** the residue audit (RA-052) found the 2026-09-21 full-coverage audit record overwritten by a
+same-day re-run before it had ever been committed.
+**Problem / hypothesis:** T-677's retention rule assumes earlier runs live in git history, but that only holds if each
+record is committed before the next same-scope run that day; nothing enforces it.
+**Goal:** write the precondition down where the rule lives and get the enforcement question ruled.
+**Expected outcome:** the operator's ruling recorded and passed to the framework; nothing back-filled.
 
 ### Verbatim tool output
 
 ```
-# cycle 2 (oe-daily, 578s)
-[WARN] CTL-013: T-093 verification re-run: 2 command(s) failing
+$ git log --oneline --all -- .context/audits/2026-09-21.yaml
+(no output)
 
-# cycle 3 (full run, 121s) — every CTL-013 line it emitted
-[PASS] CTL-013: T-744 verification re-run: 6/6 pass
-[PASS] CTL-013: T-755 verification re-run: 4/4 pass
-[PASS] CTL-013: T-739 verification re-run: 10/10 pass
+$ git ls-files --error-unmatch .context/audits/2026-09-21.yaml
+UNTRACKED — never committed
 
-# occurrences of the string T-093 anywhere in the cycle-3 audit output
-0
-
-# the condition RA-047 actually reported, measured in cycle 3
-$ diff -q src/aef-workflow-designer.html build/gallery/designer.html
-STILL DIVERGED — condition unchanged
-
-# audit.sh:3619, 3622
-# (Full re-run of all verification is expensive; check latest 3)
-recent_completed=$(find "$TASKS_DIR/completed" ... | xargs -r -0 ls -t | head -3)
+$ git status --porcelain -- .context/audits/2026-09-21.yaml
+?? .context/audits/2026-09-21.yaml
 ```
 
 ### The invariant that is not held
 
-CTL-013 spot-checks the three most recently completed tasks, selected by mtime.
-The trade is deliberate and reasonable — its own comment says a full re-run is
-expensive. The defect is not the window. It is that **a finding's disappearance
-is indistinguishable from its repair.**
+T-677 establishes that `.context/audits/` holds the last run of each date, per
+scope, and that earlier runs live in git history. The second half of that is a
+promise about a different system: git holds only what was committed.
 
-Between cycle 2 and cycle 3, T-744 and T-755 completed. T-093 dropped to position
-five. RA-047's warning vanished from the audit — and RA-047's condition did not
-change, cannot change, and is not permitted to change: clearing it requires
-rebuilding `build/gallery/`, which T-102 and T-105 are blocked on and which this
-project has ruled against.
+Cycle 2's full run — 687s, Pass 175 / Warn 31 / Fail 1, the **only 19-of-19
+coverage record this project has ever produced** — was written to
+`.context/audits/2026-09-21.yaml`, never committed, and overwritten roughly two
+hours later by cycle 3's same-scope run. Nothing warned and nothing blocked.
 
-The audit's warn count fell from 31 to 29 across the two cycles. Part of that
-improvement is a finding retired by task-completion order. An audit whose numbers
-improve when unrelated work completes is reporting the shape of its own window
-rather than the state of the project — and it reports the improvement in exactly
-the same form as a real one.
+So the retention design carries an unstated precondition — *commit before the
+next run of the same scope on the same date* — and nothing enforces it. The
+invariant that is not held is the one T-677 states in prose: for this record, the
+earlier run does not live in git history, because it never got there.
+
+The cost was immediate and concrete. Cycle 3 could not diff its finding set
+against cycle 2's. Warn fell 31 → 29; one of those two is accounted for
+(RA-053), and the second cannot be attributed to anything, because the record it
+would be attributed against no longer exists.
 
 ### Root-cause links
 
-Same root cause as RA-054/T-765 (CTL-013 evaluating completed tasks' verification blocks over a three-item recency window); kept separate per the one-finding-one-task rule. Directly concerns RA-047/T-756, whose finding this retired, and RA-046/T-755, which localised the cost of the same mechanism.
+Bears on RA-046/T-755 (the self-kill is why full runs are rare, which is why losing one matters) and on every cycle of arc-003, whose method is cycle-over-cycle comparison of audit records.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] CTL-013's window size and selection rule are quoted from the implementation (`audit.sh:3619`, `audit.sh:3622`) so 'latest 3 by mtime' is established rather than assumed.
-- [ ] It is stated that window membership is determined by the completion order of unrelated tasks, and that a finding leaving the window is not evidence of repair. RA-047 is the worked example, with its condition measured and reported unchanged.
-- [ ] Whether a spot-check that silently drops findings should report its own coverage — for instance 'checked 3 of N completed; T-093 last checked <date>, last verdict WARN' — is filed as a Sovereign question and is NOT decided here.
-- [ ] RA-047/T-756 is NOT closed on the strength of its warning having disappeared. Closing it would be the precise error this finding describes.
+- [x] T-677's unstated precondition is written down where the retention rule is stated: a dated audit record survives only if it is committed before the next run of the same scope on the same date.
+- [x] Whether the framework should enforce that — a pre-run commit, a write-if-absent, a content-addressed filename, or an explicit accept-the-loss ruling — is filed as a Sovereign question. It changes retention semantics, which the operator owns, so it is NOT decided here.
+- [x] The lost record is not reconstructed and nothing is back-filled into `.context/audits/`. Cycle 2's counts are reported as observed-in-output with their provenance stated. Manufacturing a record that was never written would be fabricating the exact evidence this finding is about.
+- [x] This cycle's record is committed, preserving the instance. That is mitigation, not prevention (G-019): the class stays open until the ruling above exists.
+
+**Evidence (2026-11-14):**
+1. T-677's rule is recorded as a learning in `.context/project/learnings.yaml` (task T-677); the precondition is now a
+   learning beside it (task T-763, 2026-11-14), citing RA-052 and the ruling.
+2. Filed and **ruled by the operator 2026-11-14 ("1a"): a dated audit record is never overwritten; a same-day re-run
+   writes its own record** (recorded as a decision under T-763). Audit retention is framework code, so the ruling went
+   to AEF as a request (999-Agentic-Engineering-Framework, conversation `832-audit-rulings`, msg 2e36719a); the
+   prevention lands when AEF builds it.
+3. Nothing reconstructed or back-filled; cycle 2's counts (687 s, Pass 175 / Warn 31 / Fail 1) stay as observed in
+   output, as stated in the Context above.
+4. The cycle's record `.context/audits/2026-09-21.yaml` is committed (d8f41034b, T-765).
 
 <!-- No Human ACs: this finding record carries no step a human can execute until
      the Sovereign question it raises is answered. An empty Human section would
@@ -166,11 +196,11 @@ Same root cause as RA-054/T-765 (CTL-013 evaluating completed tasks' verificatio
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-764`
+         1. Run `bin/fw reviewer T-763`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-764 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-763 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 ## Verification
@@ -222,15 +252,9 @@ Same root cause as RA-054/T-765 (CTL-013 evaluating completed tasks' verificatio
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
-grep -q 'check latest 3' .agentic-framework/agents/audit/audit.sh
-# T-1015: removed a G-015 serve-root diff carrier: it asserted nothing this task delivered (added by the adcc7785 sweep)
-# T-843 CONTROL: T-093 IS in completed/, so the search demonstrably finds it; the assertion
-# is only that it is not in the newest three.
-# `grep -c` not `grep -q`: with -q grep exits on the first match and closes stdin, ls
-# takes SIGPIPE and the pipeline returns 141 under the gate's live pipefail (L-387).
-# Measured failing that way while rehearsing this very control.
-test "$(ls .tasks/completed/ | grep -c 'T-093')" -ge 1
-test "$(find .tasks/completed -maxdepth 1 -name '*.md' -type f -printf '%T@ %p\n' | sort -rn | head -3 | grep -c 'T-093')" -eq 0
+test -f .context/audits/2026-09-21.yaml
+grep -q 'sections: "all"' .context/audits/2026-09-21.yaml
+grep -q 'Record integrity note' docs/reports/T-761-cycle2-findings.md
 
 ## RCA
 
@@ -286,7 +310,7 @@ test "$(find .tasks/completed -maxdepth 1 -name '*.md' -type f -printf '%T@ %p\n
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-764 go|no-go|defer --rationale "..."
+     fw inception decide T-763 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -295,7 +319,23 @@ test "$(find .tasks/completed -maxdepth 1 -name '*.md' -type f -printf '%T@ %p\n
 
 ## Updates
 
-### 2026-09-21T09:38:05Z — task-created [task-create-agent]
+### 2026-09-21T09:38:02Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-764-ra-053-ctl-013-three-task-window-silentl.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-763-ra-052-the-audit-overwrote-its-own-only-.md
 - **Context:** Initial task creation
+
+### 2026-11-14T15:14:13Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+### 2026-11-14T15:16:47Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-cb970319
+- **Timestamp:** 2026-11-14T15:16:48Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

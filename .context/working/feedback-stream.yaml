@@ -22239,3 +22239,39 @@ scan_id: R-8df69672
 task_id: T-756
 payload:
   task_file: .tasks/active/T-756-ra-047-ctl-013-reports-t-093-verificatio.md
+---
+kind: scan_emitted
+timestamp: '2026-11-14T15:15:46Z'
+scan_id: R-805ee49e
+task_id: T-764
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-14T15:15:46Z'
+scan_id: R-805ee49e
+task_id: T-764
+payload:
+  task_file: .tasks/active/T-764-ra-053-ctl-013-three-task-window-silentl.md
+---
+kind: scan_emitted
+timestamp: '2026-11-14T15:16:48Z'
+scan_id: R-cb970319
+task_id: T-763
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-14T15:16:48Z'
+scan_id: R-cb970319
+task_id: T-763
+payload:
+  task_file: .tasks/active/T-763-ra-052-the-audit-overwrote-its-own-only-.md
