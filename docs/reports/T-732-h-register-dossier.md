@@ -185,6 +185,24 @@ worth recording, but it does not satisfy clause 3 on its own.
 **Also note:** R6 is *the same object* as exit clause 2. If AEF ever dispositions the DeepSeek and
 Mistral findings, it moves H6 and clause 2 together.
 
+**Update 2026-11-15: AEF has answered R6. R7 has no recorded answer.**
+
+- **R6 (answered).** AEF's operator authorised the work (AEF T-5135). AEF wrote the per-finding disposition tables in
+  `docs/reports/EWCR/T-5135-deepseek-mistral-dispositions.md`, AEF commit cdc67381c. The read-back is msg 0a5581ce
+  on conversation `832-ewcr-progress`.
+  - DeepSeek, 3 findings: DS-1 (TOCTOU, a blocker) is ACCEPTED and needs new scenario N-1. DS-2 and DS-3 are
+    ALREADY HANDLED by contracts v1.
+  - Mistral, 5 findings: MS-1, MS-2 and MS-5 are ACCEPTED. MS-3 (confused deputy, a blocker) is ACCEPTED and needs
+    new scenario N-2. MS-4 is deferred to Arc 6.
+  - In all, 8 findings: 5 accepted, 2 handled, 1 deferred, none rejected. Both blockers are accepted, and the rows map
+    1:1 onto the T-3389 matrix.
+  - Still open on AEF's side: their operator accepting N-1 and N-2 (contracts v2).
+- **R7 (no recorded answer).** Reconciliation with ratified SD-1 (AEF T-2663) is not answered in anything this
+  project holds. The register entry for it still reads as routed only.
+- **What this changes for H6.** The operator, or the reviewer under T-732's [REVIEWER] criterion, can now judge the
+  routing and the §2.3 boundary against a real counterparty answer for R6, not transport alone. H6 still cannot be
+  `resolved` until R7 is answered and AEF's operator accepts N-1 and N-2. Clause 2 moves with R6, as noted above.
+
 ---
 
 ## What this dossier does not do
