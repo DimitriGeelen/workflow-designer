@@ -88,6 +88,13 @@ bvp_scores_proposed:
 
 ## Context
 
+**Background / trigger:** arc-002 (EWCR) can only leave Arc 0 when its exit clauses are satisfied, and those depend on
+four operator rulings (H1, H3, H5, H6) in the H-register.
+**Problem / hypothesis:** the rulings sat open since late September, so the arc stalled; some are reviewer-judgeable,
+some the operator's.
+**Goal:** get each ruling made (by the reviewer or the operator) with its evidence, so the exit clauses can resolve.
+**Expected outcome:** H1/H3/H5/H6 resolved in the register and arc-002 able to move past Arc 0.
+
 The EWCR Arc-0 exit gate has three clauses (`docs/research/executable-workflow/arc-0-exit-clauses.yaml`).
 **Two are counterparty-owned and neither can be moved from this side:**
 
@@ -146,6 +153,15 @@ Sources: `arc-0-exit-clauses.yaml`, `operator-decisions.yaml`, `.tasks/active/T-
 - [ ] [REVIEWER] Rule H6 — was the R6/R7 routing correct and was the §2.3 boundary held? Transport is done (offset 643); §2.3 says transport is **not** collaboration completion, so this does not self-resolve.
   **Expected:** H6 `status: resolved`
   **If not:** Arc-0 clause 3 cannot reach `satisfied` even if H1/H3/H5 are ruled
+  **New evidence (2026-11-14, not yet a ruling):** collaboration on R6 completed on AEF's side. AEF's operator
+  authorised S1 (AEF T-5135); AEF wrote the per-finding DeepSeek/Mistral disposition tables
+  (`docs/reports/EWCR/T-5135-deepseek-mistral-dispositions.md`, AEF commit cdc67381c; read-back msg 0a5581ce,
+  conversation `832-ewcr-progress`). DeepSeek 3: DS-1 TOCTOU blocker ACCEPTED (needs new scenario N-1), DS-2 and DS-3
+  ALREADY HANDLED (contracts v1). Mistral 5: MS-1/MS-2/MS-5 ACCEPTED, MS-3 confused deputy ACCEPTED (needs new
+  scenario N-2), MS-4 deferred to Arc 6. Total 8: 5 accepted, 2 handled, 1 deferred, 0 rejected; both blockers
+  accepted; rows map 1:1 to the T-3389 matrix. Still open on AEF's side: their operator accepting N-1 and N-2
+  (contracts v2). This is R6 = exit clause 2 (dossier :185, "it moves H6 and clause 2 together"); the reviewer can
+  judge H6 against it once the arc-0 register is updated.
 
 ### Human
 - [ ] [REVIEW] Rule H1 — do roadmap Arcs 4–6 supersede the standing DEFERs (T-279/280/281/282) and AEF's T-2669 NO-GO?
