@@ -1,0 +1,1 @@
+superseded by job 147: Greenfield's task fails since 2026-11-05 (WSL default user changed to dimitri, who cannot read /root over \\wsl.localhost; ring20 msg c1f74189); and 146's step-2 check matched 9100 in ring20's 9110 row
