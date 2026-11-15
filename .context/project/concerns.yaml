@@ -4152,3 +4152,20 @@ concerns:
   containment: 'T-1298: clone writes via --git-dir after a self-check, per-name flock, repo_state includes local config,
     GIT_CEILING_DIRECTORIES for steps, test_t1286 leg 9 (sandbox project, 8 concurrent pairs).'
   related_tasks: ['T-1298', 'T-1299', 'T-1286', 'T-1288']
+- id: G-094
+  type: gap
+  status: watching
+  severity: medium
+  title: A corpus-only change can turn a browser-tier harness red, but only src/ and the validator require the browser tier before a push
+  detected: '2026-11-15'
+  origin_task: T-1420
+  context: 'T-876 (d0fca0cd9, 2026-11-14) gave all 24 corpus maps kind="documentation" and was pushed on core alone, as
+    the T-1374 rule allows. Browser harnesses read the corpus: _t911-kind-badge-verify-cdp.mjs opened task-lifecycle
+    expecting no kind, and its control went red. It was seen only a day later, when T-1416 (a validator change) ran the
+    browser tier (141/1). The same blindness hid T-1377 (job 122) when the trigger was the validator, which is why
+    T-1374 exists; the corpus was not on its list.'
+  decision_trigger: 'Close when a push that changes examples/aef-processes/ (or any input a browser harness reads)
+    requires the browser tier the way src/ does, or when the T-1374 list is derived from what the browser legs read.'
+  containment: 'T-1420: the harness now makes its own kind-free premise on its private copy and refuses to run if it
+    cannot.'
+  related_tasks: ['T-1420', 'T-876', 'T-1374', 'T-1409']

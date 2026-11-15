@@ -100,7 +100,12 @@ async function main() {
   const repo = mkdtempSync(join(tmpdir(), 't911-repo-'));
   copyFileSync(join(REPO, 'src/aef-workflow-designer.html'), join(doc, 'designer.html'));
   mkdirSync(join(doc, 'rendered'), { recursive: true });
-  copyFileSync(join(REPO, 'examples/aef-processes/rendered/' + MAP + '.bpmn'), join(doc, 'rendered', MAP + '.bpmn'));
+  // T-1420: the control needs a map with NO kind. Since T-876 every corpus map declares one, so the harness makes its
+  // own premise on its private copy instead of assuming it of the corpus, and refuses to run if that failed.
+  const src = readFileSync(join(REPO, 'examples/aef-processes/rendered/' + MAP + '.bpmn'), 'utf8');
+  const kindless = src.replace(/(<aef:workflowMeta\b[^>]*?)\s+kind="[^"]*"/, '$1');
+  if (/<aef:workflowMeta\b[^>]*\skind="/.test(kindless)) throw new Error('T-1420: could not make a kind-free copy of ' + MAP);
+  writeFileSync(join(doc, 'rendered', MAP + '.bpmn'), kindless);
   const port = await freePort();
   const py = spawn('python3', [SERVER, String(port), '--repo', repo, '--docroot', doc, '--bind', '127.0.0.1'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let pyErr = ''; py.stderr.on('data', d => pyErr += d.toString());
