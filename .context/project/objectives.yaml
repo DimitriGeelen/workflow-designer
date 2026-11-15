@@ -20,7 +20,7 @@
 # here for the operator to place: the project is worth stopping
 #   - if AEF stops consuming the seam (an authoring surface nothing authors for is a drawing tool);
 #   - if instances cannot be bound to their templates without hand-maintenance (O-3/O-4 collapse);
-#   - if no second tenant can use it (tenant-neutrality never shown, O-5).
+#   - if no project besides AEF can use it without project-specific changes (O-5).
 headline: >-
   Workflow Designer is AEF's process add-on, for process authors, AEF agents and operators:
   it captures a process completely enough to execute it, so that a human and an agent can work
@@ -70,10 +70,15 @@ objectives:
       stalled at, and why. The override is never removed (the hatch never closes).
   - id: O-5
     text: >-
-      The machinery is tenant-neutral: a second, unrelated application models and runs its own
-      processes with it, showing it is a modelling substrate rather than one project's diagram set.
+      The designer serves many projects. Each project designs its own workflows in its own copy
+      (AEF, Greenfield, Sprind, and more to come), and nothing in the designer is specific to one
+      project. The workflows those projects really draw come back to us as field feedback, and what
+      we learn from them is built back into the designer. Each project's data stays where its own
+      rules say (Greenfield's never leaves this machine).
     measure: >-
-      The second tenant (the Sprind application) carries its own templates and instances.
+      At least two projects besides AEF draw their own workflows with it with no project-specific
+      changes; their real maps are part of our feedback set; and each improvement they lead to is
+      traceable to the map it came from.
   - id: O-6
     text: >-
       Work can start as a picture and existing work can be seen as one: forward-compile and

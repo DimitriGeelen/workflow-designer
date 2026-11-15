@@ -3377,3 +3377,10 @@ decisions:
     date: 2026-11-14
     task: T-1072
     rationale: "Sources review found the draft contradicted the operator's own words on O-4 and execution scope; AEF (msg 7c7d72db) agreed and added O-9"
+
+  - id: PD-462
+    decision: "O-5 (T-1072), operator 2026-11-15: not 'a second tenant' but many projects. Each project (AEF, Greenfield, Sprind, ...) designs its own workflows in its own copy of the designer; nothing in the designer is project-specific; the workflows projects really draw come back as field feedback and are built back into the designer. Operator: 'each project will have its own workflow designer ... we need to build the capability to facilitate those different projects.'"
+    scope: project
+    date: 2026-11-15
+    task: T-1072
+    rationale: "External review (F6) found the named second tenant unsourced; the operator explained the real intent: multi-project use plus a field-feedback loop"
