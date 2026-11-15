@@ -346,3 +346,21 @@ therefore the operator's to run.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-968-establish-the-termlink-link-to-the-everg.md
 - **Context:** Initial task creation
+
+### 2026-11-15 — why the greenfield hub did not answer, and the fix in flight
+- **What the jobs showed:**
+  - Job 140 stopped 4 times at step 1: nothing answered on 9100.
+  - Job 142 failed because root ssh is refused there.
+  - Job 143 logged in as the operator's user and showed the machine is Windows (cmd.exe). Its Linux steps never ran
+    and still said ok on ssh's exit code. That is fixed in jobs 144-146: a remote script must return its end marker.
+- **Ring20's answer** (msgs 4583f6e8, 05970912, fc6527d1):
+  - Greenfield runs in WSL Ubuntu on a Windows 10 laptop. The hub is the WSL systemd unit termlink-hub.
+  - Greenfield's own task `\AEF TermLink reachable` (greenfield T-087) keeps WSL alive and sets portproxy
+    0.0.0.0:9100 to WSL.
+  - Ring20's .132 worker scripts deleted that portproxy row; the fix is **ring20 T-2688**. WSL had also stopped,
+    cause not established.
+- **Jobs now:**
+  - 145 (a second task of our own) was retired before it ran, because it would race Greenfield's task.
+  - **Job 146** re-runs Greenfield's own task, checks, fetches the hub key from WSL (stored 0600, never printed) and
+    proves the link. 140 and 142-145 are retired.
+- **Still open:** run job 146; then dispatch the corpus request (this task); ring20 T-2688 to land.
