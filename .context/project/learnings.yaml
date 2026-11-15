@@ -3013,3 +3013,9 @@ learnings:
   task: T-763
   date: 2026-11-14
   context: Added via context agent
+- id: PL-438
+  learning: "Reviewer roster and direct-call rules (ring20, msg 989b029f, 2026-11-14): the single source is .agentic-framework/policy/review-backends.yaml. Internal seats called DIRECTLY by our own harness under the operator's subscriptions, no per-round approval: claude-code (anthropic), codex (openai), opencode (zai), antigravity (google; agy CLI signed in as user dimitri-mint-dev, run via sudo -n -u that user, --mode plan --sandbox), mistral, local-gpu (ollama). Paid: openrouter (fw external scan) needs an approved proposal (fw review propose, operator approves); it is not a panel seat. On a quota limit skip to the next seat in file order and keep three distinct vendors. Never put secrets, credentials, estate IPs/host names or exploit detail in a brief."
+  source: P-001
+  task: T-979
+  date: 2026-11-15
+  context: Added via context agent

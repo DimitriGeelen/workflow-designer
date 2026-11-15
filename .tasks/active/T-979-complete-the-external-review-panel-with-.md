@@ -40,6 +40,12 @@ date_finished: null
 
 ## Context
 
+**Background / trigger:** T-975's external review of the authoring kit ran with 2 of 3 reviewers; the third attempt
+used Mistral, for which there is no account.
+**Problem / hypothesis:** the agent did not know which reviewers are ours to call directly, or how.
+**Goal:** record the roster and the direct-call rules, and complete the panel with Antigravity as the third reader.
+**Expected outcome:** a 3-of-3 panel on the revised kit, with per-point dispositions, and rules the next session finds.
+
 T-975's panel ran 2 of 3: I tried Mistral, which we have no account for. Operator, 2026-10-01:
 *"we also don't have an account for [Mistral] only via OpenRouter which need to pay for. So our
 locally paid accounts are Codex, Z.AI and Anti-gravity."* and *"So, Ring20 Manager knows that."*
@@ -50,16 +56,27 @@ TermLink, not to probe this host.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The reviewer roster is recorded where the next session finds it (project learning): Codex,
+- [x] The reviewer roster is recorded where the next session finds it (project learning): Codex,
       Z.AI, Antigravity are the paid accounts; Mistral is not one (OpenRouter only, paid per use);
       Ring20 Manager knows how to reach them.
-- [ ] Ring20 Manager is asked over TermLink for the DIRECT-call ruleset for all three providers
+      (2026-11-15: learning recorded under T-979 in `.context/project/learnings.yaml`, from ring20's answer and
+      `.agentic-framework/policy/review-backends.yaml`. Correction to the line above: the backend file now lists
+      mistral as an internal seat; OpenRouter is the paid route.)
+- [x] Ring20 Manager is asked over TermLink for the DIRECT-call ruleset for all three providers
       (command, workdir/write permission, auth and quota rules, what may be sent, how a panel is
       run), and its answer is recorded. Operator, 2026-10-01: *"call it directly, not dispatch
       ... ask Ring20 how to call these providers directly. That's the info you need in the
       future. And the whole ruleset for that. You will get that in an upgrade when we upgrade to
       next version, bleeding edge version of the engineering framework."* So the recorded answer
       is interim; the authoritative ruleset arrives with the next AEF upgrade and supersedes it.
+      (2026-11-14: asked on conversation `832-open-items`, msg 26d41496; answered by ring20, msg 989b029f: the single
+      source is the AEF backend registry `.agentic-framework/policy/review-backends.yaml` (it did arrive with the
+      upgrade); internal seats incl. antigravity are called directly by our own harness, no per-round approval;
+      openrouter is paid and needs an approved proposal; credentials are named by location only; on a quota limit
+      skip to the next seat; briefs carry no secrets, IPs/host names or exploit detail. Recorded as a learning.)
+      **Next (fresh session):** antigravity runs as user dimitri-mint-dev via `sudo -n -u … agy -p … --mode plan
+      --sandbox` (registry entry `antigravity`); run it through the reviewer harness on the revised kit with the
+      T-975 brief, not by hand.
 - [ ] Antigravity runs the revised kit with the T-975 brief and source, as a round-2 reader, and
       its report gets per-point dispositions in `docs/reports/T-975-kit-external-review.md`.
 - [ ] If Antigravity cannot be reached, the report says so and why, and the panel stays
