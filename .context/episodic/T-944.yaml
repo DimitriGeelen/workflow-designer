@@ -1,0 +1,112 @@
+# ============================================================================
+# EPISODIC MEMORY - T-944: Triage the 16 standing failures in run-bridge-tests.sh: which are real defects, which are stale expectations, and which are re-vendor reverts like T-943
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-15T14:41:14Z
+# ============================================================================
+
+task_id: T-944
+task_name: "Triage the 16 standing failures in run-bridge-tests.sh: which are real defects, which are stale expectations, and which are re-vendor reverts like T-943"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-30T13:40:57Z
+completed: 2026-11-15T14:41:07Z
+duration_days: 46
+updates_count: 2
+first_commit: 2026-09-30T15:47:40+02:00
+last_commit: 2026-09-30T18:06:07+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the 1.7.68 upgrade reverted four local fixes and deleted the audit rail that would have said so. the count was 16 because I read an incomplete run — it is 32, and a third revert is confirmed. triage closed out — three follow-ups filed, and two ACs left unmet on the record. the auto-generated handover was hollow — narrative, decisions, failures and blockers written by hand. OBS-452 — the handover generator can emit a complete-looking handover with no session content
+
+# Key outcomes
+outcomes:
+  - '**Every failing leg in a fresh full run is accounted for, with the denominator stated.**'
+  - '**Overtaken 2026-11-15, disposition by run, not by reading.** No standing failure is left to classify. Every leg'
+  - '**Overtaken 2026-11-15.** The 20 examined legs are classified (above). The other 12 now pass with their controls'
+  - '**Re-vendor reverts are identified as such, by history, not by suspicion.** For each'
+  - '**A written report exists at `docs/reports/T-944-bridge-suite-triage.md`** with one row'
+  - '**Follow-up tasks are filed for the dispositions that need work,** so the triage does not'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the count was 16 because I read an incomplete run — it is 32, and a third revert is confirmed'
+    source: git-mined
+  - description: 'the 1.7.68 upgrade reverted four local fixes and deleted the audit rail that would have said so'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/episodic/T-945.yaml'
+  - '.context/handovers/S-2026-0927-2319.discard-manifest.yaml'
+  - '.context/handovers/S-2026-0927-2351.discard-manifest.yaml'
+  - '.context/handovers/S-2026-0929-0843.discard-manifest.yaml'
+  - '.context/handovers/S-2026-0929-0920.discard-manifest.yaml'
+  - '.context/handovers/S-2026-0929-1018.discard-manifest.yaml'
+  - '.context/handovers/S-2026-0930-0024.discard-manifest.yaml'
+  - '.context/handovers/S-2026-0930-1004.discard-manifest.yaml'
+  - '.context/handovers/S-2026-0930-1220.discard-manifest.yaml'
+  - '.context/handovers/S-2026-0930-1220.md'
+  - '.context/inbox.yaml'
+  - '.context/project/decisions.yaml'
+  - '.context/project/learnings.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.tasks/active/T-944-triage-the-16-standing-failures-in-run-b.md'
+  - '.tasks/active/T-946-investigate-and-classify-the-12-bridge-s.md'
+  - '.tasks/active/T-947-re-anchor-t-570-and-t-572-mutation-legs-.md'
+  - '.tasks/active/T-948-classify-the-four-validator-rules-that-f.md'
+  - '.tasks/completed/T-942-t-884s-apiinstances-the-four-remaining-s.md'
+  - '.tasks/completed/T-945-restore-the-vendor-divergence-delivery-s.md'
+  - 'docs/reports/T-944-bridge-suite-triage.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-30T15:47:40'
+    action: 'T-944: the 1.7.68 upgrade reverted four local fixes and deleted the audit rail that would have said so'
+  - time: '2026-09-30T16:00:59'
+    action: 'T-944: the count was 16 because I read an incomplete run — it is 32, and a third revert is confirmed'
+  - time: '2026-09-30T17:46:06'
+    action: 'T-944: triage closed out — three follow-ups filed, and two ACs left unmet on the record'
+  - time: '2026-09-30T18:04:59'
+    action: 'T-944: the auto-generated handover was hollow — narrative, decisions, failures and blockers written by hand'
+  - time: '2026-09-30T18:06:07'
+    action: 'T-944: OBS-452 — the handover generator can emit a complete-looking handover with no session content'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 66300 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 66300
+  commits: 6
+  files_changed: 30
+  lines_added: 23410
+  lines_removed: 6648
+  footprint_refreshed_at: '2026-11-15T14:43:55Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-944-triage-the-16-standing-failures-in-run-b.md
+generated_by: context-agent-hybrid

@@ -22455,3 +22455,75 @@ scan_id: R-99bf36c6
 task_id: T-1071
 payload:
   task_file: .tasks/active/T-1071-external-cross-vendor-review-of-the-t-98.md
+---
+kind: scan_emitted
+timestamp: '2026-11-15T14:41:08Z'
+scan_id: R-85716d5e
+task_id: T-944
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-15T14:41:08Z'
+scan_id: R-85716d5e
+task_id: T-944
+payload:
+  task_file: .tasks/active/T-944-triage-the-16-standing-failures-in-run-b.md
+---
+kind: scan_emitted
+timestamp: '2026-11-15T14:42:33Z'
+scan_id: R-399b9c70
+task_id: T-946
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-15T14:42:33Z'
+scan_id: R-399b9c70
+task_id: T-946
+payload:
+  task_file: .tasks/active/T-946-investigate-and-classify-the-12-bridge-s.md
+---
+kind: scan_emitted
+timestamp: '2026-11-15T14:42:58Z'
+scan_id: R-78d0fa08
+task_id: T-947
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-15T14:42:58Z'
+scan_id: R-78d0fa08
+task_id: T-947
+payload:
+  task_file: .tasks/active/T-947-re-anchor-t-570-and-t-572-mutation-legs-.md
+---
+kind: scan_emitted
+timestamp: '2026-11-15T14:43:25Z'
+scan_id: R-bfe18f0c
+task_id: T-948
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-15T14:43:25Z'
+scan_id: R-bfe18f0c
+task_id: T-948
+payload:
+  task_file: .tasks/active/T-948-classify-the-four-validator-rules-that-f.md

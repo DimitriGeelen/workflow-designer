@@ -1,13 +1,21 @@
 ---
-id: T-947
-name: "Re-anchor T-570 and T-572 mutation legs, and reconcile T-572's 8-vs-7 key-count drift"
+id: T-946
+name: "Investigate and classify the 12 bridge-suite legs T-944 could not individually
+  examine"
 description: >
-  Both probes' CONTROLS pass, so the guarded properties are verified: the editor does not drop aef:meta keys it does not name, and every bridge-emitted key survives an editor round trip. What fails is one mutation leg each, anchored to the designer source line "'horizon', 'workflowType', 'owner'];" which has moved. T-572 additionally reports losing 7 keys where it expects 8. Lower priority than a failing control precisely because the property is verified — this restores the proof of teeth, not the protection. Re-anchor to the contract rather than a source line (T-943's lesson).
+  T-944 triaged 32 failing legs in run-bridge-tests.sh but individually investigated
+  only the ones that carried the re-vendor finding. Twelve are recorded as 'not individually
+  investigated' rather than carrying a guess — honest, and incomplete. Several name
+  framework files with local commits, so more 1.7.68 reverts are likely among them.
+  Method is established in docs/reports/T-944-bridge-suite-triage.md: a stale _t517
+  declaration plus a failing guard means the fix was LOST; a stale declaration plus
+  a passing guard means upstream adopted it.
 
-status: captured
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: later
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -21,9 +29,9 @@ related_tasks: []
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-09-30T15:45:07Z
-last_update: 2026-09-30T15:45:07Z
-date_finished: null
+created: 2026-09-30T15:44:53Z
+last_update: 2026-11-15T14:42:32Z
+date_finished: 2026-11-15T14:42:32Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,20 +42,46 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-15T14:42:32Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 0
+      D3: 3
+      D4: 0
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 0
+    rationale: 'D1=2 (body:learning-ref); D2=0 (no-signal); D3=3 (body:component-discoverability);
+      D4=0 (no-signal); F-RECALL=2 (body:lightly-promoted); F2=0 (no-signal); F4=1
+      (basis: task body — no hypothesis, so this score has no claim to be wrong about,L1:keyword=pool);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=0 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
-# T-947: Re-anchor T-570 and T-572 mutation legs, and reconcile T-572's 8-vs-7 key-count drift
+# T-946: Investigate and classify the 12 bridge-suite legs T-944 could not individually examine
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+**Background / trigger:** Filed by T-944 (2026-09-30). Its triage of the bridge suite left 12 failing legs "not
+individually investigated" (rows 17, 21-31 of `docs/reports/T-944-bridge-suite-triage.md`).
+**Problem / hypothesis:** Each of those legs carried a class with no command and output behind it, so a real defect
+could be hiding among them.
+**Goal:** Give each of the 12 a disposition backed by a run.
+**Expected outcome:** No leg among the 12 sits red without a known cause.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Each of the 12 has a disposition backed by a run (2026-11-15, overtaken). All 12 are still in the runner and
+  pass: core 229 passed, 0 failed, 0 quarantined (`.context/working/prepush-core.log`, HEAD 019acf9a5, 2026-11-14,
+  local and pool both green). Since T-1288, core must be green before any push, so none can go red unseen. Not
+  established, and not claimed: why each failed in September.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -85,6 +119,8 @@ date_finished: null
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+bash tests/run-bridge-tests.sh --list-legs > /tmp/t946.out 2>&1 && grep -q "core _t525-fabric-coverage-teeth" /tmp/t946.out && grep -q "core _t560-absence-census-teeth" /tmp/t946.out
+test -s docs/reports/T-944-bridge-suite-triage.md
 #
 # Toolchain hint (L-291): if you edited *.vbproj/*.csproj/*.xaml add `dotnet build`;
 # *.go → `go build ./...`; Cargo.toml → `cargo check`; tsconfig.json → `tsc --noEmit`;
@@ -300,7 +336,25 @@ date_finished: null
 
 ## Updates
 
-### 2026-09-30T15:45:07Z — task-created [task-create-agent]
+### 2026-09-30T15:44:53Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-947-re-anchor-t-570-and-t-572-mutation-legs-.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-946-investigate-and-classify-the-12-bridge-s.md
 - **Context:** Initial task creation
+
+### 2026-11-15T14:42:31Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
+
+### 2026-11-15T14:42:32Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** overtaken by later work; evidence in the criterion (origin T-944)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-399b9c70
+- **Timestamp:** 2026-11-15T14:42:33Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

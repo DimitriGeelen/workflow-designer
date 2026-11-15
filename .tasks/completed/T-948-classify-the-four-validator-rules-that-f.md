@@ -1,13 +1,22 @@
 ---
 id: T-948
-name: "Classify the four validator rules that fire on no document and no fixture, plus E-META-AUTHORITY's missing parity decision"
+name: "Classify the four validator rules that fire on no document and no fixture,
+  plus E-META-AUTHORITY's missing parity decision"
 description: >
-  Four bridge-suite legs are about validator rules with no decision recorded: E-META-AUTHORITY is emitted but has no PARITY classification (T-320); E-NODE-LANE's two form-implementations disagree on the same document (T-328); four rules fire on no corpus document and no fixture and are undeclared (T-333); four XmlValidator rule ids are unclassified for anchorability (T-335). These are workflow-design surface — BPMN validation — so they are ours under the product-boundary rule. Each needs a decision (PAIRED / OUT_OF_SCOPE / GAP, or a fixture, or a declaration with a reason), not a code fix.
+  Four bridge-suite legs are about validator rules with no decision recorded: E-META-AUTHORITY
+  is emitted but has no PARITY classification (T-320); E-NODE-LANE's two form-implementations
+  disagree on the same document (T-328); four rules fire on no corpus document and
+  no fixture and are undeclared (T-333); four XmlValidator rule ids are unclassified
+  for anchorability (T-335). These are workflow-design surface — BPMN validation —
+  so they are ours under the product-boundary rule. Each needs a decision (PAIRED
+  / OUT_OF_SCOPE / GAP, or a fixture, or a declaration with a reason), not a code
+  fix.
 
-status: captured
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: later
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -22,8 +31,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-30T15:45:11Z
-last_update: 2026-09-30T15:45:11Z
-date_finished: null
+last_update: 2026-11-15T14:43:24Z
+date_finished: 2026-11-15T14:43:24Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,20 +43,49 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-15T14:43:24Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 0
+      D3: 3
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 3
+      F3: 0
+      F1: 0
+    rationale: 'D1=2 (body:learning-ref); D2=0 (no-signal); D3=3 (body:component-discoverability);
+      D4=0 (no-signal); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=3 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L1:keyword=lane);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=0 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-948: Classify the four validator rules that fire on no document and no fixture, plus E-META-AUTHORITY's missing parity decision
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+**Background / trigger:** Filed by T-944 (2026-09-30). The check-pass reachability leg (T-333) found 4 validator
+rules that fire on no corpus document and no fixture; anchorability (T-335) had rule ids with no class; the rule-form
+parity guard (T-320) had no classification for E-META-AUTHORITY.
+**Problem / hypothesis:** A rule nothing exercises can be dead or broken without anyone knowing, and an unclassified
+parity row hides whether the YAML and XML validators agree.
+**Goal:** Witness or declare each rule, and classify E-META-AUTHORITY's parity.
+**Expected outcome:** The reachability, anchorability and parity legs pass with nothing unclassified.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] All three are resolved, by later work (2026-11-15, overtaken):
+  - Reachability: 80 rules, 79 fire on real inputs, 0 declared never-witnessed, 0 always-fire, and E-LOAD is
+    witnessed directly.
+  - Anchorability: all 47 XmlValidator rules have a class (34 gutter-able, 13 not, each by kind).
+  - Parity: E-META-AUTHORITY is PAIRED with E-XML-META-AUTHORITY (T-902, T-990; `tests/test_rule_form_parity.py:218`).
+  All three legs report OK in core: 229 passed, 0 failed (`.context/working/prepush-core.log`, HEAD 019acf9a5).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -85,6 +123,8 @@ date_finished: null
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+grep -q '"E-META-AUTHORITY":     (PAIRED, "E-XML-META-AUTHORITY")' tests/test_rule_form_parity.py
+test -s tests/fixtures/invalid/E-META-AUTHORITY.yaml
 #
 # Toolchain hint (L-291): if you edited *.vbproj/*.csproj/*.xaml add `dotnet build`;
 # *.go → `go build ./...`; Cargo.toml → `cargo check`; tsconfig.json → `tsc --noEmit`;
@@ -304,3 +344,21 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-948-classify-the-four-validator-rules-that-f.md
 - **Context:** Initial task creation
+
+### 2026-11-15T14:43:23Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
+
+### 2026-11-15T14:43:24Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** overtaken by later work; evidence in the criterion (origin T-944)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-bfe18f0c
+- **Timestamp:** 2026-11-15T14:43:25Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

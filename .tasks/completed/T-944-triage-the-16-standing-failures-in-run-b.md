@@ -4,10 +4,11 @@ name: "Triage the 16 standing failures in run-bridge-tests.sh: which are real de
 description: >
   Triage the 16 standing failures in run-bridge-tests.sh: which are real defects, which are stale expectations, and which are re-vendor reverts like T-943
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -22,8 +23,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-30T13:40:57Z
-last_update: 2026-09-30T16:05:02Z
-date_finished: null
+last_update: 2026-11-15T14:41:07Z
+date_finished: 2026-11-15T14:41:07Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -40,9 +41,14 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
-
-## Context
+**Background / trigger:** On 2026-09-30 `tests/run-bridge-tests.sh` had many failing legs (first read as 16, really
+32) and no scheduled caller, and T-943 showed that a framework re-vendor had silently reverted a local fix.
+**Problem / hypothesis:** A suite that is always red hides real defects among stale expectations, and more re-vendor
+reverts were likely hiding there.
+**Goal:** Classify every failing leg with evidence (real defect, stale expectation, re-vendor revert) and file a task
+for each one that needs work.
+**Expected outcome:** A triage report, follow-up tasks for the work, and a suite that can be made green and then run on
+a schedule.
 
 `tests/run-bridge-tests.sh` reported **20 failing legs** on 2026-09-30. Four were disposed the
 same day (T-942 fixed the two designer console guards and wired two orphans; T-943 fixed the
@@ -80,23 +86,35 @@ second kind, and I described them as "blind" before checking.
       No leg silently dropped and no count asserted that was not read off the run. If the fresh
       run's failure set differs from 16, the report says so and why rather than reconciling to
       the expected number
-- [ ] **NOT MET — left unticked deliberately.** 12 of the 32 legs are recorded as "not
+      *(2026-09-30, history of the next criterion)* **NOT MET — left unticked deliberately.** 12 of the 32 legs are recorded as "not
       individually investigated". That is an honest disposition but it is not one "backed by a
       command and its output", which is what this criterion asks for. Ticking it would claim
       evidence that does not exist; rewording it to match what I did would be moving the
       goalposts, which this session has already refused twice. **T-946 filed** to finish it.
       As originally written:
-- [ ] **Each leg carries a disposition backed by a command and its output,** not by a reading of
+- [x] **Overtaken 2026-11-15, disposition by run, not by reading.** No standing failure is left to classify. Every leg
+      the triage named is still in the runner and passes:
+      - core: 229 passed, 0 failed, 0 quarantined (`.context/working/prepush-core.log`, local run for HEAD 019acf9a5,
+        2026-11-14, with the pool agreeing);
+      - browser: 142 passed, 0 failed (T-570, T-572 and T-358 are browser legs).
+      Since T-1288, core must be green on every push, so the suite now has the caller it lacked. What was never done,
+      and is not claimed: why each of the 12 failed in September. That history is lost, not established.
+      As originally written:
+      **Each leg carries a disposition backed by a command and its output,** not by a reading of
       the failure message. The failure strings in this suite are written to be alarming and
       several are accurate about a condition while wrong about its cause — that is how I
       mis-read T-570/T-572 as blind
-- [ ] **NOT MET for the same 12 — left unticked.** The twenty legs I examined are classified on
+      *(2026-09-30, history of the next criterion)* **NOT MET for the same 12 — left unticked.** The twenty legs I examined are classified on
       the control-fails / mutation-leg-fails / stale-expectation / ratchet-grown / broken-probe
       axis, and that axis did its job: it is what separated T-568 and T-569 (property
       UNVERIFIED, live defects) from T-570 and T-572 (property verified, teeth partial), which I
       had conflated when I first described them to the operator as "blind". The remaining 12
       carry a class without evidence behind it. **T-946.** As originally written:
-- [ ] **Each leg is classified on the axis that determines severity:** control-fails (property
+- [x] **Overtaken 2026-11-15.** The 20 examined legs are classified (above). The other 12 now pass with their controls
+      and teeth green, so the severity question (is the guarded property unverified?) is answered for today: verified.
+      T-946, T-947 and T-948 each carry an origin line naming this task, and each is judged on its own against these
+      runs. As originally written:
+      **Each leg is classified on the axis that determines severity:** control-fails (property
       UNVERIFIED), mutation-leg-fails (property verified, teeth partial), stale-expectation
       (the probe pins an old behaviour), ratchet-grown (backlog, not breakage), or
       broken-probe (the instrument itself errors)
@@ -117,7 +135,7 @@ second kind, and I described them as "blind" before checking.
       per leg, its evidence, its class, and a recommended disposition — fix now / baseline with
       a stated reason / file a task / delete the probe. Recommendations, not actions
 - [x] **Follow-up tasks are filed for the dispositions that need work,** so the triage does not
-      → **T-946** (the 12 uninvestigated legs), **T-947** (re-anchor T-570/T-572 + the key-count
+      → **T-946** (the 12 uninvestigated legs), **T-947** (re-anchor the `_t570`/`_t572` teeth legs + the key-count
       drift), **T-948** (the four unclassified validator rules + E-META-AUTHORITY's parity
       decision). All `horizon: later` — scheduled, not pretended urgent. T-568/T-569 are
       deliberately NOT among them: framework tooling reported by another project, so not ours
@@ -162,6 +180,8 @@ second kind, and I described them as "blind" before checking.
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+test -s docs/reports/T-944-bridge-suite-triage.md
+bash tests/run-bridge-tests.sh --list-legs > /tmp/t944-legs.out 2>&1 && grep -q "core _t525-fabric-coverage-teeth" /tmp/t944-legs.out && grep -q "browser _t570-meta-carriage-teeth" /tmp/t944-legs.out && grep -q "browser _t572-bridge-vocabulary-teeth" /tmp/t944-legs.out
 #
 # Toolchain hint (L-291): if you edited *.vbproj/*.csproj/*.xaml add `dotnet build`;
 # *.go → `go build ./...`; Cargo.toml → `cargo check`; tsconfig.json → `tsc --noEmit`;
@@ -381,3 +401,17 @@ second kind, and I described them as "blind" before checking.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-944-triage-the-16-standing-failures-in-run-b.md
 - **Context:** Initial task creation
+
+### 2026-11-15T14:41:07Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** overtaken: every leg the triage named passes today (core 229/0, browser 142/0) and core gates every push (T-1288); September causes of 12 legs stay uninvestigated, said so
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-85716d5e
+- **Timestamp:** 2026-11-15T14:41:08Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none
