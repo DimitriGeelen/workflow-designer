@@ -79,7 +79,15 @@ bvp_scores_proposed:
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+**Background / trigger:** Evergreen (the Greenfield deployment's agent on the operator's laptop) sent us its BPMN
+corpus in September. It shaped the authoring kit (T-971 taxonomy, findings #2-#5). On 2026-10-01 the operator approved
+an active trial: "actively monitor, chase, get feedback, get the new maps … through at least 3-4 iterations".
+**Problem / hypothesis:** We owe Evergreen an update, and the trial never started. The link to their hub was down
+(T-968; restored 2026-11-15), and big payloads posted in chunks wedged `xfer-evergreen-corpus`.
+**Goal:** Send the update and the trial invitation with the CURRENT kit (0.42.0, not 0.15.0). Move the kit by file
+transfer, then drive 3-4 measured iterations.
+**Expected outcome:** Evergreen regenerates its maps with only the kit, each batch is measured the same way, and every
+point the kit failed to explain becomes a kit fix.
 
 ## Acceptance Criteria
 
