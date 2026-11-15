@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1421: _t1193 slug harness turns red on cleanup: bare rmSync of the Chrome profile races Chrome's child processes (ENOTEMPTY)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-15T22:34:24Z
+# ============================================================================
+
+task_id: T-1421
+task_name: "_t1193 slug harness turns red on cleanup: bare rmSync of the Chrome profile races Chrome's child processes (ENOTEMPTY)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-15T21:47:01Z
+completed: 2026-11-15T22:34:15Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-15T22:48:37+01:00
+last_commit: 2026-11-15T22:48:37+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  _t1193 removes its Chrome profile with removeProfileDir (a bare rmSync raced Chrome's children, ENOTEMPTY, and turned passing checks red); 3/3 runs PASS 4/4; no other harness has the bare form
+
+# Key outcomes
+outcomes:
+  - '`_t1193` removes its profile with `removeProfileDir(udd)`, and its other two temp dirs inside a `try`, so a'
+  - '`node tools/_t1193-slug-readonly-cdp.mjs` passes on Node 22, three runs in a row. → 2026-11-15: rc 0, PASS 4/4,'
+  - 'No other CDP harness calls a bare, unwrapped `rmSync` on its profile dir (census by grep). → The census'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1421-t1193-slug-harness-turns-red-on-cleanup-.md'
+  - 'tools/_t1193-slug-readonly-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-15T22:48:37'
+    action: 'T-1421: _t1193 removes its Chrome profile with removeProfileDir (a bare rmSync raced Chrome''s children, ENOTEMPTY, and turned passing checks red); 3/3 runs PASS 4/4; no other harness has the bare form'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 47 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 47
+  commits: 2
+  files_changed: 11
+  lines_added: 914
+  lines_removed: 31
+  footprint_refreshed_at: '2026-11-15T22:36:44Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1421-t1193-slug-harness-turns-red-on-cleanup-.md
+generated_by: context-agent-hybrid

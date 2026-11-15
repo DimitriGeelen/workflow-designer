@@ -1,15 +1,18 @@
 ---
-id: T-1417
-name: "Kit: AUTHORING §4 permits callActivity, which the validator rejects as E-XML-NODE-TYPE"
+id: T-1420
+name: "_t911 kind-badge harness red since T-876: its control assumes task-lifecycle
+  has no kind, T-876 gave every corpus map one"
 description: >
-  Antigravity round 2 (T-979, B3), verified: AUTHORING.md:216 allows callActivity;
-  validate-workflow.py:199 rejects it by design. Guide and validator must agree.
+  Browser tier RED 2026-11-15 (141/1): _t911-kind-badge-verify-cdp.mjs step 'control:
+  map opens with kind UNSET' fails because d0fca0cd9 (T-876) set kind=documentation
+  on all 24 corpus maps incl. task-lifecycle. Not caught: corpus-only changes need
+  only core (T-1374 covers src/ and the validator).
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -35,13 +38,13 @@ related_tasks: []
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 # demo_target: true               # T-2286: optional — marks task as reserved for an orchestrated demo
 #                                 # worker (e.g. arc-010 HM-A dispatches via mcp__fw__work_on). When set,
-#                                 # `fw work-on T-1417` refuses unless --i-am-demo-orchestrator (CLI) or
+#                                 # `fw work-on T-1420` refuses unless --i-am-demo-orchestrator (CLI) or
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-11-15T19:54:17Z
-last_update: '2026-11-15T20:02:56Z'
-date_finished:
+created: 2026-11-15T20:51:14Z
+last_update: 2026-11-15T22:33:51Z
+date_finished: 2026-11-15T22:33:51Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -53,7 +56,7 @@ date_finished:
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 bvp_scores_proposed:
-  - ts: '2026-11-15T20:02:56Z'
+  - ts: '2026-11-15T20:51:25Z'
     estimator: bvp-estimator-v1-heuristic
     scores:
       D1: 0
@@ -62,42 +65,46 @@ bvp_scores_proposed:
       D4: 0
       F-RECALL: 0
       F2: 0
-      F4: 5
+      F4: 0
       F3: 0
       F1: 0
     rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
-      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=5 (basis: task body — no hypothesis,
-      so this score has no claim to be wrong about,L5:keyword=callactivity); F3=0
-      (basis: task body — no hypothesis, so this score has no claim to be wrong about,L0:
-      no signal); F1=0 (basis: task body — no hypothesis, so this score has no claim
-      to be wrong about,L0: no signal)'
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
     rubric_sha: e4a00f38e801
 ---
 
-# T-1417: Kit: AUTHORING §4 permits callActivity, which the validator rejects as E-XML-NODE-TYPE
+# T-1420: _t911 kind-badge harness red since T-876: its control assumes task-lifecycle has no kind, T-876 gave every corpus map one
 
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** In Antigravity's round-2 read of kit 0.42.0 (T-979, point B3; T-975 report §3.6), the
-point was verified: AUTHORING.md:216 and RUBRIC.md:44 permit a `callActivity`, but the validator rejects it with
-E-XML-NODE-TYPE. The rejection is deliberate: `tools/validate-workflow.py:196-202` says callActivity is outside the
-vocabulary and must not be added to quiet a report.
+**Background / trigger:** On 2026-11-15 the browser tier went RED for T-1416's push, 141 passed and 1 failed (log
+`build/tiergate/tier-browser.red-20261115T203008Z.log`). The failing leg was `_t911-kind-badge-verify-cdp.mjs`, at
+its first step, "control: map opens with kind UNSET and the badge hidden".
 **Problem / hypothesis:**
-- A vendor who follows the guide to the letter produces a map with an error.
-- The same sentence also prescribes a `Detailed in: X` line, which is not a known documentation prefix (the known
-  one is `Detail:`). So it raises W-XML-DOC-PREFIX in any step that uses the prefixes.
-**Goal:** Make the guide and rubric say what the validator enforces: a task with a cited `Detail: X` line, never a
-`callActivity`.
-**Expected outcome:** No kit text asks for a `callActivity` or for `Detailed in:`.
+- The harness opens the corpus map `task-lifecycle` and assumes it declares no kind.
+- T-876's commit d0fca0cd9 (2026-11-14) gave all 24 corpus maps `kind="documentation"`, so the control's premise is
+  false. The designer is right; the harness is stale.
+- Nothing caught it: T-876 changed only corpus maps, and the T-1374 rule asks for the browser tier only for `src/` and
+  the validator.
+**Goal:** The control sets up its own premise: it removes `kind` from its private copy of the map, rather than relying
+on the corpus.
+**Expected outcome:** `_t911` passes again. Its control fails loudly if the copy cannot be made kind-free, and the
+browser tier is green.
 
 ## Acceptance Criteria
 
 ### Agent
-- [ ] AUTHORING §4 and RUBRIC say: a cited `Detail: X` line on the task, and no `callActivity` (E-XML-NODE-TYPE).
-- [ ] A test leg proves the kit's advice is valid: a task with a `Detail: X` line plus a `source:` line draws neither
-  E-XML-NODE-TYPE nor W-XML-DOC-PREFIX, and the same step drawn as a `callActivity` draws E-XML-NODE-TYPE.
-- [ ] No kit document (docs/authoring-kit/*.md) mentions `Detailed in` or recommends a callActivity.
+- [x] The harness strips `kind="…"` from its temporary copy of the map, and stops with an error if the copy still
+  carries a kind (so the control can never silently test a kinded map).
+- [x] `node tools/_t911-kind-badge-verify-cdp.mjs` passes on Node 22, with all its steps green.
+  → 2026-11-15: rc 0, all 11 steps ok, from "control: map opens with kind UNSET" to "narrow (640px): badge visible".
+- [x] The gap is recorded: corpus-only changes do not trigger the browser tier, although browser harnesses read the
+  corpus. → registered as **G-094** in `.context/project/concerns.yaml`.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -123,11 +130,11 @@ vocabulary and must not be added to quiet a report.
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-1417`
+         1. Run `bin/fw reviewer T-1420`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-1417 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-1420 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 <!--
@@ -278,13 +285,25 @@ vocabulary and must not be added to quiet a report.
 #
 # Vendored-path hint (T-3236, T-4419): if you edited bin/fw, lib/, agents/, policy/,
 # web/, tools/ or .tasks/templates/, run `bin/fw vendor self` and add
-#     bin/fw vendor self --check --task T-1417X
+#     bin/fw vendor self --check --task T-1420X
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+grep -q "T-1420: could not make a kind-free copy" tools/_t911-kind-badge-verify-cdp.mjs
+grep -q "^- id: G-094" .context/project/concerns.yaml
 
 ## RCA
+
+**Symptom:** The browser tier went red (141/1). `_t911-kind-badge-verify-cdp.mjs` failed its first step, "control:
+map opens with kind UNSET".
+**Root cause:** The harness took its premise (a map with no kind) from the live corpus. T-876 (d0fca0cd9) then gave
+every corpus map a kind.
+**Why structurally allowed:** T-876 changed only `examples/aef-processes/`, and the browser-tier rule (T-1374) is
+triggered by `src/` and the validator, not by the corpus that browser harnesses read. The red stayed unseen until the
+next validator change ran the tier a day later.
+**Prevention:** The harness now makes its own premise on a private copy and refuses to run if it cannot. The trigger
+gap is registered as G-094, to close when a corpus change requires the browser tier.
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).
@@ -367,7 +386,7 @@ vocabulary and must not be added to quiet a report.
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-1417 go|no-go|defer --rationale "..."
+     fw inception decide T-1420 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -376,11 +395,24 @@ vocabulary and must not be added to quiet a report.
 
 ## Updates
 
-### 2026-11-15T19:54:17Z — task-created [task-create-agent]
+### 2026-11-15T20:51:14Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1417-kit-authoring-4-permits-callactivity-whi.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1420-t911-kind-badge-harness-red-since-t-876-.md
 - **Context:** Initial task creation
 
-### 2026-11-15T20:02:55Z — status-update [task-update-agent]
+### 2026-11-15T20:51:25Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
-- **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-15T22:33:51Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** fixed, tested, pushed (core and browser green on pool and local, e079de453)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-24544c88
+- **Timestamp:** 2026-11-15T22:33:52Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

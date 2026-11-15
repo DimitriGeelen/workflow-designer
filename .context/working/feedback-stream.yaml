@@ -22581,3 +22581,75 @@ scan_id: R-69c5403c
 task_id: T-979
 payload:
   task_file: .tasks/active/T-979-complete-the-external-review-panel-with-.md
+---
+kind: scan_emitted
+timestamp: '2026-11-15T22:33:11Z'
+scan_id: R-b2461f79
+task_id: T-1416
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-15T22:33:11Z'
+scan_id: R-b2461f79
+task_id: T-1416
+payload:
+  task_file: .tasks/active/T-1416-kit-generatemds-required-source-document.md
+---
+kind: scan_emitted
+timestamp: '2026-11-15T22:33:52Z'
+scan_id: R-24544c88
+task_id: T-1420
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-15T22:33:52Z'
+scan_id: R-24544c88
+task_id: T-1420
+payload:
+  task_file: .tasks/active/T-1420-t911-kind-badge-harness-red-since-t-876-.md
+---
+kind: scan_emitted
+timestamp: '2026-11-15T22:34:17Z'
+scan_id: R-6bdcb3e4
+task_id: T-1421
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-15T22:34:17Z'
+scan_id: R-6bdcb3e4
+task_id: T-1421
+payload:
+  task_file: .tasks/active/T-1421-t1193-slug-harness-turns-red-on-cleanup-.md
+---
+kind: scan_emitted
+timestamp: '2026-11-15T22:36:10Z'
+scan_id: R-09b70769
+task_id: T-1417
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-15T22:36:10Z'
+scan_id: R-09b70769
+task_id: T-1417
+payload:
+  task_file: .tasks/active/T-1417-kit-authoring-4-permits-callactivity-whi.md

@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1417: Kit: AUTHORING §4 permits callActivity, which the validator rejects as E-XML-NODE-TYPE
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-15T22:36:23Z
+# ============================================================================
+
+task_id: T-1417
+task_name: "Kit: AUTHORING §4 permits callActivity, which the validator rejects as E-XML-NODE-TYPE"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-15T19:54:17Z
+completed: 2026-11-15T22:36:06Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-15T21:53:23+01:00
+last_commit: 2026-11-15T21:53:23+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  T-327 tolerates the deliberate callActivity in test_t1377 leg 17 (proves the kit's never-draw-one advice is enforced as E-XML-NODE-TYPE); 3 tolerated, 0 violations
+
+# Key outcomes
+outcomes:
+  - 'AUTHORING §4 and RUBRIC say: a cited `Detail: X` line on the task, and no `callActivity` (E-XML-NODE-TYPE).'
+  - 'A test leg proves the kit''s advice is valid: a task with a `Detail: X` line plus a `source:` line draws neither'
+  - 'No kit document (docs/authoring-kit/*.md) mentions `Detailed in` or recommends a callActivity.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'tests/test_harness_emitter_fidelity.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-15T21:53:23'
+    action: 'T-1417: T-327 tolerates the deliberate callActivity in test_t1377 leg 17 (proves the kit''s never-draw-one advice is enforced as E-XML-NODE-TYPE); 3 tolerated, 0 violations'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 161 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 161
+  commits: 3
+  files_changed: 16
+  lines_added: 654
+  lines_removed: 69
+  footprint_refreshed_at: '2026-11-15T22:36:43Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1417-kit-authoring-4-permits-callactivity-whi.md
+generated_by: context-agent-hybrid

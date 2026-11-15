@@ -1,20 +1,17 @@
 ---
-id: T-1421
-name: "_t1193 slug harness turns red on cleanup: bare rmSync of the Chrome profile
-  races Chrome's child processes (ENOTEMPTY)"
+id: T-1417
+name: "Kit: AUTHORING §4 permits callActivity, which the validator rejects as E-XML-NODE-TYPE"
 description: >
-  Browser tier RED 2026-11-15 21:18Z: _t1193-slug-readonly-cdp.mjs threw ENOTEMPTY
-  rmdir .../t1154m-udd-*/Default in its finally (line 95: br.kill on the parent only,
-  sleep 300 ms, bare rmSync with no try/retry). Every other harness wraps it in try;
-  _cdp-profile.mjs removeProfileDir kills every user of the dir and retries.
+  Antigravity round 2 (T-979, B3), verified: AUTHORING.md:216 allows callActivity;
+  validate-workflow.py:199 rejects it by design. Guide and validator must agree.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/test_harness_emitter_fidelity.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,13 +35,13 @@ related_tasks: []
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 # demo_target: true               # T-2286: optional — marks task as reserved for an orchestrated demo
 #                                 # worker (e.g. arc-010 HM-A dispatches via mcp__fw__work_on). When set,
-#                                 # `fw work-on T-1421` refuses unless --i-am-demo-orchestrator (CLI) or
+#                                 # `fw work-on T-1417` refuses unless --i-am-demo-orchestrator (CLI) or
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-11-15T21:47:01Z
-last_update: '2026-11-15T21:47:10Z'
-date_finished:
+created: 2026-11-15T19:54:17Z
+last_update: 2026-11-15T22:36:06Z
+date_finished: 2026-11-15T22:36:06Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -56,7 +53,7 @@ date_finished:
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 bvp_scores_proposed:
-  - ts: '2026-11-15T21:47:10Z'
+  - ts: '2026-11-15T20:02:56Z'
     estimator: bvp-estimator-v1-heuristic
     scores:
       D1: 0
@@ -65,46 +62,48 @@ bvp_scores_proposed:
       D4: 0
       F-RECALL: 0
       F2: 0
-      F4: 0
+      F4: 5
       F3: 0
       F1: 0
     rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
-      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
-      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
-      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
-      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
-      about,L0: no signal)'
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=5 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L5:keyword=callactivity); F3=0
+      (basis: task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=0 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L0: no signal)'
     rubric_sha: e4a00f38e801
 ---
 
-# T-1421: _t1193 slug harness turns red on cleanup: bare rmSync of the Chrome profile races Chrome's child processes (ENOTEMPTY)
+# T-1417: Kit: AUTHORING §4 permits callActivity, which the validator rejects as E-XML-NODE-TYPE
 
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** On 2026-11-15 the browser tier went RED (local, 141/1;
-`build/tiergate/tier-browser.red-20261115T211837Z.log`). `_t1193-slug-readonly-cdp.mjs` threw
-`ENOTEMPTY: directory not empty, rmdir …/t1154m-udd-…/Default`. The same leg passed in the run an hour earlier.
+**Background / trigger:** In Antigravity's round-2 read of kit 0.42.0 (T-979, point B3; T-975 report §3.6), the
+point was verified: AUTHORING.md:216 and RUBRIC.md:44 permit a `callActivity`, but the validator rejects it with
+E-XML-NODE-TYPE. The rejection is deliberate: `tools/validate-workflow.py:196-202` says callActivity is outside the
+vocabulary and must not be added to quiet a report.
 **Problem / hypothesis:**
-- The harness's `finally` (line 95) SIGKILLs only Chrome's parent, sleeps 300 ms, then calls a bare `rmSync` on the
-  profile, with no `try` and no retry.
-- Chrome's child processes can still be writing to it, so the delete races them, and a thrown cleanup error turns a
-  harness whose checks passed red.
-- Every other harness wraps this in `try`. `_cdp-profile.mjs`'s `removeProfileDir` kills every process using the
-  dir and retries.
-**Goal:** Remove the profile with the shared `removeProfileDir`, and make cleanup of the other two temp dirs unable
-to fail the run.
-**Expected outcome:** `_t1193`'s verdict depends only on its checks, and the browser tier is green.
+- A vendor who follows the guide to the letter produces a map with an error.
+- The same sentence also prescribes a `Detailed in: X` line, which is not a known documentation prefix (the known
+  one is `Detail:`). So it raises W-XML-DOC-PREFIX in any step that uses the prefixes.
+**Goal:** Make the guide and rubric say what the validator enforces: a task with a cited `Detail: X` line, never a
+`callActivity`.
+**Expected outcome:** No kit text asks for a `callActivity` or for `Detailed in:`.
 
 ## Acceptance Criteria
 
 ### Agent
-- [x] `_t1193` removes its profile with `removeProfileDir(udd)`, and its other two temp dirs inside a `try`, so a
-  cleanup error can no longer throw from `finally`.
-- [x] `node tools/_t1193-slug-readonly-cdp.mjs` passes on Node 22, three runs in a row. → 2026-11-15: rc 0, PASS 4/4,
-  three times.
-- [x] No other CDP harness calls a bare, unwrapped `rmSync` on its profile dir (census by grep). → The census
-  (`makeProfileDir` users with an unwrapped `rmSync(d|udd, …)`) found none; the others already used `try`.
+- [x] AUTHORING §4 and RUBRIC say: a cited `Detail: X` line on the task, and no `callActivity` (E-XML-NODE-TYPE).
+- [x] A test leg proves the kit's advice is valid: a task with a `Detail: X` line plus a `source:` line draws neither
+  E-XML-NODE-TYPE nor W-XML-DOC-PREFIX, and the same step drawn as a `callActivity` draws E-XML-NODE-TYPE.
+  → T-1377 leg 17 PASS. The deliberate callActivity is declared to T-327 (3 tolerated, 0 violations). Core and
+  browser are green on pool and local (e079de453), and this is pushed.
+- [x] No kit document (docs/authoring-kit/*.md) mentions `Detailed in` or recommends a callActivity.
+  → Two mentions remain; both forbid one for now (AUTHORING:216, RUBRIC:44). **Follow-up, owned by T-1252**
+  (callActivity slice 1, from the callActivity inception's GO under PD-400): when slice 1 lands, the kit text, test
+  leg 17 and the harness-fidelity tolerance change with it. RUBRIC's "never ask for one" is too strong given that ruling; it is reworded to "not
+  yet" in the next kit change (T-1419's batch), which runs the gates once.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -130,11 +129,11 @@ to fail the run.
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-1421`
+         1. Run `bin/fw reviewer T-1417`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-1421 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-1417 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 <!--
@@ -285,11 +284,15 @@ to fail the run.
 #
 # Vendored-path hint (T-3236, T-4419): if you edited bin/fw, lib/, agents/, policy/,
 # web/, tools/ or .tasks/templates/, run `bin/fw vendor self` and add
-#     bin/fw vendor self --check --task T-1421X
+#     bin/fw vendor self --check --task T-1417X
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+grep -q 'cited `Detail: X` line (section 4b' docs/authoring-kit/AUTHORING.md
+grep -q 'A `callActivity` is an error in this designer' docs/authoring-kit/RUBRIC.md
+grep -q '("test_t1377_general_map_checks.py", "callActivity")' tests/test_harness_emitter_fidelity.py
+python3 tests/test_t1377_general_map_checks.py
 
 ## RCA
 
@@ -374,7 +377,7 @@ to fail the run.
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-1421 go|no-go|defer --rationale "..."
+     fw inception decide T-1417 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -383,10 +386,25 @@ to fail the run.
 
 ## Updates
 
-### 2026-11-15T21:47:01Z — task-created [task-create-agent]
+### 2026-11-15T19:54:17Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1421-t1193-slug-harness-turns-red-on-cleanup-.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1417-kit-authoring-4-permits-callactivity-whi.md
 - **Context:** Initial task creation
 
-### 2026-11-15T21:47:09Z — status-update [task-update-agent]
+### 2026-11-15T20:02:55Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-15T22:36:06Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** kit aligned with the validator; callActivity follow-up owned by T-1252
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-09b70769
+- **Timestamp:** 2026-11-15T22:36:10Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

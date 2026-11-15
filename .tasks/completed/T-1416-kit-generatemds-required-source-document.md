@@ -7,13 +7,13 @@ description: >
   lacks source:, so a GENERATE-conformant step with an Open: line, or any step under
   --strict, draws W-XML-DOC-PREFIX.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/validate-workflow.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -42,8 +42,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-15T19:54:16Z
-last_update: '2026-11-15T20:01:20Z'
-date_finished:
+last_update: 2026-11-15T22:33:09Z
+date_finished: 2026-11-15T22:33:09Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -96,12 +96,15 @@ unknown prefix still does.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] `source:` is in `DOC_PREFIXES` (tools/validate-workflow.py) and in AUTHORING §4b's table of known words.
-- [ ] `tests/test_t1377_general_map_checks.py` gains legs: a step with `source:` and `Open:` lines draws no
+- [x] `source:` is in `DOC_PREFIXES` (tools/validate-workflow.py) and in AUTHORING §4b's table of known words.
+- [x] `tests/test_t1377_general_map_checks.py` gains legs: a step with `source:` and `Open:` lines draws no
   W-XML-DOC-PREFIX; under `--strict`, a step with only `source:` lines draws none; and a control where an unknown
   prefix (`src:`) still fires.
-- [ ] Core passes (pool and local, since the validator is high-risk), and so does the browser tier (the designer's
+  → Leg 16: PASS on the fixed validator, FAIL on the pre-fix one (HEAD copy in scratch); the `src:` control fires.
+- [x] Core passes (pool and local, since the validator is high-risk), and so does the browser tier (the designer's
   Check runs this validator).
+  → 2026-11-15 on e079de453: core 229/0 on pool-w2 and locally; browser 142/0 on pool-w2 and locally; pushed. The
+  two earlier browser reds were not this change: _t911 (T-876, fixed in T-1420) and _t1193 (a cleanup race, T-1421).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -287,6 +290,9 @@ unknown prefix still does.
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+grep -q '"source:", "Instruction:"' tools/validate-workflow.py
+grep -q '| `source:` | the citation section 1b requires' docs/authoring-kit/AUTHORING.md
+python3 tests/test_t1377_general_map_checks.py
 
 ## RCA
 
@@ -388,3 +394,17 @@ unknown prefix still does.
 ### 2026-11-15T20:01:18Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-15T22:33:09Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** fixed, tested, pushed (core and browser green on pool and local, e079de453)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-b2461f79
+- **Timestamp:** 2026-11-15T22:33:11Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

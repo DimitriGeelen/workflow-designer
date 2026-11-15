@@ -1,20 +1,20 @@
 ---
-id: T-1420
-name: "_t911 kind-badge harness red since T-876: its control assumes task-lifecycle
-  has no kind, T-876 gave every corpus map one"
+id: T-1421
+name: "_t1193 slug harness turns red on cleanup: bare rmSync of the Chrome profile
+  races Chrome's child processes (ENOTEMPTY)"
 description: >
-  Browser tier RED 2026-11-15 (141/1): _t911-kind-badge-verify-cdp.mjs step 'control:
-  map opens with kind UNSET' fails because d0fca0cd9 (T-876) set kind=documentation
-  on all 24 corpus maps incl. task-lifecycle. Not caught: corpus-only changes need
-  only core (T-1374 covers src/ and the validator).
+  Browser tier RED 2026-11-15 21:18Z: _t1193-slug-readonly-cdp.mjs threw ENOTEMPTY
+  rmdir .../t1154m-udd-*/Default in its finally (line 95: br.kill on the parent only,
+  sleep 300 ms, bare rmSync with no try/retry). Every other harness wraps it in try;
+  _cdp-profile.mjs removeProfileDir kills every user of the dir and retries.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t1193-slug-readonly-cdp.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,13 +38,13 @@ related_tasks: []
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 # demo_target: true               # T-2286: optional — marks task as reserved for an orchestrated demo
 #                                 # worker (e.g. arc-010 HM-A dispatches via mcp__fw__work_on). When set,
-#                                 # `fw work-on T-1420` refuses unless --i-am-demo-orchestrator (CLI) or
+#                                 # `fw work-on T-1421` refuses unless --i-am-demo-orchestrator (CLI) or
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-11-15T20:51:14Z
-last_update: '2026-11-15T20:51:25Z'
-date_finished:
+created: 2026-11-15T21:47:01Z
+last_update: 2026-11-15T22:34:15Z
+date_finished: 2026-11-15T22:34:15Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -56,7 +56,7 @@ date_finished:
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 bvp_scores_proposed:
-  - ts: '2026-11-15T20:51:25Z'
+  - ts: '2026-11-15T21:47:10Z'
     estimator: bvp-estimator-v1-heuristic
     scores:
       D1: 0
@@ -77,34 +77,34 @@ bvp_scores_proposed:
     rubric_sha: e4a00f38e801
 ---
 
-# T-1420: _t911 kind-badge harness red since T-876: its control assumes task-lifecycle has no kind, T-876 gave every corpus map one
+# T-1421: _t1193 slug harness turns red on cleanup: bare rmSync of the Chrome profile races Chrome's child processes (ENOTEMPTY)
 
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** On 2026-11-15 the browser tier went RED for T-1416's push, 141 passed and 1 failed (log
-`build/tiergate/tier-browser.red-20261115T203008Z.log`). The failing leg was `_t911-kind-badge-verify-cdp.mjs`, at
-its first step, "control: map opens with kind UNSET and the badge hidden".
+**Background / trigger:** On 2026-11-15 the browser tier went RED (local, 141/1;
+`build/tiergate/tier-browser.red-20261115T211837Z.log`). `_t1193-slug-readonly-cdp.mjs` threw
+`ENOTEMPTY: directory not empty, rmdir …/t1154m-udd-…/Default`. The same leg passed in the run an hour earlier.
 **Problem / hypothesis:**
-- The harness opens the corpus map `task-lifecycle` and assumes it declares no kind.
-- T-876's commit d0fca0cd9 (2026-11-14) gave all 24 corpus maps `kind="documentation"`, so the control's premise is
-  false. The designer is right; the harness is stale.
-- Nothing caught it: T-876 changed only corpus maps, and the T-1374 rule asks for the browser tier only for `src/` and
-  the validator.
-**Goal:** The control sets up its own premise: it removes `kind` from its private copy of the map, rather than relying
-on the corpus.
-**Expected outcome:** `_t911` passes again. Its control fails loudly if the copy cannot be made kind-free, and the
-browser tier is green.
+- The harness's `finally` (line 95) SIGKILLs only Chrome's parent, sleeps 300 ms, then calls a bare `rmSync` on the
+  profile, with no `try` and no retry.
+- Chrome's child processes can still be writing to it, so the delete races them, and a thrown cleanup error turns a
+  harness whose checks passed red.
+- Every other harness wraps this in `try`. `_cdp-profile.mjs`'s `removeProfileDir` kills every process using the
+  dir and retries.
+**Goal:** Remove the profile with the shared `removeProfileDir`, and make cleanup of the other two temp dirs unable
+to fail the run.
+**Expected outcome:** `_t1193`'s verdict depends only on its checks, and the browser tier is green.
 
 ## Acceptance Criteria
 
 ### Agent
-- [x] The harness strips `kind="…"` from its temporary copy of the map, and stops with an error if the copy still
-  carries a kind (so the control can never silently test a kinded map).
-- [x] `node tools/_t911-kind-badge-verify-cdp.mjs` passes on Node 22, with all its steps green.
-  → 2026-11-15: rc 0, all 11 steps ok, from "control: map opens with kind UNSET" to "narrow (640px): badge visible".
-- [x] The gap is recorded: corpus-only changes do not trigger the browser tier, although browser harnesses read the
-  corpus. → registered as **G-094** in `.context/project/concerns.yaml`.
+- [x] `_t1193` removes its profile with `removeProfileDir(udd)`, and its other two temp dirs inside a `try`, so a
+  cleanup error can no longer throw from `finally`.
+- [x] `node tools/_t1193-slug-readonly-cdp.mjs` passes on Node 22, three runs in a row. → 2026-11-15: rc 0, PASS 4/4,
+  three times.
+- [x] No other CDP harness calls a bare, unwrapped `rmSync` on its profile dir (census by grep). → The census
+  (`makeProfileDir` users with an unwrapped `rmSync(d|udd, …)`) found none; the others already used `try`.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -130,11 +130,11 @@ browser tier is green.
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-1420`
+         1. Run `bin/fw reviewer T-1421`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-1420 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-1421 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 <!--
@@ -285,13 +285,24 @@ browser tier is green.
 #
 # Vendored-path hint (T-3236, T-4419): if you edited bin/fw, lib/, agents/, policy/,
 # web/, tools/ or .tasks/templates/, run `bin/fw vendor self` and add
-#     bin/fw vendor self --check --task T-1420X
+#     bin/fw vendor self --check --task T-1421X
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+grep -q "removeProfileDir(udd);" tools/_t1193-slug-readonly-cdp.mjs
+grep -q "import { makeProfileDir, removeProfileDir }" tools/_t1193-slug-readonly-cdp.mjs
 
 ## RCA
+
+**Symptom:** The browser tier went red, with `_t1193-slug-readonly-cdp.mjs` throwing
+`ENOTEMPTY … rmdir …/t1154m-udd-…/Default`, though its checks passed. It was green an hour earlier and in the next run.
+**Root cause:** Its `finally` killed only Chrome's parent and then deleted the profile with a bare `rmSync`. Chrome's
+children were still writing, so the delete raced them, and the thrown error became the harness's verdict.
+**Why structurally allowed:** T-1247 moved every harness onto `_cdp-profile.mjs` for creation and exit cleanup but
+left each harness's own `finally` delete as written. This was the one that was not wrapped in `try`.
+**Prevention:** It now uses the shared `removeProfileDir` (kills every user of the dir and retries). A census found
+no other unwrapped profile delete. A census leg is not added; the shared helper is the route.
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).
@@ -374,7 +385,7 @@ browser tier is green.
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-1420 go|no-go|defer --rationale "..."
+     fw inception decide T-1421 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -383,10 +394,24 @@ browser tier is green.
 
 ## Updates
 
-### 2026-11-15T20:51:14Z — task-created [task-create-agent]
+### 2026-11-15T21:47:01Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1420-t911-kind-badge-harness-red-since-t-876-.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1421-t1193-slug-harness-turns-red-on-cleanup-.md
 - **Context:** Initial task creation
 
-### 2026-11-15T20:51:25Z — status-update [task-update-agent]
+### 2026-11-15T21:47:09Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-15T22:34:15Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** fixed, tested, pushed (core and browser green on pool and local, e079de453)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-6bdcb3e4
+- **Timestamp:** 2026-11-15T22:34:17Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none
