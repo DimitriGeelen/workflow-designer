@@ -108,9 +108,12 @@ round-trip or render test) or recorded as NO-GO with its reason, and no import t
      FW_SKIP_DISPOSITION_GATE=1 (env-var, T-1890 producer/consumer parity).
 -->
 - **IW-1: What does the designer already import and export today (formats, fidelity, where in the code)?**
-  confidence: 0
-  disposition: (open)
-  rationale: (to measure in src/ and tools/)
+  confidence: 3
+  disposition: answered
+  rationale: docs/reports/T-1093-import-export-formats.md §Step 1. Export: BPMN 2.0 with standard DI (buildBpmnXml
+    src:14172, file and clipboard), Save to project (/api/save), and a 320 px PNG used only for thumbnails (:12559).
+    Import: BPMN (btn-load :13503, parseBpmnXml :15294), with foreign DI and camunda/zeebe/Bizagi extensions kept,
+    proven on 12 third-party fixtures. Nothing else exists: no PDF, SVG/PNG download, Word, Visio, Mermaid, Excel or CSV.
 - **IW-2: For each requested format, can it be produced/read in the browser, offline, inside one HTML file — and at
   what size cost?** (PDF, Word .docx, Visio .vsdx, Excel .xlsx, CSV, Mermaid, Camunda BPMN)
   confidence: 0
