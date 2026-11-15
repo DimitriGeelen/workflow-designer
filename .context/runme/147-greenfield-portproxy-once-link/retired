@@ -1,0 +1,1 @@
+link proven without step 3: 'termlink remote doctor greenfield' 3 pass 0 fail, 'remote list' shows greenfield-exec (the stored key is valid); step 3's fetch returned a non-64-hex value and stored nothing
