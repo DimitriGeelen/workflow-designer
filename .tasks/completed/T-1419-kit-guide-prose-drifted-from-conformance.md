@@ -1,16 +1,19 @@
 ---
-id: T-1418
-name: "Kit: exemplar.bpmn breaks the guide it illustrates (no documentation, counter
-  ids, v1.0 aef:input)"
+id: T-1419
+name: "Kit: guide prose drifted from CONFORMANCE and the validator (rule classes,
+  DISCONNECTED class, PGW-UNBALANCED, LANE-CAPACITY-SKIP, DATA-UNLINKED, IO-MISSING
+  message)"
 description: >
-  Antigravity round 2 (T-979, B7), verified: 0 bpmn:documentation, flow_1.. ids, aef:input
-  v1.0, while AUTHORING says copy its shape.
+  Antigravity round 2 (T-979, B2/B4/B5/B6/B8), verified: AUTHORING §9 names 3 classes
+  and DISCONNECTED UNIVERSAL, CONFORMANCE has 5 and CONVENTIONAL; §5 omits PGW-UNBALANCED
+  and LANE-CAPACITY-SKIP; CONFORMANCE lists one of two DATA-UNLINKED and IO-MISSING
+  messages.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -36,13 +39,13 @@ related_tasks: []
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 # demo_target: true               # T-2286: optional — marks task as reserved for an orchestrated demo
 #                                 # worker (e.g. arc-010 HM-A dispatches via mcp__fw__work_on). When set,
-#                                 # `fw work-on T-1418` refuses unless --i-am-demo-orchestrator (CLI) or
+#                                 # `fw work-on T-1419` refuses unless --i-am-demo-orchestrator (CLI) or
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-11-15T19:54:17Z
-last_update: '2026-11-15T23:06:54Z'
-date_finished:
+created: 2026-11-15T19:54:18Z
+last_update: 2026-11-15T23:28:55Z
+date_finished: 2026-11-15T23:28:55Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -54,7 +57,7 @@ date_finished:
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 bvp_scores_proposed:
-  - ts: '2026-11-15T23:06:54Z'
+  - ts: '2026-11-15T23:00:14Z'
     estimator: bvp-estimator-v1-heuristic
     scores:
       D1: 0
@@ -63,51 +66,52 @@ bvp_scores_proposed:
       D4: 0
       F-RECALL: 0
       F2: 0
-      F4: 0
+      F4: 1
       F3: 0
       F1: 0
     rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
-      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
-      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
-      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
-      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
-      about,L0: no signal)'
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=0 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L0: no signal)'
     rubric_sha: e4a00f38e801
 ---
 
-# T-1418: Kit: exemplar.bpmn breaks the guide it illustrates (no documentation, counter ids, v1.0 aef:input)
+# T-1419: Kit: guide prose drifted from CONFORMANCE and the validator (rule classes, DISCONNECTED class, PGW-UNBALANCED, LANE-CAPACITY-SKIP, DATA-UNLINKED, IO-MISSING message)
 
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** Antigravity's round-2 read of kit 0.42.0 (T-979, point B7; T-975 report §3.6) was verified:
-the kit's `exemplar.bpmn` has no `<bpmn:documentation>`, counter ids (`flow_1`…, `e_01`…) and the v1.0 `aef:input`
-form. Meanwhile AUTHORING §2 says "Copy its shape."
-**Problem / hypothesis:**
-- The exemplar is a byte copy of AEF's corpus map `task-lifecycle.bpmn` (tools/build-authoring-kit.py:59). That map
-  was made in the designer, not generated from a source, so it cannot carry citations, and its ids and io are older
-  than the rules.
-- The first file a new vendor copies teaches them the habits the guide forbids. Under O-5 (many projects draw their
-  own maps with the kit) that cost repeats with every new project.
-**Goal:** A purpose-built exemplar, generated from a stated synthetic source, that follows every rule in the guide.
-The operator delegated the choice ("proceed as you see fit"); the agent recommended this over a caveat in the guide.
-**Expected outcome:** The kit ships `docs/authoring-kit/exemplar.bpmn`. It validates clean in normal and strict mode,
-cites a verbatim source quote on every lane and flow node, uses semantic ids and uids, and gives v1.1 io to every
-system step.
+**Background / trigger:** Antigravity's round-2 read of kit 0.42.0 (T-979; T-975 report §3.6) raised points B2, B4,
+B5, B6 and B8. Each was verified against the kit.
+**Problem / hypothesis:** The guide is hand-written beside generated parts, and it drifted:
+- §9 names 3 rule classes and calls W-XML-DISCONNECTED UNIVERSAL, while CONFORMANCE has 5 classes and lists it as
+  CONVENTIONAL.
+- §5 omits W-XML-PGW-UNBALANCED, which a fork the guide allows produces, and I-XML-LANE-CAPACITY-SKIP, which a
+  geometry-free map that copies the exemplar's lane heights produces.
+- §5's IO-MISSING row omits its condition: it fires only when the map gives io elsewhere.
+- CONFORMANCE shows only the FIRST message of a rule with two (DATA-UNLINKED, IO-MISSING), because the generator keeps
+  the first emission site.
+- T-1417 also left RUBRIC saying "never ask for" a callActivity, which is too strong: T-1252 will add it.
+**Goal:** Bring the guide back in line with the validator and the generated checklist, and add a test that catches
+the class drift next time.
+**Expected outcome:** A vendor reading §5, §9 and CONFORMANCE sees what the validator actually does.
 
 ## Acceptance Criteria
 
 ### Agent
-- [x] `docs/authoring-kit/exemplar.bpmn` carries its synthetic source in a header comment and a `source:` line on every
-  lane and flow node; every quoted line is verbatim in that source. → 12 quotes, all verbatim (checked by script).
-- [x] No counter ids or uids (every id/uid names the element or its endpoints); every serviceTask in an
-  `authority` lane has v1.1 io (typeRef, operation, fields); no v1.0 `aef:input name/type/required` form.
-- [x] It validates clean in normal and `--strict` mode, and two controls fire on it (a node outside its lane band →
-  W-XML-LANE-GEOMETRY; a duplicated uid → E-XML-UID-DUP). → "VALID … no findings" in both modes. Moving `pay-claim`
-  into the employee band drew LANE-GEOMETRY and LANE-CAPACITY; a duplicated uid drew E-XML-UID-DUP.
-- [x] The kit build ships it as `exemplar.bpmn` (tools/build-authoring-kit.py), and T-974 still passes; a test leg
-  asserts the shipped exemplar's documentation, uid and io properties above. → T-974 22/22, including leg 4e (the
-  shipped exemplar) and leg 4f (control: the old task-lifecycle exemplar is flagged on all three counts). T-983 18/18.
+- [x] `tools/build-authoring-kit.py` lists every distinct message of a rule in CONFORMANCE, not only the first:
+  W-XML-DATA-UNLINKED and W-XML-IO-MISSING show both. → joined with " — or: "; T-974 leg 4d.
+- [x] AUTHORING §9 names the five classes the checklist uses and gives W-XML-DISCONNECTED its real class (CONVENTIONAL),
+  and says CONFORMANCE wins on a disagreement.
+- [x] AUTHORING §5 lists W-XML-PGW-UNBALANCED and I-XML-LANE-CAPACITY-SKIP with the source-side reason for each, and
+  states IO-MISSING's condition. RUBRIC's callActivity line says "not yet (T-1252)". → RUBRIC: "not yet in this
+  designer's vocabulary … do not ask for one until it is"; AUTHORING §4 says "not yet" too. The LANE-CAPACITY-SKIP
+  condition was checked against validate-workflow.py:2226-2235.
+- [x] A test leg fails when §9's class names or its stated class for W-XML-DISCONNECTED differ from the generated
+  CONFORMANCE; its control proves it bites. → T-974 4b PASS, 4c (control) PASS. The same check run on the pre-fix
+  guide reports "§9 names [3 classes], CONFORMANCE [5]".
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -133,11 +137,11 @@ system step.
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-1418`
+         1. Run `bin/fw reviewer T-1419`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-1418 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-1419 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 <!--
@@ -288,11 +292,15 @@ system step.
 #
 # Vendored-path hint (T-3236, T-4419): if you edited bin/fw, lib/, agents/, policy/,
 # web/, tools/ or .tasks/templates/, run `bin/fw vendor self` and add
-#     bin/fw vendor self --check --task T-1418X
+#     bin/fw vendor self --check --task T-1419X
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+grep -q "def _add(out, rid, sev, msg):" tools/build-authoring-kit.py
+grep -q '`W-XML-DISCONNECTED` is \*\*CONVENTIONAL\*\*' docs/authoring-kit/AUTHORING.md
+grep -q "W-XML-PGW-UNBALANCED" docs/authoring-kit/AUTHORING.md
+grep -q "def guide_class_drift" tests/test_t974_authoring_kit.py
 
 ## RCA
 
@@ -377,7 +385,7 @@ system step.
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-1418 go|no-go|defer --rationale "..."
+     fw inception decide T-1419 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -386,11 +394,25 @@ system step.
 
 ## Updates
 
-### 2026-11-15T19:54:17Z — task-created [task-create-agent]
+### 2026-11-15T19:54:18Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1418-kit-exemplarbpmn-breaks-the-guide-it-ill.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1419-kit-guide-prose-drifted-from-conformance.md
 - **Context:** Initial task creation
 
-### 2026-11-15T23:06:53Z — status-update [task-update-agent]
+### 2026-11-15T23:00:12Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-15T23:28:55Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** pushed; core green on the pool (229/0)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-7c416bbe
+- **Timestamp:** 2026-11-15T23:29:01Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

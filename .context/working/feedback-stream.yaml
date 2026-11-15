@@ -22653,3 +22653,39 @@ scan_id: R-09b70769
 task_id: T-1417
 payload:
   task_file: .tasks/active/T-1417-kit-authoring-4-permits-callactivity-whi.md
+---
+kind: scan_emitted
+timestamp: '2026-11-15T23:28:23Z'
+scan_id: R-f38fbf19
+task_id: T-1418
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-15T23:28:23Z'
+scan_id: R-f38fbf19
+task_id: T-1418
+payload:
+  task_file: .tasks/active/T-1418-kit-exemplarbpmn-breaks-the-guide-it-ill.md
+---
+kind: scan_emitted
+timestamp: '2026-11-15T23:29:01Z'
+scan_id: R-7c416bbe
+task_id: T-1419
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-15T23:29:01Z'
+scan_id: R-7c416bbe
+task_id: T-1419
+payload:
+  task_file: .tasks/active/T-1419-kit-guide-prose-drifted-from-conformance.md

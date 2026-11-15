@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1419: Kit: guide prose drifted from CONFORMANCE and the validator (rule classes, DISCONNECTED class, PGW-UNBALANCED, LANE-CAPACITY-SKIP, DATA-UNLINKED, IO-MISSING message)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-15T23:29:29Z
+# ============================================================================
+
+task_id: T-1419
+task_name: "Kit: guide prose drifted from CONFORMANCE and the validator (rule classes, DISCONNECTED class, PGW-UNBALANCED, LANE-CAPACITY-SKIP, DATA-UNLINKED, IO-MISSING message)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-15T19:54:18Z
+completed: 2026-11-15T23:28:55Z
+duration_days: 0
+updates_count: 3
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Antigravity round 2 (T-979, B2/B4/B5/B6/B8), verified: AUTHORING §9 names 3 classes and DISCONNECTED UNIVERSAL, CONFORMANCE has 5 and CONVENTIONAL; §5 omits PGW-UNBALANCED and LANE-CAPACITY-SKIP; CONFORMANCE lists one of two DATA-UNLINKED and IO-MISSING messages.
+
+# Key outcomes
+outcomes:
+  - '`tools/build-authoring-kit.py` lists every distinct message of a rule in CONFORMANCE, not only the first:'
+  - 'AUTHORING §9 names the five classes the checklist uses and gives W-XML-DISCONNECTED its real class (CONVENTIONAL),'
+  - 'AUTHORING §5 lists W-XML-PGW-UNBALANCED and I-XML-LANE-CAPACITY-SKIP with the source-side reason for each, and'
+  - 'A test leg fails when §9''s class names or its stated class for W-XML-DISCONNECTED differ from the generated'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 214 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 214
+  commits: 2
+  files_changed: 12
+  lines_added: 658
+  lines_removed: 60
+  footprint_refreshed_at: '2026-11-15T23:29:41Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1419-kit-guide-prose-drifted-from-conformance.md
+generated_by: context-agent-hybrid
