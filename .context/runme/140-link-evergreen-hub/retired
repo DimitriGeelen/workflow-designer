@@ -1,0 +1,1 @@
+retired 2026-11-15: its step 1 cannot pass until job 143 starts the hub, and its step 2 logs in as root, which the greenfield machine refuses; a replacement using the operator's user follows job 143
