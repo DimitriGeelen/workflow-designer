@@ -66,7 +66,15 @@ bvp_scores_proposed:
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+**Background / trigger:** After T-897 stopped at a quota wall, the procAsFit mandate was run as nine sequential
+rounds (2026-09-28/29), each fed the previous handback. The second launch completed with all nine handed back
+(`.context/working/procasfit9/FINAL-REPORT.md`).
+**Problem / hypothesis:** One criterion was missed: no feasibility probe ran before dispatch. The final report says
+so and refuses to tick it.
+**Goal:** Close this truthfully, without a false tick, a reworded goal or a bypass.
+**Expected outcome:** Closed with the miss accepted by the operator once AEF provides a "not met, accepted" state.
+**Waiting on:** 832 T-1415 (proposal to AEF, msg b8a8cfa1). The operator ruled 2026-11-15 to pursue that rather
+than close by bypass, so do not re-ask; follow T-1415.
 
 ## Acceptance Criteria
 

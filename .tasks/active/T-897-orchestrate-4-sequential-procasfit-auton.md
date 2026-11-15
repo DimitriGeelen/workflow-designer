@@ -40,7 +40,15 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+**Background / trigger:** The operator asked (2026-09-27) for four procAsFit rounds run over TermLink, each fed the
+previous handback. Round 1 completed; round 2 was refused by the account's weekly limit; T-922 then ran the full
+mandate as nine rounds.
+**Problem / hypothesis:** One criterion was missed: the rounds were launched directly, not as TermLink-spawned
+sessions, after `termlink_spawn` reported a false "ready" (OBS-405).
+**Goal:** Close this truthfully, without a false tick, a reworded goal or a bypass.
+**Expected outcome:** Closed with the miss accepted by the operator once AEF provides a "not met, accepted" state.
+**Waiting on:** 832 T-1415 (proposal to AEF, msg b8a8cfa1). The operator ruled 2026-11-15 to pursue that rather
+than close by bypass, so do not re-ask; follow T-1415.
 
 ## Acceptance Criteria
 
