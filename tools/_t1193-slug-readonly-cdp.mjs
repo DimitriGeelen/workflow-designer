@@ -5,7 +5,7 @@
 // renaming the step changes slug and id; an exported map reloads with the same ids.
 // Usage: node tools/_t1193-slug-readonly-cdp.mjs [designer.html]   (control: the pre-T-1193 designer fails leg 1)
 // Exit 0 = pass, 1 = a leg failed.
-import { makeProfileDir } from './_cdp-profile.mjs';
+import { makeProfileDir, removeProfileDir } from './_cdp-profile.mjs';
 import { spawn } from 'node:child_process';
 import { readdirSync, mkdtempSync, existsSync, readFileSync, mkdirSync, copyFileSync, rmSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -92,7 +92,10 @@ async function main() {
   } finally {
     try { cl && cl.close(); } catch (_) {}
     br.kill('SIGKILL'); py.kill('SIGKILL'); await sleep(300);
-    for (const d of [doc, repo, udd]) rmSync(d, { recursive: true, force: true });
+    // T-1421: a bare rmSync of the profile raced Chrome's children (ENOTEMPTY) and turned passing checks red.
+    // removeProfileDir kills every process using the dir and retries; the other dirs can never fail the run.
+    removeProfileDir(udd);
+    for (const d of [doc, repo]) { try { rmSync(d, { recursive: true, force: true }); } catch (_) {} }
   }
 }
 main();
