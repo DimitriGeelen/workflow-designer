@@ -9,7 +9,8 @@ the same immutability rule.
 
 CONTENTS of aef-authoring-kit-<VERSION>/:
   validate-workflow.py  the repo's exact bytes (stdlib only; yaml optional)
-  exemplar.bpmn         a corpus map, refused at build time unless it validates CLEAN
+  exemplar.bpmn         docs/authoring-kit/exemplar.bpmn, built from a stated synthetic source to every rule
+                        of the guide; refused at build time unless it validates CLEAN
   CONFORMANCE.md        GENERATED from the validator's own source and the dialect axis:
                         every XML-form rule, its severity, its derived class, its message
   AUTHORING.md          the generator-agent guide (docs/authoring-kit/AUTHORING.md)
@@ -56,7 +57,9 @@ LOOP_FILES = ('RUBRIC.md', 'GENERATE.md', 'REVIEW.md', 'CORRECT.md', 'loop.sh', 
 # T-1376 (T-1375 GO): the entry point an agent runtime loads (frontmatter name + description), copied verbatim.
 SKILL = os.path.join(KITSRC, 'SKILL.md')
 CALIBRATION = ('SOURCE.md', 'clean.bpmn', 'planted.bpmn', 'expected.json')
-EXEMPLAR = os.path.join(ROOT, 'examples', 'aef-processes', 'rendered', 'task-lifecycle.bpmn')
+# T-1418: a purpose-built exemplar that follows every rule of the guide. It was the corpus map task-lifecycle.bpmn,
+# which carries no source: citations, counter ids and v1.0 io: the first file a vendor copies taught what the guide forbids.
+EXEMPLAR = os.path.join(KITSRC, 'exemplar.bpmn')
 
 SEVERITY = {'err': 'ERROR', 'warn': 'WARN', 'info': 'INFO'}
 
@@ -80,8 +83,18 @@ def _template(node):
     return re.sub(r'\s+', ' ', text).strip()
 
 
+def _add(out, rid, sev, msg):
+    """T-1419: keep EVERY distinct message of a rule (joined), not only the first emission site's.
+    A rule with two triggers (W-XML-DATA-UNLINKED, W-XML-IO-MISSING) showed one, and a vendor read
+    the checklist as the whole rule."""
+    if rid not in out:
+        out[rid] = (sev, msg)
+    elif msg not in out[rid][1].split(' — or: '):
+        out[rid] = (out[rid][0], out[rid][1] + ' — or: ' + msg)
+
+
 def xml_rules():
-    """{rule_id: (severity, first message template)} for every XmlValidator emission site."""
+    """{rule_id: (severity, every distinct message template)} for every XmlValidator emission site."""
     tree = ast.parse(open(VALIDATOR, encoding='utf-8').read())
     out = {}
     for cls in tree.body:
@@ -95,7 +108,7 @@ def xml_rules():
                     and isinstance(f.value, ast.Name) and f.value.id == 'self'
                     and len(node.args) >= 3 and isinstance(node.args[0], ast.Constant)):
                 rid = node.args[0].value
-                out.setdefault(rid, (SEVERITY[f.attr], _template(node.args[2])))
+                _add(out, rid, SEVERITY[f.attr], _template(node.args[2]))
     if not out:
         raise RuntimeError('found no XmlValidator emission sites in %s; the parse is broken, '
                            'and an empty checklist would read as "no rules"' % VALIDATOR)

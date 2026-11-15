@@ -41,7 +41,7 @@ it reads.
   gateway after one step with two successors IS invented: it adds a decision.)
 - An unlabelled default flow on a decision whose other branch carries the source's words.
 - A task with a cited `Detail: X` line for a step the source says is detailed elsewhere or invokes X.
-  (A `callActivity` is an error in this designer's vocabulary, `E-XML-NODE-TYPE`; never ask for one.)
+  (A `callActivity` is not yet in this designer's vocabulary, `E-XML-NODE-TYPE`; do not ask for one until it is.)
 - Two distinct steps with the same display name, kept verbatim, told apart by distinct keys.
 - A link throw/catch event for a hand-over the source states to another process.
 - A note naming a record a step creates or uses, or the system that supports it, when it quotes

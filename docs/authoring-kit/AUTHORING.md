@@ -96,7 +96,10 @@ source: "The warehouse also does quality inspection and labelling for each order
 
 ## 2. What every map carries
 
-`exemplar.bpmn` is a complete map that validates clean. Copy its shape.
+`exemplar.bpmn` is a complete map, generated from the short synthetic source in its header comment, that follows
+every rule in this guide: a `source:` line on every lane and flow node, ids and uids that name what they are, v1.1 io
+on every system step, positions in flow order inside each lane's band. It validates clean, `--strict` included.
+Copy its shape.
 
 - **The AEF namespace:** `xmlns:aef="http://anchorpoint.framework/aef/extensions"` on the root.
   The BPMN namespace may be prefixed (`bpmn:`) or the default; both are accepted.
@@ -214,7 +217,7 @@ will make up what the source does not say. Do not.
   (optionally a message end event to a message start event); see CONFORMANCE.md.
 - **A step the source says "is detailed in process X"** is a task whose documentation has a
   cited `Detail: X` line (section 4b's prefix). Do not draw a `callActivity`, even when the source
-  says the step invokes X as reusable behaviour: it is outside this designer's vocabulary, and the
+  says the step invokes X as reusable behaviour: it is not yet in this designer's vocabulary, and the
   validator rejects it as `E-XML-NODE-TYPE` (an error). Say "invokes X" in the `Detail:` line instead.
   Never a `subProcess` with content the source does not give.
 - **Documents a step creates or uses** (a quote, an order confirmation, a delivery note) are data
@@ -315,10 +318,11 @@ source does not say. Removing them by changing the map is fabrication.
 | no stated order at all, so the map has no start or no end event | 1 × `W-XML-NO-START-EVENT` and/or 1 × `W-XML-NO-END-EVENT` for the map, plus 1 × `W-XML-DISCONNECTED` if the steps fall into several parts. Reachability is then not assessed per step. If the source states any chain, mark it with a start and an end (section 4) and the per-step findings above apply instead |
 | who performs a step | 1 × `W-LANE-NO-OWNER` per task in the `none` lane |
 | an executable branch condition (you labelled branches in the source's words, section 4) | 1 × `W-XML-GW-AMBIGUOUS` per such gateway, or 1 × `W-XML-GW-BRANCH-UNCONDITIONED` per branch when only one lacks a condition. DIALECT-RELATIVE: a branch label is a standard-admitted condition carrier |
-| what a system step reads or writes (section 4b) | 1 × `W-XML-IO-MISSING` per such step, with an `Open:` line saying so |
+| what a system step reads or writes (section 4b) | 1 × `W-XML-IO-MISSING` per such step, with an `Open:` line saying so. It fires only when your map gives io on some other step; a map with no io at all is silent, except under `--strict` (one finding for the whole map) |
+| whether parallel branches wait for each other (you drew a `parallelGateway` fork and no join, section 4) | 1 × `W-XML-PGW-UNBALANCED` per such fork. Never draw a join the source does not state to quiet it |
 | an io's system or operation | 1 × `W-XML-IO-INCOMPLETE` per such io |
 | which field is the key, when the source says a key exists | 1 × `W-XML-IO-MATCH-UNRESOLVED` per such field (`role="match"` with no `fieldRef` or `path`), also under `--strict` |
-| geometry (you chose the geometry-free layout, section 7) | 1 × `I-XML-LANE-GEOMETRY-SKIP`, an INFO note, not a warning |
+| geometry (you chose the geometry-free layout, section 7) | 1 × `I-XML-LANE-GEOMETRY-SKIP`, an INFO note, not a warning; plus 1 × `I-XML-LANE-CAPACITY-SKIP` per populated lane whose `aef:laneMeta` still carries a `height` (copied from the exemplar), also INFO |
 
 The rule against inventing outranks every finding here. "The validator wins" (top of this
 guide) is about what the validator **checks**, never permission to make up a fact to satisfy it.
@@ -374,14 +378,17 @@ complained.
 
 ## 9. Classes of finding
 
-`CONFORMANCE.md` classifies every rule, derived from the frozen standard rather than asserted:
+`CONFORMANCE.md` classifies every rule, derived from the frozen standard rather than asserted, and names the basis of
+each class in its own column. There are five classes:
 
-- **UNIVERSAL**: rests on the standard or on graph structure. Fix it, or for an unknown owner or
-  order, declare the unknown as in section 4.
-- **DIALECT-RELATIVE**: our house convention, not the standard. Worth satisfying when you author
-  for this designer, never a reason to distort the source.
+- **UNIVERSAL**: any conformant document satisfies it. Fix it, or for an unknown owner or order, declare the unknown as
+  in section 4.
+- **DIALECT-RELATIVE**: an optional field the standard does not require is missing. Worth adding when you author for
+  this designer, never a reason to distort the source.
+- **CONVENTIONAL**: the standard is silent on this graph shape and our house style expects it. Restructure only if the
+  source supports it; a deliberate or source-given shape stays.
 - **PRESENTATIONAL**: layout only.
+- **UNCLASSIFIED**: not ruled on yet (stated, not guessed).
 
-`W-XML-DISCONNECTED` is listed UNIVERSAL by that derivation (it reads graph structure), although
-the standard has no connectivity clause. That disagreement is known and recorded on our side.
-Treat it as section 5 says.
+`W-XML-DISCONNECTED` is **CONVENTIONAL**: the standard has no connectivity clause. Treat it as section 5 says. When
+this section and `CONFORMANCE.md` disagree, `CONFORMANCE.md` is right: it is generated from the validator.

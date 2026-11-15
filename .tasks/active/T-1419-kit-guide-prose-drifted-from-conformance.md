@@ -1,13 +1,19 @@
 ---
 id: T-1419
-name: "Kit: guide prose drifted from CONFORMANCE and the validator (rule classes, DISCONNECTED class, PGW-UNBALANCED, LANE-CAPACITY-SKIP, DATA-UNLINKED, IO-MISSING message)"
+name: "Kit: guide prose drifted from CONFORMANCE and the validator (rule classes,
+  DISCONNECTED class, PGW-UNBALANCED, LANE-CAPACITY-SKIP, DATA-UNLINKED, IO-MISSING
+  message)"
 description: >
-  Antigravity round 2 (T-979, B2/B4/B5/B6/B8), verified: AUTHORING §9 names 3 classes and DISCONNECTED UNIVERSAL, CONFORMANCE has 5 and CONVENTIONAL; §5 omits PGW-UNBALANCED and LANE-CAPACITY-SKIP; CONFORMANCE lists one of two DATA-UNLINKED and IO-MISSING messages.
+  Antigravity round 2 (T-979, B2/B4/B5/B6/B8), verified: AUTHORING §9 names 3 classes
+  and DISCONNECTED UNIVERSAL, CONFORMANCE has 5 and CONVENTIONAL; §5 omits PGW-UNBALANCED
+  and LANE-CAPACITY-SKIP; CONFORMANCE lists one of two DATA-UNLINKED and IO-MISSING
+  messages.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-15T19:54:18Z
-last_update: 2026-11-15T19:54:18Z
-date_finished: null
+last_update: '2026-11-15T23:00:14Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +56,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-15T23:00:14Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=0 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1419: Kit: guide prose drifted from CONFORMANCE and the validator (rule classes, DISCONNECTED class, PGW-UNBALANCED, LANE-CAPACITY-SKIP, DATA-UNLINKED, IO-MISSING message)
@@ -57,20 +83,35 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
-
-**Problem / hypothesis:** <what we think is wrong and why>
-
-**Goal:** <what we are trying to achieve>
-
-**Expected outcome:** <what will be different when this is done>
+**Background / trigger:** Antigravity's round-2 read of kit 0.42.0 (T-979; T-975 report §3.6) raised points B2, B4,
+B5, B6 and B8. Each was verified against the kit.
+**Problem / hypothesis:** The guide is hand-written beside generated parts, and it drifted:
+- §9 names 3 rule classes and calls W-XML-DISCONNECTED UNIVERSAL, while CONFORMANCE has 5 classes and lists it as
+  CONVENTIONAL.
+- §5 omits W-XML-PGW-UNBALANCED, which a fork the guide allows produces, and I-XML-LANE-CAPACITY-SKIP, which a
+  geometry-free map that copies the exemplar's lane heights produces.
+- §5's IO-MISSING row omits its condition: it fires only when the map gives io elsewhere.
+- CONFORMANCE shows only the FIRST message of a rule with two (DATA-UNLINKED, IO-MISSING), because the generator keeps
+  the first emission site.
+- T-1417 also left RUBRIC saying "never ask for" a callActivity, which is too strong: T-1252 will add it.
+**Goal:** Bring the guide back in line with the validator and the generated checklist, and add a test that catches
+the class drift next time.
+**Expected outcome:** A vendor reading §5, §9 and CONFORMANCE sees what the validator actually does.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `tools/build-authoring-kit.py` lists every distinct message of a rule in CONFORMANCE, not only the first:
+  W-XML-DATA-UNLINKED and W-XML-IO-MISSING show both. → joined with " — or: "; T-974 leg 4d.
+- [x] AUTHORING §9 names the five classes the checklist uses and gives W-XML-DISCONNECTED its real class (CONVENTIONAL),
+  and says CONFORMANCE wins on a disagreement.
+- [x] AUTHORING §5 lists W-XML-PGW-UNBALANCED and I-XML-LANE-CAPACITY-SKIP with the source-side reason for each, and
+  states IO-MISSING's condition. RUBRIC's callActivity line says "not yet (T-1252)". → RUBRIC: "not yet in this
+  designer's vocabulary … do not ask for one until it is"; AUTHORING §4 says "not yet" too. The LANE-CAPACITY-SKIP
+  condition was checked against validate-workflow.py:2226-2235.
+- [x] A test leg fails when §9's class names or its stated class for W-XML-DISCONNECTED differ from the generated
+  CONFORMANCE; its control proves it bites. → T-974 4b PASS, 4c (control) PASS. The same check run on the pre-fix
+  guide reports "§9 names [3 classes], CONFORMANCE [5]".
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -353,3 +394,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1419-kit-guide-prose-drifted-from-conformance.md
 - **Context:** Initial task creation
+
+### 2026-11-15T23:00:12Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

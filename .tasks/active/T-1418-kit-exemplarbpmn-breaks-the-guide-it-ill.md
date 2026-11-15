@@ -1,13 +1,16 @@
 ---
 id: T-1418
-name: "Kit: exemplar.bpmn breaks the guide it illustrates (no documentation, counter ids, v1.0 aef:input)"
+name: "Kit: exemplar.bpmn breaks the guide it illustrates (no documentation, counter
+  ids, v1.0 aef:input)"
 description: >
-  Antigravity round 2 (T-979, B7), verified: 0 bpmn:documentation, flow_1.. ids, aef:input v1.0, while AUTHORING says copy its shape.
+  Antigravity round 2 (T-979, B7), verified: 0 bpmn:documentation, flow_1.. ids, aef:input
+  v1.0, while AUTHORING says copy its shape.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +41,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-15T19:54:17Z
-last_update: 2026-11-15T19:54:17Z
-date_finished: null
+last_update: '2026-11-15T23:06:54Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +53,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-15T23:06:54Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1418: Kit: exemplar.bpmn breaks the guide it illustrates (no documentation, counter ids, v1.0 aef:input)
@@ -57,20 +80,34 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
-
-**Problem / hypothesis:** <what we think is wrong and why>
-
-**Goal:** <what we are trying to achieve>
-
-**Expected outcome:** <what will be different when this is done>
+**Background / trigger:** Antigravity's round-2 read of kit 0.42.0 (T-979, point B7; T-975 report §3.6) was verified:
+the kit's `exemplar.bpmn` has no `<bpmn:documentation>`, counter ids (`flow_1`…, `e_01`…) and the v1.0 `aef:input`
+form. Meanwhile AUTHORING §2 says "Copy its shape."
+**Problem / hypothesis:**
+- The exemplar is a byte copy of AEF's corpus map `task-lifecycle.bpmn` (tools/build-authoring-kit.py:59). That map
+  was made in the designer, not generated from a source, so it cannot carry citations, and its ids and io are older
+  than the rules.
+- The first file a new vendor copies teaches them the habits the guide forbids. Under O-5 (many projects draw their
+  own maps with the kit) that cost repeats with every new project.
+**Goal:** A purpose-built exemplar, generated from a stated synthetic source, that follows every rule in the guide.
+The operator delegated the choice ("proceed as you see fit"); the agent recommended this over a caveat in the guide.
+**Expected outcome:** The kit ships `docs/authoring-kit/exemplar.bpmn`. It validates clean in normal and strict mode,
+cites a verbatim source quote on every lane and flow node, uses semantic ids and uids, and gives v1.1 io to every
+system step.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `docs/authoring-kit/exemplar.bpmn` carries its synthetic source in a header comment and a `source:` line on every
+  lane and flow node; every quoted line is verbatim in that source. → 12 quotes, all verbatim (checked by script).
+- [x] No counter ids or uids (every id/uid names the element or its endpoints); every serviceTask in an
+  `authority` lane has v1.1 io (typeRef, operation, fields); no v1.0 `aef:input name/type/required` form.
+- [x] It validates clean in normal and `--strict` mode, and two controls fire on it (a node outside its lane band →
+  W-XML-LANE-GEOMETRY; a duplicated uid → E-XML-UID-DUP). → "VALID … no findings" in both modes. Moving `pay-claim`
+  into the employee band drew LANE-GEOMETRY and LANE-CAPACITY; a duplicated uid drew E-XML-UID-DUP.
+- [x] The kit build ships it as `exemplar.bpmn` (tools/build-authoring-kit.py), and T-974 still passes; a test leg
+  asserts the shipped exemplar's documentation, uid and io properties above. → T-974 22/22, including leg 4e (the
+  shipped exemplar) and leg 4f (control: the old task-lifecycle exemplar is flagged on all three counts). T-983 18/18.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -353,3 +390,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1418-kit-exemplarbpmn-breaks-the-guide-it-ill.md
 - **Context:** Initial task creation
+
+### 2026-11-15T23:06:53Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

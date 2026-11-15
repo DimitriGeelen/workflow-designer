@@ -92,6 +92,61 @@ def all_rule_ids():
     return set(re.findall(r'"([EWI]-[A-Z0-9-]+)"', open(VALIDATOR, encoding='utf-8').read()))
 
 
+def exemplar_problems(text):
+    """T-1418: where an exemplar breaks the guide it illustrates (citations, semantic ids, v1.1 io)."""
+    import xml.etree.ElementTree as ET
+    B, A = '{http://www.omg.org/spec/BPMN/20100524/MODEL}', '{http://anchorpoint.framework/aef/extensions}'
+    root = ET.fromstring(text.encode('utf-8'))
+    proc = root.find(B + 'process')
+    problems = []
+    if proc is None:
+        return ['no bpmn:process']
+    nodes = [e for e in proc if e.tag[len(B):] in (
+        'startEvent', 'endEvent', 'intermediateThrowEvent', 'intermediateCatchEvent', 'task', 'userTask',
+        'serviceTask', 'scriptTask', 'sendTask', 'exclusiveGateway', 'parallelGateway', 'inclusiveGateway')]
+    lanes = proc.findall('.//' + B + 'lane')
+    for el in lanes + nodes:
+        doc = el.find(B + 'documentation')
+        first = (doc.text or '').strip().split('\n', 1)[0] if doc is not None else ''
+        if not first.startswith('source:'):
+            problems.append('%s has no source: line' % el.get('id'))
+    for el in nodes + proc.findall(B + 'sequenceFlow'):
+        uid = el.find('%sextensionElements/%suid' % (B, A))
+        for v in (el.get('id') or '', uid.get('value') if uid is not None else ''):
+            if re.fullmatch(r'[A-Za-z]{0,6}_?\d+', v):
+                problems.append('counter id/uid %r' % v)
+    system = {r.text for ln in lanes for r in ln.findall(B + 'flowNodeRef')
+              if (ln.find('%sextensionElements/%slaneMeta' % (B, A)) is not None
+                  and ln.find('%sextensionElements/%slaneMeta' % (B, A)).get('authority') == 'authority')}
+    for el in nodes:
+        if el.tag == B + 'serviceTask' and el.get('id') in system:
+            ios = el.findall('.//%sio/*' % A)
+            if not ios or not all(x.get('typeRef') and x.get('operation') for x in ios):
+                problems.append('%s lacks v1.1 io' % el.get('id'))
+    for x in proc.iter():
+        if x.tag in (A + 'input', A + 'output') and x.get('type') and not x.get('typeRef'):
+            problems.append('v1.0 io %r' % x.get('name'))
+    return problems
+
+
+def guide_class_drift(guide, conf):
+    """T-1419: problems where AUTHORING §9's class text disagrees with the generated CONFORMANCE."""
+    problems = []
+    m = re.search(r'^Class: (.*?)\n\n', conf, re.M | re.S)
+    conf_classes = set(re.findall(r'\b([A-Z][A-Z-]+[A-Z]) =', m.group(1))) if m else set()
+    sec9 = guide.split('## 9.', 1)[1] if '## 9.' in guide else ''
+    guide_classes = set(re.findall(r'^- \*\*([A-Z][A-Z-]+)\*\*:', sec9, re.M))
+    if not conf_classes:
+        problems.append('no class definitions found in CONFORMANCE')
+    elif guide_classes != conf_classes:
+        problems.append('§9 names %s, CONFORMANCE %s' % (sorted(guide_classes), sorted(conf_classes)))
+    rows = dict(re.findall(r'^\| `([EWI]-[A-Z0-9-]+)` \| [A-Z]+ \| ([A-Z-]+) \|', conf, re.M))
+    for rid, cls in re.findall(r'`([EWI]-[A-Z0-9-]+)` is \*\*([A-Z-]+)\*\*', guide):
+        if rows.get(rid) != cls:
+            problems.append('guide says %s is %s, CONFORMANCE says %s' % (rid, cls, rows.get(rid)))
+    return problems
+
+
 def main():
     tmp = tempfile.mkdtemp(prefix='t974-')
     try:
@@ -136,6 +191,29 @@ def main():
         named = set(re.findall(r'`([EWI]-[A-Z0-9-]+)`', open(GUIDE, encoding='utf-8').read()))
         check('4. every rule AUTHORING.md names exists in the validator',
               named and named <= all_rule_ids(), 'unknown %s' % sorted(named - all_rule_ids()))
+
+        # T-1419: the guide's hand-written class text must agree with the generated checklist
+        # (Antigravity found §9 naming 3 classes and DISCONNECTED as UNIVERSAL against CONFORMANCE's 5 and CONVENTIONAL).
+        guide = open(GUIDE, encoding='utf-8').read()
+        drift = guide_class_drift(guide, conf)
+        check('4b. AUTHORING §9 names the checklist\'s classes, and every "`RULE` is **CLASS**" matches it',
+              not drift, '; '.join(drift))
+        bad = guide.replace('`W-XML-DISCONNECTED` is **CONVENTIONAL**', '`W-XML-DISCONNECTED` is **UNIVERSAL**')
+        check('4c. control: the drift check bites on a guide that gives DISCONNECTED the wrong class',
+              bad != guide and guide_class_drift(bad, conf), 'the control produced no drift')
+        check('4d. CONFORMANCE lists every distinct message of a rule (both of W-XML-DATA-UNLINKED\'s)',
+              re.search(r'^\| `W-XML-DATA-UNLINKED` \|.*a document without a name — or: .*linked to no step', conf, re.M)
+              is not None)
+
+        # T-1418: the shipped exemplar follows the guide it illustrates; the old corpus exemplar is the control
+        ex = exemplar_problems(open(os.path.join(k1, 'exemplar.bpmn'), encoding='utf-8').read())
+        check('4e. the shipped exemplar cites a source on every lane and node, uses no counter ids, gives v1.1 io '
+              'to every system step', not ex, '; '.join(ex[:5]))
+        old = exemplar_problems(open(os.path.join(ROOT, 'examples', 'aef-processes', 'rendered',
+                                                  'task-lifecycle.bpmn'), encoding='utf-8').read())
+        check('4f. control: the old corpus exemplar (task-lifecycle) is flagged on all three counts',
+              any('source:' in p for p in old) and any('counter' in p for p in old) and any('v1.0' in p for p in old),
+              '; '.join(old[:4]))
 
         skill = open(os.path.join(k1, 'SKILL.md'), encoding='utf-8').read()
         front = re.match(r'---\n(.*?)\n---\n', skill, re.S)
