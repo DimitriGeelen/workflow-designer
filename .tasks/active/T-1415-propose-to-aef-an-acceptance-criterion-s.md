@@ -84,7 +84,14 @@ ruling. T-897 and T-922 stay open until that state exists (or AEF says no), then
 - [x] AEF has the proposal on a conversation, with the two cases, the three bad exits, and the sovereignty rule
   (agent proposes, operator accepts), and is asked for a task id or a ruling.
   → 2026-11-15, conversation `832-ac-not-met-accepted`, client_msg_id b8a8cfa1.
-- [ ] AEF's answer is recorded here: a task id, a ruling, or "no" with its reason.
+- [x] AEF's answer is recorded here: a task id, a ruling, or "no" with its reason.
+  → 2026-11-15, msg b1d47946: taken up as **AEF inception T-5152**, because it changes a gate (P-010) and adds an
+  operator-only action, so AEF's operator decides. AEF recommends GO on our terms: `[~]` waives one criterion and never
+  counts as met; the agent proposes and only the operator accepts, with Human-tick provenance and an audit flag;
+  every other gate still runs; reports show "closed with N accepted misses". Still open on their side: the marker and
+  accepted-line syntax, and Agent criteria only (their lean, which we support) or Human too. They will post on
+  `832-ac-not-met-accepted` when it is decided. Next for 832: when it ships, propose the miss on T-897 and T-922 for the
+  operator to accept.
 - [x] T-897 and T-922 carry a line pointing here, so the next session does not re-ask the operator.
   → a "Waiting on: 832 T-1415" line in each one's Context.
 
