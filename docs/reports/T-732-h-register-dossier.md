@@ -197,8 +197,9 @@ Mistral findings, it moves H6 and clause 2 together.
   - In all, 8 findings: 5 accepted, 2 handled, 1 deferred, none rejected. Both blockers are accepted, and the rows map
     1:1 onto the T-3389 matrix.
   - Still open on AEF's side: their operator accepting N-1 and N-2 (contracts v2).
-- **R7 (no recorded answer).** Reconciliation with ratified SD-1 (AEF T-2663) is not answered in anything this
-  project holds. The register entry for it still reads as routed only.
+- **R7 (now owned, not yet answered).** Reconciliation with ratified SD-1 (AEF T-2663) had no AEF owner. AEF
+  confirmed this on 2026-11-15 (msg f42f2b8a, `832-ewcr-progress`) and filed **AEF T-5144** for it the same day,
+  horizon next. N-1 and N-2 are with AEF's operator, not yet ruled.
 - **What this changes for H6.** The operator, or the reviewer under T-732's [REVIEWER] criterion, can now judge the
   routing and the §2.3 boundary against a real counterparty answer for R6, not transport alone. H6 still cannot be
   `resolved` until R7 is answered and AEF's operator accepts N-1 and N-2. Clause 2 moves with R6, as noted above.
