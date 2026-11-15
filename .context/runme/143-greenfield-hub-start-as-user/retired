@@ -1,0 +1,1 @@
+superseded by job 144: the greenfield machine is Windows (cmd.exe shell); 143's Linux commands never ran there and its steps 1-2 passed on ssh's exit code alone
