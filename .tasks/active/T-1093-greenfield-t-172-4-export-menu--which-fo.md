@@ -55,18 +55,40 @@ bvp_scores_proposed:
 
 ## Problem Statement
 
-<!-- What problem are we exploring? For whom? Why now? -->
+People and projects need to get workflows **out of** the designer in the formats their tools and readers use, and
+**into** it from the tools they already have. Greenfield asked (their T-172 #4, 2026-10-08) for an export menu: PDF,
+SVG, PNG at 1x/2x/4x, Camunda-compatible BPMN 2.0 with layout, optional JPEG/GIF, steps-per-lane CSV/Markdown. On
+2026-11-15 the operator widened it to both directions:
+- **Export:** BPMN, Camunda, PDF, Word, Visio, Mermaid, Excel, CSV.
+- **Import:** Visio, BPMN, Camunda, Excel, CSV.
+Operator, verbatim: "can we add export formats like bpmn camunda pdf word visio mermaid … think of it as an option and
+then also we want to be able to import stuff like … visio bpmn camunda", "Maybe also Excel, good import and export
+format", and CSV. Why now: O-5 (many projects, each with its own designer) means each project arrives with its own
+tools; formats are how the designer meets them.
+
+The inception answers ONE question: **which formats, in which direction, in what order, and with what fidelity
+promise for each** (lossless, view-only, or lossy bridge), so each becomes its own small build task.
 
 ## Hypothesis
 
-<!-- DRAFTED by the estimator from this task's own text. Correct it, then set `hypothesis_source: human` in the frontmatter to make your wording permanent. Until then a later pass may redraft it. -->
-
-We believe that greenfield T-172 #4: Export menu — which formats (PDF, SVG, PNG 1x/2x/4x, Camunda-compatible BPMN 2.0 with DI, optional JPEG/GIF, steps-per-lane CSV/Markdown),
-we will achieve aef-greenfield-test T-172 item 4.
-We will know that we are successful when we see [NEEDS YOU: name something a person could go and look at — a count, a threshold, a named check, or a state that would visibly change].
+We believe that offering each requested format as an in-browser import or export with a stated fidelity promise,
+we will achieve a designer that every project can bring its existing workflows into and take its maps out of, in the
+tools it already uses,
+We will know that we are successful when we see each requested format either built (its build task closed with a
+round-trip or render test) or recorded as NO-GO with its reason, and no import that loses data without saying so.
 
 ## Assumptions
 <!-- Key assumptions to test. Register with: fw assumption add "Statement" --task T-1093 -->
+- A1: the designer stays one standalone HTML file (PD-305); every format is produced/read in the browser, offline,
+  with no service and no large runtime dependency, or the format is out.
+- A2: BPMN 2.0 with DI is the one lossless interchange format (O-6); every other format is either a **view**
+  (PDF, Word, PNG/SVG, Mermaid) or a **lossy bridge** (Visio, Excel, CSV) whose loss must be stated, never silent.
+- A3: Camunda is "BPMN 2.0 that Camunda Modeler opens with layout and no required custom extensions", not a separate
+  format; Camunda 7 vs 8 differ mainly in execution attributes, which the designer does not own.
+- A4: Visio (.vsdx) is a zipped XML package readable and writable in the browser, but its shapes carry no BPMN
+  semantics; import is shape-to-element mapping with stated loss.
+- A5: Excel/CSV are tabular, one row per step (id, name, lane, type, inputs/outputs, next steps). Export is easy;
+  import must rebuild flows and layout, so it needs auto-layout (Clean) and loses geometry.
 
 ## Open Questions
 
