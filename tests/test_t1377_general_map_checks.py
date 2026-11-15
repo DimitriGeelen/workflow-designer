@@ -112,6 +112,29 @@ def main():
     leg(len(msgs) == 1 and "phones the buyer" in msgs[0] and not of(free, "W-XML-DOC-PREFIX"),
         "12 G4 checks up to Notes only; documentation without any prefix is silent by default", str(msgs))
 
+    # T-1416: the kit's required citation line is a known prefix, so a GENERATE-conformant step is not flagged
+    cited = dp.replace("Instruction: check the order\n",
+                       'source: "The clerk checks the order."\nOpen: what it reads and writes\n')
+    cited = cited.replace("the clerk then phones the buyer", "Open: whether the buyer is phoned")
+    only_src = dp.replace("Instruction: check the order\n", 'source: "The clerk checks the order."\n')
+    only_src = only_src.replace("the clerk then phones the buyer", 'source: unstated - the source gives no follow-up')
+    ctrl = cited.replace('source: "The clerk', 'src: "The clerk')
+    ctrl_msgs = [f.message for f in vw.run_xml(ctrl) if f.rule == "W-XML-DOC-PREFIX"]
+    leg(not of(cited, "W-XML-DOC-PREFIX") and not [r for r, _, _ in found(only_src, True) if r == "W-XML-DOC-PREFIX"]
+        and len(ctrl_msgs) == 1 and "src:" in ctrl_msgs[0],
+        "16 G4 knows the kit's source: citation (with Open:, and under strict); an unknown src: still fires",
+        "%s / %s / %s" % (of(cited, "W-XML-DOC-PREFIX"), found(only_src, True), ctrl_msgs))
+
+    # T-1417: the kit's advice for "is detailed in X" (a task with a cited Detail: line) validates; a callActivity is an error
+    detail = dp.replace("Instruction: check the order\n", 'source: "Checking is detailed in Credit check."\n')
+    detail = detail.replace("the clerk then phones the buyer", "Detail: Credit check")
+    as_call = detail.replace("<bpmn:serviceTask", "<bpmn:callActivity").replace("</bpmn:serviceTask>", "</bpmn:callActivity>")
+    d_rules = [f.rule for f in vw.run_xml(detail)]
+    c_rules = [f.rule for f in vw.run_xml(as_call)]
+    leg("W-XML-DOC-PREFIX" not in d_rules and "E-XML-NODE-TYPE" not in d_rules and "E-XML-NODE-TYPE" in c_rules,
+        "17 the kit's Detail: X advice validates; the same step as a callActivity is E-XML-NODE-TYPE",
+        "%s / %s" % (sorted(set(d_rules)), sorted(set(c_rules))))
+
     pd = read("warn/W-XML-POSITION-DI.bpmn")
     near = pd.replace('<aef:position x="200.0" y="60.0"/>', '<aef:position x="200.0" y="40.4"/>')
     far = pd.replace('<aef:position x="200.0" y="60.0"/>', '<aef:position x="200.6" y="40.0"/>')

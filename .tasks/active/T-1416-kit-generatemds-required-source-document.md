@@ -1,13 +1,17 @@
 ---
 id: T-1416
-name: "Kit: GENERATE.md's required 'source:' documentation lines conflict with W-XML-DOC-PREFIX (with an Open: line, or under --strict)"
+name: "Kit: GENERATE.md's required 'source:' documentation lines conflict with W-XML-DOC-PREFIX
+  (with an Open: line, or under --strict)"
 description: >
-  Antigravity round 2 (T-979, B1), verified: DOC_PREFIXES (validate-workflow.py:1729) lacks source:, so a GENERATE-conformant step with an Open: line, or any step under --strict, draws W-XML-DOC-PREFIX.
+  Antigravity round 2 (T-979, B1), verified: DOC_PREFIXES (validate-workflow.py:1729)
+  lacks source:, so a GENERATE-conformant step with an Open: line, or any step under
+  --strict, draws W-XML-DOC-PREFIX.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +42,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-15T19:54:16Z
-last_update: 2026-11-15T19:54:16Z
-date_finished: null
+last_update: '2026-11-15T20:01:20Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +54,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-15T20:01:20Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=pool); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=0 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1416: Kit: GENERATE.md's required 'source:' documentation lines conflict with W-XML-DOC-PREFIX (with an Open: line, or under --strict)
@@ -57,20 +81,27 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
-
-**Problem / hypothesis:** <what we think is wrong and why>
-
-**Goal:** <what we are trying to achieve>
-
-**Expected outcome:** <what will be different when this is done>
+**Background / trigger:** In Antigravity's round-2 read of kit 0.42.0 (T-979, point B1; T-975 report §3.6), the
+agent verified the point against the validator's source.
+**Problem / hypothesis:**
+- GENERATE.md and AUTHORING §1b require every element's documentation to cite its source on `source:` lines.
+- The validator's `DOC_PREFIXES` (G4, T-1377) does not include `source:`.
+- So a step with a cited source plus an `Open:` line draws W-XML-DOC-PREFIX on its own required citation. Under
+  `--strict`, every cited step is an ERROR.
+- The kit contradicts itself at the exact point where a careful vendor follows two of its rules at once.
+**Goal:** Make `source:` a known documentation prefix, in the validator and in the guide's table of known words.
+**Expected outcome:** A GENERATE-conformant step draws no W-XML-DOC-PREFIX in normal or strict mode, and a genuinely
+unknown prefix still does.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] `source:` is in `DOC_PREFIXES` (tools/validate-workflow.py) and in AUTHORING §4b's table of known words.
+- [ ] `tests/test_t1377_general_map_checks.py` gains legs: a step with `source:` and `Open:` lines draws no
+  W-XML-DOC-PREFIX; under `--strict`, a step with only `source:` lines draws none; and a control where an unknown
+  prefix (`src:`) still fires.
+- [ ] Core passes (pool and local, since the validator is high-risk), and so does the browser tier (the designer's
+  Check runs this validator).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -353,3 +384,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1416-kit-generatemds-required-source-document.md
 - **Context:** Initial task creation
+
+### 2026-11-15T20:01:18Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

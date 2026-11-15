@@ -2,12 +2,14 @@
 id: T-1417
 name: "Kit: AUTHORING §4 permits callActivity, which the validator rejects as E-XML-NODE-TYPE"
 description: >
-  Antigravity round 2 (T-979, B3), verified: AUTHORING.md:216 allows callActivity; validate-workflow.py:199 rejects it by design. Guide and validator must agree.
+  Antigravity round 2 (T-979, B3), verified: AUTHORING.md:216 allows callActivity;
+  validate-workflow.py:199 rejects it by design. Guide and validator must agree.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +40,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-15T19:54:17Z
-last_update: 2026-11-15T19:54:17Z
-date_finished: null
+last_update: '2026-11-15T20:02:56Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +52,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-15T20:02:56Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 5
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=5 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L5:keyword=callactivity); F3=0
+      (basis: task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=0 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1417: Kit: AUTHORING §4 permits callActivity, which the validator rejects as E-XML-NODE-TYPE
@@ -57,20 +79,25 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
-
-**Problem / hypothesis:** <what we think is wrong and why>
-
-**Goal:** <what we are trying to achieve>
-
-**Expected outcome:** <what will be different when this is done>
+**Background / trigger:** In Antigravity's round-2 read of kit 0.42.0 (T-979, point B3; T-975 report §3.6), the
+point was verified: AUTHORING.md:216 and RUBRIC.md:44 permit a `callActivity`, but the validator rejects it with
+E-XML-NODE-TYPE. The rejection is deliberate: `tools/validate-workflow.py:196-202` says callActivity is outside the
+vocabulary and must not be added to quiet a report.
+**Problem / hypothesis:**
+- A vendor who follows the guide to the letter produces a map with an error.
+- The same sentence also prescribes a `Detailed in: X` line, which is not a known documentation prefix (the known
+  one is `Detail:`). So it raises W-XML-DOC-PREFIX in any step that uses the prefixes.
+**Goal:** Make the guide and rubric say what the validator enforces: a task with a cited `Detail: X` line, never a
+`callActivity`.
+**Expected outcome:** No kit text asks for a `callActivity` or for `Detailed in:`.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] AUTHORING §4 and RUBRIC say: a cited `Detail: X` line on the task, and no `callActivity` (E-XML-NODE-TYPE).
+- [ ] A test leg proves the kit's advice is valid: a task with a `Detail: X` line plus a `source:` line draws neither
+  E-XML-NODE-TYPE nor W-XML-DOC-PREFIX, and the same step drawn as a `callActivity` draws E-XML-NODE-TYPE.
+- [ ] No kit document (docs/authoring-kit/*.md) mentions `Detailed in` or recommends a callActivity.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -353,3 +380,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1417-kit-authoring-4-permits-callactivity-whi.md
 - **Context:** Initial task creation
+
+### 2026-11-15T20:02:55Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

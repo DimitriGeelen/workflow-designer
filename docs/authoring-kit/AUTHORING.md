@@ -212,11 +212,11 @@ will make up what the source does not say. Do not.
   throw and the catch but cannot infer the cross-process connection from `aef:link`. Where the two
   maps are distinct participants, the BPMN-standard form is a message flow in a collaboration
   (optionally a message end event to a message start event); see CONFORMANCE.md.
-- **A step the source says "is detailed in process X"** is a task with a cited note
-  `Detailed in: X`. Use a `callActivity` only when the source establishes that the step invokes X
-  as reusable behaviour, with `calledElement` resolving to X's BPMN process (a workflowMeta id
-  suffices only if your export guarantees that resolution). Never a `subProcess` with content the
-  source does not give.
+- **A step the source says "is detailed in process X"** is a task whose documentation has a
+  cited `Detail: X` line (section 4b's prefix). Do not draw a `callActivity`, even when the source
+  says the step invokes X as reusable behaviour: it is outside this designer's vocabulary, and the
+  validator rejects it as `E-XML-NODE-TYPE` (an error). Say "invokes X" in the `Detail:` line instead.
+  Never a `subProcess` with content the source does not give.
 - **Documents a step creates or uses** (a quote, an order confirmation, a delivery note) are data
   objects, linked to that step: section 4b. Since designer 0.37.0 they are drawn under the step.
   A record that is no document (the order row in a system) is the object of an io, also section 4b.
@@ -281,6 +281,7 @@ starting with one of these words:
 
 | prefix | the line says |
 |---|---|
+| `source:` | the citation section 1b requires (`source: "<quote>"` or `source: unstated - <why>`) |
 | `Instruction:` | what the person or system does |
 | `Screen:` | the screen or state they see |
 | `Decision:` | what is decided here |
