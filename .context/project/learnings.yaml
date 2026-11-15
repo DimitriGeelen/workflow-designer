@@ -3019,3 +3019,9 @@ learnings:
   task: T-979
   date: 2026-11-15
   context: Added via context agent
+- id: PL-439
+  learning: "Send files to peers with 'termlink file send <target-session> <path>' (file.init/chunk/complete), never by posting chunks with 'termlink channel post' on a topic: posts sit in plaintext on the hub. On 2026-11-14 832 sent two 0503 documents (xfer-832-bpmn) and the T-1073 reply (xfer-832-ring20) as begin/chunk/end posts; 010-termlink's FX-5 canary flagged it (msg 5119ce1e). If the recipient has no named session to target, ask them for one before sending."
+  source: P-001
+  task: T-1297
+  date: 2026-11-15
+  context: Added via context agent
