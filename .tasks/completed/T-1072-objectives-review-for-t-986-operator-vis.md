@@ -4,10 +4,11 @@ name: "Objectives review for T-986: operator vision from memory + EWCR material 
 description: >
   Objectives review for T-986: operator vision from memory + EWCR material + AEF input, then external cross-vendor review
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T10:10:26Z
-last_update: 2026-10-06T10:10:26Z
-date_finished: null
+last_update: 2026-11-15T08:19:35Z
+date_finished: 2026-11-15T08:19:35Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -236,6 +237,9 @@ operator a revised draft with the conflicts put as questions.
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+grep -q '^## §6 AEF' docs/reports/T-1072-objectives-sources.md
+test -s docs/reports/T-1072-external-review-answers.md
+python3 -c 'import yaml; d=yaml.safe_load(open(".context/project/objectives.yaml")); assert [o["id"] for o in d["objectives"]]==["O-%d"%i for i in range(1,9)]'
 
 ## RCA
 
@@ -333,3 +337,16 @@ operator a revised draft with the conflicts put as questions.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1072-objectives-review-for-t-986-operator-vis.md
 - **Context:** Initial task creation
+
+### 2026-11-15T08:19:35Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-c0259627
+- **Timestamp:** 2026-11-15T08:19:38Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

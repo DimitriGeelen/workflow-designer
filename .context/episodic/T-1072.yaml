@@ -1,0 +1,123 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1072: Objectives review for T-986: operator vision from memory + EWCR material + AEF input, then external cross-vendor review
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-15T08:19:48Z
+# ============================================================================
+
+task_id: T-1072
+task_name: "Objectives review for T-986: operator vision from memory + EWCR material + AEF input, then external cross-vendor review"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-06T10:10:26Z
+completed: 2026-11-15T08:19:35Z
+duration_days: 40
+updates_count: 2
+first_commit: 2026-10-06T12:20:15+02:00
+last_commit: 2026-11-15T09:19:14+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  operator-vision sources for the objectives review — verbatim quotes (T-685 deterministic-first, T-956 'always an exception hatch' / final authority, T-175 vision, EWCR), ~20 standing orders, gap analysis vs objectives.yaml (O-4 'refused' contradicts the hatch; out_of_scope 'anything that runs' contradicts deterministic execution / EWCR arc-002; execution routing, learning loop, editor quality uncaptured; no quote names Sprind). Finding: the 2026-09-27 statement objectives.yaml cites is nowhere verbatim (T-874 is a blank template). Vector recall did not work (3 framework bugs). AEF's input on the objectives recorded (§6): designer warns, runtime refuses; keep 'never executes or authorises' literal; routing as captured preference, learning loop as a proposal into AEF; AEF wants a lossless BPMN-to-procedure round trip as an objective. objectives revised on the operator's rulings 1a-4a — O-4 advice-not-block (runtime refuses), out_of_scope narrowed to 'never executes or authorises', new O-7 (deterministic-first, routing as preference), O-8 (learning loop as proposal), O-9 (lossless round trip, AEF's ask); still a draft until ratified. external review brief (the revised objectives, the operator's words, AEF's input; no secrets, addresses or host names); paid proposal RP-2a8817eb filed for the operator. runme job 139 (operator approves the paid external review RP-2a8817eb, est. $0.50), rehearsed. external review (5 of 5 models) answered — O-2's refusal removed; O-4 gains stalled-past-deadline, human-required-with-reason, override who/why, strictness tied to ratification; O-5, O-1 and O-6/O-9 put to the operator; consult recorded as having changed the decision. O-5 rewritten on the operator's explanation — the designer serves many projects (each its own copy, nothing project-specific) and learns from their real workflows as field feedback. O-1 on the operator's ruling 2a — the step agrees with its canonical task, differences reported; 'the picture alone' dropped. O-9 merged into O-6 on the operator's ruling 3a — one interchange test (lossless within the frozen Mapping Standard) plus reverse-render as its own unmeasured part; header records the 2026-11-15 revision
+
+# Key outcomes
+outcomes:
+  - 'Operator vision gathered from memory (fw recall over learnings/decisions/episodics/handovers) and the EWCR material (docs/research/executable-workflow/), with verbatim quotes and sources, written to docs/reports/T-1072-objectives-sources.md; gaps between it and objectives.yaml named'
+  - 'AEF asked for input on the objectives (sidecar), answer recorded'
+  - 'External cross-vendor review (fw external scan) run with a brief that carries the draft, the operator''s own words and AEF''s input; findings answered; a revised draft (if any) written and handed to T-986''s existing Human check (ratification lives there, not here)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'operator-vision sources for the objectives review — verbatim quotes (T-685 deterministic-first, T-956 ''always an exception hatch'' / final authority, T-175 vision, EWCR), ~20 standing orders, gap analysis vs objectives.yaml (O-4 ''refused'' contradicts the hatch; out_of_scope ''anything that runs'' contradicts deterministic execution / EWCR arc-002; execution routing, learning loop, editor quality uncaptured; no quote names Sprind). Finding: the 2026-09-27 statement objectives.yaml cites is nowhere verbatim (T-874 is a blank template). Vector recall did not work (3 framework bugs)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # 4 decision(s) below are recorded in the register (.context/project/decisions.yaml) for this task but absent from the task file's Decisions section (T-4193).
+  - decision: 'PD-461'
+    chose: 'Objectives (T-1072), operator 2026-11-14 ''1a 2a 3a 4a'': O-4 guards with advice and friction, never a hard block, override always recorded, strictness earned; refusal is AEF runtime behaviour the designer shows. out_of_scope: the designer never executes or authorises; execution authoring and the seam to a runtime are in scope. New O-7 deterministic-first + routing as captured preference; O-8 learning loop as a proposal to AEF (new version, ratified); O-9 lossless BPMN-to-procedure round trip within the frozen Mapping Standard (AEF''s ask).'
+    rationale: 'Sources review found the draft contradicted the operator''s own words on O-4 and execution scope; AEF (msg 7c7d72db) agreed and added O-9'
+    id: 'PD-461'
+    source: register
+  - decision: 'PD-462'
+    chose: 'O-5 (T-1072), operator 2026-11-15: not ''a second tenant'' but many projects. Each project (AEF, Greenfield, Sprind, ...) designs its own workflows in its own copy of the designer; nothing in the designer is project-specific; the workflows projects really draw come back as field feedback and are built back into the designer. Operator: ''each project will have its own workflow designer ... we need to build the capability to facilitate those different projects.'''
+    rationale: 'External review (F6) found the named second tenant unsourced; the operator explained the real intent: multi-project use plus a field-feedback loop'
+    id: 'PD-462'
+    source: register
+  - decision: 'PD-463'
+    chose: 'O-1 (T-1072), operator 2026-11-15 ''2a'': a step carries everything an implementer needs AND agrees with its task; tasks stay canonical, a picture/task difference is a reported defect. ''The picture alone'' and ''no recourse to the task text'' dropped.'
+    rationale: 'External review F7: ''picture alone'' contradicted ''tasks are canonical'''
+    id: 'PD-463'
+    source: register
+  - decision: 'PD-464'
+    chose: 'O-6/O-9 (T-1072), operator 2026-11-15 ''3a'': merged into O-6 — one interchange test (lossless BPMN-to-procedure round trip within the frozen Mapping Standard, AEF''s ask), with reverse-render of existing work kept as its own, still unmeasured part.'
+    rationale: 'External review F8: byte-identical (O-6) and lossless-within-standard (O-9) were contradictory oracles'
+    id: 'PD-464'
+    source: register
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/consults/t1072-objectives.json'
+  - '.context/project/decisions.yaml'
+  - '.context/project/objectives.yaml'
+  - '.context/runme/139-approve-t1072-external-review/dryrun.ok'
+  - '.context/runme/139-approve-t1072-external-review/job.sh'
+  - '.tasks/active/T-1072-objectives-review-for-t-986-operator-vis.md'
+  - 'docs/reports/T-1072-external-review-answers.md'
+  - 'docs/reports/T-1072-external-review-brief.md'
+  - 'docs/reports/T-1072-objectives-sources.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-06T12:20:15'
+    action: 'T-1072: operator-vision sources for the objectives review — verbatim quotes (T-685 deterministic-first, T-956 ''always an exception hatch'' / final authority, T-175 vision, EWCR), ~20 standing orders, gap analysis vs objectives.yaml (O-4 ''refused'' contradicts the hatch; out_of_scope ''anything that runs'' contradicts deterministic execution / EWCR arc-002; execution routing, learning loop, editor quality uncaptured; no quote names Sprind). Finding: the 2026-09-27 statement objectives.yaml cites is nowhere verbatim (T-874 is a blank template). Vector recall did not work (3 framework bugs)'
+  - time: '2026-11-14T21:05:21'
+    action: 'T-1072: AEF''s input on the objectives recorded (§6): designer warns, runtime refuses; keep ''never executes or authorises'' literal; routing as captured preference, learning loop as a proposal into AEF; AEF wants a lossless BPMN-to-procedure round trip as an objective'
+  - time: '2026-11-14T21:15:57'
+    action: 'T-1072: objectives revised on the operator''s rulings 1a-4a — O-4 advice-not-block (runtime refuses), out_of_scope narrowed to ''never executes or authorises'', new O-7 (deterministic-first, routing as preference), O-8 (learning loop as proposal), O-9 (lossless round trip, AEF''s ask); still a draft until ratified'
+  - time: '2026-11-14T21:18:54'
+    action: 'T-1072: external review brief (the revised objectives, the operator''s words, AEF''s input; no secrets, addresses or host names); paid proposal RP-2a8817eb filed for the operator'
+  - time: '2026-11-14T21:19:09'
+    action: 'T-1072: runme job 139 (operator approves the paid external review RP-2a8817eb, est. $0.50), rehearsed'
+  - time: '2026-11-14T22:59:13'
+    action: 'T-1072: external review (5 of 5 models) answered — O-2''s refusal removed; O-4 gains stalled-past-deadline, human-required-with-reason, override who/why, strictness tied to ratification; O-5, O-1 and O-6/O-9 put to the operator; consult recorded as having changed the decision'
+  - time: '2026-11-15T09:06:03'
+    action: 'T-1072: O-5 rewritten on the operator''s explanation — the designer serves many projects (each its own copy, nothing project-specific) and learns from their real workflows as field feedback'
+  - time: '2026-11-15T09:09:25'
+    action: 'T-1072: O-1 on the operator''s ruling 2a — the step agrees with its canonical task, differences reported; ''the picture alone'' dropped'
+  - time: '2026-11-15T09:19:14'
+    action: 'T-1072: O-9 merged into O-6 on the operator''s ruling 3a — one interchange test (lossless within the frozen Mapping Standard) plus reverse-render as its own unmeasured part; header records the 2026-11-15 revision'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 9 commit(s), 57489 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 57489
+  commits: 10
+  files_changed: 12
+  lines_added: 1188
+  lines_removed: 48
+  footprint_refreshed_at: '2026-11-15T08:20:00Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1072-objectives-review-for-t-986-operator-vis.md
+generated_by: context-agent-hybrid
