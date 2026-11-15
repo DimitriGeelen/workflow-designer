@@ -22527,3 +22527,21 @@ scan_id: R-bfe18f0c
 task_id: T-948
 payload:
   task_file: .tasks/active/T-948-classify-the-four-validator-rules-that-f.md
+---
+kind: scan_emitted
+timestamp: '2026-11-15T15:12:52Z'
+scan_id: R-a8487355
+task_id: T-1414
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-15T15:12:52Z'
+scan_id: R-a8487355
+task_id: T-1414
+payload:
+  task_file: .tasks/active/T-1414-host-contract-check-endpoints-aef-declin.md

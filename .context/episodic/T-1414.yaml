@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1414: Host-contract check: endpoints AEF declined are 'not served by design', not missing
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-15T15:12:58Z
+# ============================================================================
+
+task_id: T-1414
+task_name: "Host-contract check: endpoints AEF declined are 'not served by design', not missing"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-15T14:54:15Z
+completed: 2026-11-15T15:12:50Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-11-15T15:57:42+01:00
+last_commit: 2026-11-15T15:57:42+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  host-contract check names endpoints AEF declined (field-profile, field-suggestions; AEF T-4737 IW-3, msg 219d838b) as 'not served by design' with their ruling; only undecided gaps count as missing; T-1289 leg gains controls (unserved+undeclined = missing, served wins over declined), red on the pre-fix tool. T-1300/T-1399: AEF's task ids recorded (T-4830/4831, T-5101)
+
+# Key outcomes
+outcomes:
+  - '`tools/_t1289-host-contract.py` keeps a declined list. Each entry names the endpoint, the ruling and its source'
+  - 'On the live tree the check reports 0 missing and 2 not served by design (field-profile, field-suggestions).'
+  - 'The T-1289 leg (`tests/test_t1289_host_contract_notes.py`) proves the two edges with controls run through the'
+  - 'AEF is told the two are now marked (reply on consult-832-Workflow-designer). → msg 8334561c, a notice in reply'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'host-contract check names endpoints AEF declined (field-profile, field-suggestions; AEF T-4737 IW-3, msg 219d838b) as ''not served by design'' with their ruling; only undecided gaps count as missing; T-1289 leg gains controls (unserved+undeclined = missing, served wins over declined), red on the pre-fix tool. T-1300/T-1399: AEF''s task ids recorded (T-4830/4831, T-5101)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1300-send-aef-the-requestresponse-shapes-of-t.md'
+  - '.tasks/active/T-1399-release-designer-0420-t-976-flow-order-l.md'
+  - '.tasks/active/T-1414-host-contract-check-endpoints-aef-declin.md'
+  - 'tests/test_t1289_host_contract_notes.py'
+  - 'tools/_t1289-host-contract.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-15T15:57:42'
+    action: 'T-1414: host-contract check names endpoints AEF declined (field-profile, field-suggestions; AEF T-4737 IW-3, msg 219d838b) as ''not served by design'' with their ruling; only undecided gaps count as missing; T-1289 leg gains controls (unserved+undeclined = missing, served wins over declined), red on the pre-fix tool. T-1300/T-1399: AEF''s task ids recorded (T-4830/4831, T-5101)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 18 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 18
+  commits: 2
+  files_changed: 8
+  lines_added: 528
+  lines_removed: 15
+  footprint_refreshed_at: '2026-11-15T15:13:06Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1414-host-contract-check-endpoints-aef-declin.md
+generated_by: context-agent-hybrid
