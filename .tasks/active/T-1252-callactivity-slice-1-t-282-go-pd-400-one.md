@@ -345,3 +345,11 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1252-callactivity-slice-1-t-282-go-pd-400-one.md
 - **Context:** Initial task creation
+
+### 2026-11-15 — inherited from T-1417: the authoring kit forbids callActivity until this ships
+T-1417 aligned the kit with today's validator. AUTHORING §4 tells vendors not to draw a `callActivity`
+(E-XML-NODE-TYPE), and RUBRIC tells reviewers not to ask for one. When slice 1 lands, change these with it:
+- AUTHORING §4's "is detailed in X" paragraph (around line 216), and RUBRIC.md around line 44;
+- `tests/test_t1377_general_map_checks.py` leg 17, which asserts a callActivity is E-XML-NODE-TYPE;
+- the T-327 tolerance `("test_t1377_general_map_checks.py", "callActivity")` in `tests/test_harness_emitter_fidelity.py`
+  (EXPECTED_TOLERATED goes back to 2 once an emitter can produce callActivity).
