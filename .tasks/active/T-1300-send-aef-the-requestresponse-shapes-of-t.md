@@ -95,7 +95,11 @@ operator's ruling: 832 owns the UI, AEF serves data APIs); inception T-4737 deci
 - [x] The document is on origin (pushed), and AEF is told the path at that commit.
   *(on origin/bleeding-edge at 94deef57a; AEF told the path and commit 2026-11-15, client_msg_id 1e36dc11, on
   consult-832-Workflow-designer, with a request for the build task ids and a yes/no on field-profile/field-suggestions)*
-- [ ] AEF's T-4737 outcome is recorded here, with their build task ids, when they send it.
+- [x] AEF's T-4737 outcome is recorded here, with their build task ids, when they send it.
+  *(2026-11-15, AEF msg 219d838b. /api/validate is built: AEF T-4830 (thin POST), with AEF T-4845 and T-5058 (passes
+  AEF's field catalog to our validator). /api/instances is AEF T-4831, built and in their operator's review.
+  field-profile and field-suggestions are a no for now (T-4737 IW-3: write paths with an approval flow and no
+  recorded demand; revisit only if an operator asks). They are marked "not served by design" by 832 T-1414.)*
   *(2026-10-27, msg 3ce89ce0: AEF's operator gave GO on T-4737 for `/api/validate` and `/api/instances`; field-profile,
   field-suggestions and field-catalog not in that GO. Build task ids not sent yet; asked for them.)*
 

@@ -17,6 +17,15 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOOL = os.path.join(ROOT, "tools", "_t1289-host-contract.py")
 
 
+def _tool():
+    """The host-contract tool as a module (its file name has hyphens, so no plain import)."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("t1289_host_contract", TOOL)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
 def unnamed(missing, notes_text):
     """The missing endpoints the notes do not name."""
     return [m for m in missing if m not in notes_text]
@@ -68,12 +77,32 @@ def main():
     if not unnamed(data["missing"] + ["/api/zz-t1289-control"], notes):
         fails.append("negative control did not fire: an unnamed synthetic endpoint passed the check")
 
+    # T-1414: declined endpoints are reported apart, each with its ruling, and never hide a real gap
+    declined = data.get("declined")
+    if not isinstance(declined, dict):
+        fails.append("the tool's --json carries no 'declined' map (T-1414)")
+        declined = {}
+    for d, why in declined.items():
+        if d in data["missing"] or d in data["served"] or not str(why).strip():
+            fails.append("declined endpoint %s is also counted as missing/served, or carries no ruling" % d)
+    classify = getattr(_tool(), "classify", None)
+    if classify is None:
+        fails.append("the tool has no classify(used, served, declined) to run the controls through (T-1414)")
+    else:
+        _, dec, miss = classify(["/api/a", "/api/b"], set(), {"/api/a": "ruling"})
+        if miss != ["/api/b"] or dec != ["/api/a"]:
+            fails.append("control: an endpoint neither served nor declined must count as missing (got %r)" % miss)
+        ok, dec, _ = classify(["/api/a"], {"/api/a"}, {"/api/a": "ruling"})
+        if ok != ["/api/a"] or dec:
+            fails.append("control: a declined endpoint AEF now serves must count as served, not declined")
+
     for f in fails:
         print("FAIL: " + f)
     if fails:
         return 1
-    print("OK: host contract %d used, %d served, %d missing; every missing endpoint is named in %s (VERSION %s);"
-          " negative control fires" % (len(data["used"]), len(data["served"]), len(data["missing"]), named_file, version))
+    print("OK: host contract %d used, %d served, %d missing, %d declined with a ruling; every missing endpoint is named"
+          " in %s (VERSION %s); negative control fires; declined never hides a gap and served wins (T-1414)"
+          % (len(data["used"]), len(data["served"]), len(data["missing"]), len(declined), named_file, version))
     return 0
 
 

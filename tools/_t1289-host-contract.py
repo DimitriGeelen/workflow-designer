@@ -10,10 +10,13 @@ as a field"), and nothing compared the two (T-1285 spike 4). This compares them.
   served  every route in AEF's Watchtower code (.agentic-framework/web/**/*.py) at the vendor divergence BASELINE
           (.agentic-framework/.vendor-divergence.yaml `baseline_commit`): AEF's own code as the last upgrade vendored
           it, WITHOUT 832's local fixes, which AEF does not run
-  missing used - served
+  declined used - served, that AEF has ruled it will not serve (DECLINED below, each with its ruling; T-1414)
+  missing used - served - declined: the gaps nobody has decided
 
   python3 tools/_t1289-host-contract.py [--json] [--ref <git ref of AEF's vendored code>]
   exit 0 nothing missing · 1 something missing · 2 cannot read a side (never a silent "nothing missing")
+  A declined endpoint never makes the exit 1, and one AEF starts serving counts as served, so a ruling that is
+  overtaken shows up as served rather than staying declined.
 
 LIMITS, stated so a clean run cannot claim more than it measured:
   - paths only: a route can exist and still differ in method or payload from what the designer sends;
@@ -29,6 +32,23 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, "src", "aef-workflow-designer.html")
 DIV = os.path.join(ROOT, ".agentic-framework", ".vendor-divergence.yaml")
+
+# T-1414: endpoints AEF has ruled it will not serve. Each entry carries the ruling and where it was given, so the
+# report says why, not only that. Remove an entry when AEF reverses the ruling.
+_T4737 = ("AEF T-4737 IW-3: write paths with an approval flow and no recorded demand; revisit only if an operator "
+          "asks (consult-832-Workflow-designer msg 219d838b, 2026-11-15)")
+DECLINED = {
+    "/api/field-profile": _T4737,
+    "/api/field-suggestions": _T4737,
+}
+
+
+def classify(used, served, declined):
+    """(served, declined, missing) for the used endpoints. Served wins over declined."""
+    ok = [u for u in used if u in served]
+    dec = [u for u in used if u not in served and u in declined]
+    missing = [u for u in used if u not in served and u not in declined]
+    return ok, dec, missing
 
 
 def git(*args):
@@ -79,14 +99,16 @@ def main(argv):
     except (OSError, RuntimeError) as e:
         print("NOT CHECKED: %s" % e)
         return 2
-    missing = [u for u in used if u not in served]
+    ok, dec, missing = classify(used, served, DECLINED)
     if as_json:
-        print(json.dumps({"ref": ref, "used": used, "served": [u for u in used if u in served],
-                          "missing": missing}, indent=1))
+        print(json.dumps({"ref": ref, "used": used, "served": ok, "missing": missing,
+                          "declined": {d: DECLINED[d] for d in dec}}, indent=1))
     else:
-        print("%d used, %d served, %d missing%s (AEF code at %s)" % (
-            len(used), len(used) - len(missing), len(missing),
-            (": " + ", ".join(missing)) if missing else "", ref[:9]))
+        print("%d used, %d served, %d missing%s%s (AEF code at %s)" % (
+            len(used), len(ok), len(missing),
+            (": " + ", ".join(missing)) if missing else "",
+            ("; %d not served by design (AEF's ruling, see --json): %s" % (len(dec), ", ".join(dec))) if dec else "",
+            ref[:9]))
     return 1 if missing else 0
 
 

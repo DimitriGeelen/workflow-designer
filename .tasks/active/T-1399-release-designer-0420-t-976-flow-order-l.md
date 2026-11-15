@@ -107,7 +107,8 @@ there — and T-976 is closed first, so the release cannot overlap its close).
       rc 0, all 10 steps: both calibrations PASS, browser and core tiers green, pushed.
 - [ ] After the operator's run: (tag on origin e2f9ff604; artifact sha256 c2fe4a55d839…, 1351062 bytes; AEF told
       2026-11-12 on consult-832-Workflow-designer; pin BEHIND 1 at announcement — open until CURRENT;
-      2026-11-15 still BEHIND 1 (AEF serves 0.41.0), followed up, client_msg_id 1e36dc11, asked for AEF's task id) tag `designer-v0.42.0` on origin, the artifact in dist/, AEF told (version, tag,
+      2026-11-15 still BEHIND 1 (AEF serves 0.41.0), followed up, client_msg_id 1e36dc11, asked for AEF's task id;
+      AEF msg 219d838b: the pick-up is AEF T-5101, re-pin 0.41.0 to 0.42.0, horizon next, not started) tag `designer-v0.42.0` on origin, the artifact in dist/, AEF told (version, tag,
       sha256, bytes, what it brings), and `tools/_t1187-aef-pin-lag.sh` reporting CURRENT.
 
 ### Human
