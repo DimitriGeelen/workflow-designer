@@ -1,0 +1,74 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1071: External cross-vendor review of the T-986 project objectives before the operator ratifies them
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-15T14:36:02Z
+# ============================================================================
+
+task_id: T-1071
+task_name: "External cross-vendor review of the T-986 project objectives before the operator ratifies them"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-06T10:09:04Z
+completed: 2026-11-15T14:35:50Z
+duration_days: 40
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  External cross-vendor review of the T-986 project objectives before the operator ratifies them
+
+# Key outcomes
+outcomes:
+  - 'The cross-vendor review exists. `docs/reports/T-1072-external-review-answers.md` names the 5-vendor panel and'
+  - 'Its outcome reached the objectives: `.context/project/objectives.yaml` records the revision after the external'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 57866 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 57866
+  commits: 1
+  files_changed: 3
+  lines_added: 129
+  lines_removed: 8
+  footprint_refreshed_at: '2026-11-15T14:36:09Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1071-external-cross-vendor-review-of-the-t-98.md
+generated_by: context-agent-hybrid

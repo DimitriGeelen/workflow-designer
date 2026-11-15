@@ -4,10 +4,11 @@ name: "External cross-vendor review of the T-986 project objectives before the o
 description: >
   External cross-vendor review of the T-986 project objectives before the operator ratifies them
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T10:09:04Z
-last_update: 2026-10-06T10:09:04Z
-date_finished: null
+last_update: 2026-11-15T14:35:50Z
+date_finished: 2026-11-15T14:35:50Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -56,14 +57,24 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+**Background / trigger:** Captured on 2026-10-06 as an empty stub (placeholder criteria only), during T-986's objectives
+draft, to have the draft reviewed by models from other vendors before the operator ratifies it.
+**Problem / hypothesis:** An objectives draft read only by the agent that wrote it can carry contradictions its author
+cannot see; a cross-vendor panel would find them.
+**Goal:** Close this stub against the work that actually did it. T-1072 ran the review (2026-11-14, paid proposal
+RP-2a8817eb approved by the operator in job 139). The panel was gpt-4o, gemini-2.5-pro, grok-4.7, deepseek-chat and
+qwen-2.5-72b, and 5 of 5 answered.
+**Expected outcome:** T-1071 is closed as superseded by T-1072. Its findings (F1-F11) are in
+`docs/reports/T-1072-external-review-answers.md` and applied to `.context/project/objectives.yaml`. Ratification stays
+with T-986.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] The cross-vendor review exists. `docs/reports/T-1072-external-review-answers.md` names the 5-vendor panel and
+  its findings F1-F11, and T-1072 is in `.tasks/completed/`.
+- [x] Its outcome reached the objectives: `.context/project/objectives.yaml` records the revision after the external
+  review.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -101,6 +112,10 @@ date_finished: null
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+grep -q "5 of 5 answered" docs/reports/T-1072-external-review-answers.md
+grep -q "^| F11 |" docs/reports/T-1072-external-review-answers.md
+ls .tasks/completed/T-1072-objectives-review-for-t-986-operator-vis.md
+grep -q "after the external review" .context/project/objectives.yaml
 #
 # Toolchain hint (L-291): if you edited *.vbproj/*.csproj/*.xaml add `dotnet build`;
 # *.go → `go build ./...`; Cargo.toml → `cargo check`; tsconfig.json → `tsc --noEmit`;
@@ -320,3 +335,17 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1071-external-cross-vendor-review-of-the-t-98.md
 - **Context:** Initial task creation
+
+### 2026-11-15T14:35:50Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** superseded: the cross-vendor review was done by T-1072 (5 of 5 models, findings F1-F11 applied to objectives.yaml); ratification stays with T-986
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-99bf36c6
+- **Timestamp:** 2026-11-15T14:35:52Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none
