@@ -106,7 +106,8 @@ there — and T-976 is closed first, so the release cannot overlap its close).
       space and one for T-976 being closed. Job 133, sha fb7f11342a93; operator ran it 2026-11-12 17:07-17:34 (local),
       rc 0, all 10 steps: both calibrations PASS, browser and core tiers green, pushed.
 - [ ] After the operator's run: (tag on origin e2f9ff604; artifact sha256 c2fe4a55d839…, 1351062 bytes; AEF told
-      2026-11-12 on consult-832-Workflow-designer; pin BEHIND 1 at announcement — open until CURRENT) tag `designer-v0.42.0` on origin, the artifact in dist/, AEF told (version, tag,
+      2026-11-12 on consult-832-Workflow-designer; pin BEHIND 1 at announcement — open until CURRENT;
+      2026-11-15 still BEHIND 1 (AEF serves 0.41.0), followed up, client_msg_id 1e36dc11, asked for AEF's task id) tag `designer-v0.42.0` on origin, the artifact in dist/, AEF told (version, tag,
       sha256, bytes, what it brings), and `tools/_t1187-aef-pin-lag.sh` reporting CURRENT.
 
 ### Human

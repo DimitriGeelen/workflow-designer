@@ -92,7 +92,9 @@ operator's ruling: 832 owns the UI, AEF serves data APIs); inception T-4737 deci
   response shapes (incl. refusal codes) and what the designer does on failure or absence. It is drawn from
   `tools/gallery-serve.py` and the client code, with line references.
 - [x] AEF has the condensed contract on the conversation (sent 2026-10-24, client_msg_id 047ee6a3).
-- [ ] The document is on origin (pushed), and AEF is told the path at that commit.
+- [x] The document is on origin (pushed), and AEF is told the path at that commit.
+  *(on origin/bleeding-edge at 94deef57a; AEF told the path and commit 2026-11-15, client_msg_id 1e36dc11, on
+  consult-832-Workflow-designer, with a request for the build task ids and a yes/no on field-profile/field-suggestions)*
 - [ ] AEF's T-4737 outcome is recorded here, with their build task ids, when they send it.
   *(2026-10-27, msg 3ce89ce0: AEF's operator gave GO on T-4737 for `/api/validate` and `/api/instances`; field-profile,
   field-suggestions and field-catalog not in that GO. Build task ids not sent yet; asked for them.)*
