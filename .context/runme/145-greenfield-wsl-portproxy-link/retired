@@ -1,0 +1,1 @@
+superseded by job 146: greenfield already has its own logon/startup task '\AEF TermLink reachable' (greenfield T-087) for WSL keepalive + portproxy; a second task would race it on the same row (ring20 msgs 05970912, cd9dac15)
