@@ -178,3 +178,58 @@ were addressed. Same source and brief (stray `.` removed), new session, revised 
 Independent agreement with my pre-written critique: C2, C3, C4, C5, C6 all re-found. New to me:
 X1, X2, X4, X5, X6, X7, X8. **Two are real validator defects (X6, X7)**, found by an outside
 agent using the kit for its intended job, which is the strongest argument for this method.
+
+### 3.6 Round 2, third reader: Antigravity (Google), kit 0.42.0, same source (T-979)
+
+Run 2026-11-15 by operator job 141 (`.context/runme/141-antigravity-kit-round2/`). The setup:
+- Antigravity ran as the registry prescribes (`agy -p … --mode plan --sandbox`, read-only, unmetered).
+- It got a freshly built 0.42.0 kit with **`calibration/` removed**. That folder holds a finished map of this same
+  source, so leaving it in would have given away the answer.
+- The brief was the T-975 one: generate from the kit only, then report what it guessed, what the guide got wrong,
+  and what it was tempted to invent.
+- Outputs, kept in the job's `out/` directory (untracked): `map.bpmn` (20 KB), `REPORT.md` (17 KB) and
+  `validate.txt`.
+
+**The map: 0 errors, 8 warnings, every one of them a warning AUTHORING §5 says to keep:**
+- GW-AMBIGUOUS on the sales manager's accept/reject decision. The branches are labelled in the source's words and
+  there is no invented condition.
+- 2 × UNREACHABLE, 2 × DEADEND and 1 × DISCONNECTED: inspection and labelling are left unconnected and annotated,
+  because the source says nobody knows their order.
+- 2 × LANE-NO-OWNER on the passive "is closed and the customer is told", placed in an `authority="none"` lane.
+
+**It invented nothing.** It refused all six temptations it lists:
+- assigning a performer to the passive steps;
+- wiring in inspection and labelling;
+- modelling Returns;
+- making the ERP the performer of order entry;
+- inventing branch conditions;
+- naming the end events.
+
+**Guesses: 8 (round 1 Codex: 9, round 2 Codex: 7).**
+- None of them is about governance any more.
+- Most are the source's own ambiguity: whether one sentence is one step or two, and whether "closed and told" is a
+  sequence.
+- One is a real kit gap: whether every named human role gets its own lane, because the exemplar uses one combined
+  "Human" lane.
+
+**What it says the kit got wrong, each claim checked against the 0.42.0 kit before any disposition:**
+
+| # | Antigravity's point | verified? | disposition |
+|---|---|---|---|
+| B1 | GENERATE.md requires `source: "…"` documentation lines, but `source:` is not in `DOC_PREFIXES`. A step with an `Open:` line, or any step under `--strict`, therefore draws W-XML-DOC-PREFIX. | **yes** (validate-workflow.py:1729, :1834) | **T-1416** (bug: guide and validator contradict) |
+| B2 | AUTHORING §9 names three rule classes and says DISCONNECTED is UNIVERSAL. CONFORMANCE has five classes and lists DISCONNECTED as CONVENTIONAL. | **yes** (AUTHORING:376-386, CONFORMANCE:62): the prose is stale | **T-1419** |
+| B3 | AUTHORING §4 permits `callActivity`, but the validator rejects it with E-XML-NODE-TYPE. | **yes** (AUTHORING:216, validator:199) | **T-1417** |
+| B4 | The W-XML-IO-MISSING description is inaccurate. | **partly**: the guide's "once your map gives io at all" matches the code (`any_io`); CONFORMANCE lists only one of its two messages | **T-1419** (the CONFORMANCE half) |
+| B5 | W-XML-PGW-UNBALANCED, raised by a fork the guide allows, is missing from AUTHORING §5 and RUBRIC. | **yes** (no mention in either) | **T-1419** |
+| B6 | I-XML-LANE-CAPACITY-SKIP fires on geometry-free maps that copy the exemplar's lane heights, and is undocumented. | **yes** (absent from AUTHORING) | **T-1419** |
+| B7 | `exemplar.bpmn` breaks the guide it illustrates: it has no `<documentation>`, counter ids `flow_1`…, and the v1.0 `aef:input` form. | **yes**, all three | **T-1418** |
+| B8 | CONFORMANCE lists only the first of W-XML-DATA-UNLINKED's two messages. | **yes** (CONFORMANCE:60, validator:1882) | **T-1419** |
+
+**What the third reader adds:**
+1. Three readers from three vendors (OpenAI, Z.ai, Google) now agree on the kit's main promise. Given the kit and a
+   source, an outside agent produces an honest map and invents nothing.
+2. What is left is mostly **drift**: the prose has fallen behind the generated CONFORMANCE file and the validator
+   (B2, B4-B6, B8). The guide is still hand-written prose beside generated parts.
+3. **B1 is the most important.** It is a contradiction a careful vendor hits as soon as it follows two parts of the
+   kit at once.
+4. **B7 recurs.** The exemplar a vendor is told to copy is older than the rules it is meant to illustrate.

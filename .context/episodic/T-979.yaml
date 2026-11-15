@@ -1,0 +1,93 @@
+# ============================================================================
+# EPISODIC MEMORY - T-979: Complete the external review panel with the third paid reviewer (Antigravity) on the revised kit; record which reviewer accounts exist
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-15T19:55:31Z
+# ============================================================================
+
+task_id: T-979
+task_name: "Complete the external review panel with the third paid reviewer (Antigravity) on the revised kit; record which reviewer accounts exist"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-01T18:22:26Z
+completed: 2026-11-15T19:55:24Z
+duration_days: 45
+updates_count: 2
+first_commit: 2026-10-01T20:23:28+02:00
+last_commit: 2026-11-15T17:19:27+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  reviewer roster recorded (Codex, Z.AI, Antigravity; not Mistral); asked Ring20 Manager how to call Antigravity. ask Ring20 for the full direct-call ruleset for all three providers; interim until the AEF upgrade ships it. OBS-469 sidecar identity defect (vendored installs sign and read as .agentic-framework); Ring20 re-asked with correct identity. how to really reach Ring20 (DM by fingerprint, not sidecar inbox); request re-sent on the working line. reviewer roster and direct-call rules recorded (learning, from ring20 and review-backends.yaml); criteria 1-2 met; the Antigravity round-2 run is next, through the reviewer harness. runme job 141 — Antigravity reads the built kit blind (calibration answer key removed) as a round-2 generator on the T-975 source; prints map + guess report, job saves and validates them
+
+# Key outcomes
+outcomes:
+  - 'The reviewer roster is recorded where the next session finds it (project learning): Codex,'
+  - 'Ring20 Manager is asked over TermLink for the DIRECT-call ruleset for all three providers'
+  - 'Antigravity runs the revised kit with the T-975 brief and source, as a round-2 reader, and'
+  - 'If Antigravity cannot be reached, the report says so and why, and the panel stays'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.context/project/learnings.yaml'
+  - '.context/runme/141-antigravity-kit-round2/dryrun.ok'
+  - '.context/runme/141-antigravity-kit-round2/job.sh'
+  - '.tasks/active/T-979-complete-the-external-review-panel-with-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-01T20:23:28'
+    action: 'T-979: reviewer roster recorded (Codex, Z.AI, Antigravity; not Mistral); asked Ring20 Manager how to call Antigravity'
+  - time: '2026-10-01T20:24:55'
+    action: 'T-979: ask Ring20 for the full direct-call ruleset for all three providers; interim until the AEF upgrade ships it'
+  - time: '2026-10-01T20:46:09'
+    action: 'T-979: OBS-469 sidecar identity defect (vendored installs sign and read as .agentic-framework); Ring20 re-asked with correct identity'
+  - time: '2026-10-01T21:01:08'
+    action: 'T-979: how to really reach Ring20 (DM by fingerprint, not sidecar inbox); request re-sent on the working line'
+  - time: '2026-11-15T11:06:40'
+    action: 'T-979: reviewer roster and direct-call rules recorded (learning, from ring20 and review-backends.yaml); criteria 1-2 met; the Antigravity round-2 run is next, through the reviewer harness'
+  - time: '2026-11-15T17:19:27'
+    action: 'T-979: runme job 141 — Antigravity reads the built kit blind (calibration answer key removed) as a round-2 generator on the T-975 source; prints map + guess report, job saves and validates them'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 64892 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 64892
+  commits: 7
+  files_changed: 13
+  lines_added: 2068
+  lines_removed: 9
+  footprint_refreshed_at: '2026-11-15T19:56:00Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-979-complete-the-external-review-panel-with-.md
+generated_by: context-agent-hybrid

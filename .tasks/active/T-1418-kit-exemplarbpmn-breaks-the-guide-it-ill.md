@@ -1,28 +1,44 @@
 ---
-id: T-979
-name: "Complete the external review panel with the third paid reviewer (Antigravity) on the revised kit; record which reviewer accounts exist"
+id: T-1418
+name: "Kit: exemplar.bpmn breaks the guide it illustrates (no documentation, counter ids, v1.0 aef:input)"
 description: >
-  Complete the external review panel with the third paid reviewer (Antigravity) on the revised kit; record which reviewer accounts exist
+  Antigravity round 2 (T-979, B7), verified: 0 bpmn:documentation, flow_1.. ids, aef:input v1.0, while AUTHORING says copy its shape.
 
-status: started-work
+status: captured
 workflow_type: build
 owner: agent
-horizon: now
+horizon: next
 tags: []
 components: []
 related_tasks: []
+# write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
+#                                 # naming the files this task intends to write. Declared
+#                                 # at CAPTURE, unlike components: which the framework
+#                                 # resolves from git history at close. Feeds TWO things:
+#                                 #   1. `fw write-set check T-A T-B` — without it the
+#                                 #      comparison has nothing to compare and every real
+#                                 #      pair exits 2 (undecidable). 0 of 3032 tasks
+#                                 #      declared it, so that gate has never had an input.
+#                                 #   2. BVP blast_radius before close — the 0.6-weighted
+#                                 #      cost term, unavailable for 85% of rankable tasks
+#                                 #      because components: only exists once the task is
+#                                 #      finished (T-3471).
+#                                 # Example: write_set: ["lib/bvp.sh", "tests/unit/t*_bvp*"]
+#                                 # An EMPTY list is a real declaration ("writes nothing"),
+#                                 # which is not the same as omitting the field. Omitted
+#                                 # means unknown, and unknown must never score as cheap.
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 # demo_target: true               # T-2286: optional — marks task as reserved for an orchestrated demo
 #                                 # worker (e.g. arc-010 HM-A dispatches via mcp__fw__work_on). When set,
-#                                 # `fw work-on T-XXX` refuses unless --i-am-demo-orchestrator (CLI) or
+#                                 # `fw work-on T-1418` refuses unless --i-am-demo-orchestrator (CLI) or
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-10-01T18:22:26Z
-last_update: 2026-10-01T19:24:49Z
+created: 2026-11-15T19:54:17Z
+last_update: 2026-11-15T19:54:17Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -36,51 +52,25 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-979: Complete the external review panel with the third paid reviewer (Antigravity) on the revised kit; record which reviewer accounts exist
+# T-1418: Kit: exemplar.bpmn breaks the guide it illustrates (no documentation, counter ids, v1.0 aef:input)
 
 ## Context
 
-**Background / trigger:** T-975's external review of the authoring kit ran with 2 of 3 reviewers; the third attempt
-used Mistral, for which there is no account.
-**Problem / hypothesis:** the agent did not know which reviewers are ours to call directly, or how.
-**Goal:** record the roster and the direct-call rules, and complete the panel with Antigravity as the third reader.
-**Expected outcome:** a 3-of-3 panel on the revised kit, with per-point dispositions, and rules the next session finds.
+<!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
+**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
 
-T-975's panel ran 2 of 3: I tried Mistral, which we have no account for. Operator, 2026-10-01:
-*"we also don't have an account for [Mistral] only via OpenRouter which need to pay for. So our
-locally paid accounts are Codex, Z.AI and Anti-gravity."* and *"So, Ring20 Manager knows that."*
-The third reviewer is Antigravity, and the way to reach it is to ask Ring20 Manager over
-TermLink, not to probe this host.
+**Problem / hypothesis:** <what we think is wrong and why>
+
+**Goal:** <what we are trying to achieve>
+
+**Expected outcome:** <what will be different when this is done>
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] The reviewer roster is recorded where the next session finds it (project learning): Codex,
-      Z.AI, Antigravity are the paid accounts; Mistral is not one (OpenRouter only, paid per use);
-      Ring20 Manager knows how to reach them.
-      (2026-11-15: learning recorded under T-979 in `.context/project/learnings.yaml`, from ring20's answer and
-      `.agentic-framework/policy/review-backends.yaml`. Correction to the line above: the backend file now lists
-      mistral as an internal seat; OpenRouter is the paid route.)
-- [x] Ring20 Manager is asked over TermLink for the DIRECT-call ruleset for all three providers
-      (command, workdir/write permission, auth and quota rules, what may be sent, how a panel is
-      run), and its answer is recorded. Operator, 2026-10-01: *"call it directly, not dispatch
-      ... ask Ring20 how to call these providers directly. That's the info you need in the
-      future. And the whole ruleset for that. You will get that in an upgrade when we upgrade to
-      next version, bleeding edge version of the engineering framework."* So the recorded answer
-      is interim; the authoritative ruleset arrives with the next AEF upgrade and supersedes it.
-      (2026-11-14: asked on conversation `832-open-items`, msg 26d41496; answered by ring20, msg 989b029f: the single
-      source is the AEF backend registry `.agentic-framework/policy/review-backends.yaml` (it did arrive with the
-      upgrade); internal seats incl. antigravity are called directly by our own harness, no per-round approval;
-      openrouter is paid and needs an approved proposal; credentials are named by location only; on a quota limit
-      skip to the next seat; briefs carry no secrets, IPs/host names or exploit detail. Recorded as a learning.)
-      **Next (fresh session):** antigravity runs as user dimitri-mint-dev via `sudo -n -u … agy -p … --mode plan
-      --sandbox` (registry entry `antigravity`); run it through the reviewer harness on the revised kit with the
-      T-975 brief, not by hand.
-- [ ] Antigravity runs the revised kit with the T-975 brief and source, as a round-2 reader, and
-      its report gets per-point dispositions in `docs/reports/T-975-kit-external-review.md`.
-- [ ] If Antigravity cannot be reached, the report says so and why, and the panel stays
-      described as 2 of 3.
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -106,18 +96,39 @@ TermLink, not to probe this host.
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-XXX`
+         1. Run `bin/fw reviewer T-1418`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-1418 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+-->
+
+<!--
+  Render-touching build tasks (web/templates, web/static, web/blueprints, web/shared.py,
+  web/app.py …) add a section headed "Visual Verification" (level-2 heading) after
+  Verification, with one checklist table — the check-visual-verification gate reads it
+  at commit time (T-4213; T-4202 GO):
+
+    | state | control | 1024 | 1440 | 1920 | note |
+    |-------|---------|------|------|------|------|
+    | toolbar | Load | ok | ok | ok | |
+
+  Cells: ok / clipped / hidden / overlap / unreachable (non-ok needs a note). Each
+  listed state needs screenshots at every UX_SHOT_WIDTHS width:
+  fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
 
 ## Verification
 
+<!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
+     headings; the completion gate strips HTML comments before running anything.
+     Write your commands BELOW this comment, one per line.
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+# Build/refactor/decommission tasks with NO command here are refused. If nothing can be
+# run, add the line `# verification: none — <why nothing can be run>`; it is serviced
+# (queued for review: add a check / other evidence / accept). See docs/reports/T-4024-servicing-loop.md.
 #
 # Toolchain hint (L-291): if you edited *.vbproj/*.csproj/*.xaml add `dotnet build`;
 # *.go → `go build ./...`; Cargo.toml → `cargo check`; tsconfig.json → `tsc --noEmit`;
@@ -148,19 +159,16 @@ TermLink, not to probe this host.
 # writing, cmd takes SIGPIPE, the pipeline exits 141 — verification "fails" with
 # the pattern present. Captured 4× (T-1716, T-1838, T-1862, T-1863).
 #
-# THE EXCEPTION — capture first, grep the capture:
-#     out=$(cmd 2>&1); echo "$out" | grep -q "PATTERN"
-# Valid ONLY while "$out" fits the 65536-byte pipe buffer, and it is on you to
-# know that it does. Above that the form inverts and becomes the very failure
-# L-387 describes: echo blocks on the full pipe, grep -q exits, echo takes
-# SIGPIPE, rc=141 (T-2743 — measured on a 146,366-byte Watchtower page, 3/3 runs,
-# deterministic not racy; rendered routes run 50-200KB, so anything that curls a
-# page is over the line). It also discards cmd's exit code, so a 404 yields an
-# empty capture that grep merely fails to match rather than a failed line.
-# If you do use it: single pipe only, no intermediate tail/awk/sed stage between
-# capture and grep (T-2090) — the middle stage is what `grep -q` slams its stdin
-# on, and grep scans the whole captured string anyway, so the `tail -3` was
-# cosmetic. `echo "$out" | grep -q PAT`, nothing between.
+# THE EXCEPTION — capture first, grep the capture with a HERE-STRING:
+#     out=$(cmd 2>&1); grep -q "PATTERN" <<<"$out"
+# No pipe, so no SIGPIPE at any size. Do NOT write `echo "$out" | grep -q PAT`:
+# it is not safe "below 64 KB" as this file used to say (T-4921, 832 T-1340). The
+# builtin writes a multi-line value line by line, so grep -q can exit before the
+# last write at ANY size (measured 4 in 3,000 for a 40-line value), and above the
+# pipe buffer it fails every time (T-2743: 146,366-byte page, 3/3). In a gate that
+# allows on "no match" that is a fail-OPEN (T-4920: the Tier 0 pre-filter).
+# The capture still discards cmd's exit code, so a 404 yields an empty capture that
+# grep merely fails to match rather than a failed line — prefer THE DEFAULT above.
 #
 # TEST RUNNERS need a guard either way (T-2738). `set -e` is suppressed inside the
 # `if` condition the gate runs each line in, so in `cmd1; cmd2` only cmd2 is the
@@ -169,8 +177,8 @@ TermLink, not to probe this host.
 # to `grep -qE "[0-9]+ passed"` matches the same output. Keep the exit code:
 #     python3 -m pytest <file> -q > /tmp/.out 2>&1 && grep -q passed /tmp/.out
 # or add the guard the exit code used to supply:
-#     out=$(python3 -m pytest <file> -q 2>&1); echo "$out" | grep -q passed && ! echo "$out" | grep -q failed
-#     out=$(bats <file> 2>&1); echo "$out" | grep -q '^ok 1 ' && ! echo "$out" | grep -q '^not ok'
+#     out=$(python3 -m pytest <file> -q 2>&1); grep -q passed <<<"$out" && ! grep -q failed <<<"$out"
+#     out=$(bats <file> 2>&1); grep -q '^ok 1 ' <<<"$out" && ! grep -q '^not ok' <<<"$out"
 # The close gate refuses the unguarded form. Bypass: FW_ALLOW_UNJUDGED_TEST_RUN=1.
 #
 # ── A SKIPPED BATS TEST REPORTS `ok` (T-3217) ─────────────────────────────────
@@ -240,6 +248,14 @@ TermLink, not to probe this host.
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+#
+# Vendored-path hint (T-3236, T-4419): if you edited bin/fw, lib/, agents/, policy/,
+# web/, tools/ or .tasks/templates/, run `bin/fw vendor self` and add
+#     bin/fw vendor self --check --task T-1418X
+# (your own task id). It checks only the files your commits changed, so another
+# worker's uncommitted edit does not block your close; that drift is listed as
+# "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+-->
 
 ## RCA
 
@@ -324,7 +340,7 @@ TermLink, not to probe this host.
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-XXX go|no-go|defer --rationale "..."
+     fw inception decide T-1418 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -333,7 +349,7 @@ TermLink, not to probe this host.
 
 ## Updates
 
-### 2026-10-01T18:22:26Z — task-created [task-create-agent]
+### 2026-11-15T19:54:17Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-979-complete-the-external-review-panel-with-.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1418-kit-exemplarbpmn-breaks-the-guide-it-ill.md
 - **Context:** Initial task creation

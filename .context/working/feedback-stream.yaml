@@ -22563,3 +22563,21 @@ scan_id: R-2e71024d
 task_id: T-968
 payload:
   task_file: .tasks/active/T-968-establish-the-termlink-link-to-the-everg.md
+---
+kind: scan_emitted
+timestamp: '2026-11-15T19:55:25Z'
+scan_id: R-69c5403c
+task_id: T-979
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-15T19:55:25Z'
+scan_id: R-69c5403c
+task_id: T-979
+payload:
+  task_file: .tasks/active/T-979-complete-the-external-review-panel-with-.md
