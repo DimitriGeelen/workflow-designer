@@ -4,10 +4,11 @@ name: "Establish the TermLink link to the Evergreen deployment on .132 and dispa
 description: >
   Establish the TermLink link to the Evergreen deployment on .132 and dispatch the corpus request
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -22,8 +23,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-01T15:25:45Z
-last_update: 2026-10-01T15:27:58Z
-date_finished: null
+last_update: 2026-11-15T19:43:33Z
+date_finished: 2026-11-15T19:43:33Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -77,19 +78,33 @@ therefore the operator's to run.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The link is established **through TermLink**, not around it: a hub profile for `.132`,
+- [x] The link is established **through TermLink**, not around it: a hub profile for `.132`,
       healed via the declared bootstrap anchor, verified by `remote doctor` answering.
-- [ ] **No secret value passes through the transcript, a commit, or an agent-held file.** The
+      → 2026-11-15: `termlink remote doctor greenfield` returned 3 pass, 0 fail (connected 97 ms, inbox 274
+      records). No healing was needed in the end: the key already in the `greenfield` profile is accepted. The outage
+      was network, not credential (see Updates). SSH was used only by the operator's jobs, to restore Greenfield's
+      own port forward, never to do their work.
+- [x] **No secret value passes through the transcript, a commit, or an agent-held file.** The
       bootstrap fetches it host-to-host; the agent never reads, echoes or stores it. Checked by
       asserting the script contains no secret literal and never prints the fetched value.
-- [ ] The Tier-2 step is **run by the operator**, and the script says so rather than performing
+      → Jobs 140 and 145-147 hold no secret literal. Job 147's fetch step validated before writing and printed only
+      "not 64 hex characters (nothing printed, nothing stored)"; the agent never read the stored key.
+- [x] The Tier-2 step is **run by the operator**, and the script says so rather than performing
       it silently inside a wrapper where `check-tier0.sh` cannot see it (OBS-449).
-- [ ] `remote list` returns the session inventory for `.132`, so the Evergreen agent can be
+      → Every step that touched the laptop ran in the operator's runme jobs (142-147), each confirmed with y/N.
+- [x] `remote list` returns the session inventory for `.132`, so the Evergreen agent can be
       identified by name before anything is dispatched to it.
-- [ ] The corpus request is dispatched **into Evergreen's own session context**, so their
+      → `termlink remote list greenfield`: 1 session, `greenfield-exec` (tags exec, T-173). Greenfield's own agent
+      is addressed through its inbox topic `inbox:aef925c6d2f4ac54/aef-greenfield-test`.
+- [x] The corpus request is dispatched **into Evergreen's own session context**, so their
       governance applies to their work — never executed by us against their filesystem.
-- [ ] A refusal at any preflight leaves `~/.termlink/hubs.toml` unchanged, so a failed attempt
+      → The corpus itself arrived by another route on 2026-10-08 (iterations 4-8, read in T-1095). Today's request
+      went to Greenfield's own inbox on its hub (client_msg_id 6cb728f0, HUB_ACCEPTED): the broken reachable task and
+      its fix, which of their proposals T-1097 to T-1101 matter most, and the formats order. Nothing was executed in
+      their files.
+- [x] A refusal at any preflight leaves `~/.termlink/hubs.toml` unchanged, so a failed attempt
       cannot leave a half-registered profile that later reads as configured.
+      → `~/.termlink/hubs.toml` was last modified 2026-10-28, so none of today's runs or stops changed it.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -127,6 +142,9 @@ therefore the operator's to run.
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+grep -q "nothing printed, nothing stored" .context/runme/147-greenfield-portproxy-once-link/job.sh
+grep -q "link proven without step 3" .context/runme/147-greenfield-portproxy-once-link/retired
+grep -q '^\[hubs.greenfield\]' "$HOME/.termlink/hubs.toml"
 #
 # Toolchain hint (L-291): if you edited *.vbproj/*.csproj/*.xaml add `dotnet build`;
 # *.go → `go build ./...`; Cargo.toml → `cargo check`; tsconfig.json → `tsc --noEmit`;
@@ -364,3 +382,17 @@ therefore the operator's to run.
   - **Job 146** re-runs Greenfield's own task, checks, fetches the hub key from WSL (stored 0600, never printed) and
     proves the link. 140 and 142-145 are retired.
 - **Still open:** run job 146; then dispatch the corpus request (this task); ring20 T-2688 to land.
+
+### 2026-11-15T19:43:33Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** link restored and proven (remote doctor 3/0, remote list); request delivered to Greenfield's own inbox (6cb728f0)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-2e71024d
+- **Timestamp:** 2026-11-15T19:43:35Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

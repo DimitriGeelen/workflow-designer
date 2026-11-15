@@ -1,0 +1,126 @@
+# ============================================================================
+# EPISODIC MEMORY - T-968: Establish the TermLink link to the Evergreen deployment on .132 and dispatch the corpus request
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-15T19:43:45Z
+# ============================================================================
+
+task_id: T-968
+task_name: "Establish the TermLink link to the Evergreen deployment on .132 and dispatch the corpus request"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-01T15:25:45Z
+completed: 2026-11-15T19:43:33Z
+duration_days: 45
+updates_count: 3
+first_commit: 2026-10-01T17:27:57+02:00
+last_commit: 2026-11-15T20:20:48+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  link to Evergreen through TermLink, not around it. runme job 140 links 832 to the Evergreen (greenfield) hub through TermLink's declared ssh bootstrap — operator's Tier-2 step, no secret through the agent, no LAN address in the file; checks the hub is running first; rehearsed. runme job 142 — look over ssh why the greenfield hub does not answer on 9100, start it only if no hub runs, re-check (job 140 stopped twice at step 1). job 143 replaces 142 — the greenfield machine refuses root ssh login; 143 asks the operator's user (kept in gitignored build/) and uses sudo there. retire job 140 (root ssh refused on greenfield; hub not up yet); replacement after job 143. greenfield is a Windows machine (job 143: 'dimitri' logs in to cmd.exe); job 144 looks read-only through PowerShell (termlink, hub, 9100, WSL, service, firewall) and fails unless its end marker returns; 143 retired. job 145 — ring20 found the root cause (WSL Ubuntu stopped; NAT mode, no portproxy for 9100); portproxy now + logon task that keeps WSL alive and re-applies it, then fetch the key from WSL and prove the link; 144 retired. job 146 re-runs Greenfield's own task '\AEF TermLink reachable' (greenfield T-087) instead of installing a second one; 145 retired. Ring20's pool scripts deleted the 9100 portproxy row (ring20 fixing). greenfield hub outage recorded — WSL stopped + portproxy deleted by ring20's scripts (fix ring20 T-2688); job 146 re-runs Greenfield's own reachable task. job 147 sets Greenfield's 9100 portproxy once from their own wsl-ip.txt read as WSL root (their task fails since 11-05: default user dimitri cannot read /root, ring20 msg c1f74189); listen-port-only check, tested against today's rows; 146 retired. greenfield link proven (remote doctor 3 pass 0 fail, remote list shows greenfield-exec; stored key valid); job 147 retired after step 2 — step 3's fetch returned a non-hex value and stored nothing
+
+# Key outcomes
+outcomes:
+  - 'The link is established **through TermLink**, not around it: a hub profile for `.132`,'
+  - '**No secret value passes through the transcript, a commit, or an agent-held file.** The'
+  - 'The Tier-2 step is **run by the operator**, and the script says so rather than performing'
+  - '`remote list` returns the session inventory for `.132`, so the Evergreen agent can be'
+  - 'The corpus request is dispatched **into Evergreen''s own session context**, so their'
+  - 'A refusal at any preflight leaves `~/.termlink/hubs.toml` unchanged, so a failed attempt'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'greenfield hub outage recorded — WSL stopped + portproxy deleted by ring20''s scripts (fix ring20 T-2688); job 146 re-runs Greenfield''s own reachable task'
+    source: git-mined
+  - description: 'job 146 re-runs Greenfield''s own task ''\AEF TermLink reachable'' (greenfield T-087) instead of installing a second one; 145 retired. Ring20''s pool scripts deleted the 9100 portproxy row (ring20 fixing)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/140-link-evergreen-hub/dryrun.ok'
+  - '.context/runme/140-link-evergreen-hub/job.sh'
+  - '.context/runme/140-link-evergreen-hub/retired'
+  - '.context/runme/142-greenfield-hub-start/dryrun.ok'
+  - '.context/runme/142-greenfield-hub-start/job.sh'
+  - '.context/runme/142-greenfield-hub-start/retired'
+  - '.context/runme/143-greenfield-hub-start-as-user/dryrun.ok'
+  - '.context/runme/143-greenfield-hub-start-as-user/job.sh'
+  - '.context/runme/143-greenfield-hub-start-as-user/retired'
+  - '.context/runme/144-greenfield-windows-look/dryrun.ok'
+  - '.context/runme/144-greenfield-windows-look/job.sh'
+  - '.context/runme/144-greenfield-windows-look/retired'
+  - '.context/runme/145-greenfield-wsl-portproxy-link/dryrun.ok'
+  - '.context/runme/145-greenfield-wsl-portproxy-link/job.sh'
+  - '.context/runme/145-greenfield-wsl-portproxy-link/retired'
+  - '.context/runme/146-greenfield-rerun-reachable-link/dryrun.ok'
+  - '.context/runme/146-greenfield-rerun-reachable-link/job.sh'
+  - '.context/runme/146-greenfield-rerun-reachable-link/retired'
+  - '.context/runme/147-greenfield-portproxy-once-link/dryrun.ok'
+  - '.context/runme/147-greenfield-portproxy-once-link/job.sh'
+  - '.context/runme/147-greenfield-portproxy-once-link/retired'
+  - '.tasks/active/T-968-establish-the-termlink-link-to-the-everg.md'
+  - 'runme.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-01T17:27:57'
+    action: 'T-968: link to Evergreen through TermLink, not around it'
+  - time: '2026-11-14T22:57:34'
+    action: 'T-968: runme job 140 links 832 to the Evergreen (greenfield) hub through TermLink''s declared ssh bootstrap — operator''s Tier-2 step, no secret through the agent, no LAN address in the file; checks the hub is running first; rehearsed'
+  - time: '2026-11-15T18:36:25'
+    action: 'T-968: runme job 142 — look over ssh why the greenfield hub does not answer on 9100, start it only if no hub runs, re-check (job 140 stopped twice at step 1)'
+  - time: '2026-11-15T19:14:38'
+    action: 'T-968: job 143 replaces 142 — the greenfield machine refuses root ssh login; 143 asks the operator''s user (kept in gitignored build/) and uses sudo there'
+  - time: '2026-11-15T19:31:35'
+    action: 'T-968: retire job 140 (root ssh refused on greenfield; hub not up yet); replacement after job 143'
+  - time: '2026-11-15T19:35:53'
+    action: 'T-968: greenfield is a Windows machine (job 143: ''dimitri'' logs in to cmd.exe); job 144 looks read-only through PowerShell (termlink, hub, 9100, WSL, service, firewall) and fails unless its end marker returns; 143 retired'
+  - time: '2026-11-15T19:39:04'
+    action: 'T-968: job 145 — ring20 found the root cause (WSL Ubuntu stopped; NAT mode, no portproxy for 9100); portproxy now + logon task that keeps WSL alive and re-applies it, then fetch the key from WSL and prove the link; 144 retired'
+  - time: '2026-11-15T19:41:38'
+    action: 'T-968: job 146 re-runs Greenfield''s own task ''\AEF TermLink reachable'' (greenfield T-087) instead of installing a second one; 145 retired. Ring20''s pool scripts deleted the 9100 portproxy row (ring20 fixing)'
+  - time: '2026-11-15T19:43:40'
+    action: 'T-968: greenfield hub outage recorded — WSL stopped + portproxy deleted by ring20''s scripts (fix ring20 T-2688); job 146 re-runs Greenfield''s own reachable task'
+  - time: '2026-11-15T20:02:06'
+    action: 'T-968: job 147 sets Greenfield''s 9100 portproxy once from their own wsl-ip.txt read as WSL root (their task fails since 11-05: default user dimitri cannot read /root, ring20 msg c1f74189); listen-port-only check, tested against today''s rows; 146 retired'
+  - time: '2026-11-15T20:20:48'
+    action: 'T-968: greenfield link proven (remote doctor 3 pass 0 fail, remote list shows greenfield-exec; stored key valid); job 147 retired after step 2 — step 3''s fetch returned a non-hex value and stored nothing'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 11 commit(s), 65057 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 65057
+  commits: 12
+  files_changed: 26
+  lines_added: 1309
+  lines_removed: 192
+  footprint_refreshed_at: '2026-11-15T19:43:59Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-968-establish-the-termlink-link-to-the-everg.md
+generated_by: context-agent-hybrid
