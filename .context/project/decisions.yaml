@@ -3384,3 +3384,10 @@ decisions:
     date: 2026-11-15
     task: T-1072
     rationale: "External review (F6) found the named second tenant unsourced; the operator explained the real intent: multi-project use plus a field-feedback loop"
+
+  - id: PD-463
+    decision: "O-1 (T-1072), operator 2026-11-15 '2a': a step carries everything an implementer needs AND agrees with its task; tasks stay canonical, a picture/task difference is a reported defect. 'The picture alone' and 'no recourse to the task text' dropped."
+    scope: project
+    date: 2026-11-15
+    task: T-1072
+    rationale: "External review F7: 'picture alone' contradicted 'tasks are canonical'"
