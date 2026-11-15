@@ -13,8 +13,12 @@
 # (docs/reports/T-1072-objectives-sources.md) and AEF's input (§6 there): O-4 now guards with
 # advice and friction, refusal is AEF's runtime; out_of_scope #3 narrowed to "never executes or
 # authorises"; new O-7 (deterministic-first, routing as a captured preference), O-8 (learning loop
-# as a proposal to AEF), O-9 (lossless BPMN-to-procedure round trip, AEF's ask). Still a draft
-# until the operator ratifies it (T-986).
+# as a proposal to AEF), O-9 (lossless BPMN-to-procedure round trip, AEF's ask).
+# Revised again 2026-11-15 after the external review (docs/reports/T-1072-external-review-answers.md)
+# and the operator's rulings: O-2 no longer refuses; O-4 gains stalled-past-deadline, human-required
+# with a reason, override who/why, strictness tied to ratification; O-5 is many projects plus field
+# feedback; O-1 agrees with the canonical task; O-9 merged into O-6 (one interchange test, reverse
+# render its own still-unmeasured part). Still a draft until the operator ratifies it (T-986).
 #
 # Stop conditions (purpose doc P5). The shape below has no field for these, so they are kept
 # here for the operator to place: the project is worth stopping
@@ -82,11 +86,17 @@ objectives:
       traceable to the map it came from.
   - id: O-6
     text: >-
-      Work can start as a picture and existing work can be seen as one: forward-compile and
-      reverse-render both hold between the designer and AEF.
+      Work can start as a picture and existing work can be seen as one. Forward: the exchange
+      with AEF is lossless, a map round-trips through the versioned interchange contract (BPMN to
+      AEF procedure and back) within the frozen Mapping Standard's boundaries; this is what AEF
+      consumes. Reverse: existing work (AEF's own record first, other code later) can be drawn
+      as a picture.
     measure: >-
-      A re-pin round-trips the corpus byte-identically with no hand repair. Rendering existing
-      work as a picture: not measured yet.
+      Forward: every corpus map exports to the procedure form and back with no loss and no hand
+      repair under the current frozen Mapping Standard version, and a change outside those
+      boundaries is refused by the conformance tests, not shipped. Reverse: not measured yet;
+      the first measurement is an instance that deviated from its template, drawn back as a
+      picture that is both faithful and readable.
   - id: O-7
     text: >-
       A step can declare how it is meant to run: deterministic first (script or service), with
@@ -105,15 +115,6 @@ objectives:
       A recorded deviation can be raised as a template-change proposal that names the template
       version it departs from; the ratified template stays unchanged until AEF ratifies the new
       version.
-  - id: O-9
-    text: >-
-      The interchange with AEF is lossless: a map round-trips through the versioned interchange
-      contract (BPMN to AEF procedure and back) within the frozen Mapping Standard's boundaries.
-      This is what AEF consumes.
-    measure: >-
-      Every corpus map exports to the procedure form and back with no loss and no hand repair,
-      under the current frozen Mapping Standard version, and a change outside those boundaries
-      is refused by the conformance tests, not shipped.
 out_of_scope:
   - "A general-purpose BPMN editor. BPMN is the portable format, not the product."
   - "Replacing the task system. Tasks are canonical: a diagram proposes governed work and never authors it."

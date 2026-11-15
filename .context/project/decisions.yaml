@@ -3391,3 +3391,10 @@ decisions:
     date: 2026-11-15
     task: T-1072
     rationale: "External review F7: 'picture alone' contradicted 'tasks are canonical'"
+
+  - id: PD-464
+    decision: "O-6/O-9 (T-1072), operator 2026-11-15 '3a': merged into O-6 — one interchange test (lossless BPMN-to-procedure round trip within the frozen Mapping Standard, AEF's ask), with reverse-render of existing work kept as its own, still unmeasured part."
+    scope: project
+    date: 2026-11-15
+    task: T-1072
+    rationale: "External review F8: byte-identical (O-6) and lossless-within-standard (O-9) were contradictory oracles"
