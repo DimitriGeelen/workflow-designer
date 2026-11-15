@@ -83,8 +83,13 @@ TOLERATED = {
         "IW-1 guard trips. T-204 fixed that typed events ride <aef:eventDef> and no "
         "native *EventDefinition is ever emitted — so un-producible is the property "
         "under test.",
+    ("test_t1377_general_map_checks.py", "callActivity"):
+        "deliberate teeth (T-1417): proves a callActivity, which the authoring kit tells "
+        "vendors never to draw, is rejected as E-XML-NODE-TYPE. callActivity is outside "
+        "the vocabulary by design (validate-workflow.py, XML_NON_FLOWNODE_TAGS note), so "
+        "un-producible is the property under test.",
 }
-EXPECTED_TOLERATED = 2
+EXPECTED_TOLERATED = 3
 
 
 def _load_validator():
