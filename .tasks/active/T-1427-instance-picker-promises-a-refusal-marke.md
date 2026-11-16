@@ -1,13 +1,21 @@
 ---
 id: T-1427
-name: "Instance picker promises a refusal marker AEF cannot draw: show the ⛔ sentence only where transition refusals are served"
+name: "Instance picker promises a refusal marker AEF cannot draw: show the ⛔ sentence
+  only where transition refusals are served"
 description: >
-  AEF T-5185 row-4 check (msg eba834d0): AEF's /api/instances 'refusals' are unplaceable task files {task: file, reason}, not transition refusals {task, node, rule, target}; AEF has no instance runtime yet. The marker already never draws under AEF (shape filter in instanceOverlayState), but the picker's title always promises it. AEF asks us to hide it until their runtime projection v2 (T-5193) serves transition refusals. Detect served-ness from the response shape or an explicit capability, not host sniffing; name it in the next release notes.
+  AEF T-5185 row-4 check (msg eba834d0): AEF's /api/instances 'refusals' are unplaceable
+  task files {task: file, reason}, not transition refusals {task, node, rule, target};
+  AEF has no instance runtime yet. The marker already never draws under AEF (shape
+  filter in instanceOverlayState), but the picker's title always promises it. AEF
+  asks us to hide it until their runtime projection v2 (T-5193) serves transition
+  refusals. Detect served-ness from the response shape or an explicit capability,
+  not host sniffing; name it in the next release notes.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-16T19:41:26Z
-last_update: 2026-11-16T19:41:26Z
-date_finished: null
+last_update: '2026-11-16T19:54:08Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +58,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-16T19:54:08Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1427: Instance picker promises a refusal marker AEF cannot draw: show the ⛔ sentence only where transition refusals are served
@@ -57,22 +85,42 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
-
-**Problem / hypothesis:** <what we think is wrong and why>
-
-**Goal:** <what we are trying to achieve>
-
-**Expected outcome:** <what will be different when this is done>
+**Background / trigger:** our row-4 check of AEF's runtime projection (T-1425; AEF T-5185, msg eba834d0, 2026-11-16).
+AEF's `/api/instances` `refusals` are unplaceable task FILES `{task: "T-9-bad.md", reason}`. 832's own host
+(`tools/instance-node.py snapshot`) sends TRANSITION refusals `{task, node, rule, target}`, which the ⛔ marker draws.
+AEF has no instance runtime yet, and asks us to hide the marker until its projection v2 (AEF T-5193) serves them.
+**Problem / hypothesis:** the marker already never draws under AEF, because `instanceOverlayState` matches on task id
+and node and AEF's rows carry neither. But the instance picker's title always says "⛔ the node a refusal fired on…".
+That promises a marker this host cannot show, with no signal that it is missing.
+**Goal:** the picker explains ⛔ only when the snapshot actually holds a transition refusal, judged by shape (node and
+rule present), not by which host answers. Rows of any other shape are dropped on load.
+**Expected outcome:** under AEF the title carries no ⛔ sentence; on 832's host with refusals it does, exactly as
+today; the marker itself is unchanged.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] `loadInstanceSnapshot` keeps only transition-shaped refusal rows (a string `node` and a string `rule`); a row of
+  AEF's unplaced shape is dropped, so it can never reach the overlay.
+- [ ] The picker's title is set by `renderInstancePicker`: the ● and ✓ sentences always, the ⛔ sentence only when at
+  least one kept refusal exists. The static HTML title no longer promises ⛔.
+- [ ] A CDP leg (in the harness that owns the instance overlay, `_t884-instance-overlay-cdp.mjs`) serves both shapes and
+  asserts: AEF shape → no ⛔ in the title, no `data-instance="refused"` node; 832 shape → ⛔ in the title and the
+  refused node drawn as today.
+- [ ] The person-sees gate (`tools/person-sees-gate.sh`) exits 0; the browser tier is green on pool and here before
+  push (high-risk: `src/`).
+- [ ] The next release's draft notes name the change for AEF.
 
 ### Human
+- [ ] [REVIEW] Independent screenshot review (`fw reviewer judge T-1427 --criterion 1`): the instance picker's tooltip,
+  with the AEF-shaped snapshot and with the 832-shaped one, at 1024, 1440 and 1920.
+  **Steps:**
+  1. Open the screenshots listed under `## Visual Verification`.
+  2. In each, read the picker's title text and the map: with the AEF shape no ⛔ sentence and no red halo; with the
+     832 shape the ⛔ sentence and the refused node's red halo and "⛔ <rule>" badge; the picker visible and unclipped.
+  **Expected:** both cases read as described, at all three widths.
+  **If not:** name the screenshot and what is wrong.
+
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -256,6 +304,26 @@ date_finished: null
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+$HOME/.nvm/versions/node/v22.22.1/bin/node tools/_t884-instance-overlay-cdp.mjs
+grep -q "reason_code" src/aef-workflow-designer.html
+grep -q 'T-1427' docs/releases/PENDING-next-release.md
+
+## Visual Verification
+
+Evidence from `tools/_t884-instance-overlay-cdp.mjs` (legs L7, L8, L9), in `docs/reports/t884-shots/`:
+- `t1427-aef-v1-{1024,1440,1920}.png` and `t1427-aef-v1-title.txt`: AEF's projection v1 shape (unplaced task files)
+- `t1427-aef-v2-{1024,1440,1920}.png`, `t1427-aef-v2-title.txt` and `t1427-aef-v2-refused-node.png`: the v2 shape
+  (`reason_code`), which draws
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| AEF v1 snapshot | instance picker (label, reachable) | ok | ok | ok | "T-9991 · agt_2_perform · started-work"; the title has no ⛔ sentence (title.txt) |
+| AEF v1 snapshot | map overlay | ok | ok | ok | ● on agt_2_perform, ✓ on the derived path; no red halo anywhere (L8: 0 refused) |
+| AEF v1 snapshot | toolbar (zoom, Add Lane, Reset, Clean layout, View XML, Settings, Load, Save) | ok | ok | ok | at 1024 it wraps to two rows, as before this change |
+| AEF v2 snapshot | instance picker title | ok | ok | ok | ⛔ sentence present, with no file path (host-neutral) |
+| AEF v2 snapshot | refused node frw_gw_all | ok | ok | ok | beyond the canvas at all three widths; the close-up shows the red halo and "⛔ unresolved_reference" |
+
+Read by me control by control, 2026-11-16. Independent review: the `[REVIEW]` criterion under `### Human`.
 
 ## RCA
 
@@ -353,3 +421,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1427-instance-picker-promises-a-refusal-marke.md
 - **Context:** Initial task creation
+
+### 2026-11-16T19:54:07Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

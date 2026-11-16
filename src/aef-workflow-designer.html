@@ -1525,7 +1525,7 @@ font-family: 'Outfit';
            current node, DERIVED completed path, and the node a refusal fired on with its rule.
            Present even when the API is absent — then it says so — because a picker that vanishes
            cannot tell "no instances" from "no server". Writes nothing to the model. -->
-      <select id="instancePicker" title="Instance overlay (T-884): where a governed entity is on this template. ● current node · ✓ completed path (DERIVED: the shortest flow path from the start, not a recorded history) · ⛔ the node a refusal fired on, with the rule that refused it (from .context/audits/instance-refusals.jsonl). Reads /api/instances; writes nothing."><option value="">instances: loading…</option></select>
+      <select id="instancePicker" title="Instance overlay (T-884): where a governed entity is on this template. ● current node · ✓ completed path (DERIVED: the shortest flow path from the start, not a recorded history). Reads /api/instances; writes nothing."><option value="">instances: loading…</option></select>
     </div>
     <div class="actions">
       <!-- T-245 view-chrome controls: per-panel hide/show (persisted in aefViewPrefs)
@@ -2222,7 +2222,7 @@ function instanceOverlayState(nodeIds, flows, startIds, instance, refusals) {
     for (let i = refusals.length - 1; i >= 0; i--) {
       const r = refusals[i];
       if (!r || r.task !== instance.task || !ids.has(r.node)) continue;
-      out.refused = { node: r.node, rule: r.rule || '?', target: r.target && ids.has(r.target) ? r.target : null };
+      out.refused = { node: r.node, rule: r.rule || r.reason_code || '?', target: r.target && ids.has(r.target) ? r.target : null };
       break;
     }
   }
@@ -12146,7 +12146,14 @@ async function loadInstanceSnapshot() {
       if (!d || !Array.isArray(d.instances)) throw Object.assign(new Error('not a snapshot'), { aefFault: true });
       instanceView.available = true;
       instanceView.instances = d.instances;
-      instanceView.refusals = Array.isArray(d.refusals) ? d.refusals : [];
+      // T-1427: only TRANSITION refusals ({task, node, rule[, target]}, 832's tools/instance-node.py) are drawable.
+      // AEF's 'refusals' (runtime projection v1, its T-5185) are unplaceable task FILES {task: file, reason}: another
+      // thing under the same key. They are dropped here, so they can never reach the overlay, and the picker's title
+      // explains ⛔ only when a drawable refusal is actually present (renderInstancePicker).
+      // The rule is `rule` (832's audit lines) or `reason_code` (refusal.schema.json v2, the shape AEF's projection v2
+      // will serve, msg eba834d0); either names what refused, so either is read.
+      instanceView.refusals = (Array.isArray(d.refusals) ? d.refusals : [])
+        .filter(r => r && typeof r.node === 'string' && typeof (r.rule || r.reason_code) === 'string');
     } catch (e) {
       instanceView.available = false;   // additive overlay: absence is a state, never a fault
       // A network error (no server at all) carries no aefFault mark: also absence.
@@ -12186,6 +12193,14 @@ function renderInstancePicker() {
   sel.innerHTML = '';
   const opt = (value, label, selected) => { const o = document.createElement('option'); o.value = value; o.textContent = label; if (selected) o.selected = true; sel.appendChild(o); };
   const v = instanceView;
+  // T-1427: the legend names ⛔ only when this snapshot holds a refusal the overlay can draw. A host that serves none
+  // (AEF until its runtime projection v2, T-5193) is not promised a marker it cannot show.
+  sel.title = 'Instance overlay (T-884): where a governed entity is on this template. ● current node · ✓ completed '
+    + 'path (DERIVED: the shortest flow path from the start, not a recorded history)'
+    + (v.refusals && v.refusals.length
+      ? ' · ⛔ the node a refusal fired on, with the rule that refused it'
+      : '')
+    + '. Reads /api/instances; writes nothing.';
   // T-1241: 'n/a', not 'unavailable': the 45 px it saves keep the header one row in the 1894 px inline frame with the
   // lens select added; the picker's title still says what the overlay is and why it can be absent.
   if (v.available === false) opt('', 'instances: n/a', !v.selected);

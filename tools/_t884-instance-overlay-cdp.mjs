@@ -52,12 +52,37 @@ const SNAPSHOT = {
 };
 const legs = []; const leg = (id, name, ok, detail) => { legs.push({ id, name, ok, detail }); console.log(`${id} ${ok ? 'PASS' : 'FAIL'}  ${name}\n      ${detail}`); };
 
-function makeDoc(withApi) {
+// T-1427: AEF's runtime projection v1 (its T-5185) sends 'refusals' of ANOTHER shape under the same key: task FILES it
+// could not place, {task: file name, reason}. Nothing in them is drawable; the title must not promise ⛔ for them.
+const SNAPSHOT_AEF = Object.assign({}, SNAPSHOT, {
+  refusals: [{ task: 'T-9991-unparseable.md', reason: 'no frontmatter' }, { task: 'T-9991', reason: 'unreadable: OSError' }],
+});
+// ...and the shape its projection v2 (T-5193) will serve: refusal.schema.json v2 names the rule `reason_code`.
+const SNAPSHOT_AEF_V2 = Object.assign({}, SNAPSHOT, {
+  refusals: [{ task: 'T-9991', node: 'frw_gw_all', reason_code: 'unresolved_reference', target: 'frw_5_finalize' }],
+});
+const TITLE = `document.getElementById('instancePicker').title`;
+// T-1427 evidence for the independent screenshot review: the whole view at three widths, and the picker's title as
+// text beside it (a tooltip is not in a headless screenshot).
+async function widthShots(cmd, ev, tag) {
+  const titles = {};
+  for (const w of [1024, 1440, 1920]) {
+    await cmd('Emulation.setDeviceMetricsOverride', { width: w, height: 900, deviceScaleFactor: 1, mobile: false });
+    await ev(cmd, 'renderAll(); true'); await sleep(300);
+    const s = await cmd('Page.captureScreenshot', { format: 'png' });
+    mkdirSync(OUT, { recursive: true }); writeFileSync(join(OUT, `t1427-${tag}-${w}.png`), Buffer.from(s.data, 'base64'));
+    titles[w] = await ev(cmd, TITLE);
+  }
+  await cmd('Emulation.clearDeviceMetricsOverride');
+  writeFileSync(join(OUT, `t1427-${tag}-title.txt`), Object.entries(titles).map(([w, t]) => `${w}: ${t}`).join('\n') + '\n');
+}
+
+function makeDoc(withApi, snapshot) {
   const doc = mkdtempSync(join(tmpdir(), 't884-doc-'));
   copyFileSync(join(REPO, 'src/aef-workflow-designer.html'), join(doc, 'designer.html'));
   mkdirSync(join(doc, 'rendered'), { recursive: true });
   copyFileSync(join(REPO, 'examples/aef-processes/rendered/task-lifecycle.bpmn'), join(doc, 'rendered', 'task-lifecycle.bpmn'));
-  if (withApi) { mkdirSync(join(doc, 'api'), { recursive: true }); writeFileSync(join(doc, 'api', 'instances'), JSON.stringify(SNAPSHOT)); }
+  if (withApi) { mkdirSync(join(doc, 'api'), { recursive: true }); writeFileSync(join(doc, 'api', 'instances'), JSON.stringify(snapshot || SNAPSHOT)); }
   return doc;
 }
 async function serve(doc) {
@@ -76,10 +101,24 @@ const COUNTS = `({ current: document.querySelectorAll('g.node[data-instance="cur
   const br = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--window-size=1600,1000', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let cl, rc = 0; const servers = [];
   const shot = async (cmd, sel, file, pad) => {
-    const box = await ev(cmd, `(() => { const g = document.querySelector(${JSON.stringify(sel)}); if (!g) return null; const r = g.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; })()`);
+    const measure = `(() => { const g = document.querySelector(${JSON.stringify(sel)}); if (!g) return null; const r = g.getBoundingClientRect(); const p = document.querySelector('.props-panel, #props, aside.right, #properties'); const pr = p ? p.getBoundingClientRect() : null; return { x: r.x, y: r.y, w: r.width, h: r.height, edge: pr && pr.width ? pr.left : innerWidth }; })()`;
+    let box = await ev(cmd, measure);
     if (!box) throw new Error('no element for ' + sel);
+    // T-1427: a node right of the canvas (under the properties panel, or past the window) shot as a blank rectangle:
+    // refused-*.png went from 6.8 KB to 902 B without a leg noticing. Widen the window until the node clears the
+    // panel, shoot, then put the window back.
+    let widened = false;
+    if (box.x + box.w + pad > box.edge) {
+      const w = Math.ceil(box.x + box.w + pad + 520);
+      await cmd('Emulation.setDeviceMetricsOverride', { width: w, height: 1000, deviceScaleFactor: 1, mobile: false });
+      await ev(cmd, 'renderAll(); true'); await sleep(200);
+      box = await ev(cmd, measure); widened = true;
+    }
     const s = await cmd('Page.captureScreenshot', { format: 'png', clip: { x: Math.max(0, box.x - pad), y: Math.max(0, box.y - pad - 6), width: box.w + 2 * pad, height: box.h + 2 * pad + 6, scale: 2 } });
-    mkdirSync(OUT, { recursive: true }); writeFileSync(join(OUT, file), Buffer.from(s.data, 'base64'));
+    if (widened) { await cmd('Emulation.clearDeviceMetricsOverride'); await ev(cmd, 'renderAll(); true'); await sleep(150); }
+    const buf = Buffer.from(s.data, 'base64');
+    if (buf.length < 2000) throw new Error(`blank screenshot ${file} (${buf.length} B): the node is not on screen`);
+    mkdirSync(OUT, { recursive: true }); writeFileSync(join(OUT, file), buf);
   };
   try {
     const dp = await waitPortFile(join(udd, 'DevToolsActivePort'));
@@ -140,6 +179,35 @@ const COUNTS = `({ current: document.querySelectorAll('g.node[data-instance="cur
         c5.current === 1 && c5.refused === 0 && b5.node === 'frw_3_run' && b5.badges.includes('current:● T-9992') && b5.badges.includes('refused:⛔ R-033'),
         JSON.stringify({ c5, b5 }));
     await shot(cmd, await nodeSel('frw_3_run'), 'current-and-refused-m.png', 30);
+    const tA = await ev(cmd, TITLE);
+    leg('L7', "832's transition refusals: the picker's title explains ⛔ (T-1427)",
+        tA.includes('⛔ the node a refusal fired on') && tA.includes('● current node') && tA.includes('✓ completed path'),
+        JSON.stringify(tA));
+
+    // ---- doc C: AEF's shape of 'refusals' (unplaceable task files) — T-1427 ----
+    const C = await serve(makeDoc(true, SNAPSHOT_AEF)); servers.push(C.py);
+    await cmd('Page.navigate', { url: `${C.BASE}/designer.html?load=rendered/task-lifecycle.bpmn&instance=T-9991` });
+    await waitReady(cmd); await waitOverlayLoaded(cmd);
+    const c8 = await ev(cmd, COUNTS);
+    const t8 = await ev(cmd, `({ title: ${TITLE}, kept: instanceView.refusals.length })`);
+    leg('L8', "AEF's unplaced-file rows: dropped on load, no refused node, no ⛔ in the title, the current node still drawn (T-1427)",
+        t8.kept === 0 && c8.refused === 0 && c8.target === 0 && c8.current === 1 && !t8.title.includes('⛔')
+          && t8.title.includes('● current node') && t8.title.endsWith('Reads /api/instances; writes nothing.'),
+        JSON.stringify({ c8, t8 }));
+    await widthShots(cmd, ev, 'aef-v1');
+
+    // ---- doc D: AEF's projection v2 shape (reason_code instead of rule) — T-1427 ----
+    const D = await serve(makeDoc(true, SNAPSHOT_AEF_V2)); servers.push(D.py);
+    await cmd('Page.navigate', { url: `${D.BASE}/designer.html?load=rendered/task-lifecycle.bpmn&instance=T-9991` });
+    await waitReady(cmd); await waitOverlayLoaded(cmd);
+    await ev(cmd, 'labelPrefs.size = "m"; renderAll(); true');
+    const c9 = await ev(cmd, COUNTS);
+    const t9 = await ev(cmd, `({ title: ${TITLE}, badge: (document.querySelector('[data-instance-badge="refused"]') || {}).textContent || null })`);
+    leg('L9', 'a v2 transition refusal (reason_code, no rule) draws: refused node, target, "⛔ unresolved_reference", ⛔ in the title (T-1427)',
+        c9.refused === 1 && c9.target === 1 && t9.badge === '⛔ unresolved_reference' && t9.title.includes('⛔ the node a refusal fired on'),
+        JSON.stringify({ c9, t9 }));
+    await shot(cmd, await nodeSel('frw_gw_all'), 't1427-aef-v2-refused-node.png', 40);
+    await widthShots(cmd, ev, 'aef-v2');
 
     // ---- doc B: endpoint absent ----
     const B = await serve(makeDoc(false)); servers.push(B.py);
