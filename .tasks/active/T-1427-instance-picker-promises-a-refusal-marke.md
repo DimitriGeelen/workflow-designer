@@ -112,14 +112,16 @@ today; the marker itself is unchanged.
 - [ ] The next release's draft notes name the change for AEF.
 
 ### Human
-- [ ] [REVIEW] Independent screenshot review (`fw reviewer judge T-1427 --criterion 1`): the instance picker and the
+- [ ] Independent screenshot review (reviewer-judged, `fw reviewer judge T-1427 --criterion 1`): the instance picker and the
   overlay with AEF's projection v1 snapshot (unplaced task files) and its v2 shape (`reason_code`), at 1024, 1440, 1920.
   **Steps:**
-  1. Open `docs/reports/t884-shots/t1427-aef-v1-{1024,1440,1920}.png` with `t1427-aef-v1-title.txt`, and
-     `t1427-aef-v2-{1024,1440,1920}.png` with `t1427-aef-v2-title.txt` and `t1427-aef-v2-refused-node.png`.
-  2. v1: the picker reads "T-9991 · agt_2_perform · started-work", visible and unclipped; no red halo on the map; the
-     title text has no ⛔ sentence. v2: the title text has the ⛔ sentence with no file path; the close-up shows the
-     red halo and a "⛔ unresolved_reference" badge on frw_gw_all, legible. Toolbar controls visible at every width.
+  1. Open `docs/reports/t884-shots/t1427-aef-v1-{1024,1440,1920}.png` with `t1427-aef-v1-title.txt` and
+     `t1427-aef-v1-gw-all-node.png`, and `t1427-aef-v2-{1024,1440,1920}.png` with `t1427-aef-v2-title.txt` and
+     `t1427-aef-v2-refused-node.png`. The width shots are fitted to the whole map (⤢), so frw_gw_all is in view.
+  2. v1: the picker reads "T-9991 · agt_2_perform · started-work", visible and unclipped; frw_gw_all ("All gates
+     pass?") without a red halo in the width shots and in its close-up; the title text has no ⛔ sentence. v2: the
+     title text has the ⛔ sentence with no file path; frw_gw_all with its red halo in the width shots, and the
+     close-up shows the halo and a "⛔ unresolved_reference" badge, legible. Toolbar controls visible at every width.
   **Expected:** both cases read as described, at all three widths.
   **If not:** name the screenshot and what is wrong.
 
@@ -323,7 +325,8 @@ Evidence from `tools/_t884-instance-overlay-cdp.mjs` (legs L7, L8, L9), in `docs
 | AEF v1 snapshot | map overlay | ok | ok | ok | ● on agt_2_perform, ✓ on the derived path; no red halo anywhere (L8: 0 refused) |
 | AEF v1 snapshot | toolbar (zoom, Add Lane, Reset, Clean layout, View XML, Settings, Load, Save) | ok | ok | ok | at 1024 it wraps to two rows, as before this change |
 | AEF v2 snapshot | instance picker title | ok | ok | ok | ⛔ sentence present, with no file path (host-neutral) |
-| AEF v2 snapshot | refused node frw_gw_all | ok | ok | ok | beyond the canvas at all three widths; the close-up shows the red halo and "⛔ unresolved_reference" |
+| AEF v2 snapshot | refused node frw_gw_all | ok | ok | ok | width shots fitted (⤢) after review r3's amber (the 100% shots left it off-canvas, v1 = v2 byte for byte); halo visible, small at 1024; the close-up shows the red halo and "⛔ unresolved_reference" |
+| AEF v1 snapshot | frw_gw_all close-up | ok | ok | ok | `t1427-aef-v1-gw-all-node.png`: the same gateway, no halo |
 
 Read by me control by control, 2026-11-16. Independent review: the `[REVIEW]` criterion under `### Human`.
 

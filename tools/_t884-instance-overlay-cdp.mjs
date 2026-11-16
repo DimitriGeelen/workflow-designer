@@ -68,7 +68,9 @@ async function widthShots(cmd, ev, tag) {
   const titles = {};
   for (const w of [1024, 1440, 1920]) {
     await cmd('Emulation.setDeviceMetricsOverride', { width: w, height: 900, deviceScaleFactor: 1, mobile: false });
-    await ev(cmd, 'renderAll(); true'); await sleep(300);
+    // Fit the whole map (the ⤢ button): the refused node frw_gw_all is past the canvas at 100% at every width, and the
+    // reviewer's amber (V-…, judge-t-1427-r3) was exactly that the v1 and v2 shots were then byte-identical.
+    await ev(cmd, 'renderAll(); setZoom(null); true'); await sleep(400);
     const s = await cmd('Page.captureScreenshot', { format: 'png' });
     mkdirSync(OUT, { recursive: true }); writeFileSync(join(OUT, `t1427-${tag}-${w}.png`), Buffer.from(s.data, 'base64'));
     titles[w] = await ev(cmd, TITLE);
@@ -194,6 +196,8 @@ const COUNTS = `({ current: document.querySelectorAll('g.node[data-instance="cur
         t8.kept === 0 && c8.refused === 0 && c8.target === 0 && c8.current === 1 && !t8.title.includes('⛔')
           && t8.title.includes('● current node') && t8.title.endsWith('Reads /api/instances; writes nothing.'),
         JSON.stringify({ c8, t8 }));
+    await ev(cmd, 'labelPrefs.size = "m"; renderAll(); true');
+    await shot(cmd, await nodeSel('frw_gw_all'), 't1427-aef-v1-gw-all-node.png', 40);
     await widthShots(cmd, ev, 'aef-v1');
 
     // ---- doc D: AEF's projection v2 shape (reason_code instead of rule) — T-1427 ----
