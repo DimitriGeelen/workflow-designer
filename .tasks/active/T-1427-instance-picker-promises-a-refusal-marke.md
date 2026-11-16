@@ -112,12 +112,14 @@ today; the marker itself is unchanged.
 - [ ] The next release's draft notes name the change for AEF.
 
 ### Human
-- [ ] [REVIEW] Independent screenshot review (`fw reviewer judge T-1427 --criterion 1`): the instance picker's tooltip,
-  with the AEF-shaped snapshot and with the 832-shaped one, at 1024, 1440 and 1920.
+- [ ] [REVIEW] Independent screenshot review (`fw reviewer judge T-1427 --criterion 1`): the instance picker and the
+  overlay with AEF's projection v1 snapshot (unplaced task files) and its v2 shape (`reason_code`), at 1024, 1440, 1920.
   **Steps:**
-  1. Open the screenshots listed under `## Visual Verification`.
-  2. In each, read the picker's title text and the map: with the AEF shape no ⛔ sentence and no red halo; with the
-     832 shape the ⛔ sentence and the refused node's red halo and "⛔ <rule>" badge; the picker visible and unclipped.
+  1. Open `docs/reports/t884-shots/t1427-aef-v1-{1024,1440,1920}.png` with `t1427-aef-v1-title.txt`, and
+     `t1427-aef-v2-{1024,1440,1920}.png` with `t1427-aef-v2-title.txt` and `t1427-aef-v2-refused-node.png`.
+  2. v1: the picker reads "T-9991 · agt_2_perform · started-work", visible and unclipped; no red halo on the map; the
+     title text has no ⛔ sentence. v2: the title text has the ⛔ sentence with no file path; the close-up shows the
+     red halo and a "⛔ unresolved_reference" badge on frw_gw_all, legible. Toolbar controls visible at every width.
   **Expected:** both cases read as described, at all three widths.
   **If not:** name the screenshot and what is wrong.
 
