@@ -101,6 +101,7 @@ and the operator sees it once and ratifies it or says what to change.
      missing, or anything listed out of scope that should not be?
   **Expected:** You would sign the file as written, or after the changes you named
   **If not:** Tell the agent what to change; it edits the file and hands it back
+  **Reviewer escalation (V-20261116-3401ee40, reviewer-judge-t-986-r3-f17262421ad6:reviewer, rung rung-3-termlink-single-reviewer):** Needs the operator: this criterion is the ratification of the project objectives (a project-direction call). The file itself says it is a draft until the operator ratifies it, and PD-355 excludes the project objectives from reviewer delegation. Mechanical checks pass (shape, header, 8 objectives each with a measure, 3 out-of-scope items). When signing, the operator may want to look at: eight objectives against the task's three-to-six guidance; Sprind named in O-5; pseudocode in O-1 while T-281 stays deferred; whether G0 is rightly left out; where the stop conditions should live.
 
 ## Verification
 
