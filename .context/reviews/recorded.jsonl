@@ -210,3 +210,4 @@
 {"ac":1,"outcome":"amber","task":"T-1427","ts":"2026-11-16T20:10:46Z","verdict_id":"V-20261116-895e339f"}
 {"ac":1,"outcome":"green","task":"T-1427","ts":"2026-11-16T20:50:27Z","verdict_id":"V-20261116-ce456e70"}
 {"ac":1,"outcome":"amber","task":"T-351","ts":"2026-11-16T22:37:47Z","verdict_id":"V-20261116-c7dcc122"}
+{"ac":1,"outcome":"escalate","task":"T-353","ts":"2026-11-16T22:39:32Z","verdict_id":"V-20261116-d559b365"}
