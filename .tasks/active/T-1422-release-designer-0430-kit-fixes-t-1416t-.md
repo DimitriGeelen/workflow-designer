@@ -95,9 +95,12 @@ Check), and AEF's pin is tracked until CURRENT.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Release notes `docs/releases/RELEASE-NOTES-0.43.0.md` committed: the four changes, what changes in stored maps
+- [x] Release notes `docs/releases/RELEASE-NOTES-0.43.0.md` committed: the four changes, what changes in stored maps
   (nothing), what changes in Check, and all five endpoints with AEF's serving state (T-1289 leg green).
-- [ ] Operator job written from job 133, rehearsed (dry-run green) and committed.
+  → Committed 6a005af54. `test_t1289_host_contract_notes.py`: OK (0 missing, 2 declined with a ruling, all named).
+- [x] Operator job written from job 133, rehearsed (dry-run green) and committed.
+  → Job 148: all 18 preflight checks ok, step 1 rehearsed in a clone, sha 1f1aed3718c4. New check: T-1416 to T-1419
+  closed. New cut check: the kit ships the T-1418 exemplar.
 - [ ] After the operator's run: tag `designer-v0.43.0` on origin, the artifact and kit in dist/, AEF told (version,
   tag, sha256, bytes, what changes), and `tools/_t1187-aef-pin-lag.sh` tracking their pin until CURRENT.
 
