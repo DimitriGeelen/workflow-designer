@@ -101,3 +101,4 @@
 {"ac":1,"kind":"escalate","owner_after":"human","owner_before":"human","task":"T-986","ts":"2026-11-16T11:13:44Z","verdict_id":"V-20261116-3401ee40"}
 {"kind":"verdict-apply","open_human_remaining":0,"owner_after":"agent","owner_before":"agent","recited":[],"task":"T-1427","ticked":[{"ac":1,"reviewer":"reviewer-judge-t-1427-r3-fcd443ec60a5:reviewer","verdict_id":"V-20261116-ce456e70"}],"ts":"2026-11-16T21:35:23Z","withdrawn":[]}
 {"ac":1,"kind":"escalate","owner_after":"human","owner_before":"human","task":"T-353","ts":"2026-11-16T22:39:32Z","verdict_id":"V-20261116-d559b365"}
+{"ac":2,"kind":"escalate","owner_after":"human","owner_before":"human","task":"T-368","ts":"2026-11-16T22:41:31Z","verdict_id":"V-20261116-4b135262"}

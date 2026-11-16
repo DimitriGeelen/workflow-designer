@@ -212,3 +212,4 @@
 {"ac":1,"outcome":"amber","task":"T-351","ts":"2026-11-16T22:37:47Z","verdict_id":"V-20261116-c7dcc122"}
 {"ac":1,"outcome":"escalate","task":"T-353","ts":"2026-11-16T22:39:32Z","verdict_id":"V-20261116-d559b365"}
 {"ac":1,"outcome":"amber","task":"T-368","ts":"2026-11-16T22:41:27Z","verdict_id":"V-20261116-d3a2c908"}
+{"ac":2,"outcome":"escalate","task":"T-368","ts":"2026-11-16T22:41:31Z","verdict_id":"V-20261116-4b135262"}
