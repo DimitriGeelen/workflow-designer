@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1423: Browser-tier age alert also goes STALE when the corpus changed after the last browser run (G-094 prevention)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-16T09:51:55Z
+# ============================================================================
+
+task_id: T-1423
+task_name: "Browser-tier age alert also goes STALE when the corpus changed after the last browser run (G-094 prevention)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-16T09:33:09Z
+completed: 2026-11-16T09:51:47Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-16T10:36:08+01:00
+last_commit: 2026-11-16T10:36:08+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  browser-tier age alert also goes STALE when the corpus changed after the last browser run, naming it (G-094 prevention-in-place); test case red on the pre-fix tool, 8/8 green
+
+# Key outcomes
+outcomes:
+  - '`_t1355-browser-tier-age.py` treats `examples/aef-processes` as a watched input like `.agentic-framework`. Its'
+  - '`tests/test_t1355_browser_tier_age.py` gains a case: a corpus commit after the last green browser run gives'
+  - 'G-094 in `.context/project/concerns.yaml` records this as its prevention (status prevention-in-place).'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'browser-tier age alert also goes STALE when the corpus changed after the last browser run, naming it (G-094 prevention-in-place); test case red on the pre-fix tool, 8/8 green'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/concerns.yaml'
+  - '.tasks/active/T-1423-browser-tier-age-alert-also-goes-stale-w.md'
+  - 'tests/test_t1355_browser_tier_age.py'
+  - 'tools/_t1355-browser-tier-age.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-16T10:36:08'
+    action: 'T-1423: browser-tier age alert also goes STALE when the corpus changed after the last browser run, naming it (G-094 prevention-in-place); test case red on the pre-fix tool, 8/8 green'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 18 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 18
+  commits: 2
+  files_changed: 7
+  lines_added: 559
+  lines_removed: 23
+  footprint_refreshed_at: '2026-11-16T09:52:01Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1423-browser-tier-age-alert-also-goes-stale-w.md
+generated_by: context-agent-hybrid

@@ -8,13 +8,13 @@ description: >
   moved since the last browser run; extend it to the corpus the browser harnesses
   read.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/test_t1355_browser_tier_age.py, tools/_t1355-browser-tier-age.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -43,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-16T09:33:09Z
-last_update: '2026-11-16T09:33:14Z'
-date_finished:
+last_update: 2026-11-16T09:51:47Z
+date_finished: 2026-11-16T09:51:47Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -390,3 +390,22 @@ grep -q '"examples/aef-processes", "the corpus' tools/_t1355-browser-tier-age.py
 
 ### 2026-11-16T09:33:13Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-16T09:51:47Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** pushed, core green on the pool (229/0); G-094 prevention-in-place
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-d4db7f9f
+- **Timestamp:** 2026-11-16T09:51:49Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#3 (Agent)** — G-094 in `.context/project/concerns.yaml` records this as its prevention (status prevention-in-place).
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=context/project/concerns.yaml in: G-094 in `.context/project/concerns.yaml` records this as its prevention (status prevention-in-place).`
