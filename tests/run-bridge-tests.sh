@@ -2085,6 +2085,21 @@ else
 fi
 }
 leg core "test_t1289_host_contract_notes" _leg_074
+_leg_t1425() {
+
+# ── T-1425: the release notes say which of 832's shared-contract artifacts moved (AEF T-5183 pairings) ──
+# A shared contract nobody owns drifts: each side changes its artifact and nothing says the pair still agrees. The
+# notes' '## Shared contracts' table must match what moved between the release and the one before; four wrong-table
+# controls prove the check bites.
+if python3 "$ROOT/tests/test_t1425_shared_contracts.py" > "$TMP/leg-_t1425.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the release notes' Shared contracts table does not say which of 832's paired artifacts moved since the previous release, or it could not be measured (run 'python3 tools/_t1425-shared-contracts.py --check'; T-1425)"
+  show_output "$TMP/leg-_t1425.out" "test_t1425_shared_contracts.py"
+  fail=$((fail + 1))
+fi
+}
+leg core "test_t1425_shared_contracts" _leg_t1425
 _leg_075() {
 
 # ── T-1273: an in-place mutation script cannot survive INT/TERM with its mutant ──

@@ -75,3 +75,18 @@ The endpoints as you confirmed them (msg adadee0b, 2026-11-08; msg 219d838b, 202
 | `GET/POST /api/field-suggestions` | **"Suggest as a field"** (T-1126) | not served by design (your T-4737 IW-3): the button is hidden (T-1391) |
 
 Contracts: 832 `docs/reports/T-1300-designer-data-api-contract.md` and `docs/reports/T-1312-field-catalog-contract.md`.
+
+## Shared contracts
+
+Added on 2026-11-16, after the release (T-1425), when AEF and 832 paired the five shared contracts (AEF T-5183). From
+the next release on, every release's notes carry this table, and `tools/_t1425-shared-contracts.py --check` (a core
+leg) holds the last column to what moved since the previous release. The released 0.43.0 bytes on 832's side are the
+designer page sha256 85119747…, the kit `SHA256SUMS` 126451b6… and `validate-workflow.py` 08ac4443….
+
+| # | Contract | AEF artifact | 832 artifact | Moved in this release |
+|---|---|---|---|---|
+| 1 | Procedure interchange | contracts v2 `procedure.schema.json` v1, ac9aaefc | designer page (export) | no |
+| 2 | Mapping / compatibility | "designer produces contracts v2" (AEF T-5184, drafting) | authoring kit | yes |
+| 3 | Validation / refusal diagnostics | contracts v2 `refusal.schema.json` v2, c4148a34 | validate-workflow.py | yes |
+| 4 | Runtime projection | projection schema (AEF T-5185, to be frozen) | designer page (overlay renderer) | no |
+| 5 | Ratification | `task-lifecycle-contract.md` (frozen T-3386) | designer page (save/export proposal-only) | no |

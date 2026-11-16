@@ -133,8 +133,14 @@ Read against the vendored contracts (`.agentic-framework/docs/research/executabl
   a row cannot be checked mechanically.
 - [ ] Rows 2 and 4: AEF's drafted mapping (T-5184) and frozen projection schema (T-5185) are received and checked the
   same way.
-- [ ] The release-notes template carries a "Shared contracts" table naming each pair's current hashes, so a release
+- [x] The release-notes template carries a "Shared contracts" table naming each pair's current hashes, so a release
   that moves a paired artifact says so.
+  Done as a gate, not a template file (832 has no notes template; each release's notes are written by hand):
+  `tools/_t1425-shared-contracts.py` measures, per row, whether 832's artifact moved since the previous release, and
+  prints the table to paste. Core leg `test_t1425_shared_contracts` fails when the current notes (the T-1315 pick)
+  lack the table or say the wrong yes/no, with four wrong-table controls. AEF's side is named by its agreed hash.
+  832's own hashes exist only once the release is cut, so the measured column is "moved", and the release's bytes
+  are named in prose. The 0.43.0 notes were backfilled.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -320,6 +326,9 @@ Read against the vendored contracts (`.agentic-framework/docs/research/executabl
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+python3 tests/test_t1425_shared_contracts.py
+python3 tools/_t1425-shared-contracts.py --check
+bash tests/run-bridge-tests.sh --list-legs | grep -q 'core test_t1425_shared_contracts'
 
 ## RCA
 
