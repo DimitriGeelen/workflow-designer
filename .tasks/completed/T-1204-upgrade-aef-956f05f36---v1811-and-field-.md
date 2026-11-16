@@ -4,12 +4,13 @@ name: "Upgrade AEF 956f05f36 -> v1.8.11 and field-test T-4303, T-4264, T-4232"
 description: >
   AEF released v1.8.11 (tag, master e42aa41bf; msg 81494151). Upgrade 832 via an operator job on the T-1188 re-vendor protocol, after reading the upgrade notes (CLAUDE.md now refuses instead of deleting project lines: mark ours project-owned first). Report WORKS/FAILS to AEF on T-4303, T-4264, T-4232.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t614-budget-threshold-drift.py, tools/_t654-archiving-a-partial-complete-task-must-null-its-horizon.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-18T20:07:58Z
-last_update: 2026-10-18T20:07:58Z
-date_finished: null
+last_update: 2026-10-18T22:19:27Z
+date_finished: 2026-10-18T22:19:27Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -399,3 +400,22 @@ curl -sf --max-time 60 "$(cat .context/working/watchtower.url)/designer/open?loa
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1204-upgrade-aef-956f05f36---v1811-and-field-.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-a77e0713
+- **Timestamp:** 2026-10-18T22:19:36Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#4 (Agent)** — After the run, local fixes reported STALE by `tools/_t517` are re-applied or retired, the `.bak` backups are diffed and handled (CLAUDE.md rule), and the template sync `tools/_t1192-upgrade-templates.
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t1192-upgrade-templates.sh in: After the run, local fixes reported STALE by `tools/_t517` are re-applied or retired, the `.bak` backups are diffed and handled (CLAUDE.md rule), and `
+- **AC#2 (Human)** — [REVIEWER] Block message names both bypass mechanisms
+  - **reviewer-prose-mismatch** (partial, heuristic) — `matched='reads' in: Verdict: PASS; no findings on `block-message-completeness``
+
+### 2026-10-18T22:19:27Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
