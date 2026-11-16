@@ -4,12 +4,13 @@ name: "Release designer 0.24.0: saving keeps what third-party maps brought (T-12
 description: >
   Release designer 0.24.0: saving keeps what third-party maps brought (T-1217, T-1218, T-1220), gateway rules become warnings (T-1212), details view opens at the top (T-1209)
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-19T21:05:26Z
-last_update: 2026-10-20T19:59:26Z
-date_finished: null
+last_update: 2026-11-16T09:55:38Z
+date_finished: 2026-11-16T09:55:38Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -77,8 +78,12 @@ date_finished: null
       AEF re-pin task: **AEF T-4448** (msg 5f19f8a7; same pull-at-tag procedure as T-4310; they grep for the old E- ids
       and exit-2 expectations first). aef-greenfield-test could not pull over ssh; operator: "they should pull it from
       github" — tag and sha256 verified on the GitHub mirror and passed on (2eb8e0e5).
-- [ ] After the operator's run: the tag is on origin, Watchtower serves 0.24.0, and AEF and aef-greenfield-test are told
+- [x] After the operator's run: the tag is on origin, Watchtower serves 0.24.0, and AEF and aef-greenfield-test are told
       (version, tag, sha256, bytes, what changes in stored maps); AEF's pin is followed until it reads CURRENT.
+      → 2026-11-16 (T-575 landing): every part is recorded above. `git ls-remote` shows designer-v0.24.0 on origin;
+      Watchtower was re-pinned; AEF (c859278f) and aef-greenfield-test (d1c3f215, then 2eb8e0e5) were told. AEF's pin
+      moved past 0.24.0 under AEF T-4448 and later re-pins; `tools/_t1187-aef-pin-lag.sh` reads 0.41.0 today, so the
+      0.24.0 release has nothing left to follow. The current pin is tracked by T-1422.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -131,6 +136,8 @@ date_finished: null
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+git rev-parse -q --verify refs/tags/designer-v0.24.0
+test -f dist/aef-workflow-designer-0.24.0.html
 # Build/refactor/decommission tasks with NO command here are refused. If nothing can be
 # run, add the line `# verification: none — <why nothing can be run>`; it is serviced
 # (queued for review: add a check / other evidence / accept). See docs/reports/T-4024-servicing-loop.md.
@@ -353,3 +360,22 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1223-release-designer-0240-saving-keeps-what-.md
 - **Context:** Initial task creation
+
+### 2026-11-16T09:55:38Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** T-575 landing: release long done (tag on origin, served, AEF and Greenfield told); AEF pin moved past it (0.41.0 today)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-aea2a34f
+- **Timestamp:** 2026-11-16T09:55:39Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — VERSION and APP_VERSION read 0.24.0 (`tools/_t808-version-parity.sh` passes); release notes
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t808-version-parity.sh in: VERSION and APP_VERSION read 0.24.0 (`tools/_t808-version-parity.sh` passes); release notes`

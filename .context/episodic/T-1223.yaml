@@ -1,0 +1,135 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1223: Release designer 0.24.0: saving keeps what third-party maps brought (T-1217, T-1218, T-1220), gateway rules become warnings (T-1212), details view opens at the top (T-1209)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-16T09:55:45Z
+# ============================================================================
+
+task_id: T-1223
+task_name: "Release designer 0.24.0: saving keeps what third-party maps brought (T-1217, T-1218, T-1220), gateway rules become warnings (T-1212), details view opens at the top (T-1209)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-10-19T21:05:26Z
+completed: 2026-11-16T09:55:38Z
+duration_days: 28
+updates_count: 2
+first_commit: 2026-10-19T23:07:24+02:00
+last_commit: 2026-10-20T21:59:27+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  0.24.0 — VERSION and APP_VERSION bumped (parity ok), release notes (T-1217, T-1218, T-1220, T-1212 with its id map, T-1209); pending list emptied. operator jobs 053 (release designer 0.24.0: calibrate codex + GLM-5.3, cut, commit, tag, push) and 054 (record the reviewer-judged GO on T-1219), both dry-run. release designer 0.24.0 — saving keeps what third-party maps brought (T-1217, T-1218, T-1220); gateway rules become warnings (T-1212); details view opens at the top (T-1209); kit calibrated on its bytes. re-pinned 0.23.0 -> 0.24.0 (fw designer sync --from-tag: sha verified against pin and MANIFEST; /designer/app serves a42f16b3, APP_VERSION 0.24.0); divergence register entry restored (local-config), _t517 OK. 0.24.0 released, served and announced — T-1217, T-1218 (reviewer re-judged green on the shipped code; the first verdict went stale with the release commit), T-1220 closed; AEF pin still BEHIND until they re-pin. AEF re-pin is their T-4448; greenfield pulls from the GitHub mirror (operator), tag and sha verified there. operator job 064 — restart Watchtower on be.3 so it serves designer 0.24.0 (the running process predates the upgrade and serves 0.23.0); dry-run passed
+
+# Key outcomes
+outcomes:
+  - 'VERSION and APP_VERSION read 0.24.0 (`tools/_t808-version-parity.sh` passes); release notes'
+  - 'A full bridge run on the release-input HEAD is green, run alone with no other browser work on the host.'
+  - 'The release job (calibrate the kit with codex and GLM-5.3, cut, commit, tag, push) is written, dry-run, committed'
+  - 'After the operator''s run: the tag is on origin, Watchtower serves 0.24.0, and AEF and aef-greenfield-test are told'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # 1 decision(s) below are recorded in the register (.context/project/decisions.yaml) for this task but absent from the task file's Decisions section (T-4193).
+  - decision: 'PD-411'
+    chose: 'Consumers without read access to the OneDev repo pull designer releases from the GitHub mirror (github.com/DimitriGeelen/workflow-designer), which OneDev updates on every branch and tag; the agent verifies the tag and the artifact''s sha256 there before pointing them at it'
+    rationale: 'Operator, 2026-10-20, when aef-greenfield-test could not pull designer-v0.24.0 over ssh: ''they should pull it from github''. No deploy keys, no file sends.'
+    id: 'PD-411'
+    source: register
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/policy/designer-pin.yaml'
+  - '.context/episodic/T-1217.yaml'
+  - '.context/episodic/T-1218.yaml'
+  - '.context/episodic/T-1220.yaml'
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/runme/053-release-designer-0.24.0/dryrun.ok'
+  - '.context/runme/053-release-designer-0.24.0/job.sh'
+  - '.context/runme/054-decide-t1219-go/dryrun.ok'
+  - '.context/runme/054-decide-t1219-go/job.sh'
+  - '.context/runme/064-restart-watchtower-be3/dryrun.ok'
+  - '.context/runme/064-restart-watchtower-be3/job.sh'
+  - '.tasks/active/T-1223-release-designer-0240-saving-keeps-what-.md'
+  - '.tasks/completed/T-1217-save-drops-bpmnlinkeventdefinition-a-lin.md'
+  - '.tasks/completed/T-1218-save-writes-an-unnamed-startend-events-i.md'
+  - '.tasks/completed/T-1220-keep-unknown-aef-attributes-on-aefinputa.md'
+  - 'VERSION'
+  - 'dist/MANIFEST.yaml'
+  - 'dist/aef-authoring-kit-0.24.0/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.24.0/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.24.0/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.24.0/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.24.0/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.24.0/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.24.0/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.24.0/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.24.0/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.24.0/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.24.0/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.24.0/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.24.0/loop.sh'
+  - 'dist/aef-authoring-kit-0.24.0/validate-workflow.py'
+  - 'dist/aef-workflow-designer-0.24.0.html'
+  - 'docs/authoring-kit/calibration-records/0.24.0.yaml'
+  - 'docs/releases/PENDING-next-release.md'
+  - 'docs/releases/RELEASE-NOTES-0.24.0.md'
+  - 'src/aef-workflow-designer.html'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-19T23:07:24'
+    action: 'T-1223: 0.24.0 — VERSION and APP_VERSION bumped (parity ok), release notes (T-1217, T-1218, T-1220, T-1212 with its id map, T-1209); pending list emptied'
+  - time: '2026-10-20T00:07:28'
+    action: 'T-1223: operator jobs 053 (release designer 0.24.0: calibrate codex + GLM-5.3, cut, commit, tag, push) and 054 (record the reviewer-judged GO on T-1219), both dry-run'
+  - time: '2026-10-20T00:46:57'
+    action: 'T-1223: release designer 0.24.0 — saving keeps what third-party maps brought (T-1217, T-1218, T-1220); gateway rules become warnings (T-1212); details view opens at the top (T-1209); kit calibrated on its bytes'
+  - time: '2026-10-20T00:54:31'
+    action: 'T-1223: re-pinned 0.23.0 -> 0.24.0 (fw designer sync --from-tag: sha verified against pin and MANIFEST; /designer/app serves a42f16b3, APP_VERSION 0.24.0); divergence register entry restored (local-config), _t517 OK'
+  - time: '2026-10-20T10:00:51'
+    action: 'T-1223: 0.24.0 released, served and announced — T-1217, T-1218 (reviewer re-judged green on the shipped code; the first verdict went stale with the release commit), T-1220 closed; AEF pin still BEHIND until they re-pin'
+  - time: '2026-10-20T10:12:02'
+    action: 'T-1223: AEF re-pin is their T-4448; greenfield pulls from the GitHub mirror (operator), tag and sha verified there'
+  - time: '2026-10-20T21:59:27'
+    action: 'T-1223: operator job 064 — restart Watchtower on be.3 so it serves designer 0.24.0 (the running process predates the upgrade and serves 0.23.0); dry-run passed'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 7 commit(s), 39650 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 39650
+  commits: 8
+  files_changed: 43
+  lines_added: 19226
+  lines_removed: 62
+  footprint_refreshed_at: '2026-11-16T09:55:54Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1223-release-designer-0240-saving-keeps-what-.md
+generated_by: context-agent-hybrid

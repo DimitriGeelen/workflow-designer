@@ -22725,3 +22725,21 @@ scan_id: R-d4db7f9f
 task_id: T-1423
 payload:
   task_file: .tasks/active/T-1423-browser-tier-age-alert-also-goes-stale-w.md
+---
+kind: scan_emitted
+timestamp: '2026-11-16T09:55:39Z'
+scan_id: R-aea2a34f
+task_id: T-1223
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-16T09:55:39Z'
+scan_id: R-aea2a34f
+task_id: T-1223
+payload:
+  task_file: .tasks/active/T-1223-release-designer-0240-saving-keeps-what-.md
