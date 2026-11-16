@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-06T08:44:10Z
-last_update: 2026-10-06T08:44:10Z
+last_update: 2026-11-16T22:34:52Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -56,7 +56,33 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+**Background / trigger:** the operator, 2026-09-21 (PD-302), and again on 2026-11-16 ("this is rubber stamping,
+right?"): checks the reviewer can judge must not land in the operator's queue. Since PD-357 (2026-10-06) routing
+follows AEF's ruleset (`fw task delegate`, `fw reviewer judge`).
+**Problem / hypothesis:** reviewer-judged criteria still sit in the queue: never judged, or judged green and never
+applied.
+**Goal:** measure it, name each cause, and drain what the agent can.
+**Expected outcome:** the queue holds only operator-only criteria, plus reviewer ambers and escalations that carry
+their guidance.
+
+## Findings (2026-11-16)
+
+Measured with `tools/_t770-delegation-boundary.py` (AEF routing via `fw task classify-ac`), over 356 open criteria in
+`.tasks/active/`:
+- 258 agent-self, 47 reviewer-judges, 0 reviewer-closeable, 51 operator-only. The operator-only ones break down as
+  inception-decision 20, owner-human 12, sovereignty-field 8, act-in-the-world 5, tier0-or-bypass 4+1,
+  release-surface 1.
+- 0 misfiled `[REVIEWER]` criteria. In the operator's `### Human` queue: 66 criteria (64 `[REVIEW]`, 1 unprefixed,
+  1 `[RUBBER-STAMP]`).
+
+Why the 47 reviewer-judged criteria still sit there. Across 30 partial-complete tasks:
+1. **Never judged (10 tasks):** T-351, T-353, T-368, T-433, T-579, T-588, T-592, T-676, T-736, T-884. The reviewer
+   was simply never run. Now running (batch 2026-11-16).
+2. **Judged green, never applied (3):** T-1212, T-310, T-893. `fw reviewer verdict apply` on a human-owned
+   partial-complete task is refused in the agent's session (P-002 partial-complete edit gate; its bypass is Tier 2).
+   A task the agent owns gets its verdict applied at close, as T-1427 did today. So the apply goes to an operator job.
+3. **Judged amber, escalated or unknown (about 17):** the reviewer asked for more evidence or for the operator.
+   These are the reviewer's answer, not a routing failure, and each needs its guidance acted on.
 
 ## Acceptance Criteria
 
