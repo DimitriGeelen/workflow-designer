@@ -58,7 +58,9 @@ def load(name):
 class CountingYaml:
     """Stands in for the module's `yaml` so parses can be counted.
 
-    Only safe_load is used by _load_components; delegating keeps behaviour identical.
+    _load_components parses with safe_load (AEF up to be.48) or with yaml.load(raw, Loader=_CARD_LOADER), libyaml's
+    C safe loader (AEF T-5136, be.54; T-1426). Both are counted and delegated, so behaviour is identical. Any other
+    attribute is passed through UNcounted (the loader classes the module reads at import).
     """
     def __init__(self, real):
         self.real = real
@@ -66,6 +68,11 @@ class CountingYaml:
     def safe_load(self, *a, **kw):
         self.calls += 1
         return self.real.safe_load(*a, **kw)
+    def load(self, *a, **kw):
+        self.calls += 1
+        return self.real.load(*a, **kw)
+    def __getattr__(self, name):
+        return getattr(self.real, name)
 
 def card(name, subsystem, purpose):
     return "id: %s\nname: %s\ntype: script\nsubsystem: %s\npurpose: %s\n" % (
