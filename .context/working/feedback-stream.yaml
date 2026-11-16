@@ -22887,3 +22887,21 @@ scan_id: R-551d7677
 task_id: T-1426
 payload:
   task_file: .tasks/active/T-1426-upgrade-aef-v1816-be48-to-be54-c6c0a6738.md
+---
+kind: scan_emitted
+timestamp: '2026-11-16T21:35:35Z'
+scan_id: R-38d3cc15
+task_id: T-1427
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-16T21:35:35Z'
+scan_id: R-38d3cc15
+task_id: T-1427
+payload:
+  task_file: .tasks/active/T-1427-instance-picker-promises-a-refusal-marke.md

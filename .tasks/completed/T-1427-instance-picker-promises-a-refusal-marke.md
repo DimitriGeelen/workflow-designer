@@ -11,13 +11,13 @@ description: >
   refusals. Detect served-ness from the response shape or an explicit capability,
   not host sniffing; name it in the next release notes.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tools/_t884-instance-overlay-cdp.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -46,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-16T19:41:26Z
-last_update: '2026-11-16T19:54:08Z'
-date_finished:
+last_update: 2026-11-16T21:35:17Z
+date_finished: 2026-11-16T21:35:17Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -100,19 +100,27 @@ today; the marker itself is unchanged.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] `loadInstanceSnapshot` keeps only transition-shaped refusal rows (a string `node` and a string `rule`); a row of
+- [x] `loadInstanceSnapshot` keeps only transition-shaped refusal rows (a string `node` and a string `rule`); a row of
   AEF's unplaced shape is dropped, so it can never reach the overlay.
-- [ ] The picker's title is set by `renderInstancePicker`: the ● and ✓ sentences always, the ⛔ sentence only when at
+  — also accepts `reason_code` as the rule (refusal v2, AEF's projection v2), so the marker returns without a change.
+- [x] The picker's title is set by `renderInstancePicker`: the ● and ✓ sentences always, the ⛔ sentence only when at
   least one kept refusal exists. The static HTML title no longer promises ⛔.
-- [ ] A CDP leg (in the harness that owns the instance overlay, `_t884-instance-overlay-cdp.mjs`) serves both shapes and
+  — the ⛔ sentence no longer names 832's audit file (host-neutral).
+- [x] A CDP leg (in the harness that owns the instance overlay, `_t884-instance-overlay-cdp.mjs`) serves both shapes and
   asserts: AEF shape → no ⛔ in the title, no `data-instance="refused"` node; 832 shape → ⛔ in the title and the
   refused node drawn as today.
-- [ ] The person-sees gate (`tools/person-sees-gate.sh`) exits 0; the browser tier is green on pool and here before
+  — L7 (832 shape), L8 (AEF v1), L9 (AEF v2 `reason_code`); 9/9. The harness's node shots had gone blank as the
+  layout moved (refused-*.png 6.8 KB to 902 B); it now widens the window for an off-canvas node and fails on a blank shot.
+- [x] The person-sees gate (`tools/person-sees-gate.sh`) exits 0; the browser tier is green on pool and here before
   push (high-risk: `src/`).
-- [ ] The next release's draft notes name the change for AEF.
+  — person-sees exit 0 on the final src (353 s). Browser 142/142 on pool and here; core 230/230 on pool and here
+  (after the T-1066 fix to this task's criterion); pushed 914677c13. Reviewer r3: amber (width shots identical), then
+  green after the fitted shots.
+- [x] The next release's draft notes name the change for AEF.
+  — `docs/releases/PENDING-next-release.md`, T-1427 section.
 
 ### Human
-- [ ] Independent screenshot review (reviewer-judged, `fw reviewer judge T-1427 --criterion 1`): the instance picker and the
+- [x] Independent screenshot review (reviewer-judged, `fw reviewer judge T-1427 --criterion 1`): the instance picker and the
   overlay with AEF's projection v1 snapshot (unplaced task files) and its v2 shape (`reason_code`), at 1024, 1440, 1920.
   **Steps:**
   1. Open `docs/reports/t884-shots/t1427-aef-v1-{1024,1440,1920}.png` with `t1427-aef-v1-title.txt` and
@@ -169,6 +177,7 @@ today; the marker itself is unchanged.
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261116-ce456e70 — reviewer-judge-t-1427-r3-fcd443ec60a5:reviewer (rung rung-3-termlink-single-reviewer), digest bbfedf74ad93; dispatch judge-t-1427-r3-fcd443ec60a5; evidence: .context/reviews/evidence/T-1427/AC1-judge-t-1427-r3-fcd443ec60a5.md, .context/reviews/evidence/T-1427/t1427-aef-v1-1024-judge-t-1427-r3-fcd443ec60a5.png, .context/reviews/evidence/T-1427/t1427-aef-v1-1440-judge-t-1427-r3-fcd443ec60a5.png, .context/reviews/evidence/T-1427/t1427-aef-v1-1920-judge-t-1427-r3-fcd443ec60a5.png, .context/reviews/evidence/T-1427/t1427-aef-v1-gw-all-node-judge-t-1427-r3-fcd443ec60a5.png, .context/reviews/evidence/T-1427/t1427-aef-v2-1024-judge-t-1427-r3-fcd443ec60a5.png, .context/reviews/evidence/T-1427/t1427-aef-v2-1440-judge-t-1427-r3-fcd443ec60a5.png, .context/reviews/evidence/T-1427/t1427-aef-v2-1920-judge-t-1427-r3-fcd443ec60a5.png, .context/reviews/evidence/T-1427/t1427-aef-v2-refused-node-judge-t-1427-r3-fcd443ec60a5.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -430,3 +439,21 @@ Read by me control by control, 2026-11-16. Independent review: the `[REVIEW]` cr
 ### 2026-11-16T19:54:07Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-16T21:35:17Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-38d3cc15
+- **Timestamp:** 2026-11-16T21:35:35Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#4 (Agent)** — The person-sees gate (`tools/person-sees-gate.sh`) exits 0; the browser tier is green on pool and here before
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/person-sees-gate.sh in: The person-sees gate (`tools/person-sees-gate.sh`) exits 0; the browser tier is green on pool and here before`
