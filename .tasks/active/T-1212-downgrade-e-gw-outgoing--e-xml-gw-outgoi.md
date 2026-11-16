@@ -15,13 +15,13 @@ description: >
   review (UI rule); list in PENDING-next-release with an explicit note to AEF that
   their compiler may have relied on the error.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_run
-owner: agent
+current_node: frw_4_partial
+owner: human
 horizon: now
 tags: []
-components: []
+components: [tests/test_finding_anchorability.py, tests/test_harness_cross_form_agreement.py, tests/test_rule_dialect_axis.py, tests/test_rule_form_parity.py, tools/validate-workflow.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -50,8 +50,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-19T09:43:17Z
-last_update: 2026-10-19T10:00:27Z
-date_finished:
+last_update: 2026-11-16T15:22:53Z
+date_finished: 2026-11-16T15:22:53Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -94,6 +94,12 @@ Operator decision 2026-10-19 (option 1 of 3, after background on T-1165/T-1200 a
 gateway with fewer than 2 outgoing flows: 1-in/1-out ("decides nothing") and 0 outgoing. None of that cites a
 requirement, so all of it becomes a warning. The ids carry the severity (E-/W-), so they are renamed
 `W-GW-OUTGOING` / `W-XML-GW-OUTGOING`. AEF stores finding ids, so the rename is announced with an old→new map.
+
+**Background / trigger:** operator decision 2026-10-19, option 1 of 3 (above).
+**Problem / hypothesis:** an exclusive gateway with fewer than 2 outgoing flows failed the check as an ERROR, though
+no requirement says it is wrong; an uncited rule should not fail a map.
+**Goal:** both forms report it as a warning under renamed ids, with AEF told the old→new map.
+**Expected outcome:** such a map passes Check with one warning; shipped in designer 0.24.0, whose notes carry the map.
 
 ## Acceptance Criteria
 
@@ -193,7 +199,7 @@ python3 tests/test_rule_form_parity.py
 python3 tests/test_finding_anchorability.py
 python3 tests/test_harness_cross_form_agreement.py
 grep -q 'W-GW-OUTGOING' tools/validate-workflow.py
-grep -q 'T-1212' docs/releases/PENDING-next-release.md
+grep -q 'E-XML-GW-OUTGOING` → *$' docs/releases/RELEASE-NOTES-0.24.0.md || grep -q 'T-1212' docs/releases/RELEASE-NOTES-0.24.0.md
 bash tests/run-validator-tests.sh
 python3 tests/test_t962_findings_on_map.py
 python3 tools/_t1212-gw-warning-shots.py /tmp/t1212-verify-shots
@@ -409,6 +415,14 @@ Shots: `docs/reports/T-1212-evidence/t1212-check-{1024,1440,1920}.png`, asserted
      for Human Review). If the artefact is complete and you still don't want to
      commit, that is a calibration failure — recommend GO or NO-GO.
 -->
+**Recommendation:** GO (close)
+**Rationale:** the only open criterion (independent screenshot review) is reviewer-judged, and the review panel judged
+it green on 2026-10-19 (V-20261019-2b24f00a and two more seats). The change shipped in designer 0.24.0, whose notes
+carry the old→new id map for AEF.
+**Evidence:**
+- `.context/reviews/verdicts.jsonl`: three green rows for T-1212 AC1, run-t-1212-46f0aaeb3e, 2026-10-19
+- all 9 verification commands pass (2026-11-16), including `_t1212-gw-warning-shots.py`
+- `docs/releases/RELEASE-NOTES-0.24.0.md` lines 29-30: the id map and the note for AEF
 
 ## Decisions
 
@@ -441,3 +455,21 @@ Shots: `docs/reports/T-1212-evidence/t1212-check-{1024,1440,1920}.png`, asserted
 ### 2026-10-19T10:00:27Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-16T15:22:53Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-eb3f96c4
+- **Timestamp:** 2026-11-16T15:23:18Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 6
+     - evidence: `grep -q 'E-XML-GW-OUTGOING` → *$' docs/releases/RELEASE-NOTES-0.24.0.md || grep -q 'T-1212' docs/releases/RELEASE-NOTES-0.24.0.md`
