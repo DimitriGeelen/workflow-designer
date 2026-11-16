@@ -95,6 +95,11 @@ truthfully — including rounds that produced nothing.
 | a worker was "verified alive" and then **refused at the model by quota** | alive is not running; only the artefact closes a round |
 
 - [ ] **Feasibility measured before dispatch, not assumed** — `claude` present, hub up, and a print-mode worker proven able to WRITE in this repo. Recorded with its evidence, because a worker that cannot write reports as dispatched and produces nothing
+  **Miss proposed:** not met: no feasibility probe ran before this task's dispatch, and the final report says so
+  rather than ticking it. What the probe protects against did not happen: all nine rounds ran in order and handed
+  back (the criteria above are met on the handback artefacts, not on dispatch status). A probe now, after the fact,
+  would measure today's machine, not the one that ran, so the criterion can only be accepted as missed, not met
+  later. Record with `fw task accept-miss T-922 --ac 1` (AEF be.54, T-5181), operator only.
 - [x] Nine rounds run **in order**, each prompt containing the mandate **verbatim** plus the previous round's handback and nothing else. Verbatim is asserted by hash against the stored mandate, not by eye
 - [x] **Every prompt's byte count is bounded and asserted** before dispatch, against the sum of its inputs. The 92,818-byte prompt read as a plausible instruction set; only the arithmetic caught it
 - [x] **A round that produces no handback is a FAILED round** — recorded as such, never skipped and never counted as a quiet success. The next round is still fed the last *real* handback, and the substitution is recorded
