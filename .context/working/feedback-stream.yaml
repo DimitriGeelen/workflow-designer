@@ -22797,3 +22797,39 @@ scan_id: R-7ad96338
 task_id: T-1136
 payload:
   task_file: .tasks/active/T-1136-calibration-maps-warehouse-lane-breaks-a.md
+---
+kind: scan_emitted
+timestamp: '2026-11-16T10:20:04Z'
+scan_id: R-501ef87a
+task_id: T-1422
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-16T10:20:04Z'
+scan_id: R-501ef87a
+task_id: T-1422
+payload:
+  task_file: .tasks/active/T-1422-release-designer-0430-kit-fixes-t-1416t-.md
+---
+kind: scan_emitted
+timestamp: '2026-11-16T10:20:47Z'
+scan_id: R-62ee0f6d
+task_id: T-1399
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-16T10:20:47Z'
+scan_id: R-62ee0f6d
+task_id: T-1399
+payload:
+  task_file: .tasks/active/T-1399-release-designer-0420-t-976-flow-order-l.md

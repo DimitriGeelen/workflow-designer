@@ -7,13 +7,13 @@ description: >
   (T-1417..T-1419) found by Antigravity round 2; AEF told; open until AEF's pin is
   CURRENT.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -42,8 +42,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-15T23:57:53Z
-last_update: '2026-11-15T23:58:04Z'
-date_finished:
+last_update: 2026-11-16T10:20:03Z
+date_finished: 2026-11-16T10:20:03Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -101,7 +101,9 @@ Check), and AEF's pin is tracked until CURRENT.
 - [x] Operator job written from job 133, rehearsed (dry-run green) and committed.
   → Job 148: all 18 preflight checks ok, step 1 rehearsed in a clone, sha 1f1aed3718c4. New check: T-1416 to T-1419
   closed. New cut check: the kit ships the T-1418 exemplar.
-- [ ] *(2026-11-16: released by job 149, done rc 0, 09:08Z, after job 148 stopped at step 4 on an empty Enter. Tag on
+- [x] *(2026-11-16 10:18Z, AEF msg f011d003: 0.43.0 pinned and served (AEF T-5101, b99e73f45); `tools/_t1187-aef-pin-lag.sh`
+  reads "CURRENT: AEF serves designer 0.43.0, 832's latest release".)*
+  *(2026-11-16: released by job 149, done rc 0, 09:08Z, after job 148 stopped at step 4 on an empty Enter. Tag on
   origin (commit 351490ea9); artifact sha256 8511974771820287731f8c5a11033feba573a45c9446678c7f02aed12acb287f, 1351062
   bytes; browser 142/0, core green on pool and local. AEF told on consult-832-Workflow-designer, msg df95ece2, and
   asked whether T-5101 goes straight to 0.43.0. Pin: BEHIND 2 (0.41.0). Open until CURRENT.
@@ -294,6 +296,9 @@ Check), and AEF's pin is tracked until CURRENT.
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+git rev-parse -q --verify refs/tags/designer-v0.43.0
+test -f dist/aef-workflow-designer-0.43.0.html
+test -f .context/runme/149-release-designer-0.43.0-resume/done
 
 ## RCA
 
@@ -394,3 +399,22 @@ Check), and AEF's pin is tracked until CURRENT.
 
 ### 2026-11-15T23:58:01Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-16T10:20:03Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** 0.43.0 released, AEF pinned and serves it (CURRENT)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-501ef87a
+- **Timestamp:** 2026-11-16T10:20:04Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#3 (Agent)** — *(2026-11-16 10:18Z, AEF msg f011d003: 0.43.0 pinned and served (AEF T-5101, b99e73f45); `tools/_t1187-aef-pin-lag.sh`
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t1187-aef-pin-lag.sh in: *(2026-11-16 10:18Z, AEF msg f011d003: 0.43.0 pinned and served (AEF T-5101, b99e73f45); `tools/_t1187-aef-pin-lag.sh``

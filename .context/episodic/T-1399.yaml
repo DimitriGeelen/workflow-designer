@@ -1,0 +1,110 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1399: Release designer 0.42.0 (T-976 flow-order layout, T-1386 pool left edge, T-1391 unserved field controls hidden, T-1392 Settings scrolls)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-16T10:20:54Z
+# ============================================================================
+
+task_id: T-1399
+task_name: "Release designer 0.42.0 (T-976 flow-order layout, T-1386 pool left edge, T-1391 unserved field controls hidden, T-1392 Settings scrolls)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-12T12:40:58Z
+completed: 2026-11-16T10:20:45Z
+duration_days: 4
+updates_count: 3
+first_commit: 2026-11-12T13:42:25+01:00
+last_commit: 2026-11-12T18:35:31+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  release notes for 0.42.0 and release job 133 (job 128's steps; new checks: /tmp has room, T-976 closed first; commits name only T-1399) — dry-run follows T-976's close. release job 133 rehearsed green (sha fb7f11342a93); ready for the operator. 0.42.0 — VERSION and APP_VERSION bumped by the release job (parity ok). release designer 0.42.0 — files with no positions laid out along their flows; pool left edge, Settings fit, unserved field controls hidden; kit calibrated on its bytes. 0.42.0 released by job 133 (rc 0), AEF told; open until AEF's pin is CURRENT
+
+# Key outcomes
+outcomes:
+  - 'Release notes `docs/releases/RELEASE-NOTES-0.42.0.md` committed: the four changes, what changes in stored maps'
+  - 'Operator job written from job 128, rehearsed (dry-run green) and committed, with a preflight check for /tmp'
+  - '(2026-11-16 10:18Z: AEF pinned and serves 0.43.0, which carries 0.42.0''s changes. `_t1187-aef-pin-lag.sh`:'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/133-release-designer-0.42.0/dryrun.ok'
+  - '.context/runme/133-release-designer-0.42.0/job.sh'
+  - '.tasks/active/T-1399-release-designer-0420-t-976-flow-order-l.md'
+  - 'VERSION'
+  - 'dist/MANIFEST.yaml'
+  - 'dist/aef-authoring-kit-0.42.0/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.42.0/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.42.0/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.42.0/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.42.0/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.42.0/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.42.0/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.42.0/SKILL.md'
+  - 'dist/aef-authoring-kit-0.42.0/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.42.0/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.42.0/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.42.0/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.42.0/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.42.0/loop.sh'
+  - 'dist/aef-authoring-kit-0.42.0/validate-workflow.py'
+  - 'dist/aef-authoring-kit-0.42.0/verify-findings.py'
+  - 'dist/aef-workflow-designer-0.42.0.html'
+  - 'docs/authoring-kit/calibration-records/0.42.0.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.42.0.md'
+  - 'src/aef-workflow-designer.html'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-12T13:42:25'
+    action: 'T-1399: release notes for 0.42.0 and release job 133 (job 128''s steps; new checks: /tmp has room, T-976 closed first; commits name only T-1399) — dry-run follows T-976''s close'
+  - time: '2026-11-12T16:31:03'
+    action: 'T-1399: release job 133 rehearsed green (sha fb7f11342a93); ready for the operator'
+  - time: '2026-11-12T17:12:15'
+    action: 'T-1399: 0.42.0 — VERSION and APP_VERSION bumped by the release job (parity ok)'
+  - time: '2026-11-12T17:33:59'
+    action: 'T-1399: release designer 0.42.0 — files with no positions laid out along their flows; pool left edge, Settings fit, unserved field controls hidden; kit calibrated on its bytes'
+  - time: '2026-11-12T18:35:31'
+    action: 'T-1399: 0.42.0 released by job 133 (rc 0), AEF told; open until AEF''s pin is CURRENT'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 7 commit(s), 5619 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 5619
+  commits: 8
+  files_changed: 34
+  lines_added: 22612
+  lines_removed: 43
+  footprint_refreshed_at: '2026-11-16T10:21:09Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1399-release-designer-0420-t-976-flow-order-l.md
+generated_by: context-agent-hybrid

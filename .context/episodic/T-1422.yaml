@@ -1,0 +1,119 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1422: Release designer 0.43.0 (kit fixes T-1416..T-1419: source: prefix, callActivity guidance, new exemplar, guide/checklist alignment)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-16T10:20:11Z
+# ============================================================================
+
+task_id: T-1422
+task_name: "Release designer 0.43.0 (kit fixes T-1416..T-1419: source: prefix, callActivity guidance, new exemplar, guide/checklist alignment)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-15T23:57:53Z
+completed: 2026-11-16T10:20:03Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-11-16T01:01:15+01:00
+last_commit: 2026-11-16T10:11:34+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  release notes for designer 0.43.0 (T-1416..T-1419: source: prefix, no callActivity advice, new exemplar, guide/checklist aligned; Check change for AEF; five endpoints with AEF's serving state). release job 148 for designer 0.43.0 (job 133's steps; dry-run green, sha 1f1aed3718c4). 0.43.0 — VERSION and APP_VERSION bumped by the release job (parity ok). job 149 resumes the 0.43.0 release at the gate (job 148 stopped at step 4 on an empty Enter; bump committed, codex and GLM-5.3 PASS 3/3); 148 retired. release designer 0.43.0 — validator knows the kit's source: citation; kit: no callActivity advice, new exemplar built to every rule, guide and checklist aligned; kit calibrated on its bytes (codex 3/3, GLM-5.3 3/3). 0.43.0 released (job 149, tag on origin, sha256 85119747…, 1351062 bytes), AEF told (msg df95ece2); open until AEF's pin is CURRENT. AEF re-pins 0.41.0 -> 0.43.0 directly (T-5101, today, next be-tag; msg d6008fd1); T-1399's 0.42.0 pin rides on it
+
+# Key outcomes
+outcomes:
+  - 'Release notes `docs/releases/RELEASE-NOTES-0.43.0.md` committed: the four changes, what changes in stored maps'
+  - 'Operator job written from job 133, rehearsed (dry-run green) and committed.'
+  - '*(2026-11-16 10:18Z, AEF msg f011d003: 0.43.0 pinned and served (AEF T-5101, b99e73f45); `tools/_t1187-aef-pin-lag.sh`'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'release notes for designer 0.43.0 (T-1416..T-1419: source: prefix, no callActivity advice, new exemplar, guide/checklist aligned; Check change for AEF; five endpoints with AEF''s serving state)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/148-release-designer-0.43.0/dryrun.ok'
+  - '.context/runme/148-release-designer-0.43.0/job.sh'
+  - '.context/runme/148-release-designer-0.43.0/retired'
+  - '.context/runme/149-release-designer-0.43.0-resume/dryrun.ok'
+  - '.context/runme/149-release-designer-0.43.0-resume/job.sh'
+  - '.tasks/active/T-1399-release-designer-0420-t-976-flow-order-l.md'
+  - '.tasks/active/T-1422-release-designer-0430-kit-fixes-t-1416t-.md'
+  - 'VERSION'
+  - 'dist/MANIFEST.yaml'
+  - 'dist/aef-authoring-kit-0.43.0/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.43.0/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.43.0/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.43.0/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.43.0/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.43.0/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.43.0/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.43.0/SKILL.md'
+  - 'dist/aef-authoring-kit-0.43.0/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.43.0/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.43.0/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.43.0/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.43.0/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.43.0/loop.sh'
+  - 'dist/aef-authoring-kit-0.43.0/validate-workflow.py'
+  - 'dist/aef-authoring-kit-0.43.0/verify-findings.py'
+  - 'dist/aef-workflow-designer-0.43.0.html'
+  - 'docs/authoring-kit/calibration-records/0.43.0.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.43.0.md'
+  - 'src/aef-workflow-designer.html'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-16T01:01:15'
+    action: 'T-1422: release notes for designer 0.43.0 (T-1416..T-1419: source: prefix, no callActivity advice, new exemplar, guide/checklist aligned; Check change for AEF; five endpoints with AEF''s serving state)'
+  - time: '2026-11-16T01:01:54'
+    action: 'T-1422: release job 148 for designer 0.43.0 (job 133''s steps; dry-run green, sha 1f1aed3718c4)'
+  - time: '2026-11-16T02:09:57'
+    action: 'T-1422: 0.43.0 — VERSION and APP_VERSION bumped by the release job (parity ok)'
+  - time: '2026-11-16T07:05:41'
+    action: 'T-1422: job 149 resumes the 0.43.0 release at the gate (job 148 stopped at step 4 on an empty Enter; bump committed, codex and GLM-5.3 PASS 3/3); 148 retired'
+  - time: '2026-11-16T07:08:21'
+    action: 'T-1422: release designer 0.43.0 — validator knows the kit''s source: citation; kit: no callActivity advice, new exemplar built to every rule, guide and checklist aligned; kit calibrated on its bytes (codex 3/3, GLM-5.3 3/3)'
+  - time: '2026-11-16T10:09:00'
+    action: 'T-1422: 0.43.0 released (job 149, tag on origin, sha256 85119747…, 1351062 bytes), AEF told (msg df95ece2); open until AEF''s pin is CURRENT'
+  - time: '2026-11-16T10:11:34'
+    action: 'T-1422: AEF re-pins 0.41.0 -> 0.43.0 directly (T-5101, today, next be-tag; msg d6008fd1); T-1399''s 0.42.0 pin rides on it'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 7 commit(s), 622 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 622
+  commits: 8
+  files_changed: 34
+  lines_added: 22149
+  lines_removed: 30
+  footprint_refreshed_at: '2026-11-16T10:21:09Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1422-release-designer-0430-kit-fixes-t-1416t-.md
+generated_by: context-agent-hybrid
