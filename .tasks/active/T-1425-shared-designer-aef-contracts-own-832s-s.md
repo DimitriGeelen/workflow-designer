@@ -1,18 +1,13 @@
 ---
-id: T-1424
-name: "Validator header calls YAML 'AEF-canonical', which SD-1 retired (AEF T-5144
-  G3)"
+id: T-1425
+name: "Shared Designer-AEF contracts: own 832's side of the five pairings agreed with AEF (AEF T-5183)"
 description: >
-  AEF's R7 reconciliation (T-5144, msg 1f3fa75d) found validate-workflow.py line 10
-  calling the YAML form 'the AEF-canonical, source-controlled representation'; SD-1/SD-5
-  (single stored representation) retired that. Reword the header to say what YAML
-  is now.
+  AEF T-5183 (msg 3fe4f1cf) pairs AEF contracts v2 artifacts with 832 0.43.0 artifacts: (1) procedure.schema.json v1 ac9aaefc -> designer export 85119747; (2) mapping/compatibility, AEF drafts 'designer 0.43.0 produces contracts v2' -> kit 126451b6; (3) refusal.schema.json v2 c4148a34 -> validate-workflow.py diagnostics 08ac4443; (4) AEF freezes a runtime-projection schema -> overlay renderer 0.43.0; (5) task-lifecycle-contract.md + Watchtower decision path -> save/export as proposal-only. 832 keeps each pairing current across releases and measures conformance.
 
-status: started-work
+status: captured
 workflow_type: build
-current_node: frw_1_start
 owner: agent
-horizon: now
+horizon: next
 tags: []
 components: []
 related_tasks: []
@@ -38,13 +33,13 @@ related_tasks: []
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 # demo_target: true               # T-2286: optional — marks task as reserved for an orchestrated demo
 #                                 # worker (e.g. arc-010 HM-A dispatches via mcp__fw__work_on). When set,
-#                                 # `fw work-on T-1424` refuses unless --i-am-demo-orchestrator (CLI) or
+#                                 # `fw work-on T-1425` refuses unless --i-am-demo-orchestrator (CLI) or
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-11-16T12:52:15Z
-last_update: '2026-11-16T12:52:21Z'
-date_finished:
+created: 2026-11-16T12:53:37Z
+last_update: 2026-11-16T12:53:37Z
+date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -55,52 +50,44 @@ date_finished:
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
-bvp_scores_proposed:
-  - ts: '2026-11-16T12:52:21Z'
-    estimator: bvp-estimator-v1-heuristic
-    scores:
-      D1: 0
-      D2: 0
-      D3: 0
-      D4: 0
-      F-RECALL: 0
-      F2: 0
-      F4: 0
-      F3: 0
-      F1: 0
-    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
-      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
-      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
-      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
-      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
-      about,L0: no signal)'
-    rubric_sha: e4a00f38e801
 ---
 
-# T-1424: Validator header calls YAML 'AEF-canonical', which SD-1 retired (AEF T-5144 G3)
+# T-1425: Shared Designer-AEF contracts: own 832's side of the five pairings agreed with AEF (AEF T-5183)
 
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** AEF's answer to our R7 (AEF T-5144, report `docs/reports/EWCR/T-5144-r7-sd1-reconciliation.md`,
-msg 1f3fa75d, 2026-11-16) lists gap G3, theirs to name and ours to fix. `tools/validate-workflow.py` line 10 calls the
-YAML form "the AEF-canonical, source-controlled, hand-authorable representation".
-**Problem / hypothesis:** SD-1 (AEF T-2663, D-344) and SD-5 (single stored representation) retired YAML as AEF's
-canonical form; AEF's corpus is the BPMN the designer saves. The validator ships in the authoring kit, so its header
-tells vendors something AEF has ruled false.
-**Goal:** Reword the header to say what YAML is now, an authoring form converted to BPMN, and that the BPMN is what
-is stored.
-**Expected outcome:** No 832 text a vendor receives calls YAML canonical; AEF is told the commit.
+**Background / trigger:** AEF's R7 reconciliation (AEF T-5144) found gap G2: the five shared Designer-AEF contracts had
+no paired tasks on either side. AEF proposed a pairing per contract (AEF T-5183, msg 3fe4f1cf). 832 accepted all five
+after checking the 832-side hashes against the released 0.43.0 files (msg f2c1275e). AEF recorded it and opened its
+owner tasks (msg b3864ddb).
+
+| # | Contract | AEF artifact (owner) | 832 artifact (0.43.0) |
+|---|---|---|---|
+| 1 | Procedure interchange | contracts v2 `procedure.schema.json` v1, sha256 ac9aaefc | designer export, 85119747 |
+| 2 | Mapping / compatibility | "designer 0.43.0 produces contracts v2", to be drafted (AEF T-5184) | kit, SHA256SUMS 126451b6 |
+| 3 | Validation / refusal diagnostics | contracts v2 `refusal.schema.json` v2, c4148a34 | validate-workflow.py, 08ac4443 |
+| 4 | Runtime projection | a projection schema AEF will freeze (AEF T-5185); live /api/instances, /api/overlay | overlay renderer |
+| 5 | Ratification | `task-lifecycle-contract.md` (frozen T-3386) + Watchtower decision path | save/export as proposal-only |
+
+**Problem / hypothesis:** A shared contract nobody owns drifts: each side changes its artifact and nothing says the
+pair still agrees.
+**Goal:** Own 832's side: keep each pairing current across releases, and measure conformance where AEF's artifact
+exists.
+**Expected outcome:** Each release's notes name the paired artifacts and their hashes, and every row has a check, or
+an AEF artifact to wait for.
 
 ## Acceptance Criteria
 
 ### Agent
-- [x] The validator's header no longer calls YAML canonical. It names YAML as an authoring form (converted by
-  `tools/yaml-to-bpmn.py`) and the saved BPMN as the stored representation (SD-1/SD-5).
-- [x] The kit carries no other "AEF-canonical" claim about YAML (grep of docs/authoring-kit and the built kit).
-  → Case-insensitive grep for "AEF-canonical", "canonical form" and "yaml canonical": 0 hits in docs/authoring-kit
-  and in a freshly built kit.
-- [ ] Core and browser tiers are green (the validator is high-risk), pushed, and AEF is told the commit.
+- [x] The pairing is agreed and recorded on both sides (832: this table; AEF: T-5183, owners T-5184 and T-5185).
+- [ ] Rows 1 and 3: a test checks the designer's export against `procedure.schema.json`, and the validator's
+  diagnostics against `refusal.schema.json`, using copies of AEF's frozen schemas pinned by sha256. Or it records why
+  a row cannot be checked mechanically.
+- [ ] Rows 2 and 4: AEF's drafted mapping (T-5184) and frozen projection schema (T-5185) are received and checked the
+  same way.
+- [ ] The release-notes template carries a "Shared contracts" table naming each pair's current hashes, so a release
+  that moves a paired artifact says so.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -126,11 +113,11 @@ is stored.
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-1424`
+         1. Run `bin/fw reviewer T-1425`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-1424 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-1425 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 <!--
@@ -281,7 +268,7 @@ is stored.
 #
 # Vendored-path hint (T-3236, T-4419): if you edited bin/fw, lib/, agents/, policy/,
 # web/, tools/ or .tasks/templates/, run `bin/fw vendor self` and add
-#     bin/fw vendor self --check --task T-1424X
+#     bin/fw vendor self --check --task T-1425X
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
@@ -370,7 +357,7 @@ is stored.
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-1424 go|no-go|defer --rationale "..."
+     fw inception decide T-1425 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -379,10 +366,7 @@ is stored.
 
 ## Updates
 
-### 2026-11-16T12:52:15Z — task-created [task-create-agent]
+### 2026-11-16T12:53:37Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1424-validator-header-calls-yaml-aef-canonica.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1425-shared-designer-aef-contracts-own-832s-s.md
 - **Context:** Initial task creation
-
-### 2026-11-16T12:52:21Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work

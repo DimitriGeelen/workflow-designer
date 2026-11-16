@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1424: Validator header calls YAML 'AEF-canonical', which SD-1 retired (AEF T-5144 G3)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-16T13:37:53Z
+# ============================================================================
+
+task_id: T-1424
+task_name: "Validator header calls YAML 'AEF-canonical', which SD-1 retired (AEF T-5144 G3)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-16T12:52:15Z
+completed: 2026-11-16T13:37:41Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-16T13:53:01+01:00
+last_commit: 2026-11-16T13:53:01+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  validator header no longer calls YAML 'AEF-canonical' — an authoring form converted to BPMN; the saved BPMN is the single stored representation (SD-1/SD-5; AEF T-5144 G3)
+
+# Key outcomes
+outcomes:
+  - 'The validator''s header no longer calls YAML canonical. It names YAML as an authoring form (converted by'
+  - 'The kit carries no other "AEF-canonical" claim about YAML (grep of docs/authoring-kit and the built kit).'
+  - 'Core and browser tiers are green (the validator is high-risk), pushed, and AEF is told the commit.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1424-validator-header-calls-yaml-aef-canonica.md'
+  - 'tools/validate-workflow.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-16T13:53:01'
+    action: 'T-1424: validator header no longer calls YAML ''AEF-canonical'' — an authoring form converted to BPMN; the saved BPMN is the single stored representation (SD-1/SD-5; AEF T-5144 G3)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 45 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 45
+  commits: 2
+  files_changed: 6
+  lines_added: 886
+  lines_removed: 9
+  footprint_refreshed_at: '2026-11-16T13:39:02Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1424-validator-header-calls-yaml-aef-canonica.md
+generated_by: context-agent-hybrid

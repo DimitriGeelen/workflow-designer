@@ -22833,3 +22833,21 @@ scan_id: R-62ee0f6d
 task_id: T-1399
 payload:
   task_file: .tasks/active/T-1399-release-designer-0420-t-976-flow-order-l.md
+---
+kind: scan_emitted
+timestamp: '2026-11-16T13:37:43Z'
+scan_id: R-d28b3861
+task_id: T-1424
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-16T13:37:43Z'
+scan_id: R-d28b3861
+task_id: T-1424
+payload:
+  task_file: .tasks/active/T-1424-validator-header-calls-yaml-aef-canonica.md
