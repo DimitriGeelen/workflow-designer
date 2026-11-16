@@ -207,6 +207,13 @@ Mistral findings, it moves H6 and clause 2 together.
   - v1 stays frozen; both go into a new `contracts/v2/`, being built under AEF T-5179. AEF will send the v2 path and
     the N-2 reason code.
   - So both R6 blockers have accepted dispositions. **H6 now waits only on R7 (AEF T-5144).**
+  - **v2 landed the same day** (AEF msg f011d003; T-5179, AEF commit f25f16618; v1 byte-identical):
+    - Path: `docs/research/executable-workflow/contracts/v2/`. N-1/N-2 are in `accepted-scenarios.md` and traced in
+      `v2/traceability.yaml` (N-1 → DS-1; N-2 → MS-3).
+    - N-2's reason code is `privilege_exceeds_profile`, with a required `privilege_excess` record, so "names the
+      excess" is schema-checkable. Only `refusal.schema.json` changed (version 2).
+    - `scenario_refs` now mixes integers and the strings "N-1"/"N-2". Checked 2026-11-16: no 832 code reads
+      `scenario_refs` (designer, validator and YAML bridge: 0 hits), so our round trip is unaffected.
 - **What this changes for H6.** The operator, or the reviewer under T-732's [REVIEWER] criterion, can now judge the
   routing and the §2.3 boundary against a real counterparty answer for R6, not transport alone. H6 still cannot be
   `resolved` until R7 is answered and AEF's operator accepts N-1 and N-2. Clause 2 moves with R6, as noted above.
