@@ -1,0 +1,94 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1136: Calibration maps' Warehouse lane breaks AUTHORING 1b: it covers quality-inspection and labelling but cites only the pick/pack/book sentence (GLM, 0.19.1 calibration)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-16T10:16:11Z
+# ============================================================================
+
+task_id: T-1136
+task_name: "Calibration maps' Warehouse lane breaks AUTHORING 1b: it covers quality-inspection and labelling but cites only the pick/pack/book sentence (GLM, 0.19.1 calibration)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-12T10:23:33Z
+completed: 2026-11-16T10:16:01Z
+duration_days: 35
+updates_count: 3
+first_commit: 2026-10-12T12:30:41+02:00
+last_commit: 2026-10-12T16:45:47+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  calibration maps' Warehouse lane cites both source sentences, each on its own source: line (AUTHORING.md 74-80) — GLM's 0.19.1 finding on the CLEAN map was correct, every earlier calibration missed it; the three runs on the first 0.19.1 build (codex PASS, GLM FAIL, Antigravity PASS) disclosed under voided_runs; validator unchanged on clean.bpmn (0 errors, 9 warnings); expected.json unchanged. corrected 0.19.1 kit (d6851281) calibrated PASS by codex, GLM-5.3 and Antigravity, 3/3 and 0 false each, one run each; voided runs on the first build kept in the record. resume note at the budget cap — T-983 2b fix spelled out (not applied), T-570 teeth to investigate, job 019 to dry-run, Greenfield post unread, operator to close T-1127. T-983 leg 2b reads one quote per source: line (non-greedy) — greedy joined the two source: lines AUTHORING 1b now requires; the resume note's per-line fix would have missed 9 wrapped quotes (16 of 25); clean 25/25 verbatim, planted's fabricated reminder citation still caught; test 18/18; _t570 teeth 5/5 alone (suite failure = load)
+
+# Key outcomes
+outcomes:
+  - 'clean.bpmn and planted.bpmn: Lane_warehouse''s documentation cites both source sentences, each on its own `source:` line (AUTHORING.md 74-80), quoted verbatim from SOURCE.md'
+  - 'Nothing else in the maps changes; expected.json (the planted defects) unchanged; the validator still finds the clean map clean'
+  - 'docs/authoring-kit/calibration-records/0.19.1.yaml discloses the three runs on the first 0.19.1 kit build (kit 3cdf9d70...) under voided_runs, with GLM''s finding, the way 0.16.0 did'
+  - 'The corrected 0.19.1 kit carries a PASS calibration by codex, GLM and Antigravity, one run each'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'T-983 leg 2b reads one quote per source: line (non-greedy) — greedy joined the two source: lines AUTHORING 1b now requires; the resume note''s per-line fix would have missed 9 wrapped quotes (16 of 25); clean 25/25 verbatim, planted''s fabricated reminder citation still caught; test 18/18; _t570 teeth 5/5 alone (suite failure = load)'
+    source: git-mined
+  - description: 'resume note at the budget cap — T-983 2b fix spelled out (not applied), T-570 teeth to investigate, job 019 to dry-run, Greenfield post unread, operator to close T-1127'
+    source: git-mined
+  - description: 'calibration maps'' Warehouse lane cites both source sentences, each on its own source: line (AUTHORING.md 74-80) — GLM''s 0.19.1 finding on the CLEAN map was correct, every earlier calibration missed it; the three runs on the first 0.19.1 build (codex PASS, GLM FAIL, Antigravity PASS) disclosed under voided_runs; validator unchanged on clean.bpmn (0 errors, 9 warnings); expected.json unchanged'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1136-calibration-maps-warehouse-lane-breaks-a.md'
+  - 'docs/authoring-kit/calibration-records/0.19.1.yaml'
+  - 'docs/authoring-kit/calibration/clean.bpmn'
+  - 'docs/authoring-kit/calibration/planted.bpmn'
+  - 'tests/test_t983_review_loop_kit.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-12T12:30:41'
+    action: 'T-1136: calibration maps'' Warehouse lane cites both source sentences, each on its own source: line (AUTHORING.md 74-80) — GLM''s 0.19.1 finding on the CLEAN map was correct, every earlier calibration missed it; the three runs on the first 0.19.1 build (codex PASS, GLM FAIL, Antigravity PASS) disclosed under voided_runs; validator unchanged on clean.bpmn (0 errors, 9 warnings); expected.json unchanged'
+  - time: '2026-10-12T12:54:42'
+    action: 'T-1136: corrected 0.19.1 kit (d6851281) calibrated PASS by codex, GLM-5.3 and Antigravity, 3/3 and 0 false each, one run each; voided runs on the first build kept in the record'
+  - time: '2026-10-12T15:40:45'
+    action: 'T-1136: resume note at the budget cap — T-983 2b fix spelled out (not applied), T-570 teeth to investigate, job 019 to dry-run, Greenfield post unread, operator to close T-1127'
+  - time: '2026-10-12T16:45:47'
+    action: 'T-1136: T-983 leg 2b reads one quote per source: line (non-greedy) — greedy joined the two source: lines AUTHORING 1b now requires; the resume note''s per-line fix would have missed 9 wrapped quotes (16 of 25); clean 25/25 verbatim, planted''s fabricated reminder citation still caught; test 18/18; _t570 teeth 5/5 alone (suite failure = load)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 50392 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 50392
+  commits: 5
+  files_changed: 8
+  lines_added: 615
+  lines_removed: 27
+  footprint_refreshed_at: '2026-11-16T10:16:20Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1136-calibration-maps-warehouse-lane-breaks-a.md
+generated_by: context-agent-hybrid

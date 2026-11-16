@@ -14,13 +14,13 @@ description: >
   maps' lane documentation; record the failed run under voided_runs; recalibrate all
   three.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [bug]
-components: []
+components: [tests/test_t983_review_loop_kit.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -49,8 +49,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-12T10:23:33Z
-last_update: 2026-10-12T14:44:52Z
-date_finished:
+last_update: 2026-11-16T10:16:01Z
+date_finished: 2026-11-16T10:16:01Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -88,7 +88,16 @@ bvp_scores_proposed:
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+**Background / trigger:** In the 0.19.1 kit calibration (2026-10-12), GLM-5.3 found that the CLEAN calibration map
+breaks AUTHORING 1b. Its Warehouse lane covers quality inspection and labelling but cited only the pick/pack/book
+sentence.
+**Problem / hypothesis:** The calibration's "clean" control was itself not clean against the guide, so every earlier
+calibration had missed it.
+**Goal:** Correct both maps' Warehouse lane citations, disclose the voided runs, and recalibrate.
+**Expected outcome:** A clean map that obeys the guide it calibrates, and an honest calibration record.
+
+**Closed 2026-11-16 (T-575 landing):** everything below was done in October (commits 9caa5e34f, aad7fcd60; 0.19.1
+released in 039a146fe); only the boxes were never ticked.
 
 ## RESUME HERE (session ended at the budget cap, 2026-10-12)
 
@@ -108,10 +117,15 @@ bvp_scores_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] clean.bpmn and planted.bpmn: Lane_warehouse's documentation cites both source sentences, each on its own `source:` line (AUTHORING.md 74-80), quoted verbatim from SOURCE.md
-- [ ] Nothing else in the maps changes; expected.json (the planted defects) unchanged; the validator still finds the clean map clean
-- [ ] docs/authoring-kit/calibration-records/0.19.1.yaml discloses the three runs on the first 0.19.1 kit build (kit 3cdf9d70...) under voided_runs, with GLM's finding, the way 0.16.0 did
-- [ ] The corrected 0.19.1 kit carries a PASS calibration by codex, GLM and Antigravity, one run each
+- [x] clean.bpmn and planted.bpmn: Lane_warehouse's documentation cites both source sentences, each on its own `source:` line (AUTHORING.md 74-80), quoted verbatim from SOURCE.md
+      → Read 2026-11-16: both maps carry the two `source:` lines, matching SOURCE.md lines 8 and 12 verbatim.
+- [x] Nothing else in the maps changes; expected.json (the planted defects) unchanged; the validator still finds the clean map clean
+      → 0 errors (its 14 warnings are the honest ones the clean map is built to carry). Every calibration since, up to
+      0.43.0 today, scores 0 false findings on it.
+- [x] docs/authoring-kit/calibration-records/0.19.1.yaml discloses the three runs on the first 0.19.1 kit build (kit 3cdf9d70...) under voided_runs, with GLM's finding, the way 0.16.0 did
+      → `voided_runs` at line 27, naming kit 3cdf9d70… and GLM's finding.
+- [x] The corrected 0.19.1 kit carries a PASS calibration by codex, GLM and Antigravity, one run each
+      → Commit 9caa5e34f: kit d6851281 PASS by codex, GLM-5.3 and Antigravity, 3/3 and 0 false each.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -149,6 +163,9 @@ bvp_scores_proposed:
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+grep -q 'source: "The warehouse also does quality inspection' docs/authoring-kit/calibration/clean.bpmn
+grep -q 'source: "The warehouse also does quality inspection' docs/authoring-kit/calibration/planted.bpmn
+grep -q "^voided_runs:" docs/authoring-kit/calibration-records/0.19.1.yaml
 #
 # Toolchain hint (L-291): if you edited *.vbproj/*.csproj/*.xaml add `dotnet build`;
 # *.go → `go build ./...`; Cargo.toml → `cargo check`; tsconfig.json → `tsc --noEmit`;
@@ -381,3 +398,17 @@ lane's citations cover each member's source line (would have caught this without
 
 ### 2026-10-12T10:24:00Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-16T10:16:01Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** T-575 landing: done in October (9caa5e34f, aad7fcd60, 0.19.1 released); boxes never ticked
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-7ad96338
+- **Timestamp:** 2026-11-16T10:16:04Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none
