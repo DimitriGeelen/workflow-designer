@@ -4154,7 +4154,7 @@ concerns:
   related_tasks: ['T-1298', 'T-1299', 'T-1286', 'T-1288']
 - id: G-094
   type: gap
-  status: watching
+  status: prevention-in-place
   severity: medium
   title: A corpus-only change can turn a browser-tier harness red, but only src/ and the validator require the browser tier before a push
   detected: '2026-11-15'
@@ -4168,4 +4168,8 @@ concerns:
     requires the browser tier the way src/ does, or when the T-1374 list is derived from what the browser legs read.'
   containment: 'T-1420: the harness now makes its own kind-free premise on its private copy and refuses to run if it
     cannot.'
-  related_tasks: ['T-1420', 'T-876', 'T-1374', 'T-1409']
+  prevention: 'T-1423 (2026-11-16): the session-start alert tools/_t1355-browser-tier-age.py also watches
+    examples/aef-processes. A corpus commit after the last browser run now reads STALE naming the corpus at the next
+    session start, so a corpus-only push cannot leave a red browser leg unseen. It still runs at session start, not
+    at push; close when a push that changes the corpus requires the browser tier.'
+  related_tasks: ['T-1420', 'T-876', 'T-1374', 'T-1409', 'T-1423']

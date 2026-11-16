@@ -52,8 +52,14 @@ def last_browser_run():
     return last
 
 
-def framework_changed_at():
-    r = subprocess.run(["git", "-C", REPO, "log", "-1", "--format=%cI", "--", FRAMEWORK],
+# T-1423 (G-094): inputs the browser harnesses read, besides their own code. A commit to any of them after the last
+# browser run makes that run stale. The corpus was missing: T-876 changed only examples/aef-processes/ and turned a
+# browser harness red, unseen for a day.
+WATCHED = ((FRAMEWORK, "the vendored framework"), ("examples/aef-processes", "the corpus (examples/aef-processes)"))
+
+
+def changed_at(path):
+    r = subprocess.run(["git", "-C", REPO, "log", "-1", "--format=%cI", "--", path],
                        capture_output=True, text=True, timeout=30)
     out = r.stdout.strip()
     return ts(out) if r.returncode == 0 and out else None
@@ -74,10 +80,11 @@ def main():
     if run["failed"]:
         print("RED: last %s — run: bash tests/run-bridge-tests.sh --tier browser" % what)
         return 1
-    fw = framework_changed_at()
-    if fw is not None and fw > run["at"]:
-        print("STALE: last %s; the vendored framework changed since (%s) — run: bash tests/run-bridge-tests.sh --tier browser"
-              % (what, fw.astimezone(timezone.utc).strftime("%Y-%m-%d %H:%MZ")))
+    moved = [(label, at) for path, label in WATCHED for at in [changed_at(path)] if at is not None and at > run["at"]]
+    if moved:
+        print("STALE: last %s; %s changed since — run: bash tests/run-bridge-tests.sh --tier browser"
+              % (what, " and ".join("%s (%s)" % (label, at.astimezone(timezone.utc).strftime("%Y-%m-%d %H:%MZ"))
+                                    for label, at in moved)))
         return 1
     if days > MAX_AGE_DAYS:
         print("STALE: last %s, older than %d days — run: bash tests/run-bridge-tests.sh --tier browser" % (what, MAX_AGE_DAYS))
