@@ -13,11 +13,11 @@ description: >
   ACTIVE line (starts with bash, carries the mark), reinstall, drop the commented
   copies, test that a commented line reads NOT installed; report to AEF.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [bug, gate]
 components: []
 related_tasks: []
@@ -48,8 +48,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-20T20:23:46Z
-last_update: 2026-10-20T21:13:53Z
-date_finished:
+last_update: 2026-11-16T09:58:54Z
+date_finished: 2026-11-16T09:58:54Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -87,8 +87,13 @@ bvp_scores_proposed:
 
 ## Context
 
-Found 2026-10-20 while installing the T-1239 gate: the hook's first lines held only the new line, and the two 832
-gates sat commented at the bottom under AEF's T-4403 notice.
+**Background / trigger:** Found 2026-10-20 while installing the T-1239 gate: the hook's first lines held only the new
+line, and the two 832 gates sat commented at the bottom under AEF's T-4403 notice.
+**Problem / hypothesis:** AEF's reinstall commented out every hook line it did not write. Our installers' `--check`
+matched the marker text inside the comment, so it reported the gates as installed while they did not run.
+**Goal:** Make our checks count only active lines, restore the gates, and get AEF to stop commenting out consumer
+lines.
+**Expected outcome:** A reinstall can no longer silently disable 832's gates, here or in AEF.
 
 ## Acceptance Criteria
 
@@ -100,7 +105,11 @@ gates sat commented at the bottom under AEF's T-4403 notice.
 - [x] A test leg: a hook with only a commented gate line makes `--check` exit 1 and the installer insert the active
       line; it fails on the old installers (`tests/test_t1240_hook_active.sh`: 8/8; on the HEAD installers 7 FAIL,
       incl. "commented-only gate reads INSTALLED (false green)" for all three)
-- [ ] AEF is told: T-4403 comments out project lines on reinstall, so every consumer's own gates silently stop
+- [x] AEF is told: T-4403 comments out project lines on reinstall, so every consumer's own gates silently stop
+      → AEF had the report and fixed it (T-4515, their gap G-122). `.agentic-framework/agents/git/lib/hooks.sh`:
+      "no line is ever commented out and no consumer hook is ever replaced by the block alone. T-4403 did both, and
+      832's two pre-commit gates stopped running for five hours". The installer now owns only its marked block.
+      (Closed 2026-11-16 in a T-575 landing; only the record was missing.)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -153,6 +162,8 @@ gates sat commented at the bottom under AEF's T-4403 notice.
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+bash tests/test_t1240_hook_active.sh
+grep -q "832's two pre-commit gates" .agentic-framework/agents/git/lib/hooks.sh
 # Build/refactor/decommission tasks with NO command here are refused. If nothing can be
 # run, add the line `# verification: none — <why nothing can be run>`; it is serviced
 # (queued for review: add a check / other evidence / accept). See docs/reports/T-4024-servicing-loop.md.
@@ -302,6 +313,15 @@ gates sat commented at the bottom under AEF's T-4403 notice.
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
+**Symptom:** After the be.3 upgrade, 832's re-vendor and boundary pre-commit gates stopped running for about five
+hours, while `--check` said they were installed.
+**Root cause:** AEF T-4403 commented out every hook line the installer did not write. Our installers' `--check`
+grepped for the gate's marker text, which survived inside the comment.
+**Why structurally allowed:** The check asked whether the text was present, not whether an active line ran it.
+Nothing executed the hook to confirm the gates fired.
+**Prevention:** Ours: the installers count only an ACTIVE line (`tests/test_t1240_hook_active.sh`, 8/8, red on the old
+installers). Upstream: AEF T-4515 (G-122) never comments out a consumer line.
+
 ## Evolution
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
@@ -385,3 +405,17 @@ gates sat commented at the bottom under AEF's T-4403 notice.
 
 ### 2026-10-20T20:24:21Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-16T09:58:54Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** T-575 landing: our installers fixed and tested; AEF fixed upstream (T-4515/G-122 names 832's gates)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-905e13c6
+- **Timestamp:** 2026-11-16T09:58:56Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none
