@@ -233,11 +233,11 @@ class TestCostsRoute:
         html = resp.data.decode()
         assert "Token Usage" in html
 
-    def test_costs_htmx_returns_fragment(self, client):
+    def test_costs_htmx_returns_fragment(self, client, document_shell):
         resp = client.get("/costs", headers={"HX-Request": "true"})
         assert resp.status_code == 200
-        html = resp.data.decode()
-        assert "<!DOCTYPE" not in html
+        shell = document_shell(resp.data.decode())
+        assert not shell, "/costs HX-Request returned a document shell: %s" % ", ".join(shell)
 
     def test_costs_with_no_sessions(self, client, tmp_path):
         empty = tmp_path / "empty"
