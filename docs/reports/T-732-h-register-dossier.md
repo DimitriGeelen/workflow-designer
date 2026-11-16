@@ -197,7 +197,23 @@ Mistral findings, it moves H6 and clause 2 together.
   - In all, 8 findings: 5 accepted, 2 handled, 1 deferred, none rejected. Both blockers are accepted, and the rows map
     1:1 onto the T-3389 matrix.
   - Still open on AEF's side: their operator accepting N-1 and N-2 (contracts v2).
-- **R7 (now owned, not yet answered).** Reconciliation with ratified SD-1 (AEF T-2663) had no AEF owner. AEF
+- **R7 answered (2026-11-16, AEF msg 1f3fa75d; report `docs/reports/EWCR/T-5144-r7-sd1-reconciliation.md`, AEF
+  commits cd7040322, d1de6e378).** SD-1 says Process = maps + conformance rails + live overlay, mirror direction.
+  - **Contracts v2 (12):** none conflicts without a sanction. Four (procedure, instance, transition-envelope,
+    task-lifecycle) conflict with SD-1's wording but are covered by its "park as a named future arc" clause, handed
+    to arc-019 EWCR. Eight are outside SD-1.
+  - **The five shared Designer-AEF contracts:** two conform, one is a sanctioned conflict, two are not covered.
+  - **G1:** AEF's SD register and D-344 still say "parked (T-2668)". AEF T-5182, an AEF operator amendment.
+  - **G2:** the five shared contracts have no paired tasks on either side. AEF T-5183; versions are agreed first, and
+    832 asked AEF for its list (msg e613f58f).
+  - **G3:** our validator header calls YAML "AEF-canonical", which SD-1 retired (SD-5: a single stored
+    representation). This is 832's to fix, and agreed.
+  - Scope check: R7 as written (inventory §7: "Reconciliation with ratified SD-1 (AEF T-2663, IW-11)") was raised
+    from this inventory, whose shared contracts are the five reconciled. AEF's scope is what we meant.
+  - **With R6 and R7 both answered, H6's AEF side is complete.** H6 now needs only the operator's ruling (or the
+    reviewer's, if the routing allows it): that the routing was correct and the §2.3 boundary held, with AEF's
+    answers as source_of_truth.
+- **R7 (earlier note, now superseded by the answer above).** Reconciliation with ratified SD-1 (AEF T-2663) had no AEF owner. AEF
   confirmed this on 2026-11-15 (msg f42f2b8a, `832-ewcr-progress`) and filed **AEF T-5144** for it the same day,
   horizon next.
 - **N-1 / N-2 accepted (2026-11-16).** AEF msg d6a53aa0: AEF's operator accepted both as new acceptance scenarios.
