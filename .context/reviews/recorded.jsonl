@@ -214,3 +214,4 @@
 {"ac":1,"outcome":"amber","task":"T-368","ts":"2026-11-16T22:41:27Z","verdict_id":"V-20261116-d3a2c908"}
 {"ac":2,"outcome":"escalate","task":"T-368","ts":"2026-11-16T22:41:31Z","verdict_id":"V-20261116-4b135262"}
 {"ac":1,"outcome":"amber","task":"T-433","ts":"2026-11-16T22:42:51Z","verdict_id":"V-20261116-b9d0195d"}
+{"ac":1,"outcome":"amber","task":"T-579","ts":"2026-11-16T22:44:19Z","verdict_id":"V-20261116-4e9a2a18"}
