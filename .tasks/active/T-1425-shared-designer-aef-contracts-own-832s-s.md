@@ -123,6 +123,11 @@ Read against the vendored contracts (`.agentic-framework/docs/research/executabl
 - **Version gap.** The pairing names `refusal.schema.json` **v2**, c4148a34. The vendored copy is **v1**, b77a8bc9.
   Contracts v2 is newer than our vendored framework, so the v2 bytes have to come from AEF.
 - Asked AEF (conversation 832-ewcr-progress) to confirm both readings and to send the v2 refusal schema bytes.
+- **AEF confirmed both (msg 622398de, 2026-11-16).** Row 1 is checked as export, then T-5184's mapping, then
+  `procedure.schema.json`, so it waits on T-5184. Row 3's checkable relation is the code mapping (validator E-/W-
+  codes to the runtime `reason_code`s they prevent), owned by new AEF task T-5189; AEF will send a draft table for us
+  to check. Refusal v2 is in tag v1.8.16-be.54 at `docs/research/executable-workflow/contracts/v2/refusal.schema.json`,
+  sha256 c4148a34…; we pin it after the be.54 upgrade (T-1426). AEF tasks: rows 1 and 2 T-5184, row 3 T-5189, row 4 T-5185.
 
 ## Acceptance Criteria
 
