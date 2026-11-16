@@ -83,7 +83,15 @@ cost_estimate_proposed:
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+**Background / trigger:** In September the active list held many tasks that sat finished or abandoned in `active/`
+(12 at `work-completed` alone, with 15 unchecked criteria). The operator asked again on 2026-11-13 to triage the
+likely-abandoned tasks ("B").
+**Problem / hypothesis:** A task left open after its work ended, or after its premise died, hides the real backlog.
+It makes the active list read as more work than there is.
+**Goal:** Each landing session classifies old open tasks on evidence (finished, premise dead, or needs a ruling),
+closes what the evidence supports, and leaves the active count lower.
+**Expected outcome:** An active list where every entry is real, current work, with each close backed by a cited
+measurement.
 
 ## Acceptance Criteria
 
