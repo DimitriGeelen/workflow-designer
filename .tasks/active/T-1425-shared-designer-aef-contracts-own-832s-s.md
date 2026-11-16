@@ -1,13 +1,21 @@
 ---
 id: T-1425
-name: "Shared Designer-AEF contracts: own 832's side of the five pairings agreed with AEF (AEF T-5183)"
+name: "Shared Designer-AEF contracts: own 832's side of the five pairings agreed with
+  AEF (AEF T-5183)"
 description: >
-  AEF T-5183 (msg 3fe4f1cf) pairs AEF contracts v2 artifacts with 832 0.43.0 artifacts: (1) procedure.schema.json v1 ac9aaefc -> designer export 85119747; (2) mapping/compatibility, AEF drafts 'designer 0.43.0 produces contracts v2' -> kit 126451b6; (3) refusal.schema.json v2 c4148a34 -> validate-workflow.py diagnostics 08ac4443; (4) AEF freezes a runtime-projection schema -> overlay renderer 0.43.0; (5) task-lifecycle-contract.md + Watchtower decision path -> save/export as proposal-only. 832 keeps each pairing current across releases and measures conformance.
+  AEF T-5183 (msg 3fe4f1cf) pairs AEF contracts v2 artifacts with 832 0.43.0 artifacts:
+  (1) procedure.schema.json v1 ac9aaefc -> designer export 85119747; (2) mapping/compatibility,
+  AEF drafts 'designer 0.43.0 produces contracts v2' -> kit 126451b6; (3) refusal.schema.json
+  v2 c4148a34 -> validate-workflow.py diagnostics 08ac4443; (4) AEF freezes a runtime-projection
+  schema -> overlay renderer 0.43.0; (5) task-lifecycle-contract.md + Watchtower decision
+  path -> save/export as proposal-only. 832 keeps each pairing current across releases
+  and measures conformance.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-16T12:53:37Z
-last_update: 2026-11-16T12:53:37Z
-date_finished: null
+last_update: '2026-11-16T14:57:05Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +58,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-16T14:57:05Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=2 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L2:keyword=export)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1425: Shared Designer-AEF contracts: own 832's side of the five pairings agreed with AEF (AEF T-5183)
@@ -76,6 +104,25 @@ pair still agrees.
 exists.
 **Expected outcome:** Each release's notes name the paired artifacts and their hashes, and every row has a check, or
 an AEF artifact to wait for.
+
+## Findings (2026-11-16, rows 1 and 3)
+
+Read against the vendored contracts (`.agentic-framework/docs/research/executable-workflow/contracts/v1/`, AEF
+1.8.16-be.48):
+- **Row 1 cannot be checked directly.** `procedure.schema.json` (sha256 ac9aaefc…, matches the pairing) describes a
+  JSON procedure: `nodes[].kind` in {human_gate, script, command, agent_prompt, service, call_workflow, wait_event,
+  gateway, compensate}, plus `content_hash`, `status` and `ratification`. The designer exports BPMN 2.0 XML. No
+  BPMN-to-procedure projection exists on either side (the vendored framework has none). The check needs row 2's
+  mapping (AEF T-5184) first: export, then map, then validate against the schema. **So row 1 waits on row 2.**
+- **Row 3 compares a design-time object with a runtime one.** `refusal.schema.json` describes a ledger entry for a
+  refused runtime transition. Required fields include `instance_id`, `ledger_position` and `side_effect: false`, and
+  `reason_code` is one of 17 runtime scenarios. The validator's diagnostics (`E-XML-*`, `W-*`) are design-time
+  findings on a map, with no instance and no ledger. A validator finding can never validate as a refusal record.
+  The checkable relation, if one is intended, is a code mapping: which validator codes prevent which
+  `reason_code`s (for example `unresolved_reference`, `missing_typed_input`, `human_gate_skipped`).
+- **Version gap.** The pairing names `refusal.schema.json` **v2**, c4148a34. The vendored copy is **v1**, b77a8bc9.
+  Contracts v2 is newer than our vendored framework, so the v2 bytes have to come from AEF.
+- Asked AEF (conversation 832-ewcr-progress) to confirm both readings and to send the v2 refusal schema bytes.
 
 ## Acceptance Criteria
 
@@ -370,3 +417,7 @@ an AEF artifact to wait for.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1425-shared-designer-aef-contracts-own-832s-s.md
 - **Context:** Initial task creation
+
+### 2026-11-16T14:57:04Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
