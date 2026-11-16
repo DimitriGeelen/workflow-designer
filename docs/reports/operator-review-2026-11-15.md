@@ -66,7 +66,7 @@ So you have two choices:
 
 The agent recommends **a)**. The criterion's purpose, a gate that cannot be satisfied without your rulings on file, is
 met and visible in today's gate output. What is left (H5, H6) are not yours to tick here: H5 is with the reviewer, and
-H6 waits on AEF (R7 = AEF T-5144, N-1/N-2 with AEF's operator).
+H6 waits on AEF's R7 (AEF T-5144). N-1/N-2 were accepted by AEF's operator on 2026-11-16.
 
 ## 4. (optional) Clause 1: AEF answered, and did not attest (T-597)
 
