@@ -11,11 +11,11 @@ description: >
   to AEF (field-test thread) with the fix suggestion: use $FRAMEWORK_ROOT/web. Same
   class as OBS-097 (PROJECT_ROOT resolution of framework-owned assets).
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [bug]
 components: []
 related_tasks: []
@@ -46,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-10-12T11:44:07Z
-last_update: 2026-10-12T12:15:03Z
-date_finished:
+last_update: 2026-11-16T09:57:35Z
+date_finished: 2026-11-16T09:57:35Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -85,15 +85,26 @@ bvp_scores_proposed:
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+**Background / trigger:** On 2026-10-12 Watchtower kept running old web code after a framework upgrade, while
+`fw watchtower current` and the audit's Watchtower-currency line both said "current".
+**Problem / hypothesis:** Both looked in `$PROJECT_ROOT/web`. In a vendored consumer the web code lives in
+`.agentic-framework/web`, and `$PROJECT_ROOT/web` does not exist, so every check returned "current".
+**Goal:** Restart Watchtower by hand once, and get the check fixed upstream.
+**Expected outcome:** The currency check measures the code Watchtower actually serves.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Shown on 832: `fw watchtower current` answers "current" while the running process predates 15 changed files under .agentic-framework/web (start 2026-10-08 22:40)
-- [ ] The operator's restart job (017) checks staleness against .agentic-framework/web directly; after his run Watchtower is newer than its web code
-- [ ] Reported to AEF with the cause (do_current passes $PROJECT_ROOT/web) and the fix ($FRAMEWORK_ROOT/web), also covering the audit's Watchtower-currency line
+- [x] Shown on 832: `fw watchtower current` answers "current" while the running process predates 15 changed files under .agentic-framework/web (start 2026-10-08 22:40)
+      → Recorded in this task's description (2026-10-12) and accepted by AEF as fact. Their fix's comment reads: "the
+      old default made every currency check return 'current' (832's T-1139 report)".
+- [x] The operator's restart job (017) checks staleness against .agentic-framework/web directly; after his run Watchtower is newer than its web code
+      → Job 017 ran 2026-10-12 (`done`; commit 17ea5bd47): Watchtower was restarted, newer than .agentic-framework/web.
+- [x] Reported to AEF with the cause (do_current passes $PROJECT_ROOT/web) and the fix ($FRAMEWORK_ROOT/web), also covering the audit's Watchtower-currency line
+      → AEF took it (their T-4132) and shipped the exact fix: `watchtower_web_dir()` in
+      `.agentic-framework/lib/watchtower-staleness.sh` uses FRAMEWORK_ROOT/web and names "832's T-1139 report". Today
+      `fw watchtower current` measures `/opt/832-Workflow-designer/.agentic-framework/web`, and the audit's currency
+      line passes on the same basis. (Closed 2026-11-16 in a T-575 landing; only the record was missing.)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -131,6 +142,8 @@ bvp_scores_proposed:
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
+grep -q "832's T-1139 report" .agentic-framework/lib/watchtower-staleness.sh
+test -f .context/runme/017-restart-watchtower/done
 #
 # Toolchain hint (L-291): if you edited *.vbproj/*.csproj/*.xaml add `dotnet build`;
 # *.go → `go build ./...`; Cargo.toml → `cargo check`; tsconfig.json → `tsc --noEmit`;
@@ -270,6 +283,15 @@ bvp_scores_proposed:
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
+**Symptom:** After a framework upgrade, Watchtower served old web code while `fw watchtower current` and the audit's
+currency line both said "current".
+**Root cause:** Both compared the running process with `$PROJECT_ROOT/web`. In a vendored consumer the served code is
+`.agentic-framework/web`, so the compared tree did not exist and every check passed.
+**Why structurally allowed:** The check was written and tested in the framework repo, where `$PROJECT_ROOT/web` and
+the served tree coincide. No test ran it in a consumer layout.
+**Prevention:** Upstream (AEF T-4132): `watchtower_web_dir()` resolves FRAMEWORK_ROOT/web. Here, the session-start
+audit's currency line now reads the vendored web tree ("newer than every file under …/.agentic-framework/web").
+
 ## Evolution
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
@@ -354,3 +376,17 @@ bvp_scores_proposed:
 ### 2026-10-12T12:03:55Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-16T09:57:35Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** T-575 landing: reported, accepted and fixed upstream (AEF T-4132); job 017 done
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-459b83d0
+- **Timestamp:** 2026-11-16T09:57:36Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

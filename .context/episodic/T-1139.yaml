@@ -1,0 +1,86 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1139: AEF bug: 'fw watchtower current' (and the audit's Watchtower-currency line) look in <project>/web, so in a vendored project they always report current
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-16T09:57:42Z
+# ============================================================================
+
+task_id: T-1139
+task_name: "AEF bug: 'fw watchtower current' (and the audit's Watchtower-currency line) look in <project>/web, so in a vendored project they always report current"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-12T11:44:07Z
+completed: 2026-11-16T09:57:35Z
+duration_days: 35
+updates_count: 3
+first_commit: 2026-10-12T14:05:26+02:00
+last_commit: 2026-10-12T14:15:59+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  job 016 retired (a human-owned task is closed on its Watchtower review page, R-033 — no command can, the stopped run changed nothing); job 017 restarts Watchtower only, checking staleness against .agentic-framework/web, dry-run passed (sha 010abf6e); T-1127 to be closed by the operator on /review/T-1127 after the restart. operator ran job 017 — Watchtower restarted (pid 1781208), newer than .agentic-framework/web, answering on 3013 (W3 done)
+
+# Key outcomes
+outcomes:
+  - 'Shown on 832: `fw watchtower current` answers "current" while the running process predates 15 changed files under .agentic-framework/web (start 2026-10-08 22:40)'
+  - 'The operator''s restart job (017) checks staleness against .agentic-framework/web directly; after his run Watchtower is newer than its web code'
+  - 'Reported to AEF with the cause (do_current passes $PROJECT_ROOT/web) and the fix ($FRAMEWORK_ROOT/web), also covering the audit''s Watchtower-currency line'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/016-close-t1127-restart-watchtower/retired'
+  - '.context/runme/016-close-t1127-restart-watchtower/run-20261012T140109.log'
+  - '.context/runme/017-restart-watchtower/done'
+  - '.context/runme/017-restart-watchtower/dryrun.ok'
+  - '.context/runme/017-restart-watchtower/job.sh'
+  - '.context/runme/017-restart-watchtower/run-20261012T141435.log'
+  - '.tasks/active/T-1139-aef-bug-fw-watchtower-current-and-the-au.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-12T14:05:26'
+    action: 'T-1139: job 016 retired (a human-owned task is closed on its Watchtower review page, R-033 — no command can, the stopped run changed nothing); job 017 restarts Watchtower only, checking staleness against .agentic-framework/web, dry-run passed (sha 010abf6e); T-1127 to be closed by the operator on /review/T-1127 after the restart'
+  - time: '2026-10-12T14:15:59'
+    action: 'T-1139: operator ran job 017 — Watchtower restarted (pid 1781208), newer than .agentic-framework/web, answering on 3013 (W3 done)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 50293 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 50293
+  commits: 3
+  files_changed: 10
+  lines_added: 334
+  lines_removed: 20
+  footprint_refreshed_at: '2026-11-16T09:57:48Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1139-aef-bug-fw-watchtower-current-and-the-au.md
+generated_by: context-agent-hybrid
