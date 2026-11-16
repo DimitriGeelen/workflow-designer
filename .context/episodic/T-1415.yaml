@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1415: Propose to AEF: an acceptance-criterion state 'not met, accepted by the operator
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-16T09:34:35Z
+# ============================================================================
+
+task_id: T-1415
+task_name: "Propose to AEF: an acceptance-criterion state 'not met, accepted by the operator"
+workflow_type: specification
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-15T17:05:58Z
+completed: 2026-11-16T09:34:25Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-11-15T18:07:44+01:00
+last_commit: 2026-11-15T18:12:33+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  propose to AEF a criterion state 'not met, accepted' (agent proposes, operator accepts; counted resolved, never met) on the operator's ruling; T-897/T-922 wait on it instead of a bypass close. AEF took the proposal up as inception T-5152 (recommends GO on our terms; operator-decided); 832 backs Agent-criteria-only
+
+# Key outcomes
+outcomes:
+  - 'AEF has the proposal on a conversation, with the two cases, the three bad exits, and the sovereignty rule'
+  - 'AEF''s answer is recorded here: a task id, a ruling, or "no" with its reason.'
+  - 'T-897 and T-922 carry a line pointing here, so the next session does not re-ask the operator.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1415-propose-to-aef-an-acceptance-criterion-s.md'
+  - '.tasks/active/T-897-orchestrate-4-sequential-procasfit-auton.md'
+  - '.tasks/active/T-922-orchestrate-9-sequential-procasfit-auton.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-15T18:07:44'
+    action: 'T-1415: propose to AEF a criterion state ''not met, accepted'' (agent proposes, operator accepts; counted resolved, never met) on the operator''s ruling; T-897/T-922 wait on it instead of a bypass close'
+  - time: '2026-11-15T18:12:33'
+    action: 'T-1415: AEF took the proposal up as inception T-5152 (recommends GO on our terms; operator-decided); 832 backs Agent-criteria-only'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 988 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 988
+  commits: 3
+  files_changed: 6
+  lines_added: 521
+  lines_removed: 7
+  footprint_refreshed_at: '2026-11-16T09:34:51Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1415-propose-to-aef-an-acceptance-criterion-s.md
+generated_by: context-agent-hybrid
