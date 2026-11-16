@@ -57,6 +57,53 @@ PAIRS = (
 
 IGNORED_LINE = re.compile(r"^[-+]const APP_VERSION = '[^']*';$")
 
+# Row 3 (AEF T-5189/T-5191, msg 6a12c5ff): which validator codes prevent which runtime refusal reason_codes. A finding
+# is design-time and never a refusal record, so the checkable relation is this mapping. Pinned by sha256; it must
+# cover every code our validator emits and every reason_code of the vendored refusal schema v2, exactly.
+MAPPING = "docs/contracts/aef-v2/validator-refusal-mapping.yaml"
+MAPPING_SHA256 = "713cb005414fb9ae106198d59f5702a076dcaa0b77c1ae2ea96220143f6312e0"
+REFUSAL_V2 = CONTRACTS + "/v2/refusal.schema.json"
+VALIDATOR_SRC = "tools/validate-workflow.py"
+CODE_RE = re.compile(r"""["']([EWI]-[A-Z0-9]+(?:-[A-Z0-9]+)*)["']""")
+
+
+def validator_codes(src_text):
+    """Every finding code the validator source names (the same reading AEF's own test uses)."""
+    return set(CODE_RE.findall(src_text))
+
+
+def mapping_problems(mapping, codes, reason_codes):
+    """What the pinned mapping leaves unmapped or names that no longer exists, both ways round."""
+    bad = []
+    mapped = set((mapping.get("validator_codes") or {}).keys())
+    reasons = set((mapping.get("reason_codes") or {}).keys())
+    for c in sorted(codes - mapped):
+        bad.append("validator code %s is not in the mapping (a new code: ask AEF to map it, T-5189)" % c)
+    for c in sorted(mapped - codes):
+        bad.append("the mapping names %s, which the validator no longer emits" % c)
+    for r in sorted(set(reason_codes) - reasons):
+        bad.append("refusal reason_code %s is not in the mapping" % r)
+    for r in sorted(reasons - set(reason_codes)):
+        bad.append("the mapping names reason_code %s, which refusal v2 does not have" % r)
+    return bad
+
+
+def check_mapping():
+    """(exit code, lines) for row 3: 0 agree, 1 disagree, 2 NOT CHECKED."""
+    import yaml
+    try:
+        if sha(MAPPING) != MAPPING_SHA256:
+            return 1, ["the pinned mapping %s does not hash to the agreed %s…" % (MAPPING, MAPPING_SHA256[:12])]
+        mapping = yaml.safe_load(open(os.path.join(ROOT, MAPPING)))
+        codes = validator_codes(open(os.path.join(ROOT, VALIDATOR_SRC)).read())
+        enum = json.load(open(os.path.join(ROOT, REFUSAL_V2)))["properties"]["reason_code"]["enum"]
+    except (OSError, ValueError, KeyError) as e:
+        return 2, ["NOT CHECKED: %s" % e]
+    bad = mapping_problems(mapping, codes, enum)
+    if bad:
+        return 1, bad
+    return 0, ["ok  row 3: %d validator codes and %d reason_codes, all mapped (%s)" % (len(codes), len(enum), MAPPING)]
+
 
 def git(*args):
     r = subprocess.run(("git",) + args, cwd=ROOT, capture_output=True, text=True)
@@ -174,8 +221,13 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--version", help="release whose notes to measure (default: the T-1315 notes pick)")
     ap.add_argument("--check", action="store_true")
+    ap.add_argument("--mapping", action="store_true", help="row 3: check the pinned validator-refusal mapping")
     ap.add_argument("--json", action="store_true")
     a = ap.parse_args()
+    if a.mapping:
+        rc, lines = check_mapping()
+        print("\n".join(lines))
+        return rc
     try:
         version = open(os.path.join(ROOT, "VERSION")).read().strip()
         if a.version:

@@ -57,6 +57,23 @@ def main():
         if bool(t.IGNORED_LINE.match(line)) != want:
             fails.append("APP_VERSION filter wrong on %r" % line)
 
+    # Row 3: the pinned validator-refusal mapping covers our validator's codes and refusal v2's reason_codes exactly.
+    rc, lines = t.check_mapping()
+    print("\n".join(lines))
+    if rc != 0:
+        fails.append("row 3 mapping check rc %d" % rc)
+    m = {"validator_codes": {"E-A": 1, "W-B": 1}, "reason_codes": {"r1": 1, "r2": 1}}
+    if t.mapping_problems(m, {"E-A", "W-B"}, ["r1", "r2"]):
+        fails.append("control: an exact mapping was refused")
+    for name, codes, reasons in (("new validator code", {"E-A", "W-B", "E-NEW"}, ["r1", "r2"]),
+                                 ("retired validator code", {"E-A"}, ["r1", "r2"]),
+                                 ("new reason_code", {"E-A", "W-B"}, ["r1", "r2", "r3"]),
+                                 ("retired reason_code", {"E-A", "W-B"}, ["r1"])):
+        if not t.mapping_problems(m, codes, reasons):
+            fails.append("control '%s': the mapping check passed" % name)
+    if t.validator_codes("x = 'E-XML-FOO-BAR'; y = \"W-Q\"; z = 'not-a-code'") != {"E-XML-FOO-BAR", "W-Q"}:
+        fails.append("validator_codes reads the source wrong")
+
     for n, name, aef, pin, vendored, mine, paths in t.PAIRS:
         if pin and vendored and os.path.exists(os.path.join(ROOT, vendored)):
             state = "matches" if t.sha(vendored).startswith(pin) else "DIFFERS (AEF moved its side; tell AEF/832)"

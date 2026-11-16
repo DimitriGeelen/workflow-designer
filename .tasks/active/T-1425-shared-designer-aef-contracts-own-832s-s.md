@@ -128,14 +128,31 @@ Read against the vendored contracts (`.agentic-framework/docs/research/executabl
   codes to the runtime `reason_code`s they prevent), owned by new AEF task T-5189; AEF will send a draft table for us
   to check. Refusal v2 is in tag v1.8.16-be.54 at `docs/research/executable-workflow/contracts/v2/refusal.schema.json`,
   sha256 c4148a34…; we pin it after the be.54 upgrade (T-1426). AEF tasks: rows 1 and 2 T-5184, row 3 T-5189, row 4 T-5185.
+- **Row 3 mapping (2026-11-16).** AEF's draft (1bd55e51b) had six inferred links. We corrected four:
+  W-XML-NO-WORKFLOWMETA and the three gateway codes become design-only, `stale_position` becomes runtime-only, and
+  W-TYPE-LANE-MISMATCH's direction is reversed. AEF took all six (T-5191, 49f00d2fd). Result: 5 prevented, 13
+  runtime-only, 31 preventing codes. Pinned and checked (criterion 2).
+- **Row 2 draft (T-5184, bf9cc0b7b; revised as T-5192, d3ea48d73).** We answered its 15 questions from src 0.43.0.
+  Corrections taken by AEF: timerSpec is cron or a horizon, not ISO 8601; sovereignty-lane activities become human
+  gates (lane wins) and are not refused; agentType human on a serviceTask; a link throw is a no-return hand-off;
+  `guard` is prose. Edge identity for the overlay became AEF T-5193 (runtime projection v2). **Open:** the revision
+  requires a decision map on every human gate, which would refuse the 6 of 12 corpus userTasks that are done rather
+  than decided. We proposed a one-entry map for a single-outflow gate (msg cad60ce8), awaiting AEF's answer.
+  **Q15** (designer writes `exporterVersion`) is with the operator: AEF agreed; every re-saved map would change.
+- **Row 4 draft (T-5185, ca21db29a):** runtime-projection schema received, not yet checked against our renderer.
 
 ## Acceptance Criteria
 
 ### Agent
 - [x] The pairing is agreed and recorded on both sides (832: this table; AEF: T-5183, owners T-5184 and T-5185).
-- [ ] Rows 1 and 3: a test checks the designer's export against `procedure.schema.json`, and the validator's
+- [x] Rows 1 and 3: a test checks the designer's export against `procedure.schema.json`, and the validator's
   diagnostics against `refusal.schema.json`, using copies of AEF's frozen schemas pinned by sha256. Or it records why
   a row cannot be checked mechanically.
+  Row 1 recorded (Findings): the export reaches `procedure.schema.json` only through row 2's mapping, so its check
+  is row 2's. Row 3 checked: the mapping AEF drafted (T-5189), corrected by us and taken in full (T-5191, msg 6a12c5ff),
+  pinned at `docs/contracts/aef-v2/validator-refusal-mapping.yaml` (sha256 713cb005…). `--mapping` and the core leg
+  hold it to every code `validate-workflow.py` emits (80) and every `reason_code` of the vendored `refusal.schema.json`
+  v2 (18, c4148a34), both ways round. **A new validator code turns core red until AEF maps it**, on purpose.
 - [ ] Rows 2 and 4: AEF's drafted mapping (T-5184) and frozen projection schema (T-5185) are received and checked the
   same way.
 - [x] The release-notes template carries a "Shared contracts" table naming each pair's current hashes, so a release
@@ -333,6 +350,7 @@ Read against the vendored contracts (`.agentic-framework/docs/research/executabl
 -->
 python3 tests/test_t1425_shared_contracts.py
 python3 tools/_t1425-shared-contracts.py --check
+python3 tools/_t1425-shared-contracts.py --mapping
 bash tests/run-bridge-tests.sh --list-legs | grep -q 'core test_t1425_shared_contracts'
 
 ## RCA
