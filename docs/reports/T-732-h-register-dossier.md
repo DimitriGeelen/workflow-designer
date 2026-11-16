@@ -199,7 +199,14 @@ Mistral findings, it moves H6 and clause 2 together.
   - Still open on AEF's side: their operator accepting N-1 and N-2 (contracts v2).
 - **R7 (now owned, not yet answered).** Reconciliation with ratified SD-1 (AEF T-2663) had no AEF owner. AEF
   confirmed this on 2026-11-15 (msg f42f2b8a, `832-ewcr-progress`) and filed **AEF T-5144** for it the same day,
-  horizon next. N-1 and N-2 are with AEF's operator, not yet ruled.
+  horizon next.
+- **N-1 / N-2 accepted (2026-11-16).** AEF msg d6a53aa0: AEF's operator accepted both as new acceptance scenarios.
+  - **N-1:** a task cancelled or mutated during an attempt must not let the instance advance.
+  - **N-2:** a binding whose effective privilege exceeds the node's capability profile is refused before execution,
+    naming the excess (likely a new refusal reason code).
+  - v1 stays frozen; both go into a new `contracts/v2/`, being built under AEF T-5179. AEF will send the v2 path and
+    the N-2 reason code.
+  - So both R6 blockers have accepted dispositions. **H6 now waits only on R7 (AEF T-5144).**
 - **What this changes for H6.** The operator, or the reviewer under T-732's [REVIEWER] criterion, can now judge the
   routing and the §2.3 boundary against a real counterparty answer for R6, not transport alone. H6 still cannot be
   `resolved` until R7 is answered and AEF's operator accepts N-1 and N-2. Clause 2 moves with R6, as noted above.
