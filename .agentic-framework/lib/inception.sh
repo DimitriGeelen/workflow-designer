@@ -610,27 +610,6 @@ do_inception_decide() {
     # and an operator runme of 8 decisions was refused 8/8 (2026-10-08). The person
     # deciding is the review; refusing them only ever blocked a human.
     local review_marker="$PROJECT_ROOT/.context/working/.reviewed-$task_id"
-    # 832 T-996: the marker is a side effect of the AGENT-side `fw task review`, and nothing
-    # makes the agent run it before handing the decision over, so the refusal landed on the
-    # HUMAN at the moment of deciding ("run another command, then re-run") — 15 hits in one
-    # project's transcripts. The gate's purpose (T-973) is that the human SEES the review
-    # before deciding. When the caller is a human at a terminal, satisfy that purpose here:
-    # render the same review (emit_review writes the marker) and ask for confirmation.
-    # Agents ($CLAUDECODE=1) never reach this line (T-1259 gate above); non-interactive
-    # callers keep the refusal.
-    if [ ! -f "$review_marker" ] && [ -r /dev/tty ] && [ -t 1 -o -t 0 ] && [ "${CLAUDECODE:-}" != "1" ] \
-       && [ -f "$FW_LIB_DIR/review.sh" ]; then
-        echo -e "${YELLOW}No review was emitted for $task_id yet — showing it now (T-973 requires you to see it).${NC}" >&2
-        source "$FW_LIB_DIR/review.sh"
-        if emit_review "$task_id" "$task_file" >&2 && [ -f "$review_marker" ]; then
-            local _seen=""
-            read -r -p "You have read the review above. Continue with the decision? [y/N] " _seen </dev/tty || _seen=""
-            if [ "$_seen" != "y" ] && [ "$_seen" != "Y" ]; then
-                echo -e "${YELLOW}Stopped before deciding. The review stays emitted; re-run the decide command when ready.${NC}" >&2
-                exit 1
-            fi
-        fi
-    fi
     if [ ! -f "$review_marker" ]; then
         echo -e "${YELLOW}NOTE:${NC} $task_id decided without a prior 'fw task review' — the decider is the reviewer (T-3991)." >&2
     fi
@@ -651,38 +630,6 @@ do_inception_decide() {
         echo "" >&2
         echo -e "Watchtower reads this section — without it, the human sees no recommendation." >&2
         echo -e "Write the recommendation outside the HTML comment, then re-run this command." >&2
-        exit 1
-    fi
-
-    # Gate: require a ## Hypothesis in the three-part form, with a success clause
-    # naming something checkable (T-866, arc-004). Fires on GO only — a NO-GO or
-    # DEFER takes on no claim, so demanding a measurable signal there is
-    # bureaucracy. Placed AFTER the Recommendation gate deliberately: the
-    # recommendation is what the human reads, the hypothesis is what the project
-    # will later be measured against, and failing the cheaper/closer one first
-    # keeps the refusals in the order an author can act on them.
-    # Fail CLOSED if the audit lib never loaded. Its sourcing above is inside an
-    # `if [ -f ... ]`, so a missing lib would otherwise reach this line as a bare
-    # "command not found" and — depending on shell settings — let the decision
-    # through. A gate whose absence is indistinguishable from a pass is the exact
-    # defect this arc is built around.
-    if ! command -v audit_inception_hypothesis >/dev/null 2>&1; then
-        echo -e "${RED}ERROR: hypothesis gate unavailable (lib/task-audit.sh did not load)${NC}" >&2
-        echo -e "Refusing the decision rather than recording one the gate never checked." >&2
-        exit 1
-    fi
-    if ! audit_inception_hypothesis "$task_file" "$decision"; then
-        echo "" >&2
-        echo -e "${RED}ERROR: ## Hypothesis required before a GO decision${NC}" >&2
-        echo "" >&2
-        echo -e "A GO is the moment this project takes on a claim. Every support score in" >&2
-        echo -e "this task's value-driver table is an argument about that claim — without it," >&2
-        echo -e "the scores can rank but cannot be wrong, because there is nothing for them" >&2
-        echo -e "to be wrong about." >&2
-        echo "" >&2
-        echo -e "The estimator can draft one from this task's own text; correct it and set" >&2
-        echo -e "  hypothesis_source: human" >&2
-        echo -e "in the frontmatter to make your wording permanent." >&2
         exit 1
     fi
 
@@ -759,14 +706,20 @@ do_inception_decide() {
         _ac_section=$(extract_ac_section "$task_file" | python3 "${FRAMEWORK_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}/lib/comment_strip.py")
         if echo "$_ac_section" | grep -q '^### Agent'; then
             _agent_acs=$(echo "$_ac_section" | awk '/^### Agent/{f=1; next} /^### /{f=0} f')
-            _agent_total=$(echo "$_agent_acs" | grep -cE '^\s*-\s*\[[ x]\]' || true)
-            _agent_checked=$(echo "$_agent_acs" | grep -cE '^\s*-\s*\[x\]' || true)
-            _agent_unchecked=$((_agent_total - _agent_checked))
+            # T-5181: any box counts; a valid accepted miss ([~] + ledger row) is resolved,
+            # never met; any other state (bare/stale [~], unknown char) stays unchecked.
+            _agent_total=$(echo "$_agent_acs" | grep -cE '^\s*-\s*\[.\]' || true)
+            _agent_checked=$(echo "$_agent_acs" | grep -cE '^\s*-\s*\[[xX]\]' || true)
+            local _agent_missed
+            # T-5181 review #2: judge exactly the boxes counted above (stdin), never the raw file.
+            _agent_missed=$(printf '%s\n' "$_agent_acs" | python3 "${FRAMEWORK_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}/lib/accepted_miss.py" \
+                gate "$task_file" --stdin --agent 2>/dev/null | grep -c '^MISS	' || true)
+            _agent_unchecked=$((_agent_total - _agent_checked - ${_agent_missed:-0}))
             if [ "$_agent_total" -gt 0 ] && [ "$_agent_unchecked" -gt 0 ]; then
                 echo -e "${RED}ERROR: Cannot record decision — $_agent_unchecked/$_agent_total agent AC unchecked${NC}" >&2
                 echo "" >&2
                 echo "Unchecked Agent ACs:" >&2
-                echo "$_agent_acs" | grep -E '^\s*-\s*\[ \]' | head -10 >&2
+                { echo "$_agent_acs" | grep -E '^\s*-\s*\[[^xX]\]' || true; } | head -10 >&2
                 echo "" >&2
                 # T-1836 (T-1831 C-3): body-vs-checkbox drift hint at decide-preflight.
                 local _rec_block _rec_filled=false
@@ -1359,7 +1312,7 @@ do_inception_sweep() {
         local human_unchecked
         human_unchecked=$(awk '/^### Human/,/^## [A-Z]/' "$f" \
             | python3 -c 'import re,sys; sys.stdout.write(re.sub(r"<!--.*?-->", "", sys.stdin.read(), flags=re.DOTALL))' \
-            | grep -cE '^\s*- \[ \]' || true)
+            | grep -cE '^\s*- \[[^xX]\]' || true)  # T-5181: any non-met box is unchecked
 
         if [ "${human_unchecked:-0}" -eq 0 ]; then
             local dest="$completed_dir/$(basename "$f")"

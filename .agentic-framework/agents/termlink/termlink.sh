@@ -57,14 +57,19 @@ _wdir_of() {
 
 # T-4675: every worker dir across the roots (trailing slash, as the old globs gave), one per
 # line; a name in an earlier root shadows the same name in a later one.
+# T-5105: linear and fork-free. The old version kept every name in one string and matched the
+# whole string per dir, plus two `basename` forks per dir: with ~6,800 old worker dirs a
+# dispatch's worker-cap check took minutes and review seats timed out before registering.
 _all_wdirs() {
-    local r w seen=" "
+    local r w n
+    local -A seen=()
     for r in "${DISPATCH_ROOTS[@]}"; do
         [ -d "$r" ] || continue
         for w in "$r"/*/; do
             [ -d "$w" ] || continue
-            case "$seen" in *" $(basename "$w") "*) continue ;; esac
-            seen="$seen$(basename "$w") "
+            n="${w%/}"; n="${n##*/}"
+            [ -n "${seen[$n]+x}" ] && continue
+            seen[$n]=1
             printf '%s\n' "$w"
         done
     done
@@ -374,7 +379,13 @@ is_macos() { [[ "$(uname -s)" == "Darwin" ]]; }
 _check_hub_store_parity() {
     local project_root="${PROJECT_ROOT:-$(pwd)}"
     local mcp="$project_root/.mcp.json"
-    local hub_pid hub_dir cfg_dir
+    # Initialised, not merely declared: this function runs under `set -u`, and
+    # hub_dir/cfg_dir are only assigned inside conditionals that do not fire when
+    # no hub process is found or its environ is unreadable. A bare `local x` leaves
+    # x UNSET, so the first `[ -n "$hub_dir" ]` below aborted the whole check —
+    # exactly when there is no reachable hub, which is when this command is run to
+    # find out why (T-5123).
+    local hub_pid="" hub_dir="" cfg_dir=""
     hub_pid=$(pgrep -f "termlink hub start" 2>/dev/null | head -1)
     if [ -n "$hub_pid" ] && [ -r "/proc/$hub_pid/environ" ]; then
         hub_dir=$(tr '\0' '\n' < "/proc/$hub_pid/environ" 2>/dev/null | sed -n 's/^TERMLINK_RUNTIME_DIR=//p' | head -1)
@@ -655,10 +666,12 @@ cmd_status() {
         local vanished_min
         vanished_min=$(fw_config_int "TERMLINK_VANISHED_MINUTES" 10)
         local _wds; mapfile -t _wds < <(_all_wdirs)   # T-4675: project root, then legacy /tmp
+        # T-5105: one `termlink list` for the whole loop, not one per worker dir (~6,800 here).
+        local _tl_listed; _tl_listed=$(termlink list 2>/dev/null || true)
         for wdir in ${_wds[@]+"${_wds[@]}"}; do
             [ -d "$wdir" ] || continue
             local name
-            name=$(basename "$wdir")
+            name="${wdir%/}"; name="${name##*/}"
             local status="running"
             if [ -f "$wdir/exit_code" ]; then
                 local ec
@@ -668,7 +681,7 @@ cmd_status() {
                 status="VANISHED"   # T-4637: killed without exit_code
             fi
             local session_alive="no"
-            termlink list 2>/dev/null | grep -q "$name" && session_alive="yes" || true
+            grep -q -- "$name" <<<"$_tl_listed" && session_alive="yes" || true
             local task_tag=""
             [ -f "$wdir/task" ] && task_tag=" [$(cat "$wdir/task")]"
             # T-3440: exit 0 is not the whole story — surface whether the task
@@ -962,6 +975,159 @@ USAGE
     [ "$stopped_count" -gt 0 ] && summary="$summary; stopped $stopped_count leaked endpoint(s)"
     [ "$kept_count" -gt 0 ] && summary="$summary; kept $kept_count"
     echo "$summary."
+}
+
+# T-5120 (010 T-3777): retention for FINISHED worker dirs. cleanup needs consent and also
+# signals processes; prune is the narrow, unattended part: it only deletes dirs that are
+# provably done, read and old. A dir is removed only when ALL hold:
+#   - it is this project's (_worker_in_project; a legacy /tmp dir needs meta.json for that)
+#   - exit_code exists, older than the age cut, and _worker_done (review: finalised)
+#   - no run.sh of it is in the process table
+#   - it has no uncollected result (result.md / result.jsonl without `collected`)
+# It never signals a process, stops an endpoint or runs `termlink clean`.
+_retention_days() {
+    local d
+    d=$(fw_config "TERMLINK_DISPATCH_RETENTION_DAYS" 7 2>/dev/null || echo 7)
+    if [[ "$d" =~ ^[0-9]+$ ]] && [ "$d" -le 365 ]; then echo "$d"; else echo 7; fi
+}
+
+# T-5120 (operator ruling 2026-11-13, option "after 30 days"): only `fw termlink result` marks a
+# result collected, and most readers (wait, the review judge) never call it, so "uncollected" is
+# the normal state of a read result. An uncollected result goes after this many days instead.
+# 0 = never remove an uncollected result.
+_uncollected_days() {
+    local d
+    d=$(fw_config "TERMLINK_DISPATCH_UNCOLLECTED_DAYS" 30 2>/dev/null || echo 30)
+    if [[ "$d" =~ ^[0-9]+$ ]] && [ "$d" -le 3650 ]; then echo "$d"; else echo 30; fi
+}
+
+cmd_prune() {
+    local days="" udays="" dry_run=false quiet=false
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            -h|--help)
+                cat <<'USAGE'
+Usage: fw termlink prune [--older-than DAYS] [--uncollected-older-than UDAYS] [--dry-run|-n]
+
+Remove this project's FINISHED dispatch worker dirs whose exit_code is older than DAYS
+(default: TERMLINK_DISPATCH_RETENTION_DAYS, 7). A dir whose result was never collected
+(`fw termlink result`) waits UDAYS instead (TERMLINK_DISPATCH_UNCOLLECTED_DAYS, 30; 0 = never).
+Kept, always: running or unfinalised workers, other projects' dirs, and /tmp dirs with no
+meta.json. Signals nothing. Removals are logged to <dispatch root>/retention.jsonl.
+`fw termlink dispatch` runs this in the background at most once an hour;
+TERMLINK_DISPATCH_RETENTION_DAYS=0 turns that off.
+USAGE
+                return 0 ;;
+            --older-than) days="${2:-}"; shift ;;
+            --uncollected-older-than) udays="${2:-}"; shift ;;
+            -n|--dry-run) dry_run=true ;;
+            -q|--quiet) quiet=true ;;
+            *) echo "fw termlink prune: unknown option '$1' (try --help)" >&2; return 2 ;;
+        esac
+        shift
+    done
+    [ -n "$days" ] || days=$(_retention_days)
+    if ! [[ "$days" =~ ^[0-9]+$ ]] || [ "$days" -lt 1 ]; then
+        echo "fw termlink prune: --older-than needs a whole number of days, at least 1" >&2
+        return 2
+    fi
+    [ -n "$udays" ] || udays=$(_uncollected_days)
+    if ! [[ "$udays" =~ ^[0-9]+$ ]]; then
+        echo "fw termlink prune: --uncollected-older-than needs a whole number of days (0 = never)" >&2
+        return 2
+    fi
+    [ "$udays" -eq 0 ] || [ "$udays" -ge "$days" ] || udays="$days"   # never sooner than collected ones
+
+    local real_project ref uref="" procs
+    real_project=$(readlink -f "${PROJECT_ROOT:-$(pwd)}" 2>/dev/null || echo "${PROJECT_ROOT:-$(pwd)}")
+    # One reference file per cut, so the age test is the builtin -ot (no fork per dir).
+    ref=$(mktemp "${TMPDIR:-/tmp}/fw-prune-ref.XXXXXX") || return 1
+    touch -d "@$(( $(date +%s) - days * 86400 ))" "$ref"
+    if [ "$udays" -gt 0 ]; then
+        uref=$(mktemp "${TMPDIR:-/tmp}/fw-prune-uref.XXXXXX") || { rm -f "$ref"; return 1; }
+        touch -d "@$(( $(date +%s) - udays * 86400 ))" "$uref"
+    fi
+    procs=$(ps -eo args= 2>/dev/null || true)
+
+    # Speed (measured 59 s over 7,453 foreign dirs in the shared /tmp root): one grep finds the
+    # foreign-root dirs whose meta.json names this project; every other foreign-root dir is
+    # skipped without a fork. Candidates still go through the exact _worker_in_project.
+    local -A maybe_ours=()
+    local r m
+    for r in "${DISPATCH_ROOTS[@]}"; do
+        [ "$r" = "$DISPATCH_DIR" ] && continue
+        [ -d "$r" ] || continue
+        while IFS= read -r m; do
+            [ -n "$m" ] && maybe_ours["${m%/meta.json}"]=1
+        done < <(find "$r" -mindepth 2 -maxdepth 2 -name meta.json -exec grep -lF \
+                    -e "\"project\": \"$real_project\"" -e "\"project\": \"${PROJECT_ROOT:-$(pwd)}\"" {} + 2>/dev/null)
+    done
+
+    local -a removed=() removed_unc=()
+    local young=0 running=0 uncollected=0 other=0 unfinished=0 w n
+    local _wds; mapfile -t _wds < <(_all_wdirs)
+    for w in ${_wds[@]+"${_wds[@]}"}; do
+        w="${w%/}"; n="${w##*/}"
+        if [ "${w%/*}" != "$DISPATCH_DIR" ] && [ -z "${maybe_ours[$w]+x}" ]; then
+            other=$((other + 1)); continue
+        fi
+        if ! _worker_in_project "$w" "$real_project"; then other=$((other + 1)); continue; fi
+        if [ ! -f "$w/exit_code" ]; then unfinished=$((unfinished + 1)); continue; fi
+        if ! [ "$w/exit_code" -ot "$ref" ]; then young=$((young + 1)); continue; fi
+        case "$procs" in *"$w/run.sh"*) running=$((running + 1)); continue ;; esac
+        if ! _worker_done "$w"; then unfinished=$((unfinished + 1)); continue; fi
+        if [ ! -f "$w/collected" ] && { [ -s "$w/result.md" ] || [ -s "$w/result.jsonl" ]; }; then
+            if [ -z "$uref" ] || ! [ "$w/exit_code" -ot "$uref" ]; then
+                uncollected=$((uncollected + 1)); continue
+            fi
+            if [ "$dry_run" = true ] || rm -rf -- "$w"; then removed_unc+=("$n"); fi
+            continue
+        fi
+        if [ "$dry_run" = true ]; then
+            removed+=("$n")
+        elif rm -rf -- "$w"; then
+            removed+=("$n")
+        fi
+    done
+    rm -f "$ref" ${uref:+"$uref"}
+
+    local verb="Removed"; [ "$dry_run" = true ] && verb="Would remove"
+    local ulabel="never"; [ "$udays" -gt 0 ] && ulabel="${udays}d"
+    [ "$quiet" = true ] || {
+        local x; for x in ${removed[@]+"${removed[@]}"}; do echo "  $x"; done
+        for x in ${removed_unc[@]+"${removed_unc[@]}"}; do echo "  $x (uncollected)"; done
+        echo "$verb ${#removed[@]} finished worker dir(s) older than ${days}d and ${#removed_unc[@]} with an uncollected result older than $ulabel; kept: $young younger, $uncollected uncollected, $unfinished unfinished, $running running; $other other project(s)' dir(s) not touched."
+    }
+    if [ "$dry_run" != true ] && [ $(( ${#removed[@]} + ${#removed_unc[@]} )) -gt 0 ]; then
+        mkdir -p "$DISPATCH_DIR" 2>/dev/null || true
+        # argv: days udays young uncollected unfinished running other n_removed removed... removed_unc...
+        python3 -c 'import json,sys,datetime
+a=sys.argv; k=int(a[8]); rest=a[9:]
+print(json.dumps({"ts": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+  "older_than_days": int(a[1]), "uncollected_older_than_days": int(a[2]),
+  "removed": rest[:k], "removed_uncollected": rest[k:],
+  "kept": {"younger": int(a[3]), "uncollected": int(a[4]), "unfinished": int(a[5]), "running": int(a[6])},
+  "other_projects": int(a[7])}))' "$days" "$udays" "$young" "$uncollected" "$unfinished" "$running" "$other" \
+            "${#removed[@]}" ${removed[@]+"${removed[@]}"} ${removed_unc[@]+"${removed_unc[@]}"} \
+            >> "$DISPATCH_DIR/retention.jsonl" 2>/dev/null || true
+    fi
+    return 0
+}
+
+# T-5120: called by cmd_dispatch. At most once an hour (stamp in the dispatch root), detached,
+# all output dropped; whatever happens here, the dispatch carries on.
+_retention_kick() {
+    local days stamp
+    days=$(_retention_days)
+    [ "$days" -gt 0 ] 2>/dev/null || return 0
+    mkdir -p "$DISPATCH_DIR" 2>/dev/null || return 0
+    stamp="$DISPATCH_DIR/.retention-stamp"
+    if [ -f "$stamp" ] && [ -n "$(find "$stamp" -mmin -60 2>/dev/null)" ]; then
+        return 0
+    fi
+    touch "$stamp" 2>/dev/null || return 0
+    ( cmd_prune --older-than "$days" --quiet </dev/null >/dev/null 2>&1 & ) 2>/dev/null || true
+    return 0
 }
 
 # T-3580 round 3: the worker kinds `dispatch --worker-kind` accepts, printed by
@@ -1290,6 +1456,7 @@ cmd_dispatch() {
 
     project_dir="${project_dir:-$(pwd)}"
     _enforce_worker_cap "$project_dir" "$name"
+    _retention_kick   # T-5120: background, at most hourly, never fails the dispatch
     # T-4675: the worker dir lives under the project. Exception: a harness review seat runs as
     # another user, who must read its export and cannot traverse the root-owned project, so it
     # keeps the /tmp root (scratch for a run the ledger re-verifies, not a result store).
@@ -1631,6 +1798,11 @@ WATCHDOG_KILL_GRACE="${WATCHDOG_KILL_GRACE:-10}"
 _fw_watchdog() {
     local pid="$1" i=0 c
     sleep "$TIMEOUT"
+    # T-5008 review: record the timeout BEFORE signalling. A worker that exits at once on TERM
+    # let run.sh read "no timed_out marker" first and close the run as an ordinary exit.
+    kill -0 "$pid" 2>/dev/null || return 0
+    : > "$WDIR/timed_out"
+    echo "TIMEOUT" >> "$WDIR/stderr.log"
     # T-5008: a namespaced seat's recorded PID is `unshare`, which ignores TERM; pass the TERM to
     # its own direct child (by PID, never by pattern). The KILL below ends unshare, and
     # --kill-child then ends the whole namespace.
@@ -1638,8 +1810,6 @@ _fw_watchdog() {
         for c in $(cat "/proc/$pid/task/$pid/children" 2>/dev/null); do kill "$c" 2>/dev/null; done
     fi
     kill "$pid" 2>/dev/null || return 0
-    : > "$WDIR/timed_out"
-    echo "TIMEOUT" >> "$WDIR/stderr.log"
     while [ "$i" -lt "$WATCHDOG_KILL_GRACE" ]; do
         sleep 1; i=$((i + 1))
         kill -0 "$pid" 2>/dev/null || return 0
@@ -1671,14 +1841,35 @@ _fw_seat_pidns() {
                 why=""
             fi ;;
     esac
-    local rec
-    if [ -z "$why" ]; then
-        SEAT_PIDNS=("${cmd[@]}")
-        rec="own PID namespace"
-        echo "seat process isolation: own PID namespace (T-5008)" >> "$WDIR/stderr.log"
+    # T-5008 review: only DECIDE here; what is recorded is what actually started
+    # (_fw_seat_pidns_record, after the launch).
+    SEAT_PIDNS_WHY="$why"
+    [ -z "$why" ] && SEAT_PIDNS=("${cmd[@]}")
+    return 0
+}
+
+# T-5008 review: record the seat's process isolation from the LAUNCHED process. The launch is
+# `( … exec unshare … ) &`, so $! is a subshell that becomes `unshare` once exec runs; wait
+# briefly for that. A launch that never became unshare is recorded as not isolated.
+_fw_seat_pidns_record() {
+    local pid="$1" rec comm="" n=0
+    if [ "${#SEAT_PIDNS[@]}" -gt 0 ]; then
+        while [ "$n" -lt 30 ]; do
+            comm=$(cat "/proc/$pid/comm" 2>/dev/null || true)
+            [ "$comm" = "unshare" ] && break
+            [ -z "$comm" ] && break      # already gone: the exit code tells the rest
+            sleep 0.1; n=$((n + 1))
+        done
+        if [ "$comm" = "unshare" ]; then
+            rec="own PID namespace"
+            echo "seat process isolation: own PID namespace (T-5008)" >> "$WDIR/stderr.log"
+        else
+            rec="not available: the launch did not start under unshare (${comm:-process gone})"
+            echo "seat process isolation not available: the launch did not start under unshare (${comm:-process gone})" >> "$WDIR/stderr.log"
+        fi
     else
-        rec="not available: $why"
-        echo "seat process isolation not available: $why" >> "$WDIR/stderr.log"
+        rec="not available: ${SEAT_PIDNS_WHY:-not probed}"
+        echo "seat process isolation not available: ${SEAT_PIDNS_WHY:-not probed}" >> "$WDIR/stderr.log"
     fi
     if command -v jq >/dev/null 2>&1 && [ -f "$WDIR/meta.json" ]; then
         jq --arg r "$rec" '.seat_pid_isolation = $r' "$WDIR/meta.json" > "$WDIR/meta.json.tmp" 2>/dev/null \
@@ -1967,11 +2158,16 @@ elif [ -n "$HARNESS" ]; then
                 ;;
             antigravity)
                 # The operator-approved form (2026-09-30), with the registered absolute binary:
-                # sudo's secure_path does not reach ~/.local/bin. sudo drops this environment.
-                ( cd "$TREE" && _fw_seat_env && exec ${SEAT_PIDNS[@]+"${SEAT_PIDNS[@]}"} /usr/bin/sudo -n -u dimitri-mint-dev -H "$WORKER_BIN" -p "$PROMPT_TEXT" --mode plan --sandbox < /dev/null > "$WDIR/result.md" 2>> "$WDIR/stderr.log" ) &
+                # sudo's secure_path does not reach ~/.local/bin. sudo drops this environment
+                # (env_reset), so T-5177 (operator 2026-11-16, option 1) passes the two settings the
+                # other seats get through /usr/bin/env inside sudo: TMPDIR (its scratch space, which
+                # the brief tells it to run project code from) and PYTHONDONTWRITEBYTECODE (T-4835).
+                # Without them it ran Python in place and its own .pyc files voided the seat.
+                ( cd "$TREE" && _fw_seat_env && exec ${SEAT_PIDNS[@]+"${SEAT_PIDNS[@]}"} /usr/bin/sudo -n -u dimitri-mint-dev -H /usr/bin/env TMPDIR="$SEAT_TMP" PYTHONDONTWRITEBYTECODE=1 "$WORKER_BIN" -p "$PROMPT_TEXT" --mode plan --sandbox < /dev/null > "$WDIR/result.md" 2>> "$WDIR/stderr.log" ) &
                 ;;
         esac
         HARNESS_PID=$!
+        _fw_seat_pidns_record "$HARNESS_PID"   # T-5008 review: record what actually started
         ( _fw_watchdog "$HARNESS_PID" ) &
         WATCHDOG_PID=$!
         wait "$HARNESS_PID" 2>/dev/null
@@ -2421,6 +2617,7 @@ cmd_help() {
     echo -e "  ${GREEN}status${NC}                       List active TermLink sessions"
     echo -e "  ${GREEN}vanished${NC} [--minutes N]        List workers killed without exit_code (exit 1 if any)"
     echo -e "  ${GREEN}cleanup${NC}                      Deregister sessions, close terminal windows"
+    echo -e "  ${GREEN}prune${NC} [--older-than D]       Remove finished, read worker dirs older than D days (T-5120)"
     echo -e "  ${GREEN}dispatch${NC} --name N --prompt P  Spawn claude -p worker in real terminal
                                      [--project DIR] [--model M] [--timeout S]
                                      [--permission-mode acceptEdits]   (T-2282: MCP workers need this)
@@ -2493,6 +2690,7 @@ if [ "${BASH_SOURCE[0]}" = "$0" ]; then
         status)   cmd_status "$@" ;;
         vanished) cmd_vanished "$@" ;;
         cleanup)  cmd_cleanup "$@" ;;
+        prune)    cmd_prune "$@" ;;
         worker-kinds) cmd_worker_kinds "$@" ;;
         dispatch) cmd_dispatch "$@" ;;
         wait)     cmd_wait "$@" ;;

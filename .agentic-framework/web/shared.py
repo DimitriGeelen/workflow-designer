@@ -10,7 +10,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, Iterable, TypeVar
 
-from markupsafe import Markup, escape
 import yaml
 from flask import g, has_request_context, render_template, request
 
@@ -191,6 +190,17 @@ NAV_GROUPS = [
         ]),
     ]),
 ]
+
+# T-5146: menu pages that load their own external script library. Their menu links are
+# plain links (hx-boost="false"), so the browser loads them once, directly. Boosted,
+# htmx fetched the page, T-5130's handler then saw the new library and loaded the URL a
+# second time (/bvp: 5.2-5.7 s against 2.8 s direct). Kept honest by
+# tests/web/test_t5146_nav_full_load.py, which renders every menu page.
+NAV_FULL_LOAD_ENDPOINTS = frozenset({
+    "bvp.bvp_scatter",          # d3
+    "fabric.fabric_graph",      # d3
+    "terminal.terminal_page",   # xterm.js and socket.io
+})
 
 
 def _nav_flatten(items):
@@ -585,6 +595,47 @@ VIEWABLE_DIR_PREFIXES = (
     "deploy/",
 )
 
+#: T-5172: never servable, whatever a project declares.
+_NEVER_VIEWABLE = (".git/", ".context/secrets/")
+
+
+def _declared_viewable_dirs(root=None) -> tuple:
+    """T-5172 (0909 consult d1993c2c): extra folders a project declares viewable.
+
+    `VIEWABLE_DIRS` (comma or space separated) from FW_VIEWABLE_DIRS or .framework.yaml, added
+    to the built-in list for both the linker and the /file/ route. Chosen over "any tracked file
+    is linkable": the project decides, nothing new is exposed by default. Unsafe entries are
+    dropped: `..`, absolute paths, the root itself, `.git` and `.context/secrets`."""
+    raw = os.environ.get("FW_VIEWABLE_DIRS", "")
+    if not raw:
+        try:
+            data = yaml.load((Path(root or PROJECT_ROOT) / ".framework.yaml").read_text(),
+                             Loader=_YAML_LOADER) or {}
+            for scope in (data, data.get("config") or {}):
+                if isinstance(scope, dict) and scope.get("VIEWABLE_DIRS") not in (None, ""):
+                    raw = scope["VIEWABLE_DIRS"]
+                    break
+        except Exception:  # noqa: BLE001 — no config, unreadable config: nothing declared
+            raw = ""
+    items = raw if isinstance(raw, list) else re_mod.split(r"[,\s]+", str(raw))
+    out = []
+    for item in items:
+        d = str(item).strip().replace("\\", "/")
+        while d.startswith("./"):
+            d = d[2:]
+        if not d or d in (".", "/") or d.startswith("/") or ".." in d.split("/"):
+            continue
+        d = d.rstrip("/") + "/"
+        if any(d.startswith(n) or n.startswith(d) for n in _NEVER_VIEWABLE):
+            continue
+        if d not in out:
+            out.append(d)
+    return tuple(out)
+
+
+VIEWABLE_DIR_PREFIXES = VIEWABLE_DIR_PREFIXES + tuple(
+    d for d in _declared_viewable_dirs() if d not in VIEWABLE_DIR_PREFIXES)
+
 VIEWABLE_EXTENSIONS = ("md", "yaml", "yml", "py", "sh", "bats", "json", "toml")
 
 # T-2281 (T-2275 prong B): depth-0 root files cannot match a directory prefix
@@ -775,6 +826,47 @@ _INDEX_LOCK = _threading.Lock()
 _TREE_LOCK = _threading.Lock()
 
 
+# T-5106 (1409, 2.58M files under .context/working/ froze every page): both walks below
+# are bounded. .context/working/ contributes its top-level files only (worker areas, scratch
+# and caches below it can be any size), and each walk stops at a file-count or time budget.
+# On truncation the walk logs once and fails open: a name it could not reach stays plain
+# text and is never marked dead.
+_WALK_SHALLOW = (".context/working",)
+_WALK_MAX_FILES = 200_000
+_WALK_MAX_SECONDS = 10.0
+_WALK_WARNED: set = set()
+
+
+def _bounded_walk(base, label: str, skip_dirs, state: dict):
+    """os.walk(base) with the T-5106 bounds; yields (root, files). Sets state["truncated"]
+    when a budget stops it. `state` carries the shared count and deadline of one build."""
+    import time as _t
+    base_s = str(base)
+    for root, dirs, files in os.walk(base_s):
+        rel = os.path.relpath(root, PROJECT_ROOT)
+        if any(rel == p for p in _WALK_SHALLOW):
+            dirs[:] = []                       # top-level files only
+        else:
+            dirs[:] = [d for d in dirs if d not in skip_dirs]
+        state["files"] += len(files)
+        if state["files"] > _WALK_MAX_FILES or _t.monotonic() > state["deadline"]:
+            state["truncated"] = True
+            if label not in _WALK_WARNED:
+                _WALK_WARNED.add(label)
+                import logging as _lg
+                _lg.getLogger(__name__).warning(
+                    "T-5106: %s walk stopped at %d files / %.0fs budget; unresolved names stay "
+                    "plain text", label, state["files"], _WALK_MAX_SECONDS)
+            yield root, files
+            return
+        yield root, files
+
+
+def _walk_state() -> dict:
+    import time as _t
+    return {"files": 0, "deadline": _t.monotonic() + _WALK_MAX_SECONDS, "truncated": False}
+
+
 def _basename_index(force_fresh: bool = False) -> dict:
     """basename -> sorted repo-relative paths, over the viewable directories only.
 
@@ -799,12 +891,13 @@ def _basename_index(force_fresh: bool = False) -> dict:
 def _build_basename_index(now: float) -> dict:
     idx: dict = {}
     suffixes = tuple("." + e for e in VIEWABLE_EXTENSIONS)
+    state = _walk_state()
     for prefix in VIEWABLE_DIR_PREFIXES:
         base = PROJECT_ROOT / prefix
-        if not base.is_dir():
+        if not base.is_dir() or state["truncated"]:
             continue
-        for root, dirs, files in os.walk(base):
-            dirs[:] = [d for d in dirs if d not in ("__pycache__", "node_modules", ".git")]
+        for root, files in _bounded_walk(base, "basename index",
+                                         ("__pycache__", "node_modules", ".git"), state):
             for f in files:
                 if f.endswith(suffixes):
                     rel = os.path.relpath(os.path.join(root, f), PROJECT_ROOT)
@@ -824,6 +917,7 @@ def _build_basename_index(now: float) -> dict:
             idx.setdefault(f, []).insert(0, f)
     import time as _t
     _BASENAME_INDEX["index"] = idx
+    _BASENAME_INDEX["truncated"] = state["truncated"]
     # T-4547: age counts from when the walk FINISHED. Stamping `now` (read
     # before the walk) published an index already past its TTL whenever the
     # walk took longer than the TTL, so the next miss walked again.
@@ -858,12 +952,15 @@ def _exists_anywhere(name: str) -> bool:
             now = _t.monotonic()
             if now - _TREE_NAMES["built"] >= _BASENAME_MISS_TTL:
                 names = set()
-                for _root, dirs, files in os.walk(PROJECT_ROOT):
-                    dirs[:] = [d for d in dirs if d not in _TREE_SKIP_DIRS]
+                state = _walk_state()
+                for _root, files in _bounded_walk(PROJECT_ROOT, "tree names", _TREE_SKIP_DIRS,
+                                                  state):
                     names.update(files)
                 _TREE_NAMES["names"] = frozenset(names)
+                _TREE_NAMES["truncated"] = state["truncated"]
                 _TREE_NAMES["built"] = _t.monotonic()  # T-4547: after the walk
-    return name in _TREE_NAMES["names"]
+    # T-5106: on a truncated walk an unseen name may still exist; "exists" keeps it plain text.
+    return name in _TREE_NAMES["names"] or bool(_TREE_NAMES.get("truncated"))
 
 
 def _resolve_ref(path: str):
@@ -1167,22 +1264,14 @@ def link_route_code_spans(html: str, base_url: str | None = None) -> str:
     return _CODE_ROUTE_HTML_RE.sub(_sub, html)
 
 
-def render_markdown_safe(text: str, extras: list[str] | None = None) -> Markup:
+def render_markdown_safe(text: str, extras: list[str] | None = None) -> str:
     """Render Markdown to HTML with safe_mode='escape', auto-link T-XXX refs
     and bare http(s) URLs.
 
     Used by /review and any blueprint that needs to render an arbitrary chunk
     of task-body markdown (rationale, evidence, etc.) without piping through
-    tasks.py's AC-specific helpers. Returns '' for empty input.
-
-    T-606: returns markupsafe.Markup, so callers no longer have to remember
-    `| safe`. Recommended by 010-termlink (rail 563) and correct — but note it
-    was NOT sufficient for the reported symptom: /approvals' AC fields never
-    reach this function, they come from tasks.py's _render_md_inline. The
-    docstring below claims the blueprint-private parser pattern was broken by
-    promoting this helper here; the promotion happened and the private pair
-    survived. Both are now fixed. A contract with two definitions is one
-    definition and one impostor, and the impostor is where the bug lives.
+    tasks.py's AC-specific helpers. Returns '' for empty input. Caller must
+    mark returned string `| safe` in templates.
 
     Origin: T-1575 — /review surface dumped raw markdown into a `<pre>` block.
     Promoted here (rather than reused from tasks.py) to break the blueprint-
@@ -1194,24 +1283,11 @@ def render_markdown_safe(text: str, extras: list[str] | None = None) -> Markup:
     ``extras=None`` is the previous behaviour exactly.
     """
     if not text:
-        return Markup("")
+        return ""
     try:
         import markdown2
     except ImportError:
-        # T-569: ESCAPE on the degradation path. Every caller marks this `| safe` — that is
-        # stated three lines up in this docstring — so returning the raw text handed
-        # unescaped, attacker-influenced content straight into the page whenever markdown2
-        # was missing. It was latent only because the import has always succeeded here.
-        # A fallback that silently turns escaping off is the same shape as the rest of this
-        # week's defects: the failure renders as health, and nothing in the output says the
-        # renderer degraded.
-        from markupsafe import escape as _escape
-        # T-606: was str(_escape(text)) — correct only because every caller then
-        # applied `| safe`. Now that this function owns the safety, return the
-        # Markup escape() already produced: the entities stay visible as literal
-        # text and are NOT re-escaped into &amp;lt;. The degradation path must keep
-        # escaping; it must not inherit the happy path's trust.
-        return _escape(text)
+        return text  # graceful degradation
     text = resolve_watchtower_refs(text)  # T-4624
     text = _TASK_REF_RE_SHARED.sub(r"[\1](/tasks/\1)", text)
     text = protect_path_underscores(text)
@@ -1232,7 +1308,7 @@ def render_markdown_safe(text: str, extras: list[str] | None = None) -> Markup:
     # become clickable /file/ links. Existence-gated; same rendering-layer
     # contract as the T-1575 URL/T-NNNN shape — agent need not pre-format.
     html = _auto_link_files(html)
-    return Markup(html)
+    return html
 
 
 _REC_MARKER_RE = re_mod.compile(
@@ -1853,11 +1929,80 @@ def _compute_readiness(task_id: str, body: str, root: Path, path: Path | None,
     return (WAITING_ON_AGENT if reasons else READY), tuple(reasons)
 
 
+# T-5147: background refresh of readiness entries the board served stale. A write to any
+# review ledger moves _readiness_stamp and so invalidates every awaiting task at once; the
+# board's next request recomputed them all inline (9-22 s, independent reviewer on T-5136).
+_READINESS_REFRESH_PENDING: dict[str, str] = {}   # task-file path -> task id
+# Tasks the newest ledger rows name: a just-recorded verdict's task is refreshed first, so
+# it turns ready within seconds instead of after the whole queue (independent reviewer on
+# T-5147: 390 tasks, 99.6 s under load).
+_READINESS_REFRESH_FIRST: dict[str, str] = {}
+_READINESS_REFRESH_LOCK = threading.Lock()
+_READINESS_REFRESH_THREAD: dict = {"t": None}
+_RECENT_LEDGER_IDS: dict = {"stamp": None, "ids": frozenset()}
+_LEDGER_TAIL_BYTES = 65536
+_TASK_ID_RE = re_mod.compile(r'"(T-\d+)"')
+
+
+def _recent_ledger_task_ids(root: Path, stamp: tuple) -> frozenset:
+    """Task ids named in the newest rows of the review ledgers (their last 64 KB), once
+    per ledger stamp. Cheap: only the file tails are read."""
+    if _RECENT_LEDGER_IDS["stamp"] == stamp:
+        return _RECENT_LEDGER_IDS["ids"]
+    ids: set = set()
+    try:
+        for f in (root / ".context" / "reviews").glob("*.jsonl"):
+            try:
+                with open(f, "rb") as fh:
+                    fh.seek(max(0, f.stat().st_size - _LEDGER_TAIL_BYTES))
+                    ids.update(_TASK_ID_RE.findall(fh.read().decode("utf-8", "replace")))
+            except OSError:
+                continue
+    except OSError:
+        pass
+    _RECENT_LEDGER_IDS.update(stamp=stamp, ids=frozenset(ids))
+    return _RECENT_LEDGER_IDS["ids"]
+
+
+def _readiness_refresh_worker() -> None:
+    while True:
+        with _READINESS_REFRESH_LOCK:
+            queue = _READINESS_REFRESH_FIRST or _READINESS_REFRESH_PENDING
+            if not queue:
+                _READINESS_REFRESH_THREAD["t"] = None
+                return
+            path, task_id = queue.popitem()
+        try:
+            review_readiness(task_id, "", "", path)   # exact path: recomputes and stores
+        except Exception:  # a failed refresh leaves the stale entry; the next exact call recomputes
+            logger.warning("readiness refresh failed for %s", task_id, exc_info=True)
+
+
+def _schedule_readiness_refresh(task_id: str, path: Path) -> None:
+    first = task_id in _recent_ledger_task_ids(Path(PROJECT_ROOT), _readiness_stamp(Path(PROJECT_ROOT)))
+    with _READINESS_REFRESH_LOCK:
+        if first:
+            _READINESS_REFRESH_PENDING.pop(str(path), None)
+            _READINESS_REFRESH_FIRST[str(path)] = task_id
+        elif str(path) not in _READINESS_REFRESH_FIRST:
+            _READINESS_REFRESH_PENDING[str(path)] = task_id
+        if _READINESS_REFRESH_THREAD["t"] is None:
+            t = threading.Thread(target=_readiness_refresh_worker,
+                                 name="readiness-refresh", daemon=True)
+            _READINESS_REFRESH_THREAD["t"] = t
+            t.start()
+
+
 def review_readiness(task_id: str, status: str, body: str,
-                     path: Path | str | None = None) -> tuple[str, list[str]]:
+                     path: Path | str | None = None,
+                     allow_stale: bool = False) -> tuple[str, list[str]]:
     """``(state, reasons)`` for a task awaiting the operator; state is ``READY`` or
     ``WAITING_ON_AGENT``. Reasons are empty iff ready. Cached per task-file mtime and
-    the ledger stamp when ``path`` is given. Fails toward waiting, never silently ready."""
+    the ledger stamp when ``path`` is given. Fails toward waiting, never silently ready.
+
+    ``allow_stale`` (T-5147, board only): when only the ledger stamp moved since the cached
+    entry, a cached WAITING is returned as is and refreshed in the background. A cached
+    READY is never served stale, so stale data can only under-report readiness."""
     root = Path(PROJECT_ROOT)
     p = Path(path) if path else None
     stamp = _readiness_stamp(root)
@@ -1876,6 +2021,9 @@ def review_readiness(task_id: str, status: str, body: str,
         # depends on the task file alone, so a commit elsewhere does not invalidate it.
         if hit and hit[0] == mtime and (hit[1] is None or hit[1] == tstamp):
             return hit[2][0], list(hit[2][1])
+        if allow_stale and hit and hit[0] == mtime and hit[2][0] != READY:
+            _schedule_readiness_refresh(task_id, p)
+            return hit[2][0], list(hit[2][1])
     used: list = []
     state, reasons = _compute_readiness(task_id, body, root, p, stamp, used)
     if p is not None:
@@ -1886,12 +2034,14 @@ def review_readiness(task_id: str, status: str, body: str,
 _OPEN_HUMAN_CACHE: dict[str, tuple[int, int]] = {}
 
 
-def task_review_state(path: Path | str) -> tuple[str | None, list[str], int]:
+def task_review_state(path: Path | str,
+                      allow_stale: bool = False) -> tuple[str | None, list[str], int]:
     """``(state, reasons, open_human)`` for one task file (T-4045 board column).
 
     ``state`` is None when the task has no unchecked Human criterion (it is not
     awaiting anyone); otherwise ``review_readiness``'s verdict. Both the open-Human
-    count and the readiness are cached per file mtime."""
+    count and the readiness are cached per file mtime. ``allow_stale``: see
+    ``review_readiness`` (T-5147; the board only)."""
     p = Path(path)
 
     def _count(q: Path) -> int:
@@ -1904,7 +2054,7 @@ def task_review_state(path: Path | str) -> tuple[str | None, list[str], int]:
     if open_human == 0:
         return None, [], 0
     state, reasons = review_readiness(p.name.split("-", 2)[0] + "-" + p.name.split("-", 2)[1],
-                                      "", "", p)
+                                      "", "", p, allow_stale=allow_stale)
     return state, reasons, open_human
 
 
@@ -1938,7 +2088,9 @@ def board_awaiting_reason(meta: dict) -> str | None:
     path = meta.get("_path")
     active = meta.get("_location") == "active" and bool(path)
     meta["_review_state"], meta["_wait_reasons"], meta["_open_human"] = (
-        task_review_state(path) if active else (None, [], 0))
+        # T-5147: the board may show the last known WAITING while a ledger write is
+        # re-verified in the background; it never shows a stale READY.
+        task_review_state(path, allow_stale=True) if active else (None, [], 0))
     if meta["_review_state"] == READY:
         return AWAIT_REVIEWER_READY
     if (active and str(meta.get("status") or "") == "work-completed"
@@ -2423,30 +2575,14 @@ def load_latest_audit():
 
 
 def linkify_tasks(text):
-    r"""Convert T-XXX references to clickable Watchtower links (T-851).
-
-    T-646: ESCAPE FIRST, THEN LINKIFY. The result is declared trusted HTML by the
-    Jinja filter in app.py, and a function may only vouch for markup it created
-    itself. Before this, the substitution ran over the RAW string and the whole
-    result was wrapped in Markup(), so every `<` in the source prose was published
-    as a tag. The source is not incidental: timeline narratives are read out of
-    committed handover markdown (blueprints/timeline.py:159), so the text is prose
-    that sessions wrote, and sessions write about HTML. Measured on the live
-    /timeline: two `<html` tags reaching the browser from a paragraph *discussing*
-    fragments. Injection-shaped rather than an open door — the input is our own
-    repository — but the ordering is wrong either way, and the fix is one line.
-
-    escape() is applied to the whole input; the anchors are then inserted into
-    already-escaped text, so they are the only markup this function vouches for.
-    T-\d{3,} contains no escapable character, so escaping cannot disturb the match.
-    """
+    """Convert T-XXX references to clickable Watchtower links (T-851)."""
     if not text:
         return text
-    return Markup(re_mod.sub(
+    return re_mod.sub(
         r'\b(T-\d{3,})\b',
         r'<a href="/tasks/\1">\1</a>',
-        str(escape(text)),
-    ))
+        str(text),
+    )
 
 
 _FRAGMENT_CONVENTION_VIOLATION = (

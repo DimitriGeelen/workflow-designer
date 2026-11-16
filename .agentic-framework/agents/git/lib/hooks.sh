@@ -599,42 +599,6 @@ if [ -f "$MASTER_GUARD" ]; then
     PROJECT_ROOT="$PROJECT_ROOT" bash "$MASTER_GUARD" check || exit 1
 fi
 
-# T-659: retention-sweep deletions are not the agent's to commit.
-#
-# A retention cron prunes .context/audits/cron/ and leaves the deletions pending in the
-# working tree indefinitely. Committing them is a housekeeping decision belonging to the
-# operator, not a side effect of whatever the agent was doing. Three sessions held this
-# line by staging explicit paths every time — until one `git add .context/` to pick up a
-# single episodic file swept 338 of them into the index. The rule lived in the agent's
-# head; the index does not consult it. Habit is what failed, so a habit is not the fix.
-#
-# Blocks only under agent control ($CLAUDECODE). The operator committing a retention
-# sweep deliberately is the intended path and is not obstructed.
-# 832 T-659 (re-applied on 1.7.740 by T-1005)
-if [ "${CLAUDECODE:-0}" = "1" ] && [ "${FW_ALLOW_RETENTION_SWEEP:-0}" != "1" ]; then
-    _rs_n=$(git diff --cached --name-only --diff-filter=D 2>/dev/null \
-            | grep -c '^\.context/audits/cron/' || true)
-    if [ "${_rs_n:-0}" -gt 0 ]; then
-        echo "" >&2
-        echo "ERROR: Commit blocked — $_rs_n retention-sweep deletion(s) staged (T-659)." >&2
-        echo "" >&2
-        echo "  .context/audits/cron/ is pruned by a retention cron. Those deletions are" >&2
-        echo "  the operator's to commit, not a byproduct of the current task." >&2
-        echo "" >&2
-        echo "  Almost always the cause: a directory-wide 'git add .context/' rather than" >&2
-        echo "  explicit paths. Unstage them and keep the rest of your work:" >&2
-        echo "" >&2
-        echo "    git reset HEAD .context/audits/" >&2
-        echo "" >&2
-        echo "  Then re-add only the files your task produced, by name." >&2
-        echo "" >&2
-        echo "  Operator, or a deliberate sweep: FW_ALLOW_RETENTION_SWEEP=1 git commit ..." >&2
-        echo "" >&2
-        exit 1
-    fi
-fi
-
-
 # FW-HOOK-BLOCK: t3110-corpus-guard
 # T-3110 (R7 leg L1, docs/design/task-corpus-concurrency-model.md): task-corpus
 # commit guard. Refuses a commit that stages any path under `.tasks/` when the
@@ -699,6 +663,19 @@ fi
 STALE_INDEX_GUARD="$FRAMEWORK_ROOT/agents/git/lib/stale-index-guard.py"
 if [ -f "$STALE_INDEX_GUARD" ] && command -v python3 >/dev/null 2>&1; then
     PROJECT_ROOT="$PROJECT_ROOT" python3 "$STALE_INDEX_GUARD" || exit 1
+fi
+
+# FW-HOOK-BLOCK: t5031-grant-file-guard
+# T-5031: a commit under agent control (CLAUDECODE=1) may not change
+# policy/access-grants.yaml — the file is read from HEAD, so the commit is what makes a
+# grant count. The operator commits it from their own shell. Fails closed when the guard
+# is missing in a project that HAS a grant file.
+GRANT_GUARD="$FRAMEWORK_ROOT/agents/git/lib/grant-file-guard.sh"
+if [ -f "$GRANT_GUARD" ]; then
+    bash "$GRANT_GUARD" || exit 1
+elif [ "${CLAUDECODE:-}" = "1" ] && git diff --cached --no-renames --name-only -- policy/access-grants.yaml policy/grants-allowed-signers 2>/dev/null | grep -q .; then
+    echo "ACCESS GRANTS: grant-file guard missing ($GRANT_GUARD) and this agent commit changes policy/access-grants.yaml — refused (T-5031)." >&2
+    exit 1
 fi
 
 SCANNER="$FRAMEWORK_ROOT/agents/git/lib/secret-scan.sh"
@@ -968,6 +945,17 @@ elif [ -f "$PROJECT_ROOT/.framework.yaml" ] || [ -d "$PROJECT_ROOT/.tasks" ]; th
     echo "  $PARKED_GUARD" >&2
     echo "Merges of deliberately-parked branches are unguarded in this repo." >&2
     echo "Fix: cd $PROJECT_ROOT && bin/fw upgrade   (framework repo: bin/fw vendor self)" >&2
+fi
+
+# FW-HOOK-BLOCK: t5031-grant-file-guard (merge leg)
+# T-5031: a clean merge commit fires pre-merge-commit INSTEAD of pre-commit, so the
+# grant-file guard runs here too.
+GRANT_GUARD="$FRAMEWORK_ROOT/agents/git/lib/grant-file-guard.sh"
+if [ -f "$GRANT_GUARD" ]; then
+    bash "$GRANT_GUARD" || exit 1
+elif [ "${CLAUDECODE:-}" = "1" ] && git diff --cached --no-renames --name-only -- policy/access-grants.yaml policy/grants-allowed-signers 2>/dev/null | grep -q .; then
+    echo "ACCESS GRANTS: grant-file guard missing ($GRANT_GUARD) and this agent merge changes policy/access-grants.yaml — refused (T-5031)." >&2
+    exit 1
 fi
 
 exit 0

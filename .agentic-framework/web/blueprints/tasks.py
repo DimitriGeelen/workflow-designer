@@ -2,7 +2,6 @@
 
 import json
 import os
-from markupsafe import Markup
 import re as re_mod
 import time
 from pathlib import Path
@@ -14,7 +13,7 @@ import markdown2
 import yaml
 from flask import Blueprint, abort, request, render_template
 
-from lib.arc_membership import task_dict_in_arc
+from lib.arc_membership import arc_identities, task_dict_in_arc
 from web.shared import (
     FRAMEWORK_ROOT, PROJECT_ROOT, render_page, parse_frontmatter,
     get_all_task_metadata, get_episodic_tags, task_id_sort_key,
@@ -378,17 +377,10 @@ def _render_md_inline(text):
     """Render text as Markdown HTML for inline display (T-1551).
     Strips <p> wrapper for use inside <li> contexts. safe_mode='escape'
     blocks raw HTML — only Markdown syntax (links, code, emphasis) renders.
-    Returns '' for empty input.
-
-    T-606: returns markupsafe.Markup. The old contract was "the caller must mark
-    returned strings safe", i.e. correctness lived in every template author's memory
-    rather than in this function. Two of the four consumers forgot, and the operator
-    read 205 escaped &lt;code&gt; on /approvals for as long as that page has existed.
-    Escaping is decided HERE (markdown2 safe_mode='escape' still neutralises raw HTML
-    in the task file); marking the result Markup only stops Jinja escaping it twice.
+    Returns '' for empty input. The caller must mark returned strings safe.
     """
     if not text:
-        return Markup('')
+        return ''
     text = resolve_watchtower_refs(text)  # T-4624
     text = _auto_link_watchtower_paths(text)
     text = _auto_link_task_refs(text)
@@ -401,22 +393,14 @@ def _render_md_inline(text):
     html = _linkify_code_urls(html)
     html = link_route_code_spans(html)  # T-4624
     # T-1722: artefact paths → /file/ anchors (existence-gated, idempotent).
-    return Markup(_auto_link_files(html))
+    return _auto_link_files(html)
 
 
 def _render_md_block(text):
     """Same as _render_md_inline but keeps <p> wrapping for block contexts
-    (Expected, If-not). T-1551.
-
-    T-606: returns markupsafe.Markup. The old contract was "the caller must mark
-    returned strings safe", i.e. correctness lived in every template author's memory
-    rather than in this function. Two of the four consumers forgot, and the operator
-    read 205 escaped &lt;code&gt; on /approvals for as long as that page has existed.
-    Escaping is decided HERE (markdown2 safe_mode='escape' still neutralises raw HTML
-    in the task file); marking the result Markup only stops Jinja escaping it twice.
-    """
+    (Expected, If-not). T-1551."""
     if not text:
-        return Markup('')
+        return ''
     text = resolve_watchtower_refs(text)  # T-4624
     text = _auto_link_watchtower_paths(text)
     text = _auto_link_task_refs(text)
@@ -427,7 +411,7 @@ def _render_md_block(text):
     html = _linkify_code_urls(html)
     html = link_route_code_spans(html)  # T-4624
     # T-1722: artefact paths → /file/ anchors (existence-gated, idempotent).
-    return Markup(_auto_link_files(html))
+    return _auto_link_files(html)
 
 
 # T-3224: an AC field heading is `**<marker><suffix>:**`, where the optional
@@ -740,6 +724,7 @@ def _build_active_filter_chips(active: dict, view: str) -> list[dict]:
 
 # T-3575: cards shown per backlog/archive board column before the "+N more" list link.
 BOARD_COLUMN_CAP = 20
+LIST_PAGE_SIZE = 200  # T-5136: list-view rows per page
 # Only these columns are capped; In Progress / Issues always show every card so the
 # board never hides current work (T-3575 render review).
 BOARD_CAPPED_STATUSES = ("captured", "work-completed")
@@ -797,7 +782,10 @@ def tasks():
         # Membership check unions canonical `arc_id:` frontmatter (T-1849) with
         # legacy `arc:<slug>` tag (pre-T-1850 migration). Future storage-format
         # changes update one place instead of three blueprints.
-        all_tasks = [t for t in all_tasks if task_dict_in_arc(t, arc_filter)]
+        # T-5167: the URL may name the arc by id (arc-005, as the landing cards link) or by
+        # slug (arc-grooming); tasks record either. Match both forms.
+        _arc_slug, _arc_num = arc_identities(PROJECT_ROOT, arc_filter)
+        all_tasks = [t for t in all_tasks if task_dict_in_arc(t, _arc_slug, _arc_num)]
     if owner_filter:
         all_tasks = [t for t in all_tasks if t.get("owner") == owner_filter]
     # T-2160 (arc-009 horizon-axis-hardening, Slice 1): horizon='past' is a
@@ -860,6 +848,31 @@ def tasks():
     if view not in ("board", "list"):
         view = "board"
 
+    # T-5136: the list view rendered every task with four inline edit forms each — 5,120
+    # rows was 18.9 MB of HTML and 37 s before the browser showed it. Page it; every task
+    # stays reachable through the pager, which keeps the filters and sort.
+    list_total = len(all_tasks)
+    list_pages = max(1, -(-list_total // LIST_PAGE_SIZE))
+    try:
+        list_page = int(request.args.get("page", "1"))
+    except ValueError:
+        list_page = 1
+    list_page = min(max(list_page, 1), list_pages)
+    list_start = (list_page - 1) * LIST_PAGE_SIZE
+    list_tasks = all_tasks[list_start:list_start + LIST_PAGE_SIZE]
+    _pager_args = [(k, v) for k, v in request.args.items(multi=True) if k not in ("page", "view")]
+
+    def _list_page_url(n):
+        return "/tasks?" + urlencode(_pager_args + [("view", "list"), ("page", n)])
+
+    list_pager = {
+        "page": list_page, "pages": list_pages, "total": list_total,
+        "first": list_start + 1 if list_total else 0,
+        "last": list_start + len(list_tasks),
+        "prev_url": _list_page_url(list_page - 1) if list_page > 1 else None,
+        "next_url": _list_page_url(list_page + 1) if list_page < list_pages else None,
+    }
+
     # arc-007 S4c (T-2016): removable chip per active filter.
     active_filter_chips = _build_active_filter_chips({
         "q": search_query, "owner": owner_filter, "horizon": horizon_filter,
@@ -873,6 +886,8 @@ def tasks():
         active_filter_chips=active_filter_chips,
         page_title="Tasks",
         tasks=all_tasks,
+        list_tasks=list_tasks,
+        list_pager=list_pager,
         board_tasks=board_tasks,
         awaiting_tasks=awaiting_tasks,
         board_column_cap=BOARD_COLUMN_CAP,

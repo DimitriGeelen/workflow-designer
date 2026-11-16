@@ -1275,19 +1275,6 @@ _fw_option_runs_program() {
     return 1
 }
 
-# 832 T-1047: is $1 THIS project's scripts/session-start-alerts.sh? The /resume skill's step 7
-# (AEF T-3327) runs it at session START, before any task is focused, so the no-task gate must
-# admit it or the unseen-mail check never runs when it matters. It reads the inbox; --mark-seen
-# writes only .context/working/.alerts-seen-offset (framework state, like `fw context`). Only a
-# relative scripts/ path or $PROJECT_ROOT/scripts/ is admitted — never a same-named file
-# elsewhere. Redirects on the line are still judged by has_bash_write_pattern on the original.
-_fw_is_session_start_alerts() {
-    case "$1" in
-        scripts/session-start-alerts.sh|./scripts/session-start-alerts.sh) return 0 ;;
-    esac
-    [ -n "${PROJECT_ROOT:-}" ] && [ "$1" = "$PROJECT_ROOT/scripts/session-start-alerts.sh" ]
-}
-
 # Single (non-compound) command classification. This is the original
 # is_bash_safe_command body, unchanged apart from the name.
 _fw_single_command_is_safe() {
@@ -1640,12 +1627,6 @@ _fw_single_command_is_safe() {
                     return 0
                     ;;
             esac
-            ;;
-
-        # 832 T-1047: /resume's mail check, this project's copy only (see _fw_is_session_start_alerts).
-        # The `bash scripts/session-start-alerts.sh` spelling is admitted in the bash|sh arm.
-        session-start-alerts.sh)
-            _fw_is_session_start_alerts "$(echo "$cmd" | awk '{print $1}')" && return 0
             ;;
 
         # Category 2: File reading
@@ -2038,15 +2019,6 @@ _fw_single_command_is_safe() {
                     # of why it fired.
                     return 0
                     ;;
-                fix-learned)
-                    # 832 T-650 (restored by T-1037 on 1.7.740): `fw fix-learned T-XXX "text"`
-                    # IS `fw context add-learning "text" --task T-XXX --source P-001` (bin/fw's
-                    # branch execs exactly that), and add-learning is admitted above. The
-                    # completion prompt prints THIS spelling, so refusing it refuses the
-                    # framework's own advice. An allowlist of effects must not be indexed by
-                    # spelling; tools/_t650-*.sh asserts alias/target parity pairwise.
-                    return 0
-                    ;;
                 handover)
                     # T-2878: session handover is the Session End Protocol's
                     # mandatory step; it runs precisely when no task is active.
@@ -2157,8 +2129,6 @@ _fw_single_command_is_safe() {
             if grep -qE '^\s*(ba)?sh\s+-n\b' <<< "$cmd"; then
                 return 0
             fi
-            # 832 T-1047: `bash scripts/session-start-alerts.sh …` (see the arm of that name)
-            _fw_is_session_start_alerts "$(echo "$cmd" | awk '{print $2}')" && return 0
             ;;
 
         # Special: echo without redirect is safe (diagnostic output)
@@ -2214,43 +2184,6 @@ _fw_single_command_is_safe() {
 }
 
 # Check if a command contains file-write patterns
-# 832 T-636 (re-applied on 1.7.740 by T-1005): framework verbs whose quoted arguments are
-# PROSE the framework stores, not shell it runs. Only for these may a verb named inside quotes
-# (`fw note "tee writes a copy"`) be ignored by the rm/tee checks below.
-_sc_is_framework_prose_verb() {
-    local c="$1" tok1 tok2 tok3 rest
-    rest="${c#"${c%%[![:space:]]*}"}"          # ltrim
-    tok1="${rest%%[[:space:]]*}"
-    case "$tok1" in
-        fw|*/fw) ;;
-        *) return 1 ;;
-    esac
-    rest="${rest#"$tok1"}"; rest="${rest#"${rest%%[![:space:]]*}"}"
-    tok2="${rest%%[[:space:]]*}"
-    rest="${rest#"$tok2"}"; rest="${rest#"${rest%%[![:space:]]*}"}"
-    tok3="${rest%%[[:space:]]*}"
-    case "$tok2" in
-        note) return 0 ;;
-        # T-650: the alias needs its OWN entry here, not just in _sc_simple_is_safe.
-        # The two lists answer different questions — "is this verb safe with no task?"
-        # and "does this verb take free prose that must not be read as shell?" — and
-        # `fw fix-learned T-XXX "<sentence>"` needs a yes from both. With only the first,
-        # the command is admitted and then trips on its own argument the moment a learning
-        # contains `>` or `&&`, which is exactly the kind of sentence a bugfix learning is.
-        fix-learned) return 0 ;;
-        context)
-            case "$tok3" in add-learning|add-pattern|add-decision) return 0 ;; esac
-            ;;
-        task)
-            case "$tok3" in create) return 0 ;; esac
-            ;;
-        git)
-            case "$tok3" in commit) return 0 ;; esac
-            ;;
-    esac
-    return 1
-}
-
 has_bash_write_pattern() {
     local cmd="$1"
 
@@ -2271,17 +2204,7 @@ has_bash_write_pattern() {
     # command over the 64KB pipe buffer, grep -q matches line 1 and exits, echo
     # takes SIGPIPE, the pipeline returns 141, and a non-zero return here means
     # "no write found": the gate failed OPEN on a match (measured 0/5 at HEAD).
-    # 832 T-404/T-632 (re-applied on 1.7.740 by T-1005): judge REDIRECTS on shell structure,
-    # not on characters inside quotes. `grep -n "a\\|>>\\|b" f`, `echo "a > b"` and
-    # `python3 -c "...>= 50..."` are reads; the raw-text scan called them writes and the
-    # no-task gate refused them. Uses upstream's _fw_strip_quoted. Conservative fallbacks to
-    # the RAW text: unbalanced quotes (strip fails), or any command substitution, since
-    # stripping a double-quoted "$(cmd > f)" would hide a real write.
-    local _rview="$cmd"
-    if [[ "$cmd" != *'$('* && "$cmd" != *'`'* ]] && declare -F _fw_strip_quoted >/dev/null 2>&1; then
-        _rview="$(_fw_strip_quoted "$cmd")" || _rview="$cmd"
-    fi
-    local _scan="$_rview" _sprev=""
+    local _scan="$cmd" _sprev=""
     while [ "$_scan" != "$_sprev" ]; do
         _sprev="$_scan"
         _scan=$(printf '%s' "$_scan" | sed -E 's#(^|[^>&0-9])([0-9]|&)?>>?[[:space:]]*/dev/(null|stdout|stderr)([[:space:];|&)]|$)#\1 \4#')
@@ -2333,45 +2256,8 @@ sys.stdout.write(r) if r is not None else sys.exit(1)' "$_FW_SAFE_COMMANDS_LIB" 
         return 0
     fi
 
-    # 832 T-632/T-640 (re-applied on 1.7.740 by T-1005). Three writes the checks above miss,
-    # each on a verb the allowlist ADMITS, so a miss here is an unguarded write without a task:
-    #   2> FILE / &> FILE   the redirect test above skips every fd-2 and &> form (to keep 2>&1);
-    #                       /dev/null targets were already stripped from $_scan
-    #   sed ... w FILE      sed's w flag / w command writes without -i
-    #   sort -o / --output  sort writes its output file itself
-    if echo "$_scan" | grep -qE '(^|[^>&0-9])(2|&)>>?[[:space:]]*[^&[:space:]]'; then
-        return 0
-    fi
-    if echo "$cmd" | grep -qE "\bsed\b.*[^[:alnum:]]w[[:space:]]+[^[:space:]'\"]"; then
-        return 0
-    fi
-    if echo "$cmd" | grep -qE '\bsort\b.*(^|[[:space:]])(-o([[:space:]]|$)|--output)'; then
-        return 0
-    fi
-    # 832 T-640 (re-applied on 1.7.740 by T-1005). Upstream ALLOWLISTS awk and uniq; ours kept
-    # them gated because each can write without a shell redirect. So the write check must see it:
-    #   awk/gawk/mawk  `print > "f"`, `print | cmd`, `system(...)` live INSIDE the quoted program,
-    #                  which the quote-aware redirect scan above (rightly) ignores — judged on RAW
-    #   uniq IN OUT    the second file operand is an output file
-    if echo "$cmd" | grep -qE '(^|[^[:alnum:]_-])[gm]?awk\b' \
-       && echo "$cmd" | grep -qE '>|system[[:space:]]*\(|print[^|]*\|'; then
-        return 0
-    fi
-    if grep -qE '(^|[;&|[:space:]])uniq\b' <<< "$_rview"; then
-        local _uw _un=0 _after=0
-        for _uw in $(printf '%s' "$cmd" | sed -E 's/.*(^|[;&|[:space:]])uniq\b//; s/[;&|].*//'); do
-            case "$_uw" in -*) ;; *) _un=$((_un + 1)) ;; esac
-        done
-        [ "$_un" -ge 2 ] && return 0
-    fi
-
     # Destructive file operations (already caught by Tier 0 but belt-and-suspenders)
-    # T-636 (re-applied by T-1005): verbs named INSIDE a quoted argument of a framework PROSE
-    # verb are text, not commands. Any other command keeps the raw view: `bash -c "rm -rf x"`
-    # executes its quotes.
-    local _pview="$cmd"
-    if [ "$_rview" != "$cmd" ] && _sc_is_framework_prose_verb "$cmd"; then _pview="$_rview"; fi
-    if grep -qE '\b(rm|rmdir)\b' <<< "$_pview"; then
+    if grep -qE '\b(rm|rmdir)\b' <<< "$cmd"; then
         return 0
     fi
 
@@ -2381,7 +2267,7 @@ sys.stdout.write(r) if r is not None else sys.exit(1)' "$_FW_SAFE_COMMANDS_LIB" 
     fi
 
     # tee (writes to file)
-    if grep -qE '\btee\b' <<< "$_pview"; then
+    if grep -qE '\btee\b' <<< "$cmd"; then
         return 0
     fi
 
@@ -2892,6 +2778,82 @@ is_task_metadata_update_command() {
         _si=$((_si+1))
         [[ "$seg" =~ ^[[:space:]]*$ ]] && continue
         if _fw_is_task_metadata_update_clause "$seg"; then
+            found=1
+            continue
+        fi
+        _fw_single_command_is_safe "$seg" || return 1
+        _fw_advance_cwd "$seg" "${ops[$_si]}"
+    done
+    [ "$found" -eq 1 ]
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# T-5112: is this command EXACTLY the close of task $2 — `fw task update $2
+# --status work-completed`, nothing else on the clause?
+#
+# A partial-complete task (status work-completed, still in active/, an open
+# ### Human box) is closed by re-running that command: update-task.sh re-reads
+# the reviewer-verdict ledger, ticks a criterion that has a valid green verdict,
+# and finalises. The task gate classed the command as an edit under a completed
+# task and refused it, so a green verdict could only ever be applied by the
+# operator (055 T-645, 2026-11-13) — defeating the T-3579/T-4916 path for the
+# tasks that need it most.
+#
+# NARROW BY CONSTRUCTION, like the metadata clause above: argv must be
+# `fw task update`, the ONE named id, and `--status|-s work-completed`. No
+# --skip-*, --force, --reason, --add-tag, no second id, no `=` forms, no quoted
+# value (stripped quotes leave a valueless flag and the clause is refused).
+# update-task.sh's own gates (P-010, P-011, the verdict ledger, the operator-
+# only flags) still decide whether the close succeeds; this only stops the
+# task gate from refusing to let them decide.
+_fw_is_close_clause_for() {
+    local seg tok want="$2" task_seen=0 status_seen=0
+    seg="$(_fw_strip_quoted "$1")" || return 1
+    seg="${seg#"${seg%%[![:space:]]*}"}"
+    # shellcheck disable=SC2086  # deliberate word-splitting: tokenising argv
+    set -- $seg
+    [ $# -eq 6 ] || return 1
+    [ "${1##*/}" = "fw" ] || return 1
+    [ "$2" = "task" ] && [ "$3" = "update" ] || return 1
+    shift 3
+    while [ $# -gt 0 ]; do
+        tok="$1"; shift
+        case "$tok" in
+            T-[0-9]*)
+                [ "$tok" = "$want" ] || return 1
+                [ "$task_seen" -eq 1 ] && return 1
+                task_seen=1 ;;
+            --status|-s)
+                [ "${1:-}" = "work-completed" ] || return 1
+                [ "$status_seen" -eq 1 ] && return 1
+                status_seen=1; shift ;;
+            *) return 1 ;;
+        esac
+    done
+    [ "$task_seen" -eq 1 ] && [ "$status_seen" -eq 1 ]
+}
+
+# TRUE only for a command whose one close clause names $2 and every other
+# clause is independently admissible via the shared allowlist (a `cd …`).
+is_task_close_command_for() {
+    local cmd="$1" want="$2" seg found=0
+    local -a segs=()
+    [[ "$want" =~ ^T-[0-9]+$ ]] || return 1
+    case "$cmd" in *'$('*|*'`'*) return 1 ;; esac
+    local cmd_view
+    cmd_view="$(_fw_strip_quoted "$cmd")" || return 1
+    has_bash_write_pattern "$cmd_view" && return 1
+    local _FW_GIT_CWD _op _si=-1
+    _FW_GIT_CWD="$(_fw_initial_git_cwd)"
+    local -a ops=()
+    while IFS= read -r -d '' seg && IFS= read -r -d '' _op; do
+        segs+=("$seg"); ops+=("$_op")
+    done < <(_fw_chain_split "$cmd" ops)
+    for seg in "${segs[@]}"; do
+        _si=$((_si+1))
+        [[ "$seg" =~ ^[[:space:]]*$ ]] && continue
+        if _fw_is_close_clause_for "$seg" "$want"; then
+            [ "$found" -eq 1 ] && return 1
             found=1
             continue
         fi

@@ -536,7 +536,8 @@
                         <li>
                             <a href="{{ url_for(item[1]) }}"
                                {% if item[1] == active_endpoint %}aria-current="page"{% endif %}
-                               hx-target="#content" hx-swap="innerHTML" hx-push-url="true">{{ item[0] }}</a>
+                               {# T-5146: a page with its own script library is one direct load, not a swap #}
+                               {% if item[1] in (nav_full_load or ()) %}hx-boost="false"{% else %}hx-target="#content" hx-swap="innerHTML" hx-push-url="true"{% endif %}>{{ item[0] }}</a>
                         </li>
                     {%- else -%}
                         <li class="nav-subsection-label">{{ item[0] }}</li>
@@ -998,6 +999,31 @@
             var content = document.getElementById('content');
             if (content && evt.detail.target !== content) {
                 evt.detail.target = content;
+            }
+        });
+
+        // T-5130 (found under T-5129, 1409): htmx runs a swapped page's inline scripts at once
+        // but loads its <script src> ASYNCHRONOUSLY, so a page whose code needs its own library
+        // ran before it ("d3 is not defined" on /bvp, "io is not defined" on /terminal; a
+        // reload worked). A page navigation (GET into #content) that brings an external script
+        // this document has not loaded yet is done as a full load instead of a swap — exactly
+        // what a reload does. Every other navigation stays a swap.
+        document.body.addEventListener('htmx:beforeSwap', function(evt) {
+            var d = evt.detail, content = document.getElementById('content');
+            if (!content || d.target !== content || !d.xhr || d.xhr.status >= 400) return;
+            var verb = ((d.requestConfig && d.requestConfig.verb) || 'get').toLowerCase();
+            if (verb !== 'get') return;
+            var html = d.serverResponse || d.xhr.responseText || '';
+            var re = /<script\b[^>]*\bsrc\s*=\s*["']([^"']+)["']/gi, m;
+            while ((m = re.exec(html))) {
+                var abs;
+                try { abs = new URL(m[1], location.href).href; } catch (e) { continue; }
+                var loaded = Array.prototype.some.call(document.scripts, function (s) { return s.src === abs; });
+                if (!loaded) {
+                    d.shouldSwap = false;
+                    window.location.assign(d.xhr.responseURL || location.href);
+                    return;
+                }
             }
         });
 

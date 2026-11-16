@@ -1888,3 +1888,56 @@ the standing rulings T-4020 / T-4146.
 `T-5006-draft-plan-for-mehdi.md` the direct answer to the closing question, the release channels, PR 1's corrections
 (`master`, branch from `bleeding-edge`), PR 2's example #106 checked on the latest pre-release, and the 28-October CI
 re-verification check as the step after the pilot.
+
+## 15 Operator sign-off of section 14 (2026-11-12)
+
+Asked one item at a time, with the agent's recommendation; the operator's answer is recorded verbatim in meaning.
+
+- **10.35 (prerequisite of 14.1):** the scan runs **within 5 minutes** of a post: a small job every 5 minutes reads
+  new posts and comments from peer accounts and hides hits; no run for 15 minutes raises a push alert to the operator.
+  (Copies already e-mailed to watchers within seconds are outside any interval.)
+- **14.1 (11.R.1 disclosure):** **accepted, as bounded** by the 5-minute scan (10.35): a token holder, including a
+  thief, can post arbitrary text that is public until hidden, and copies may be permanent; limited by tokens only for
+  trusted peers, fixed-form direct posts, no push or merge rights, revocation on misuse.
+- **14.2 (11.R.2 public PR run outside procedure):** **accepted.** Outside AEF's control for public code; AEF never asks
+  for it. Added as a requirement for the next roles: one line in the peer guidance and CONTRIBUTING, "never run
+  unmerged PR code on a host with credentials; the isolated test host does that".
+- **14.3 (11.R.4 session credential lands outside commits):** **reopened** (no longer accepted with detection only).
+  Carried to the threat modeler (T-5022) as a requirement: prevention, not only detection. Candidates to weigh: a
+  separate push credential for the AEF session that cannot land others' commits, the organisation move (T-5030),
+  signed-commit rules (insufficient alone: a contributor's own signed commits also pass).
+- **14.4 (11.R.5 owner bypass):** **confirmed**, accepted with detection: owner overrides are shown by name afterwards;
+  installs in between receive them.
+- **14.5 (11.R.6 false stamp):** **confirmed**: closed for state changes (only a sidecar-confirmed verdict changes
+  state); a false stamp can remain in the public record, labelled unconfirmed.
+- **14.6 (11.R.7 classic token not scoped to the repo):** **accepted, with a revocation rule**: peer tokens carry only
+  the issues/comments right; a daily check of the secondary account's activity on other repositories; a token is
+  revoked within one hour of suspected misuse or of a peer leaving the trusted list. **This also answers 10.27**
+  (revocation limit: one hour).
+- **14.7 (11.R.8 operator's login on the AEF host):** **accepted until the organisation move** (T-5030): the host stays
+  private, no PR code ever runs on it (the isolated test host does that), and the review check moves to a separate
+  identity when the architect decides 10.33.
+- **14.8 (11.R.9 self-confirmed false verdict):** **accepted, needing two peers**: a fix counts as field-confirmed for a
+  release only with WORKS (with evidence) from two different peers, or one peer plus the operator's own check; one
+  peer's confirmed WORKS alone may close the issue but does not count for the release. (Note for the planner: this
+  tightens the standing release ruling T-4146 for outside-PR fixes only, unless the operator extends it.)
+- **14.9 (10.32 remainder):** a merged outside PR with no positive field verdict goes to **the operator's release
+  question** (standing ruling T-4146), not an outright block; with 14.8 it needs two peers (or one plus the operator)
+  to count as confirmed.
+- **14.10 (10.2 pilot):** a PR from another account during the pilot is **labelled "waiting" with one polite line**
+  (the project is piloting outside contributions with one contributor; the PR is kept and looked at when the pilot
+  ends); nothing is reviewed or merged meanwhile. **Pilot exit** as accepted on 2026-11-11: PR 2 runs the whole
+  circuit without a workaround, a refused or returned PR gets its one-line reason, and no merged commit is lost.
+  R-7 is testable now.
+- **14.11 (10.35 scan bound):** answered above: within 5 minutes, alert after 15 minutes without a run.
+- **14.12 (6.0.b priorities):** **accepted as proposed** (P1 needed for the pilot, P2 before opening wider, P3 later); the planner (step 8) flags any P1 not needed for the pilot, and the operator may move items later.
+- **14.13 (10.26 provisional bounds):** **confirmed**: one screen = at most 40 lines of at most 100 characters; a rewrite contains no run of 8 or more consecutive words of the report.
+- **14.14 (other open questions):** settled already: **10.3** and **10.4** (Mehdi's answers accepted 2026-11-11:
+  documentation-only PRs may skip the issue for form-only changes; branch names are guidance), **10.16** (a second
+  fix on the same issue can now be announced: T-5096, 2026-11-12), **10.27** (revocation within one hour, 14.6).
+  **Passed on as open** to the next roles: 10.1, 10.6, 10.10 to 10.15, 10.17 to 10.25, 10.28, 10.30, 10.34; each
+  role answers what the design settles and brings the operator only real choices, one at a time. 10.29, 10.33,
+  10.36, 10.37 stay with the architect and threat modeler, as listed.
+
+**Result:** section 14 is signed off by the operator on 2026-11-12, with one item reopened (14.3, to the threat
+modeler as a prevention requirement). Step 1 (T-5021) is complete; step 2 (threat modeler, T-5022) may start.
