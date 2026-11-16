@@ -22851,3 +22851,39 @@ scan_id: R-d28b3861
 task_id: T-1424
 payload:
   task_file: .tasks/active/T-1424-validator-header-calls-yaml-aef-canonica.md
+---
+kind: scan_emitted
+timestamp: '2026-11-16T15:23:18Z'
+scan_id: R-eb3f96c4
+task_id: T-1212
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-16T15:23:18Z'
+scan_id: R-eb3f96c4
+task_id: T-1212
+payload:
+  task_file: .tasks/active/T-1212-downgrade-e-gw-outgoing--e-xml-gw-outgoi.md
+---
+kind: scan_emitted
+timestamp: '2026-11-16T17:18:12Z'
+scan_id: R-551d7677
+task_id: T-1426
+payload:
+  overall: CONCERN
+  finding_count: 3
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-16T17:18:12Z'
+scan_id: R-551d7677
+task_id: T-1426
+payload:
+  task_file: .tasks/active/T-1426-upgrade-aef-v1816-be48-to-be54-c6c0a6738.md

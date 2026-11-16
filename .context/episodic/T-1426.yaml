@@ -1,0 +1,282 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1426: Upgrade AEF v1.8.16-be.48 to be.54 (c6c0a6738): accept-miss state, EWCR contracts v2
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-16T17:18:19Z
+# ============================================================================
+
+task_id: T-1426
+task_name: "Upgrade AEF v1.8.16-be.48 to be.54 (c6c0a6738): accept-miss state, EWCR contracts v2"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-16T15:24:04Z
+completed: 2026-11-16T17:18:09Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-16T16:25:54+01:00
+last_commit: 2026-11-16T18:01:54+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  be.54 upgrade task and operator job 150 (job 134's code with be.54 values; runtime state under .agentic-framework/.context/working kept out of the preflight and the pristine commit). job 150 dry-run and rehearsal passed (all steps; Watchtower restart outward, not rehearsed). pristine vendor commit — AEF v1.8.16-be.54 (c6c0a6738) as fw upgrade wrote it (re-vendor protocol step 1, T-1000). advance the divergence baseline to the pristine AEF v1.8.16-be.54 commit, and record the upgrade in .framework.yaml (re-vendor protocol step 2, T-1000). re-apply 832's local fixes onto pristine AEF v1.8.16-be.54 (re-vendor protocol step 3, T-1000). T-568 probe counts yaml.load too — be.54's fabric.py parses cards with libyaml's C safe loader (AEF T-5136), which the probe's yaml stand-in lacked, so every card load failed silently; 4/4 legs and 3/3 mutants again
+
+# Key outcomes
+outcomes:
+  - 'An operator job (modelled on job 134, be.48) upgrades from a full clone of the tag commit c6c0a6738, verified as'
+  - 'After the run: `.framework.yaml` `version_sha` is c6c0a6738…, the pristine commit and the baseline commit exist,'
+  - '832''s local fixes the upgrade overwrote are re-applied or retired with a reason (`tools/_t1000-revendor-worklist.py`'
+  - '`fw task accept-miss --help` works, and `refusal.schema.json` v2 is vendored with sha256 starting c4148a34'
+  - 'Both tiers are green on the upgraded tree before the push (core: pool and local; browser: `tools/pool/tier-gate.sh browser`).'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 're-apply 832''s local fixes onto pristine AEF v1.8.16-be.54 (re-vendor protocol step 3, T-1000)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/.fw-vendor-stamp.json'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/VERSION'
+  - '.agentic-framework/agents/audit/active-task-scan.py'
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.agentic-framework/agents/audit/completed-task-scan.py'
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.agentic-framework/agents/context/check-project-boundary.sh'
+  - '.agentic-framework/agents/context/checkpoint.sh'
+  - '.agentic-framework/agents/context/lib/episodic.sh'
+  - '.agentic-framework/agents/context/lib/extract_decisions.py'
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/agents/context/sidecar-adapter2.sh'
+  - '.agentic-framework/agents/fabric/lib/drift.sh'
+  - '.agentic-framework/agents/fabric/lib/traverse.sh'
+  - '.agentic-framework/agents/git/lib/framework-hook-lines.txt'
+  - '.agentic-framework/agents/git/lib/grant-file-guard.sh'
+  - '.agentic-framework/agents/git/lib/hooks.sh'
+  - '.agentic-framework/agents/handover/handover.sh'
+  - '.agentic-framework/agents/observe/observe.sh'
+  - '.agentic-framework/agents/task-create/create-task.sh'
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/agents/termlink/bvp-estimator/estimator.py'
+  - '.agentic-framework/agents/termlink/termlink.sh'
+  - '.agentic-framework/agents/testhost/guest-run.sh'
+  - '.agentic-framework/agents/testhost/template/aef-testhost-boot.sh'
+  - '.agentic-framework/agents/testhost/template/aef-testhost.service'
+  - '.agentic-framework/agents/testhost/template/packages.txt'
+  - '.agentic-framework/agents/ux-review/ux_shots.py'
+  - '.agentic-framework/bin/fw'
+  - '.agentic-framework/docs/generated/components/agents-context-sidecar-adapter2.md'
+  - '.agentic-framework/docs/generated/components/agents-git-lib-grant-file-guard.md'
+  - '.agentic-framework/docs/generated/components/agents-testhost-template-aef-testhost-boot.md'
+  - '.agentic-framework/docs/generated/components/learnings-route.md'
+  - '.agentic-framework/docs/generated/components/lib-large_file_limit.md'
+  - '.agentic-framework/docs/generated/components/lib-reviewer-probe_vision.md'
+  - '.agentic-framework/docs/generated/components/lib-sidecar-adapter2.md'
+  - '.agentic-framework/docs/generated/components/lib-task_updates.md'
+  - '.agentic-framework/docs/generated/components/lib-testhost_proxmox.md'
+  - '.agentic-framework/docs/generated/components/tests-playwright-arc_corpus.md'
+  - '.agentic-framework/docs/generated/components/tests-playwright-arc_fixture.md'
+  - '.agentic-framework/docs/generated/components/tests-playwright-test_api_fabric_source.md'
+  - '.agentic-framework/docs/generated/components/tests-playwright-test_arc_badge.md'
+  - '.agentic-framework/docs/generated/components/tests-playwright-test_arc_close_recommendation_panel.md'
+  - '.agentic-framework/docs/generated/components/tests-playwright-test_htmx_nav_page_scripts.md'
+  - '.agentic-framework/docs/generated/components/tests-playwright-test_landing_arc_cards.md'
+  - '.agentic-framework/docs/generated/components/tests-playwright-test_t5145_task_filter_selects.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t4943_capture_every_required_page_test.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t5008_seat_signal_guard_test.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t5031_grant_file_commit_guard.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t5031_signed_grants.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t5032_grant_links.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t5033_grant_refused_verbs_resolved.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t5034_grant_file_bootstrap.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t5036_boundary_quoted_space_path.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t5088_fabric_register_not_refused.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t5089_fabric_dotfile_slug.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t5093_template_handover_default.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t5112_partial_complete_close.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t5116_stale_mention_test.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t5117_close_prints_not_applied.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t5117_not_applied_test.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t5118_finalised_closure_commit.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t5119_provider_refusal_test.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t5120_dispatch_prune.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t5121_judge_dispatch_timeout_test.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t5123_termlink_check_no_hub.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t5126_register_scan_cache_test.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t5126_token_tile_warm_test.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t5129_fabric_explorer_deferred_test.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t5131_audit_record_no_overwrite.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t5132_ctl013_coverage.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-t5134_boundary_claude_code_tmpdir.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-test_t5136_tag_cloud_c_loader.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-test_t5148_inbox_aliases.md'
+  - '.agentic-framework/docs/generated/components/tests-unit-test_t5150_nickname_refused.md'
+  - '.agentic-framework/docs/generated/components/tests-web-test_t5128_approvals_ac_cache.md'
+  - '.agentic-framework/docs/generated/components/tests-web-test_t5136_task_list_pager.md'
+  - '.agentic-framework/docs/generated/components/tests-web-test_t5140_site_nav_on_every_page.md'
+  - '.agentic-framework/docs/generated/components/tests-web-test_t5146_nav_full_load.md'
+  - '.agentic-framework/docs/generated/components/tests-web-test_t5147_readiness_stale_while_refresh.md'
+  - '.agentic-framework/docs/generated/components/web-blueprints-discovery.md'
+  - '.agentic-framework/docs/generated/components/web-warmup.md'
+  - '.agentic-framework/docs/reports/EWCR/T-5135-deepseek-mistral-dispositions.md'
+  - '.agentic-framework/docs/reports/EWCR/T-5144-r7-sd1-reconciliation.md'
+  - '.agentic-framework/docs/reports/EWCR/drive-7-procasfit-handback.md'
+  - '.agentic-framework/docs/reports/T-4944-harness-seat-vision.md'
+  - '.agentic-framework/docs/reports/T-5006-draft-plan-for-mehdi.md'
+  - '.agentic-framework/docs/reports/T-5006-github-contributions.md'
+  - '.agentic-framework/docs/reports/T-5006-requirements.md'
+  - '.agentic-framework/docs/reports/T-5006-roadmap.md'
+  - '.agentic-framework/docs/reports/T-5009-isolated-test-host-design.md'
+  - '.agentic-framework/docs/reports/T-5009-review-r3-brief.md'
+  - '.agentic-framework/docs/reports/T-5009-review-r3-codex.md'
+  - '.agentic-framework/docs/reports/T-5009-review-r3-opencode.md'
+  - '.agentic-framework/docs/reports/T-5016-focus-anchor.md'
+  - '.agentic-framework/docs/reports/T-5054-adapter2-design.md'
+  - '.agentic-framework/docs/reports/T-5054-adapter2-spec-pack.md'
+  - '.agentic-framework/docs/reports/T-5054-sidecar-meter-only.md'
+  - '.agentic-framework/docs/reports/field-test-v1.8.16-results.md'
+  - '.agentic-framework/docs/research/executable-workflow/contracts/v2/MANIFEST.yaml'
+  - '.agentic-framework/docs/research/executable-workflow/contracts/v2/README.md'
+  - '.agentic-framework/docs/research/executable-workflow/contracts/v2/accepted-scenarios.md'
+  - '.agentic-framework/docs/research/executable-workflow/contracts/v2/attempt.schema.json'
+  - '.agentic-framework/docs/research/executable-workflow/contracts/v2/deadline-event.schema.json'
+  - '.agentic-framework/docs/research/executable-workflow/contracts/v2/evidence-and-idempotency.md'
+  - '.agentic-framework/docs/research/executable-workflow/contracts/v2/evidence-reference.schema.json'
+  - '.agentic-framework/docs/research/executable-workflow/contracts/v2/examples/attempt.json'
+  - '.agentic-framework/docs/research/executable-workflow/contracts/v2/examples/deadline-event.json'
+  - '.agentic-framework/docs/research/executable-workflow/contracts/v2/examples/evidence-reference-superseding.json'
+  - '.agentic-framework/docs/research/executable-workflow/contracts/v2/examples/evidence-reference.json'
+  - '.agentic-framework/docs/research/executable-workflow/contracts/v2/examples/instance-human-script-human.json'
+  - '.agentic-framework/docs/research/executable-workflow/contracts/v2/examples/instance.json'
+  - '.agentic-framework/docs/research/executable-workflow/contracts/v2/examples/procedure-human-script-human.json'
+  - '.agentic-framework/docs/research/executable-workflow/contracts/v2/examples/procedure.json'
+  - '.agentic-framework/docs/research/executable-workflow/contracts/v2/examples/refusal-privilege-exceeds-profile.json'
+  - '.agentic-framework/docs/research/executable-workflow/contracts/v2/examples/refusal-task-cancelled-during-attempt.json'
+  - '.agentic-framework/docs/research/executable-workflow/contracts/v2/examples/refusal.json'
+  - '.agentic-framework/docs/research/executable-workflow/contracts/v2/examples/transition-envelope.json'
+  - '.agentic-framework/docs/research/executable-workflow/contracts/v2/instance.schema.json'
+  - '.agentic-framework/docs/research/executable-workflow/contracts/v2/procedure.schema.json'
+  - '.agentic-framework/docs/research/executable-workflow/contracts/v2/refusal-threat-matrix.md'
+  - '.agentic-framework/docs/research/executable-workflow/contracts/v2/refusal.schema.json'
+  - '.agentic-framework/docs/research/executable-workflow/contracts/v2/task-lifecycle-contract.md'
+  - '.agentic-framework/docs/research/executable-workflow/contracts/v2/traceability.yaml'
+  - '.agentic-framework/docs/research/executable-workflow/contracts/v2/transition-envelope.schema.json'
+  - '.agentic-framework/lib/accepted_miss.py'
+  - '.agentic-framework/lib/access_grants.py'
+  - '.agentic-framework/lib/arc.sh'
+  - '.agentic-framework/lib/arc_membership.py'
+  - '.agentic-framework/lib/bvp.sh'
+  - '.agentic-framework/lib/config.sh'
+  - '.agentic-framework/lib/delegation_cli.py'
+  - '.agentic-framework/lib/delegation_widening.py'
+  - '.agentic-framework/lib/design_register.py'
+  - '.agentic-framework/lib/hook_parity.py'
+  - '.agentic-framework/lib/human_ac_ticks.py'
+  - '.agentic-framework/lib/inception-readiness.sh'
+  - '.agentic-framework/lib/inception.sh'
+  - '.agentic-framework/lib/issues.py'
+  - '.agentic-framework/lib/large_file_limit.py'
+  - '.agentic-framework/lib/outside_commits.py'
+  - '.agentic-framework/lib/reviewer/judge_cli.py'
+  - '.agentic-framework/lib/reviewer/probe_vision.py'
+  - '.agentic-framework/lib/shell_write_scan.py'
+  - '.agentic-framework/lib/sidecar/adapter2.py'
+  - '.agentic-framework/lib/sidecar/addressing.py'
+  - '.agentic-framework/lib/sidecar/hooks.py'
+  - '.agentic-framework/lib/sidecar/inbox.py'
+  - '.agentic-framework/lib/sidecar/main_session.py'
+  - '.agentic-framework/lib/sidecar_cli.py'
+  - '.agentic-framework/lib/task-audit.sh'
+  - '.agentic-framework/lib/testhost.py'
+  - '.agentic-framework/lib/testhost_proxmox.py'
+  - '.agentic-framework/lib/ts/dist/loop-detect.js'
+  - '.agentic-framework/lib/verdict_ledger.py'
+  - '.agentic-framework/lib/verification-port.sh'
+  - '.agentic-framework/policy/designer-pin.yaml'
+  - '.agentic-framework/policy/review-backends.yaml'
+  - '.agentic-framework/policy/review-worker-settings.json'
+  - '.agentic-framework/tools/ewcr-contracts-check.py'
+  - '.agentic-framework/tools/ewcr-trace-check.py'
+  - '.agentic-framework/vendor/designer/aef-workflow-designer-0.43.0.html'
+  - '.agentic-framework/vendor/designer/validate-workflow-0.43.0.py'
+  - '.agentic-framework/web/app.py'
+  - '.agentic-framework/web/blueprints/approvals.py'
+  - '.agentic-framework/web/blueprints/bvp.py'
+  - '.agentic-framework/web/blueprints/cockpit.py'
+  - '.agentic-framework/web/blueprints/config.py'
+  - '.agentic-framework/web/blueprints/core.py'
+  - '.agentic-framework/web/blueprints/designer.py'
+  - '.agentic-framework/web/blueprints/discovery.py'
+  - '.agentic-framework/web/blueprints/fabric.py'
+  - '.agentic-framework/web/blueprints/tasks.py'
+  - '.agentic-framework/web/conftest.py'
+  - '.agentic-framework/web/search_utils.py'
+  - '.agentic-framework/web/shared.py'
+  - '.agentic-framework/web/templates/approvals.html'
+  - '.agentic-framework/web/templates/base.html'
+  - '.agentic-framework/web/templates/designer_landing.html'
+  - '.agentic-framework/web/templates/designer_open.html'
+  - '.agentic-framework/web/templates/fabric_detail.html'
+  - '.agentic-framework/web/templates/fabric_explorer.html'
+  - '.agentic-framework/web/templates/tasks.html'
+  - '.agentic-framework/web/test_app.py'
+  - '.agentic-framework/web/test_costs.py'
+  - '.agentic-framework/web/warmup.py'
+  - '.context/runme/150-upgrade-aef-v1.8.16-be.54/dryrun.ok'
+  - '.context/runme/150-upgrade-aef-v1.8.16-be.54/job.sh'
+  - '.framework.yaml'
+  - '.tasks/active/T-1426-upgrade-aef-v1816-be48-to-be54-c6c0a6738.md'
+  - 'tools/_t568-fabric-card-cache-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-16T16:25:54'
+    action: 'T-1426: be.54 upgrade task and operator job 150 (job 134''s code with be.54 values; runtime state under .agentic-framework/.context/working kept out of the preflight and the pristine commit)'
+  - time: '2026-11-16T16:27:37'
+    action: 'T-1426: job 150 dry-run and rehearsal passed (all steps; Watchtower restart outward, not rehearsed)'
+  - time: '2026-11-16T17:02:50'
+    action: 'T-1426: pristine vendor commit — AEF v1.8.16-be.54 (c6c0a6738) as fw upgrade wrote it (re-vendor protocol step 1, T-1000)'
+  - time: '2026-11-16T17:02:56'
+    action: 'T-1426: advance the divergence baseline to the pristine AEF v1.8.16-be.54 commit, and record the upgrade in .framework.yaml (re-vendor protocol step 2, T-1000)'
+  - time: '2026-11-16T17:21:34'
+    action: 'T-1426: re-apply 832''s local fixes onto pristine AEF v1.8.16-be.54 (re-vendor protocol step 3, T-1000)'
+  - time: '2026-11-16T18:01:54'
+    action: 'T-1426: T-568 probe counts yaml.load too — be.54''s fabric.py parses cards with libyaml''s C safe loader (AEF T-5136), which the probe''s yaml stand-in lacked, so every card load failed silently; 4/4 legs and 3/3 mutants again'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 114 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 114
+  commits: 7
+  files_changed: 195
+  lines_added: 15065
+  lines_removed: 4033
+  footprint_refreshed_at: '2026-11-16T17:18:37Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1426-upgrade-aef-v1816-be48-to-be54-c6c0a6738.md
+generated_by: context-agent-hybrid

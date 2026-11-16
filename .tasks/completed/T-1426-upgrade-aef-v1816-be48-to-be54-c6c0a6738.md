@@ -7,13 +7,13 @@ description: >
   fw task accept-miss (AEF T-5181, our T-1415 ask) for T-897/T-922, EWCR contracts
   v2 with refusal.schema.json v2 (T-1425 row 3), designer pin 0.43.0.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t568-fabric-card-cache-teeth.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -42,8 +42,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-16T15:24:04Z
-last_update: '2026-11-16T15:24:12Z'
-date_finished:
+last_update: 2026-11-16T17:18:09Z
+date_finished: 2026-11-16T17:18:09Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -94,15 +94,26 @@ both tiers are green on the upgraded tree.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] An operator job (modelled on job 134, be.48) upgrades from a full clone of the tag commit c6c0a6738, verified as
+- [x] An operator job (modelled on job 134, be.48) upgrades from a full clone of the tag commit c6c0a6738, verified as
   the tag's `^{}` entry upstream and as a descendant of be.48 (1938e2361); it is dry-run and rehearsed.
-- [ ] After the run: `.framework.yaml` `version_sha` is c6c0a6738…, the pristine commit and the baseline commit exist,
+  — job 150, rehearsed green (sha 8d321be6694b); one change from job 134: runtime state under
+  `.agentic-framework/.context/working` is kept out of the preflight and the pristine commit. Run 2026-11-16 15:45-16:20Z, done rc=0.
+- [x] After the run: `.framework.yaml` `version_sha` is c6c0a6738…, the pristine commit and the baseline commit exist,
   and the TermLink key settings, `RELEASE_ARTIFACT_PATHS` and `HOST` survived.
-- [ ] 832's local fixes the upgrade overwrote are re-applied or retired with a reason (`tools/_t1000-revendor-worklist.py`
+  — pristine 3c0ab7403, baseline 9c3e9445f; steps 3 and 9 checked the settings; Watchtower restarted on be.54 (step 10).
+- [x] 832's local fixes the upgrade overwrote are re-applied or retired with a reason (`tools/_t1000-revendor-worklist.py`
   empty), and the synced task templates are settled (T-1192).
-- [ ] `fw task accept-miss --help` works, and `refusal.schema.json` v2 is vendored with sha256 starting c4148a34
+  — c156f1ed7: 37 patches, 36 clean; `web/blueprints/fabric.py` merged by hand (our T-568 digest cache kept, parsed
+  with upstream's T-5136 C loader). `_t517`: 44 diverged = 44 declared. Templates: step 8 found `inception.md.upstream`
+  fully contained in ours (SUPERSEDED). The T-568 probe was taught the C loader (630493988), 4/4 legs, 3/3 mutants.
+- [x] `fw task accept-miss --help` works, and `refusal.schema.json` v2 is vendored with sha256 starting c4148a34
   (or the mismatch is reported to AEF).
-- [ ] Both tiers are green on the upgraded tree before the push (core: pool and local; browser: `tools/pool/tier-gate.sh browser`).
+  — the verb is in `bin/fw` (→ `lib/accepted_miss.py`). From this session even `--help` is refused by be.54's
+  tick guard ("records an accepted miss (the operator's act)"), which is the intended behaviour. Refusal v2 sha256
+  c4148a34b54ed8bf…, matching the pairing.
+- [x] Both tiers are green on the upgraded tree before the push (core: pool and local; browser: `tools/pool/tier-gate.sh browser`).
+  — browser 142/142 on pool and here at c156f1ed7; core first RED 229/1 on both (the T-568 probe, above), then
+  230/230 on pool and here at 630493988; pushed 630493988.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -288,6 +299,13 @@ both tiers are green on the upgraded tree.
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+grep -qx 'version_sha: c6c0a673871c4a8bfc80b3f61153a8d3df54a342' .framework.yaml
+test -f .context/runme/150-upgrade-aef-v1.8.16-be.54/done
+grep -q 'accept-miss)' .agentic-framework/bin/fw
+sha256sum .agentic-framework/docs/research/executable-workflow/contracts/v2/refusal.schema.json | grep -q '^c4148a34'
+python3 tools/_t517-vendor-divergence.py
+bash tools/_t568-fabric-card-cache-teeth.sh
+grep -qx 'HOST: 0.0.0.0' .framework.yaml
 
 ## RCA
 
@@ -388,3 +406,28 @@ both tiers are green on the upgraded tree.
 
 ### 2026-11-16T15:24:11Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-16T17:18:09Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-551d7677
+- **Timestamp:** 2026-11-16T17:18:12Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 3
+
+**Per-AC findings:**
+
+- **AC#3 (Agent)** — 832's local fixes the upgrade overwrote are re-applied or retired with a reason (`tools/_t1000-revendor-worklist.py`
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t1000-revendor-worklist.py in: 832's local fixes the upgrade overwrote are re-applied or retired with a reason (`tools/_t1000-revendor-worklist.py``
+- **AC#5 (Agent)** — Both tiers are green on the upgraded tree before the push (core: pool and local; browser: `tools/pool/tier-gate.sh browser`).
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/pool/tier-gate.sh in: Both tiers are green on the upgraded tree before the push (core: pool and local; browser: `tools/pool/tier-gate.sh browser`).`
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 140
+     - evidence: `sha256sum .agentic-framework/docs/research/executable-workflow/contracts/v2/refusal.schema.json | grep -q '^c4148a34'`
