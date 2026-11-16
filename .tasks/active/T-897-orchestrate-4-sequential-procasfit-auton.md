@@ -61,6 +61,12 @@ outside this sequence."* So this task orchestrates; it does not do the selected 
 - [x] Feasibility is **measured, not assumed**, before any round is dispatched: hub running, `claude` present, and a print-mode worker proved able to write in this repo — recorded with the evidence, because a worker that hangs on its first write would report as dispatched and produce nothing
 - [x] The mandate is delivered from a **file**, not embedded in argv or injected over a PTY — PTY inject is the known-lossy path and is not a delivery mechanism
 - [ ] Each round runs as a TermLink-spawned session the hub can name, and the run record is posted to a TermLink channel so it survives a context reset (mandate §TermLink)
+  **Miss proposed:** not met, and cannot be met now: the four-round chain ended (round 1 done; round 2 refused at the
+  model by the weekly quota; T-922 then ran the full mandate as nine rounds). Rounds were launched directly after
+  `termlink_spawn` #1 returned a false `ready` (a 62.6 h old session from another project, OBS-405) and #2 timed out
+  (table "Three dispatch failures" below). The run record survives in this task file and `.context/working/procasfit/`,
+  not on a TermLink channel. Accepting the miss is honest; ticking it would not be. The spawn defect is AEF/TermLink's
+  OBS-405. Record with `fw task accept-miss T-897 --ac 3` (AEF be.54, T-5181), operator only.
 - [x] Rounds are **serialized**, never concurrent: every round writes the same repository, and the mandate's own rule is to serialize anything touching shared state
 - [x] Round N+1's prompt carries round N's handback verbatim; the chaining is checkable from the prompt files, not from my summary of them
 - [x] Each round's handback is reported to the operator **between** rounds, so a Sovereign question raised in round 1 can be answered before round 4 acts on it — a 4-round chain with nobody reading it can only accumulate them
