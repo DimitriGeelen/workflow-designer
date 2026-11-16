@@ -101,7 +101,11 @@ Check), and AEF's pin is tracked until CURRENT.
 - [x] Operator job written from job 133, rehearsed (dry-run green) and committed.
   → Job 148: all 18 preflight checks ok, step 1 rehearsed in a clone, sha 1f1aed3718c4. New check: T-1416 to T-1419
   closed. New cut check: the kit ships the T-1418 exemplar.
-- [ ] After the operator's run: tag `designer-v0.43.0` on origin, the artifact and kit in dist/, AEF told (version,
+- [ ] *(2026-11-16: released by job 149, done rc 0, 09:08Z, after job 148 stopped at step 4 on an empty Enter. Tag on
+  origin (commit 351490ea9); artifact sha256 8511974771820287731f8c5a11033feba573a45c9446678c7f02aed12acb287f, 1351062
+  bytes; browser 142/0, core green on pool and local. AEF told on consult-832-Workflow-designer, msg df95ece2, and
+  asked whether T-5101 goes straight to 0.43.0. Pin: BEHIND 2 (0.41.0). Open until CURRENT.)*
+  After the operator's run: tag `designer-v0.43.0` on origin, the artifact and kit in dist/, AEF told (version,
   tag, sha256, bytes, what changes), and `tools/_t1187-aef-pin-lag.sh` tracking their pin until CURRENT.
 
 ### Human
