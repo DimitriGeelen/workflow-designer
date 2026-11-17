@@ -10,13 +10,13 @@ description: >
   which since be.4x runs 'cd "$PROJECT_ROOT"' and two framework variables, so every
   leg now fails before reaching the line (converted lines pass when run by hand).
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t353-convert.py, tools/_t353-repair-probe.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -45,8 +45,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-17T16:21:23Z
-last_update: '2026-11-17T16:21:40Z'
-date_finished:
+last_update: 2026-11-17T21:42:45Z
+date_finished: 2026-11-17T21:42:45Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -110,11 +110,18 @@ T-353's ruling is applied and recorded.
   job 155 (`.context/runme/155-apply-t353-archived-verification/apply_t353.py --check / --apply / --verify`), from the
   operator's session. The tool first lived at `tools/_t1432-apply-t353.py`, where the T-451 unwired-guard census counted
   it as a standing guard with no caller and turned core red. It is a one-shot, so it moved into the job's own folder.
-- [ ] Only the proven lines are changed in `.tasks/completed/`, each line exactly as the probe's converted or repaired
+- [x] Only the proven lines are changed in `.tasks/completed/`, each line exactly as the probe's converted or repaired
   form, and nothing else in those files.
-- [ ] After applying, a re-scan (`tools/_t353-classify.py`, or the convert probe run on the applied files) shows no
+  — job 155 applied them (steps 1-2), job 158 checked "13 files, 23 lines" and committed 7b2794288: 23 insertions, 23
+  deletions across T-150, T-158, T-194, T-288, T-298, T-299, T-312, T-313, T-321, T-322, T-329, T-330, T-331.
+- [x] After applying, a re-scan (`tools/_t353-classify.py`, or the convert probe run on the applied files) shows no
   DIVERGENT line left among the 23.
-- [ ] T-353 is told: the ruling and where it was applied are recorded here, for the operator's tick on T-353 AC1.
+  — `apply_t353.py --verify` in job 158: "PASS: 0 failure(s) over 23 lines" (each new line present once, no original
+  left, the 22 runnable lines pass under today's gate). Job 155 stopped at its own verify step because of a bug in
+  verify (it demanded the original lines that a correct apply removes); fixed, then job 158.
+- [x] T-353 is told: the ruling and where it was applied are recorded here, for the operator's tick on T-353 AC1.
+  — the operator's ruling, in session on 2026-11-17, was "a". T-353 AC1 is a `### Human` box, so it is the
+  operator's to tick at /review/T-353, citing this task and 7b2794288.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -300,6 +307,9 @@ T-353's ruling is applied and recorded.
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+python3 .context/runme/155-apply-t353-archived-verification/apply_t353.py --verify
+python3 tools/_t353-convert.py
+test -f .context/runme/158-commit-t353-archived-verification/done
 
 ## RCA
 
@@ -400,3 +410,21 @@ T-353's ruling is applied and recorded.
 
 ### 2026-11-17T16:21:34Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-17T21:42:45Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-19865ff4
+- **Timestamp:** 2026-11-17T21:45:03Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#3 (Agent)** — After applying, a re-scan (`tools/_t353-classify.py`, or the convert probe run on the applied files) shows no
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t353-classify.py in: After applying, a re-scan (`tools/_t353-classify.py`, or the convert probe run on the applied files) shows no`

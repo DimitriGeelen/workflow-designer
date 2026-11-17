@@ -1,0 +1,117 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1432: Apply T-353's patch set to the 23 archived Verification lines (operator ruling 2026-11-17: a)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-17T21:46:18Z
+# ============================================================================
+
+task_id: T-1432
+task_name: "Apply T-353's patch set to the 23 archived Verification lines (operator ruling 2026-11-17: a)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-17T16:21:23Z
+completed: 2026-11-17T21:42:45Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-17T17:30:39+01:00
+last_commit: 2026-11-17T22:35:45+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  T-353 probes run against today's gate again (_verify_tmp_env), convert() leaves arithmetic alone; tools/_t1432-apply-t353.py and operator job 155 apply the operator's ruling 'a' to the 23 archived lines. job 155 dry-run passed. the T-451 unwired-guard census grew by 2 and turned core red — the one-shot T-353 applier moves out of tools/ into job 155's folder (job re-rehearsed); _t1212-gw-warning-shots.py, dark since T-1212 closed, is wired as browser leg test_t1212_gw_warning (4 s). Census back to baseline 94. job 155 re-rehearsed after its tool moved into the job folder. fix apply_t353.py --verify (it required the original lines a correct apply removes; job 155 stopped there after applying all 23); job 155 retired; job 158 verifies and commits. job 158's uncommitted-state check moves into an operator step (a rehearsal clone cannot see uncommitted edits). job 158 dry-run passed. operator's T-353 ruling 'a' applied — 23 archived Verification lines readied for the errexit gate (19 '|| true' on designed failures, 4 anchored ^VALID), applied by job 155, verified and committed by job 158
+
+# Key outcomes
+outcomes:
+  - 'Both T-353 probes run against today''s gate again (`_verify_tmp_env` defined) and prove the patch set:'
+  - 'Only the proven lines are changed in `.tasks/completed/`, each line exactly as the probe''s converted or repaired'
+  - 'After applying, a re-scan (`tools/_t353-classify.py`, or the convert probe run on the applied files) shows no'
+  - 'T-353 is told: the ruling and where it was applied are recorded here, for the operator''s tick on T-353 AC1.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'fix apply_t353.py --verify (it required the original lines a correct apply removes; job 155 stopped there after applying all 23); job 155 retired; job 158 verifies and commits'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/155-apply-t353-archived-verification/apply_t353.py'
+  - '.context/runme/155-apply-t353-archived-verification/dryrun.ok'
+  - '.context/runme/155-apply-t353-archived-verification/job.sh'
+  - '.context/runme/155-apply-t353-archived-verification/retired'
+  - '.context/runme/158-commit-t353-archived-verification/dryrun.ok'
+  - '.context/runme/158-commit-t353-archived-verification/job.sh'
+  - '.tasks/active/T-1432-apply-t-353s-patch-set-to-the-23-archive.md'
+  - '.tasks/completed/T-150-version-notes-are-inert-wire-up-or-remov.md'
+  - '.tasks/completed/T-158-remove-the-bare-v1-contract-version-badg.md'
+  - '.tasks/completed/T-194-sync-forward-compile-spec-5-corpus-inven.md'
+  - '.tasks/completed/T-288-tier0-escalation-map-add-rejection-side-.md'
+  - '.tasks/completed/T-298-error-escalation-ladder-pair-leg-aef-t-2.md'
+  - '.tasks/completed/T-299-task-creation-pair-round-leg-aef-t-2666-.md'
+  - '.tasks/completed/T-312-mirror-aefs-lanegeometry-agreement-check.md'
+  - '.tasks/completed/T-313-lane-capacity-a-lane-whose-members-outgr.md'
+  - '.tasks/completed/T-321-xml-form-has-no-node-type-vocabulary-gat.md'
+  - '.tasks/completed/T-322-iw-9-authority-rules-exist-only-on-the-x.md'
+  - '.tasks/completed/T-329-e-authority-has-no-bpmn-form-counterpart.md'
+  - '.tasks/completed/T-330-xml-form-has-no-shape-checks-for-lanes-o.md'
+  - '.tasks/completed/T-331-o-1-skip-population-authority-values-map.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1432-apply-t353.py'
+  - 'tools/_t353-convert.py'
+  - 'tools/_t353-repair-probe.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-17T17:30:39'
+    action: 'T-1432: T-353 probes run against today''s gate again (_verify_tmp_env), convert() leaves arithmetic alone; tools/_t1432-apply-t353.py and operator job 155 apply the operator''s ruling ''a'' to the 23 archived lines'
+  - time: '2026-11-17T17:32:07'
+    action: 'T-1432: job 155 dry-run passed'
+  - time: '2026-11-17T19:58:52'
+    action: 'T-1432: the T-451 unwired-guard census grew by 2 and turned core red — the one-shot T-353 applier moves out of tools/ into job 155''s folder (job re-rehearsed); _t1212-gw-warning-shots.py, dark since T-1212 closed, is wired as browser leg test_t1212_gw_warning (4 s). Census back to baseline 94'
+  - time: '2026-11-17T19:59:11'
+    action: 'T-1432: job 155 re-rehearsed after its tool moved into the job folder'
+  - time: '2026-11-17T20:20:33'
+    action: 'T-1432: fix apply_t353.py --verify (it required the original lines a correct apply removes; job 155 stopped there after applying all 23); job 155 retired; job 158 verifies and commits'
+  - time: '2026-11-17T20:21:05'
+    action: 'T-1432: job 158''s uncommitted-state check moves into an operator step (a rehearsal clone cannot see uncommitted edits)'
+  - time: '2026-11-17T20:21:23'
+    action: 'T-1432: job 158 dry-run passed'
+  - time: '2026-11-17T22:35:45'
+    action: 'T-1432: operator''s T-353 ruling ''a'' applied — 23 archived Verification lines readied for the errexit gate (19 ''|| true'' on designed failures, 4 anchored ^VALID), applied by job 155, verified and committed by job 158'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 8 commit(s), 321 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 321
+  commits: 9
+  files_changed: 28
+  lines_added: 868
+  lines_removed: 41
+  footprint_refreshed_at: '2026-11-17T21:47:13Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1432-apply-t-353s-patch-set-to-the-23-archive.md
+generated_by: context-agent-hybrid
