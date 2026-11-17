@@ -105,3 +105,4 @@
 {"ac":1,"kind":"escalate","owner_after":"human","owner_before":"human","task":"T-592","ts":"2026-11-16T22:47:11Z","verdict_id":"V-20261116-1e31a5c8"}
 {"ac":1,"kind":"escalate","owner_after":"human","owner_before":"human","task":"T-676","ts":"2026-11-16T22:48:53Z","verdict_id":"V-20261116-3d4eead8"}
 {"ac":1,"kind":"escalate","owner_after":"human","owner_before":"human","task":"T-736","ts":"2026-11-16T22:49:41Z","verdict_id":"V-20261116-3cfd012a"}
+{"kind":"verdict-apply","open_human_remaining":1,"owner_after":"human","owner_before":"human","recited":[],"task":"T-310","ticked":[{"ac":1,"reviewer":"reviewer-judge-t-310-r5-opencode-e63db003dd9a:opencode","verdict_id":"V-20261010-1dd6d3b6"}],"ts":"2026-11-17T00:50:13Z","withdrawn":[]}

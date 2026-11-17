@@ -239,7 +239,7 @@ the reconciliation is surfaced with a one-shot notice rather than performed invi
        `bin/fw reviewer T-310 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
-- [ ] [REVIEW] The reconciliation reads as a repair, not as the editor moving your work around
+- [x] [REVIEW] The reconciliation reads as a repair, not as the editor moving your work around
   **Steps:**
   1. Open the designer and load `tests/fixtures/aef-bpmn/lane-position-conflict.bpmn`
      (📂 Open project… → or drag the file in).
@@ -249,6 +249,7 @@ the reconciliation is surfaced with a one-shot notice rather than performed invi
   carries out the work" sits in **Agent · Initiative** — on the old build they were in each
   other's lanes. The notice says 2 nodes were moved back.
   **If not:** note which node is in the wrong lane and whether the notice count matches.
+  **Reviewer verdict:** green V-20261010-1dd6d3b6 — reviewer-judge-t-310-r5-opencode-e63db003dd9a:opencode (rung rung-5-panel:opencode), digest 877e1a5d10e4; dispatch judge-t-310-r5-opencode-e63db003dd9a; evidence: .context/reviews/evidence/T-310/AC1-judge-t-310-r5-opencode-e63db003dd9a.md; ledger .context/reviews/verdicts.jsonl
 
 - [ ] [REVIEW] Judgement call worth your eyes: is "declared membership wins" the right default?
   **Steps:**
