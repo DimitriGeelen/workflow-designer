@@ -105,6 +105,12 @@ def convert(line):
         if not m:
             return out
         open_idx = pos + m.end() - 1
+        # T-1432: `n=$((n+1))` is ARITHMETIC, not a command capture. It was rewritten to `n=$((n+1) || true)`, which
+        # bash parses as a command substitution running `n+1`; the probe passed only because those increments are
+        # never reached on a clean corpus. Arithmetic has no exit status to discard, so it is left alone.
+        if out[open_idx + 1:open_idx + 2] == "(":
+            pos = open_idx + 1
+            continue
         close_idx = matching_close(out, open_idx)
         if close_idx < 0:
             return out
@@ -121,6 +127,9 @@ def run_gate(cond, cmd):
         "#!/usr/bin/env bash\n"
         "set -euo pipefail\n"
         '_close_locks_cmd=""\n'
+        # T-1432: the gate grew a second eval'd prelude (temp-dir env); under set -u it must be defined, or every leg
+        # dies on "unbound variable" before reaching the line under test.
+        '_verify_tmp_env=""\n'
         "PROJECT_ROOT=%s\n" % subprocess.list2cmdline([ROOT])
         + 'cmd="$CMD_UNDER_TEST"\n'
         + "if %s; then echo GATE_PASS; else echo GATE_FAIL; fi\n" % cond

@@ -79,6 +79,7 @@ run_gate() {
     echo '#!/usr/bin/env bash'
     echo 'set -euo pipefail'
     echo '_close_locks_cmd=""'
+    echo '_verify_tmp_env=""'   # T-1432: the gate's second eval'd prelude; unset under set -u kills every leg
     printf 'PROJECT_ROOT=%q\n' "$ROOT"
     echo 'cmd="$CMD_UNDER_TEST"'
     printf 'if %s; then echo GATE_PASS; else echo GATE_FAIL; fi\n' "$cond"
