@@ -107,7 +107,9 @@ T-353's ruling is applied and recorded.
   left alone. Every one of the 22 runnable new lines passes today, run as the gate runs it; T-299's line cites a scratch
   file outside the repository, so it cannot run (T-353 report §3) and is applied, not run.
   **Applying needs the operator:** files under `.tasks/completed/` are closed records (T-4285 gate). The edits run as
-  job 155 (`tools/_t1432-apply-t353.py --check / --apply / --verify`), from the operator's session.
+  job 155 (`.context/runme/155-apply-t353-archived-verification/apply_t353.py --check / --apply / --verify`), from the
+  operator's session. The tool first lived at `tools/_t1432-apply-t353.py`, where the T-451 unwired-guard census counted
+  it as a standing guard with no caller and turned core red. It is a one-shot, so it moved into the job's own folder.
 - [ ] Only the proven lines are changed in `.tasks/completed/`, each line exactly as the probe's converted or repaired
   form, and nothing else in those files.
 - [ ] After applying, a re-scan (`tools/_t353-classify.py`, or the convert probe run on the applied files) shows no

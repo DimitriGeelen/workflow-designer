@@ -2114,6 +2114,21 @@ else
 fi
 }
 leg core "test_t1429_clip_shot_census" _leg_t1429
+_leg_t1212() {
+
+# ── T-1212: a 1-in/1-out exclusive gateway shows in the designer's Check as a WARNING, at 1024/1440/1920 ──
+# Its only caller was T-1212's own verification, so closing T-1212 left it dark (the T-451 census grew by one,
+# 2026-11-17). Wired here: the designer served with the real validator, the warn fixture loaded, Check pressed, and
+# the API and the dock both asserted to say W-XML-GW-OUTGOING:WARN, "0 errors, 1 warning". About 4 s.
+if python3 "$ROOT/tools/_t1212-gw-warning-shots.py" "$TMP/t1212-shots" > "$TMP/leg-_t1212.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a 1-in/1-out exclusive gateway no longer shows as a WARNING in the designer's Check, or the shots could not be taken (run 'python3 tools/_t1212-gw-warning-shots.py /tmp/x'; T-1212)"
+  show_output "$TMP/leg-_t1212.out" "_t1212-gw-warning-shots.py"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1212_gw_warning" _leg_t1212
 _leg_075() {
 
 # ── T-1273: an in-place mutation script cannot survive INT/TERM with its mutant ──

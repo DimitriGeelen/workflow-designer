@@ -24,11 +24,11 @@ preflight() {
 
 steps() {
     step "Show the 23 edits (old and new line each) and check every original occurs exactly once; writes nothing" \
-        'python3 tools/_t1432-apply-t353.py --check'
+        'python3 .context/runme/155-apply-t353-archived-verification/apply_t353.py --check'
     step_operator "Apply the 23 edits to the archived task files (closed records: your session)" \
-        'python3 tools/_t1432-apply-t353.py --apply'
+        'python3 .context/runme/155-apply-t353-archived-verification/apply_t353.py --apply'
     step_operator "Verify: every new line present, no original left, each runnable new line passes today" \
-        'python3 tools/_t1432-apply-t353.py --verify'
+        'python3 .context/runme/155-apply-t353-archived-verification/apply_t353.py --verify'
     step_operator "Commit the 13 files" 'do_commit'
 }
 

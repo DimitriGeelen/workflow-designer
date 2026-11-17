@@ -22,7 +22,10 @@ import os
 import subprocess
 import sys
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# A one-shot for runme job 155, kept in the job's own folder (not tools/): it is not a standing guard, and the
+# unwired-guard census (T-451) rightly counted it as one while it lived under tools/. The project root is four up:
+# <root>/.context/runme/155-…/apply_t353.py
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 REPAIR_TASKS = ("T-288", "T-298", "T-299")
 # T-299's line cites a scratchpad file outside the repository that no longer exists; its repaired line cannot pass
 # and is not meant to (T-353 report §3: the repair cannot fix a stale document). It is applied, not run.
