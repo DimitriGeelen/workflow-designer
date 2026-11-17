@@ -1,27 +1,20 @@
 ---
-id: T-1212
-name: "Downgrade E-GW-OUTGOING / E-XML-GW-OUTGOING to warnings (operator decision
-  2026-10-19, option 1)"
+id: T-1430
+name: "Upgrade AEF v1.8.16-be.54 to be.55 (4bd71eecb): Watchtower approvals at volume,
+  completion-gate comment fix, projection v2"
 description: >
-  Operator decision 2026-10-19 ('1'): both gateway rules (an exclusive gateway with
-  1 in / 1 out 'decides nothing') become WARNINGS instead of errors. Why: they cannot
-  cite a requirement (mapping-v1 §3 'outgoing edges = branches' has no MUST/SHALL;
-  BPMN admits the shape; AEF's accepted mapping-v1 note says 'Graph shape is not constrained'),
-  so the T-1200 axis derives them CONVENTIONAL while they refused maps as errors (pinned
-  as EXPECTED_UNCITED_ERRORS). Build: designer src change (rule ids and severity,
-  keeping the finding text), update tests/test_rule_dialect_axis.py (EXPECTED_UNCITED_ERRORS
-  becomes empty, EXPECTED_CONVENTIONAL stays consistent), the authoring kit, and any
-  probe that expects the error; screenshots of a finding at 3 widths plus an independent
-  review (UI rule); list in PENDING-next-release with an explicit note to AEF that
-  their compiler may have relied on the error.
+  AEF tagged v1.8.16-be.55 (msg 1dab5c9f, 4bd71eecb): runtime projection v2 (T-5193),
+  the row-2 and row-3 mappings as pinned, row-4 v1+v2 schemas, Watchtower approvals
+  at volume (T-5194/5/6), completion-gate fix for an unclosed comment in Acceptance
+  Criteria (T-5188). Same protocol as T-1426 (job 150).
 
 status: work-completed
 workflow_type: build
-current_node: frw_4_partial
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: [tests/test_finding_anchorability.py, tests/test_harness_cross_form_agreement.py, tests/test_rule_dialect_axis.py, tests/test_rule_form_parity.py, tools/validate-workflow.py]
+components: []
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -45,13 +38,13 @@ related_tasks: []
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 # demo_target: true               # T-2286: optional — marks task as reserved for an orchestrated demo
 #                                 # worker (e.g. arc-010 HM-A dispatches via mcp__fw__work_on). When set,
-#                                 # `fw work-on T-1212` refuses unless --i-am-demo-orchestrator (CLI) or
+#                                 # `fw work-on T-1430` refuses unless --i-am-demo-orchestrator (CLI) or
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-10-19T09:43:17Z
-last_update: 2026-11-16T15:22:53Z
-date_finished: 2026-11-16T15:22:53Z
+created: 2026-11-17T08:43:43Z
+last_update: 2026-11-17T14:18:57Z
+date_finished: 2026-11-17T14:18:57Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -63,90 +56,59 @@ date_finished: 2026-11-16T15:22:53Z
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 bvp_scores_proposed:
-  - ts: '2026-10-19T10:00:28Z'
+  - ts: '2026-11-17T08:43:48Z'
     estimator: bvp-estimator-v1-heuristic
     scores:
-      D1: 4
-      D2: 4
-      D3: 3
-      D4: 2
-      F-RECALL: 2
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
       F2: 0
-      F4: 1
+      F4: 0
       F3: 0
-      F1: 3
-    rationale: 'D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=3
-      (body:component-discoverability); D4=2 (body:env-class-handled); F-RECALL=2
-      (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
-      so this score has no claim to be wrong about,L1:keyword=gateway); F3=0 (basis:
-      task body — no hypothesis, so this score has no claim to be wrong about,L0:
-      no signal); F1=3 (basis: task body — no hypothesis, so this score has no claim
-      to be wrong about,L3:keyword=compile)'
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
     rubric_sha: e4a00f38e801
 ---
 
-# T-1212: Downgrade E-GW-OUTGOING / E-XML-GW-OUTGOING to warnings (operator decision 2026-10-19, option 1)
+# T-1430: Upgrade AEF v1.8.16-be.54 to be.55 (4bd71eecb): Watchtower approvals at volume, completion-gate comment fix, projection v2
 
 ## Context
 
-Operator decision 2026-10-19 (option 1 of 3, after background on T-1165/T-1200 and T-975/T-977). The rules live in
-`tools/validate-workflow.py` (canvas form ~line 580, XML form ~line 1278). They fire on a non-converging exclusive
-gateway with fewer than 2 outgoing flows: 1-in/1-out ("decides nothing") and 0 outgoing. None of that cites a
-requirement, so all of it becomes a warning. The ids carry the severity (E-/W-), so they are renamed
-`W-GW-OUTGOING` / `W-XML-GW-OUTGOING`. AEF stores finding ids, so the rename is announced with an old→new map.
+<!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
+**Background / trigger:** AEF tagged v1.8.16-be.55 (tag commit 4bd71eecb, msg 1dab5c9f, 2026-11-17).
 
-**Background / trigger:** operator decision 2026-10-19, option 1 of 3 (above).
-**Problem / hypothesis:** an exclusive gateway with fewer than 2 outgoing flows failed the check as an ERROR, though
-no requirement says it is wrong; an uncited rule should not fail a map.
-**Goal:** both forms report it as a warning under renamed ids, with AEF told the old→new map.
-**Expected outcome:** such a map passes Check with one warning; shipped in designer 0.24.0, whose notes carry the map.
+**Problem / hypothesis:** we run be.54. be.55 makes Watchtower's approvals page usable at our volume (cold ~38 s to
+~27 s; after a review write ~32 s to ~3 s), closes a completion-gate hole (an unclosed comment in Acceptance Criteria
+hid later criteria), and carries the contracts we pinned this week.
+**Goal:** re-vendor be.55 by the T-1000 protocol (job modelled on job 150), re-apply 832's local fixes, and prove
+both tiers green before the push.
+**Expected outcome:** `.framework.yaml` names 4bd71eecb, local fixes re-applied with `_t517` OK, both tiers green.
 
 ## Acceptance Criteria
 
 ### Agent
-- [x] Both rules report as warnings under `W-GW-OUTGOING` / `W-XML-GW-OUTGOING`, with the finding text and the converging-gateway exemption unchanged; a map whose only finding is one of them now passes the check (exit code as for any warning) instead of failing
-  — `self.warn(...)` at both sites, messages unchanged; the warn fixtures exit 1 (warning), no longer 2.
-- [x] Every reference is updated: the dialect axis (`tests/test_rule_dialect_axis.py`: no uncited ERRORs left, `EXPECTED_UNCITED_ERRORS` empty, the rule rows renamed), the form-parity, anchorability and cross-form tests, the fixtures, `docs/authoring-kit/AUTHORING.md` and `tools/README.md`, the authoring kit's rule table (regenerated, not hand-edited); a repo-wide search for the old ids finds only history (release notes, reports, closed tasks)
-  — all renamed; `EXPECTED_UNCITED_ERRORS = ()`. The kit's CONFORMANCE.md is generated from the validator by
-  `tools/build-authoring-kit.py` at release, so the next kit carries WARN without a hand edit. The released kits
-  under `dist/` keep the old ids as history. AUTHORING.md no longer names the retired id (T-974 check, 16/16).
-  `git grep` outside history: one deliberate note in the axis test's comment.
-- [x] A test pins the new behaviour: a 1-in/1-out gateway yields `W-GW-OUTGOING` and no error, in both forms; the converging gateway still yields nothing
-  — the fixtures moved to `tests/fixtures/warn/W-GW-OUTGOING.yaml` and `W-XML-GW-OUTGOING.xml` (must warn, exit 1,
-  rule present); `valid/gw-converging.workflow.yaml` stays clean; `run-validator-tests.sh` 69/69.
-- [x] Every affected test passes, and a full bridge run is green
-  — full bridge run 2026-10-19 (bridge8): **299 passed, 0 failed**. The run before it (298/1) failed only T-264 leg4,
-  a focus flake under load that passes alone and is unrelated to the validator; filed as T-1214.
-- [x] `docs/releases/PENDING-next-release.md` lists it, with the old→new id map and a note for AEF that a check which failed on these now warns
-- [x] The designer's Check shows the finding as a warning, asserted and shot at 1024, 1440 and 1920 by `tools/_t1212-gw-warning-shots.py` (`docs/reports/T-1212-evidence/`), read control by control under `## Visual Verification`
-  — all three asserted (the API returns only `W-XML-GW-OUTGOING:WARN`); independent review green from two seats
-  (codex and opencode, rung 5).
+- [x] An operator job (job 150's code with be.55 values) upgrades from a full clone of tag commit 4bd71eecb, verified
+  as the tag's `^{}` entry and a descendant of be.54 (c6c0a6738); it is dry-run and rehearsed.
+  — job 154, rehearsed green (sha 97506c18f87b); run 2026-11-17 12:00-12:24Z, all 11 steps, done rc=0.
+- [x] After the run: `.framework.yaml` `version_sha` is 4bd71eecb…, pristine and baseline commits exist, and the
+  TermLink, `RELEASE_ARTIFACT_PATHS` and `HOST` settings survived.
+  — pristine e91e29c01, baseline 5f2f247ea; steps 3 and 9 green; Watchtower answers on the LAN address (step 10).
+- [x] 832's local fixes are re-applied or retired with a reason (`_t517`: diverged = declared), and the synced
+  templates are settled (T-1192).
+  — 6d1dfcb62: 37/37 patches clean (no hand merge this time); `_t517` 44 = 44; step 8 settled the templates.
+- [x] Both tiers are green on the upgraded tree before the push (core and browser, pool and local).
+  — first run: core 231/231 on both; browser red on the pool, the intermittent editor-behavior hang (third time,
+  predates this upgrade), quarantined under T-1431 until 2026-11-24. Second run: browser 142/142 and core 231/231 on
+  pool and here. Pushed 7b1da333c.
 
 ### Human
-<!-- 2026-10-19: three green verdicts are in the ledger (rung-5 panel: claude-code, codex, opencode; digest
-     f5a097a1b861), but `fw reviewer verdict apply` ticks nothing. Cause (verdict_ledger._run_fault): a render
-     criterion judged by a panel needs its review run to carry the framework's own multi-width captures (`visual`,
-     from `fw ux shots`); this run has visual=None, pages={}. `fw ux shots` captures URLs only, and the state
-     under review (a map loaded AND Check pressed) has no URL: the designer reads only id/instance/load from its
-     query string. Not bypassed, not reworded. Reported to AEF (conversation 832-render-evidence). Ways forward: a
-     designer URL that runs Check (e.g. ?check=1) so fw ux shots can reach the state, or AEF accepting
-     tool-produced captures.
-     AEF (msg c2b3d81b) confirmed the gap and filed T-4391 (horizon now): a declarative per-state step list
-     (goto, click, fill, press, hover, wait-for) passed as state=@steps.yaml and EXECUTED BY ux_shots itself,
-     with the steps file hashed and recorded beside the captures. Pre-captured images are refused on purpose,
-     since the producer would supply its own evidence. When T-4391 lands: write steps.yaml (load the fixture,
-     click Check, wait for the warning; it maps onto tools/_t1212-gw-warning-shots.py), run fw ux shots, re-judge.
-     AEF (msg a27ac6df): T-4391 has LANDED on bleeding-edge: fw ux shots T-1212 state=@steps.yaml
-     (goto/click/fill/press/hover/wait-for, run by ux_shots itself, steps hash signed into the review run). Usable
-     once 832 takes bleeding-edge or the next release. -->
-
-
-- [x] Independent screenshot review (reviewer-judged, `fw reviewer judge T-1212 --criterion 1`): the designer shows a 1-in/1-out exclusive gateway as a WARNING, legibly, at three widths
-  **Steps:**
-  1. Open `docs/reports/T-1212-evidence/t1212-check-1024.png`, `t1212-check-1440.png` and `t1212-check-1920.png` (the warn fixture `tests/fixtures/warn/W-XML-GW-OUTGOING.xml` loaded into designer 0.23.0 plus T-1212, Check pressed, served with the real validator)
-  2. In each, check: the Validator dock line reads "1 finding · 0 errors, 1 warning · 1 on the map"; the row shows WARN (not ERROR), the rule id `W-XML-GW-OUTGOING` and its message; the dock's close button and the toolbar's Check button are visible and unclipped; the gateway on the map carries its finding marker where the map is drawn large enough to see it
-  **Expected:** all three show the finding as a warning, with no error, and nothing clipped
-  **If not:** name the screenshot and the control, and what is wrong with it
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -170,11 +132,11 @@ no requirement says it is wrong; an uncited rule should not fail a map.
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-1212`
+         1. Run `bin/fw reviewer T-1430`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-1212 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-1430 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 <!--
@@ -191,34 +153,12 @@ no requirement says it is wrong; an uncited rule should not fail a map.
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
-  **Reviewer verdict:** green V-20261117-8d1f22b9 — reviewer-judge-t-1212-r5-antigravity-ad276131b370:antigravity (rung rung-5-panel:antigravity), digest f5a097a1b861; dispatch judge-t-1212-r5-antigravity-ad276131b370; evidence: .context/reviews/evidence/T-1212/AC1-judge-t-1212-r5-antigravity-ad276131b370.md; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
-python3 tests/test_rule_dialect_axis.py
-python3 tests/test_rule_form_parity.py
-python3 tests/test_finding_anchorability.py
-python3 tests/test_harness_cross_form_agreement.py
-grep -q 'W-GW-OUTGOING' tools/validate-workflow.py
-grep -q 'E-XML-GW-OUTGOING` → *$' docs/releases/RELEASE-NOTES-0.24.0.md || grep -q 'T-1212' docs/releases/RELEASE-NOTES-0.24.0.md
-bash tests/run-validator-tests.sh
-python3 tests/test_t962_findings_on_map.py
-python3 tools/_t1212-gw-warning-shots.py /tmp/t1212-verify-shots
-
-## Visual Verification
-
-| state | control | 1024 | 1440 | 1920 | note |
-|-------|---------|------|------|------|------|
-| Check pressed, 1-in/1-out gateway | Validator dock line "0 errors, 1 warning" | ok | ok | ok | |
-| Check pressed | finding row: WARN label, W-XML-GW-OUTGOING, message | ok | ok | ok | message keeps "requires >= 2" (text deliberately unchanged) |
-| Check pressed | dock close button | ok | ok | ok | |
-| Check pressed | toolbar Check button | ok | ok | ok | wraps to a 2nd row at 1024 (existing) |
-| Check pressed | gateway finding marker on the map | ok | ok | ok | map drawn small at 1024 (existing fit behaviour) |
-
-Shots: `docs/reports/T-1212-evidence/t1212-check-{1024,1440,1920}.png`, asserted by `tools/_t1212-gw-warning-shots.py`
-(the API returns exactly `W-XML-GW-OUTGOING:WARN`, no ERROR). Read: the dock reads "1 finding · 0 errors, 1 warning ·
-1 on the map" at all three widths; the row shows WARN in orange, the id and the message; close and Check visible.
-
+<!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
+     headings; the completion gate strips HTML comments before running anything.
+     Write your commands BELOW this comment, one per line.
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
@@ -255,19 +195,16 @@ Shots: `docs/reports/T-1212-evidence/t1212-check-{1024,1440,1920}.png`, asserted
 # writing, cmd takes SIGPIPE, the pipeline exits 141 — verification "fails" with
 # the pattern present. Captured 4× (T-1716, T-1838, T-1862, T-1863).
 #
-# THE EXCEPTION — capture first, grep the capture:
-#     out=$(cmd 2>&1); echo "$out" | grep -q "PATTERN"
-# Valid ONLY while "$out" fits the 65536-byte pipe buffer, and it is on you to
-# know that it does. Above that the form inverts and becomes the very failure
-# L-387 describes: echo blocks on the full pipe, grep -q exits, echo takes
-# SIGPIPE, rc=141 (T-2743 — measured on a 146,366-byte Watchtower page, 3/3 runs,
-# deterministic not racy; rendered routes run 50-200KB, so anything that curls a
-# page is over the line). It also discards cmd's exit code, so a 404 yields an
-# empty capture that grep merely fails to match rather than a failed line.
-# If you do use it: single pipe only, no intermediate tail/awk/sed stage between
-# capture and grep (T-2090) — the middle stage is what `grep -q` slams its stdin
-# on, and grep scans the whole captured string anyway, so the `tail -3` was
-# cosmetic. `echo "$out" | grep -q PAT`, nothing between.
+# THE EXCEPTION — capture first, grep the capture with a HERE-STRING:
+#     out=$(cmd 2>&1); grep -q "PATTERN" <<<"$out"
+# No pipe, so no SIGPIPE at any size. Do NOT write `echo "$out" | grep -q PAT`:
+# it is not safe "below 64 KB" as this file used to say (T-4921, 832 T-1340). The
+# builtin writes a multi-line value line by line, so grep -q can exit before the
+# last write at ANY size (measured 4 in 3,000 for a 40-line value), and above the
+# pipe buffer it fails every time (T-2743: 146,366-byte page, 3/3). In a gate that
+# allows on "no match" that is a fail-OPEN (T-4920: the Tier 0 pre-filter).
+# The capture still discards cmd's exit code, so a 404 yields an empty capture that
+# grep merely fails to match rather than a failed line — prefer THE DEFAULT above.
 #
 # TEST RUNNERS need a guard either way (T-2738). `set -e` is suppressed inside the
 # `if` condition the gate runs each line in, so in `cmd1; cmd2` only cmd2 is the
@@ -276,8 +213,8 @@ Shots: `docs/reports/T-1212-evidence/t1212-check-{1024,1440,1920}.png`, asserted
 # to `grep -qE "[0-9]+ passed"` matches the same output. Keep the exit code:
 #     python3 -m pytest <file> -q > /tmp/.out 2>&1 && grep -q passed /tmp/.out
 # or add the guard the exit code used to supply:
-#     out=$(python3 -m pytest <file> -q 2>&1); echo "$out" | grep -q passed && ! echo "$out" | grep -q failed
-#     out=$(bats <file> 2>&1); echo "$out" | grep -q '^ok 1 ' && ! echo "$out" | grep -q '^not ok'
+#     out=$(python3 -m pytest <file> -q 2>&1); grep -q passed <<<"$out" && ! grep -q failed <<<"$out"
+#     out=$(bats <file> 2>&1); grep -q '^ok 1 ' <<<"$out" && ! grep -q '^not ok' <<<"$out"
 # The close gate refuses the unguarded form. Bypass: FW_ALLOW_UNJUDGED_TEST_RUN=1.
 #
 # ── A SKIPPED BATS TEST REPORTS `ok` (T-3217) ─────────────────────────────────
@@ -347,6 +284,18 @@ Shots: `docs/reports/T-1212-evidence/t1212-check-{1024,1440,1920}.png`, asserted
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+#
+# Vendored-path hint (T-3236, T-4419): if you edited bin/fw, lib/, agents/, policy/,
+# web/, tools/ or .tasks/templates/, run `bin/fw vendor self` and add
+#     bin/fw vendor self --check --task T-1430X
+# (your own task id). It checks only the files your commits changed, so another
+# worker's uncommitted edit does not block your close; that drift is listed as
+# "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
+-->
+grep -qx 'version_sha: 4bd71eecbd8214a89cdcac27e3f2ebf8e87309f6' .framework.yaml
+test -f .context/runme/154-upgrade-aef-v1.8.16-be.55/done
+python3 tools/_t517-vendor-divergence.py
+grep -qx 'HOST: 0.0.0.0' .framework.yaml
 
 ## RCA
 
@@ -416,14 +365,6 @@ Shots: `docs/reports/T-1212-evidence/t1212-check-{1024,1440,1920}.png`, asserted
      for Human Review). If the artefact is complete and you still don't want to
      commit, that is a calibration failure — recommend GO or NO-GO.
 -->
-**Recommendation:** GO (close)
-**Rationale:** the only open criterion (independent screenshot review) is reviewer-judged, and the review panel judged
-it green on 2026-10-19 (V-20261019-2b24f00a and two more seats). The change shipped in designer 0.24.0, whose notes
-carry the old→new id map for AEF.
-**Evidence:**
-- `.context/reviews/verdicts.jsonl`: three green rows for T-1212 AC1, run-t-1212-46f0aaeb3e, 2026-10-19
-- all 9 verification commands pass (2026-11-16), including `_t1212-gw-warning-shots.py`
-- `docs/releases/RELEASE-NOTES-0.24.0.md` lines 29-30: the id map and the note for AEF
 
 ## Decisions
 
@@ -439,7 +380,7 @@ carry the old→new id map for AEF.
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-1212 go|no-go|defer --rationale "..."
+     fw inception decide T-1430 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -448,29 +389,23 @@ carry the old→new id map for AEF.
 
 ## Updates
 
-### 2026-10-19T09:43:17Z — task-created [task-create-agent]
+### 2026-11-17T08:43:43Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1212-downgrade-e-gw-outgoing--e-xml-gw-outgoi.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1430-upgrade-aef-v1816-be54-to-be55-4bd71eecb.md
 - **Context:** Initial task creation
 
-### 2026-10-19T10:00:27Z — status-update [task-update-agent]
+### 2026-11-17T08:43:47Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
-- **Change:** horizon: next → now (auto-sync)
 
-### 2026-11-16T15:22:53Z — status-update [task-update-agent]
+### 2026-11-17T14:18:57Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-eb3f96c4
-- **Timestamp:** 2026-11-16T15:23:18Z
+- **Scan ID:** R-29da6f97
+- **Timestamp:** 2026-11-17T14:18:59Z
 - **Catalogue:** v1.3-seed
-- **Overall:** CONCERN
+- **Overall:** PASS
 - **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
 - **Needs Human:** no
-- **Findings:** 1
-
-**Verification-level findings:**
-
-  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 6
-     - evidence: `grep -q 'E-XML-GW-OUTGOING` → *$' docs/releases/RELEASE-NOTES-0.24.0.md || grep -q 'T-1212' docs/releases/RELEASE-NOTES-0.24.0.md`
+- **Findings:** none

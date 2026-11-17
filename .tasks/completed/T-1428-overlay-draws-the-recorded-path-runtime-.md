@@ -1,20 +1,24 @@
 ---
-id: T-1430
-name: "Upgrade AEF v1.8.16-be.54 to be.55 (4bd71eecb): Watchtower approvals at volume,
-  completion-gate comment fix, projection v2"
+id: T-1428
+name: "Overlay draws the recorded path (runtime projection v2 'traversed') instead
+  of the derived shortest path"
 description: >
-  AEF tagged v1.8.16-be.55 (msg 1dab5c9f, 4bd71eecb): runtime projection v2 (T-5193),
-  the row-2 and row-3 mappings as pinned, row-4 v1+v2 schemas, Watchtower approvals
-  at volume (T-5194/5/6), completion-gate fix for an unclosed comment in Acceptance
-  Criteria (T-5188). Same protocol as T-1426 (job 150).
+  AEF T-5193 (msg 6698c523, 8f458c628): /api/instances now carries runtime_projection_version
+  2 and per instance 'traversed' (ordered lifecycle edge aef:uids, from the task's
+  own recorded status changes; placed only when exactly one edge chain fits) and 'unmapped'
+  ({from,to,at}). The designer's ✓ path is DERIVED (shortest flow path from start,
+  T-884) because nothing recorded the route; with v2 it can draw the real traversed
+  edges, say when part of the route is unmapped, and fall back to the derived path
+  (labelled as such) only when traversed is absent. Our Q11 ask. Full UI path: CDP
+  legs, person-sees gate, screenshots at three widths, independent reviewer.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tools/_t884-instance-overlay-cdp.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,13 +42,13 @@ related_tasks: []
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 # demo_target: true               # T-2286: optional — marks task as reserved for an orchestrated demo
 #                                 # worker (e.g. arc-010 HM-A dispatches via mcp__fw__work_on). When set,
-#                                 # `fw work-on T-1430` refuses unless --i-am-demo-orchestrator (CLI) or
+#                                 # `fw work-on T-1428` refuses unless --i-am-demo-orchestrator (CLI) or
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-11-17T08:43:43Z
-last_update: '2026-11-17T08:43:48Z'
-date_finished:
+created: 2026-11-17T01:05:25Z
+last_update: 2026-11-17T14:23:01Z
+date_finished: 2026-11-17T14:23:01Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -56,7 +60,7 @@ date_finished:
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 bvp_scores_proposed:
-  - ts: '2026-11-17T08:43:48Z'
+  - ts: '2026-11-17T09:57:23Z'
     estimator: bvp-estimator-v1-heuristic
     scores:
       D1: 0
@@ -77,32 +81,65 @@ bvp_scores_proposed:
     rubric_sha: e4a00f38e801
 ---
 
-# T-1430: Upgrade AEF v1.8.16-be.54 to be.55 (4bd71eecb): Watchtower approvals at volume, completion-gate comment fix, projection v2
+# T-1428: Overlay draws the recorded path (runtime projection v2 'traversed') instead of the derived shortest path
 
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** AEF tagged v1.8.16-be.55 (tag commit 4bd71eecb, msg 1dab5c9f, 2026-11-17).
+**Background / trigger:** AEF T-5193 (msg 6698c523, 8f458c628; in be.55) answered our Q11. `/api/instances` carries
+`runtime_projection_version: 2`, and each instance gains:
+- `traversed`: the ordered lifecycle edge aef:uids, from the task's own recorded status changes. It is the **full
+  history, repeats kept** (msg 7e540ec1): a task sent back and restarted lists the same edges again.
+- `unmapped`: `{from, to, at}` hops with no single edge chain.
 
-**Problem / hypothesis:** we run be.54. be.55 makes Watchtower's approvals page usable at our volume (cold ~38 s to
-~27 s; after a review write ~32 s to ~3 s), closes a completion-gate hole (an unclosed comment in Acceptance Criteria
-hid later criteria), and carries the contracts we pinned this week.
-**Goal:** re-vendor be.55 by the T-1000 protocol (job modelled on job 150), re-apply 832's local fixes, and prove
-both tiers green before the push.
-**Expected outcome:** `.framework.yaml` names 4bd71eecb, local fixes re-applied with `_t517` OK, both tiers green.
+**Problem / hypothesis:** the overlay's ✓ path is DERIVED (the shortest flow path from start, T-884), because nothing
+recorded the route. It can claim a path the task never took.
+**Goal:** draw the recorded route when the host serves it, show repeats as a count (not one path drawn twice), name
+unmapped hops, and keep the derived path only as a labelled fallback when `traversed` is absent (832's own host, v1).
+**Expected outcome:** under AEF v2 the ✓ marks show exactly the edges a task took, the picker's title says
+"recorded" or "derived", and a loop reads as ×N.
 
 ## Acceptance Criteria
 
 ### Agent
-- [ ] An operator job (job 150's code with be.55 values) upgrades from a full clone of tag commit 4bd71eecb, verified
-  as the tag's `^{}` entry and a descendant of be.54 (c6c0a6738); it is dry-run and rehearsed.
-- [ ] After the run: `.framework.yaml` `version_sha` is 4bd71eecb…, pristine and baseline commits exist, and the
-  TermLink, `RELEASE_ARTIFACT_PATHS` and `HOST` settings survived.
-- [ ] 832's local fixes are re-applied or retired with a reason (`_t517`: diverged = declared), and the synced
-  templates are settled (T-1192).
-- [ ] Both tiers are green on the upgraded tree before the push (core and browser, pool and local).
+<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
+- [x] With `traversed` in the selected instance, `instanceOverlayState` returns mode `recorded`: ✓ nodes are the
+  ends of the traversed edges on this map (not the current node), each traversed edge uid with its count, and how
+  many hops are unmapped or name an edge not on this map. Without `traversed` it returns mode `derived`, exactly as
+  today.
+- [x] A traversed edge is drawn marked (`data-instance="traversed"` on its `g.edge`, a green path), and an edge taken
+  more than once carries a "×N" count; nothing is drawn on edges outside `traversed`.
+- [x] The picker's title says which: "✓ recorded path (the edges this task took)" or "✓ derived path (the shortest
+  flow path from the start, not a recorded history)", and names unmapped hops when there are any.
+  — evidence for the four criteria above: `_t884-instance-overlay-cdp.mjs` 13/13. L10: exactly e_01, e_03, e_05,
+  e_06, e_07, e_09 marked; ×2 on e_06, e_07, e_09; ✓ on their five ends; current kept. L11: the title, with 1 hop
+  not on this map and 1 edge not in this map version. L12: v1 derived, no edge marked. L2 and L3 unchanged. L13 (after
+  review r3's amber): no pill on a flow label, every ×N clear.
+- [x] CDP legs in `_t884-instance-overlay-cdp.mjs`: a v2 snapshot with `traversed` (one edge twice, one unmapped hop)
+  draws exactly those edges, "×2", recorded ✓ nodes and the title; a v1 snapshot draws the derived path unchanged
+  (L2 still passes). Export bytes are unchanged with the overlay on (L3).
+- [x] The person-sees gate exits 0; browser and core tiers are green on pool and here; the next release's draft notes
+  name the change for AEF.
+  — person-sees exit 0 on the final placement code (382 s). The tiers ran with the be.55 upgrade (T-1430): browser
+  142/142 and core 231/231 on pool and here, pushed 7b1da333c. The core red on the way (two bare catches, T-821) is
+  fixed; the browser red (editor-behavior hang) is unrelated and quarantined under T-1431.
+  `PENDING-next-release.md` has the T-1428 section.
 
 ### Human
+- [x] Independent screenshot review (reviewer-judged, `fw reviewer judge T-1428 --criterion 1`): the recorded path
+  and its legend.
+  **Steps:**
+  1. Open `docs/reports/t884-shots/t1428-recorded-{1024,1440,1920}.png` (fitted to the whole map),
+     `t1428-recorded-title.txt`, and the 100% close-ups `t1428-recorded-e_07.png` and `t1428-recorded-e_09.png`,
+     where the ×2 pills are readable.
+  2. Check that the traversed edges read as one route, distinct from untaken edges but not louder than the current
+     node; that "×2" is legible beside its edge and does not collide with the edge label; and that the title says
+     "recorded".
+  **Expected:** the route reads as one route at all three widths (fitted to the whole map), nothing clipped; the ×2
+  count reads in the 100% close-ups. At fit-to-map zoom every label on the map, the ×2 included, is a few pixels
+  high; that is the zoom, not the mark (review r3, 2026-11-17).
+  **If not:** name the screenshot and what is wrong.
+
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -126,11 +163,11 @@ both tiers green before the push.
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
          **Steps:**
-         1. Run `bin/fw reviewer T-1430`
+         1. Run `bin/fw reviewer T-1428`
          **Expected:** Verdict: PASS; no findings on `block-message-completeness`
          **If not:** Inspect hook block-message string and add missing mechanism
        Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-1430 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+       `bin/fw reviewer T-1428 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
 <!--
@@ -147,6 +184,7 @@ both tiers green before the push.
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261117-505dc1ec — reviewer-judge-t-1428-r3-4f7c02430548:reviewer (rung rung-3-termlink-single-reviewer), digest 12100c79ce30; dispatch judge-t-1428-r3-4f7c02430548; evidence: .context/reviews/evidence/T-1428/AC1-judge-t-1428-r3-4f7c02430548.md, .context/reviews/evidence/T-1428/t1428-recorded-1024-judge-t-1428-r3-4f7c02430548.png, .context/reviews/evidence/T-1428/t1428-recorded-1440-judge-t-1428-r3-4f7c02430548.png, .context/reviews/evidence/T-1428/t1428-recorded-1920-judge-t-1428-r3-4f7c02430548.png, .context/reviews/evidence/T-1428/t1428-recorded-e_07-judge-t-1428-r3-4f7c02430548.png, .context/reviews/evidence/T-1428/t1428-recorded-e_09-judge-t-1428-r3-4f7c02430548.png, .context/reviews/evidence/T-1428/zoom-map-fit-1024-judge-t-1428-r3-4f7c02430548.png, .context/reviews/evidence/T-1428/zoom-map-fit-1440-judge-t-1428-r3-4f7c02430548.png, .context/reviews/evidence/T-1428/zoom-map-fit-1920-judge-t-1428-r3-4f7c02430548.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -281,11 +319,30 @@ both tiers green before the push.
 #
 # Vendored-path hint (T-3236, T-4419): if you edited bin/fw, lib/, agents/, policy/,
 # web/, tools/ or .tasks/templates/, run `bin/fw vendor self` and add
-#     bin/fw vendor self --check --task T-1430X
+#     bin/fw vendor self --check --task T-1428X
 # (your own task id). It checks only the files your commits changed, so another
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+$HOME/.nvm/versions/node/v22.22.1/bin/node tools/_t884-instance-overlay-cdp.mjs
+grep -q 'T-1428' docs/releases/PENDING-next-release.md
+
+## Visual Verification
+
+Evidence from `tools/_t884-instance-overlay-cdp.mjs` (doc E, legs L10, L11, L12) in `docs/reports/t884-shots/`:
+`t1428-recorded-{1024,1440,1920}.png` (fitted), `t1428-recorded-title.txt`, `t1428-recorded-e_07.png` and
+`t1428-recorded-e_09.png` (100%).
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| v2 recorded route | traversed edges (e_01, e_03, e_05, e_06, e_07, e_09) | ok | ok | ok | green, heavier than untaken edges; small at fit, clear in the close-ups |
+| v2 recorded route | ×2 pills on e_06, e_07, e_09 | ok | ok | ok | readable at 100% (close-ups); a few pixels at fit, as expected |
+| v2 recorded route | current node agt_2_perform | ok | ok | ok | accent halo and "● T-9991" stay louder than the route |
+| v2 recorded route | instance picker and title | ok | ok | ok | "T-9991 · agt_2_perform · started-work"; title says recorded, 1 unmapped hop, 1 edge not in this map version |
+| v2 recorded route | toolbar | ok | ok | ok | at 1024 it wraps to two rows, as before |
+
+Seen, not changed by this task: the outcome gateway's ✓ done badge (T-884 placement) sits over the start of the
+"blocked / failing" edge label in `t1428-recorded-e_07.png`.
 
 ## RCA
 
@@ -355,6 +412,14 @@ both tiers green before the push.
      for Human Review). If the artefact is complete and you still don't want to
      commit, that is a calibration failure — recommend GO or NO-GO.
 -->
+**Recommendation:** GO (close)
+**Rationale:** every agent criterion is met with evidence, and the only reviewer criterion was judged green on the
+placement fix (2026-11-17), after two ambers that were acted on. It is re-judged on the final code, because the T-821
+census fix landed after that verdict.
+**Evidence:**
+- `_t884-instance-overlay-cdp.mjs` 13/13 (L10-L13)
+- browser 142/142 and core 231/231 on pool and here, pushed 7b1da333c
+- `.context/reviews/verdicts.jsonl`: T-1428 AC1 green, 2026-11-17
 
 ## Decisions
 
@@ -370,7 +435,7 @@ both tiers green before the push.
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
-     fw inception decide T-1430 go|no-go|defer --rationale "..."
+     fw inception decide T-1428 go|no-go|defer --rationale "..."
 
      For non-inception tasks this section is ignored. Kept in template
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
@@ -379,10 +444,24 @@ both tiers green before the push.
 
 ## Updates
 
-### 2026-11-17T08:43:43Z — task-created [task-create-agent]
+### 2026-11-17T01:05:25Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1430-upgrade-aef-v1816-be54-to-be55-4bd71eecb.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1428-overlay-draws-the-recorded-path-runtime-.md
 - **Context:** Initial task creation
 
-### 2026-11-17T08:43:47Z — status-update [task-update-agent]
+### 2026-11-17T09:57:21Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-17T14:23:01Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-13544574
+- **Timestamp:** 2026-11-17T14:23:35Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

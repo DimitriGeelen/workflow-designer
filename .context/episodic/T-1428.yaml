@@ -1,0 +1,150 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1428: Overlay draws the recorded path (runtime projection v2 'traversed') instead of the derived shortest path
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-17T14:23:43Z
+# ============================================================================
+
+task_id: T-1428
+task_name: "Overlay draws the recorded path (runtime projection v2 'traversed') instead of the derived shortest path"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-17T01:05:25Z
+completed: 2026-11-17T14:23:01Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-17T09:47:53+01:00
+last_commit: 2026-11-17T15:22:37+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  context — AEF projection v2 'traversed' is the full ordered history with repeats (msg 7e540ec1). the instance overlay draws the RECORDED route when AEF's projection v2 gives 'traversed' — those edges marked, ×N on repeats, ✓ on their ends, unmapped hops and off-map edges named in the title; 'derived path' labelled as such otherwise. _t884 legs L10-L12 (12/12), close-ups of the loop, release note. reviewer verdict. review r3 amber fixed — placeInstanceMarks() places instance pills last: ×N on the first clear spot of its own flow (middle, thirds, then beside it), clear of flow labels, nodes, other flows and other pills; ✓/●/⛔ badges move off a flow label. L13 measures it (no pill on a label, every ×N clear); 13/13. review criterion's Expected matches what fit-to-map zoom can show (the route at three widths, the ×2 count in the 100% close-ups). the two catches in placeInstanceMarks record their fault (aefRecordFault) instead of swallowing it — the T-821 census turned core red on both machines
+
+# Key outcomes
+outcomes:
+  - 'With `traversed` in the selected instance, `instanceOverlayState` returns mode `recorded`: ✓ nodes are the'
+  - 'A traversed edge is drawn marked (`data-instance="traversed"` on its `g.edge`, a green path), and an edge taken'
+  - 'The picker''s title says which: "✓ recorded path (the edges this task took)" or "✓ derived path (the shortest'
+  - 'CDP legs in `_t884-instance-overlay-cdp.mjs`: a v2 snapshot with `traversed` (one edge twice, one unmapped hop)'
+  - 'The person-sees gate exits 0; browser and core tiers are green on pool and here; the next release''s draft notes'
+  - 'Independent screenshot review (reviewer-judged, `fw reviewer judge T-1428 --criterion 1`): the recorded path'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'review r3 amber fixed — placeInstanceMarks() places instance pills last: ×N on the first clear spot of its own flow (middle, thirds, then beside it), clear of flow labels, nodes, other flows and other pills; ✓/●/⛔ badges move off a flow label. L13 measures it (no pill on a label, every ×N clear); 13/13'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/evidence/T-1428/AC1-judge-t-1428-r3-076e060d3b55.md'
+  - '.context/reviews/evidence/T-1428/AC1-judge-t-1428-r3-29a86afc96a4.md'
+  - '.context/reviews/evidence/T-1428/AC1-judge-t-1428-r3-4f7c02430548.md'
+  - '.context/reviews/evidence/T-1428/AC1-judge-t-1428-r3-f210f2601c2e.md'
+  - '.context/reviews/evidence/T-1428/t1428-recorded-1024-judge-t-1428-r3-076e060d3b55.png'
+  - '.context/reviews/evidence/T-1428/t1428-recorded-1024-judge-t-1428-r3-29a86afc96a4.png'
+  - '.context/reviews/evidence/T-1428/t1428-recorded-1024-judge-t-1428-r3-4f7c02430548.png'
+  - '.context/reviews/evidence/T-1428/t1428-recorded-1024-judge-t-1428-r3-f210f2601c2e.png'
+  - '.context/reviews/evidence/T-1428/t1428-recorded-1440-judge-t-1428-r3-076e060d3b55.png'
+  - '.context/reviews/evidence/T-1428/t1428-recorded-1440-judge-t-1428-r3-29a86afc96a4.png'
+  - '.context/reviews/evidence/T-1428/t1428-recorded-1440-judge-t-1428-r3-4f7c02430548.png'
+  - '.context/reviews/evidence/T-1428/t1428-recorded-1440-judge-t-1428-r3-f210f2601c2e.png'
+  - '.context/reviews/evidence/T-1428/t1428-recorded-1920-judge-t-1428-r3-076e060d3b55.png'
+  - '.context/reviews/evidence/T-1428/t1428-recorded-1920-judge-t-1428-r3-29a86afc96a4.png'
+  - '.context/reviews/evidence/T-1428/t1428-recorded-1920-judge-t-1428-r3-4f7c02430548.png'
+  - '.context/reviews/evidence/T-1428/t1428-recorded-1920-judge-t-1428-r3-f210f2601c2e.png'
+  - '.context/reviews/evidence/T-1428/t1428-recorded-e_07-judge-t-1428-r3-076e060d3b55.png'
+  - '.context/reviews/evidence/T-1428/t1428-recorded-e_07-judge-t-1428-r3-29a86afc96a4.png'
+  - '.context/reviews/evidence/T-1428/t1428-recorded-e_07-judge-t-1428-r3-4f7c02430548.png'
+  - '.context/reviews/evidence/T-1428/t1428-recorded-e_07-judge-t-1428-r3-f210f2601c2e.png'
+  - '.context/reviews/evidence/T-1428/t1428-recorded-e_09-judge-t-1428-r3-076e060d3b55.png'
+  - '.context/reviews/evidence/T-1428/t1428-recorded-e_09-judge-t-1428-r3-29a86afc96a4.png'
+  - '.context/reviews/evidence/T-1428/t1428-recorded-e_09-judge-t-1428-r3-4f7c02430548.png'
+  - '.context/reviews/evidence/T-1428/t1428-recorded-e_09-judge-t-1428-r3-f210f2601c2e.png'
+  - '.context/reviews/evidence/T-1428/zoom-e_07-label-judge-t-1428-r3-076e060d3b55.png'
+  - '.context/reviews/evidence/T-1428/zoom-e_09-pills-judge-t-1428-r3-076e060d3b55.png'
+  - '.context/reviews/evidence/T-1428/zoom-loop-fit-1024-judge-t-1428-r3-29a86afc96a4.png'
+  - '.context/reviews/evidence/T-1428/zoom-loop-fit-1440-judge-t-1428-r3-29a86afc96a4.png'
+  - '.context/reviews/evidence/T-1428/zoom-loop-fit-1920-judge-t-1428-r3-29a86afc96a4.png'
+  - '.context/reviews/evidence/T-1428/zoom-map-fit-1024-judge-t-1428-r3-4f7c02430548.png'
+  - '.context/reviews/evidence/T-1428/zoom-map-fit-1024-judge-t-1428-r3-f210f2601c2e.png'
+  - '.context/reviews/evidence/T-1428/zoom-map-fit-1440-judge-t-1428-r3-4f7c02430548.png'
+  - '.context/reviews/evidence/T-1428/zoom-map-fit-1440-judge-t-1428-r3-f210f2601c2e.png'
+  - '.context/reviews/evidence/T-1428/zoom-map-fit-1920-judge-t-1428-r3-4f7c02430548.png'
+  - '.context/reviews/evidence/T-1428/zoom-map-fit-1920-judge-t-1428-r3-f210f2601c2e.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1428-overlay-draws-the-recorded-path-runtime-.md'
+  - 'docs/releases/PENDING-next-release.md'
+  - 'docs/reports/t884-shots/t1427-aef-v1-title.txt'
+  - 'docs/reports/t884-shots/t1427-aef-v2-title.txt'
+  - 'docs/reports/t884-shots/t1428-recorded-1024.png'
+  - 'docs/reports/t884-shots/t1428-recorded-1440.png'
+  - 'docs/reports/t884-shots/t1428-recorded-1920.png'
+  - 'docs/reports/t884-shots/t1428-recorded-e_07.png'
+  - 'docs/reports/t884-shots/t1428-recorded-e_09.png'
+  - 'docs/reports/t884-shots/t1428-recorded-title.txt'
+  - 'src/aef-workflow-designer.html'
+  - 'tools/_t884-instance-overlay-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-17T09:47:53'
+    action: 'T-1428: context — AEF projection v2 ''traversed'' is the full ordered history with repeats (msg 7e540ec1)'
+  - time: '2026-11-17T11:10:58'
+    action: 'T-1428: the instance overlay draws the RECORDED route when AEF''s projection v2 gives ''traversed'' — those edges marked, ×N on repeats, ✓ on their ends, unmapped hops and off-map edges named in the title; ''derived path'' labelled as such otherwise. _t884 legs L10-L12 (12/12), close-ups of the loop, release note'
+  - time: '2026-11-17T11:12:35'
+    action: 'T-1428: reviewer verdict'
+  - time: '2026-11-17T11:24:40'
+    action: 'T-1428: review r3 amber fixed — placeInstanceMarks() places instance pills last: ×N on the first clear spot of its own flow (middle, thirds, then beside it), clear of flow labels, nodes, other flows and other pills; ✓/●/⛔ badges move off a flow label. L13 measures it (no pill on a label, every ×N clear); 13/13'
+  - time: '2026-11-17T11:26:42'
+    action: 'T-1428: reviewer verdict'
+  - time: '2026-11-17T11:27:12'
+    action: 'T-1428: review criterion''s Expected matches what fit-to-map zoom can show (the route at three widths, the ×2 count in the 100% close-ups)'
+  - time: '2026-11-17T11:28:12'
+    action: 'T-1428: reviewer verdict'
+  - time: '2026-11-17T12:14:12'
+    action: 'T-1428: the two catches in placeInstanceMarks record their fault (aefRecordFault) instead of swallowing it — the T-821 census turned core red on both machines'
+  - time: '2026-11-17T15:22:37'
+    action: 'T-1428: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 9 commit(s), 797 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 797
+  commits: 10
+  files_changed: 61
+  lines_added: 1422
+  lines_removed: 53
+  footprint_refreshed_at: '2026-11-17T14:24:04Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1428-overlay-draws-the-recorded-path-runtime-.md
+generated_by: context-agent-hybrid

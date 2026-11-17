@@ -22995,3 +22995,39 @@ scan_id: R-4ce1d56e
 task_id: T-1429
 payload:
   task_file: .tasks/active/T-1429-cdp-element-shots-silently-capture-whate.md
+---
+kind: scan_emitted
+timestamp: '2026-11-17T14:18:59Z'
+scan_id: R-29da6f97
+task_id: T-1430
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-17T14:18:59Z'
+scan_id: R-29da6f97
+task_id: T-1430
+payload:
+  task_file: .tasks/active/T-1430-upgrade-aef-v1816-be54-to-be55-4bd71eecb.md
+---
+kind: scan_emitted
+timestamp: '2026-11-17T14:23:35Z'
+scan_id: R-13544574
+task_id: T-1428
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-17T14:23:35Z'
+scan_id: R-13544574
+task_id: T-1428
+payload:
+  task_file: .tasks/active/T-1428-overlay-draws-the-recorded-path-runtime-.md

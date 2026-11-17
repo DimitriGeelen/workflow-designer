@@ -1,0 +1,157 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1212: Downgrade E-GW-OUTGOING / E-XML-GW-OUTGOING to warnings (operator decision 2026-10-19, option 1)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-17T14:20:06Z
+# ============================================================================
+
+task_id: T-1212
+task_name: "Downgrade E-GW-OUTGOING / E-XML-GW-OUTGOING to warnings (operator decision 2026-10-19, option 1)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-19T09:43:17Z
+completed: 2026-11-16T15:22:53Z
+duration_days: 28
+updates_count: 3
+first_commit: 2026-10-19T11:43:31+02:00
+last_commit: 2026-11-17T02:22:25+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  capture operator decision 2026-10-19 — gateway-outgoing rules become warnings (option 1). the exclusive-gateway arity rules are warnings now (operator decision 2026-10-19): E-GW-OUTGOING -> W-GW-OUTGOING, E-XML-GW-OUTGOING -> W-XML-GW-OUTGOING. the rest of the change — the previous commit (ded9bc04) carried only the fixture moves (git add stopped at a moved path). the designer shows the gateway finding as a warning — asserted and shot at 1024/1440/1920 (tools/_t1212-gw-warning-shots.py), visual verification recorded, reviewer-routed criterion. reviewer verdict. reviewer verdict (codex seat codex, recorded by the runtime). reviewer verdict (opencode seat opencode, recorded by the runtime). AUTHORING.md no longer names the retired id (T-974: the kit names only rules that exist); the uncontrolled absence line leaves Verification (T-560 census back at baseline 74). five of six criteria ticked with evidence; the full-suite one waits for a clean full run. full bridge run 299 passed, 0 failed; last criterion ticked. commit the review-run records of the rung-5 panel (claude-code, codex, opencode). the panel greens are ineligible (render criterion needs fw ux shots captures; the reviewed state has no URL) — recorded, reported to AEF, not bypassed. AEF filed T-4391 (steps executed by ux_shots, hashed) — the route to close this. AEF T-4391 (scripted ux shots) landed on bleeding-edge — the route to re-judge; AEF filed T-4403 for the hook-erasure bug. agent side closed (partial-complete) — stale verification pointed at the 0.24.0 notes it shipped in, context lines, GO recommendation; the open review criterion has three green panel verdicts (2026-10-19) awaiting apply. reviewer verdict (antigravity seat antigravity, recorded by the runtime)
+
+# Key outcomes
+outcomes:
+  - 'Both rules report as warnings under `W-GW-OUTGOING` / `W-XML-GW-OUTGOING`, with the finding text and the converging-gateway exemption unchanged; a map whose only finding is one of them now passes the check (exit code as for any warning) instead of failing'
+  - 'Every reference is updated: the dialect axis (`tests/test_rule_dialect_axis.py`: no uncited ERRORs left, `EXPECTED_UNCITED_ERRORS` empty, the rule rows renamed), the form-parity, anchorability and cross-form tests, the fixtures, `docs/authoring-kit/AUTHORING.md` and `tools/README.md`, the authoring kit''s rule table (regenerated, not hand-edited); a repo-wide search for the old ids finds only history (release notes, reports, closed tasks)'
+  - 'A test pins the new behaviour: a 1-in/1-out gateway yields `W-GW-OUTGOING` and no error, in both forms; the converging gateway still yields nothing'
+  - 'Every affected test passes, and a full bridge run is green'
+  - '`docs/releases/PENDING-next-release.md` lists it, with the old→new id map and a note for AEF that a check which failed on these now warns'
+  - 'The designer''s Check shows the finding as a warning, asserted and shot at 1024, 1440 and 1920 by `tools/_t1212-gw-warning-shots.py` (`docs/reports/T-1212-evidence/`), read control by control under `## Visual Verification`'
+  - 'Independent screenshot review (reviewer-judged, `fw reviewer judge T-1212 --criterion 1`): the designer shows a 1-in/1-out exclusive gateway as a WARNING, legibly, at three widths'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'AEF T-4391 (scripted ux shots) landed on bleeding-edge — the route to re-judge; AEF filed T-4403 for the hook-erasure bug'
+    source: git-mined
+  - description: 'the rest of the change — the previous commit (ded9bc04) carried only the fixture moves (git add stopped at a moved path)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/evidence/T-1212/AC1-judge-t-1212-r5-antigravity-ad276131b370.md'
+  - '.context/reviews/evidence/T-1212/AC1-judge-t-1212-r5-claude-code-19c77ddc003b.md'
+  - '.context/reviews/evidence/T-1212/AC1-judge-t-1212-r5-claude-code-a54b0d9a2dea.md'
+  - '.context/reviews/evidence/T-1212/AC1-judge-t-1212-r5-codex-36729891bba7.md'
+  - '.context/reviews/evidence/T-1212/AC1-judge-t-1212-r5-codex-b2a5534c1249.md'
+  - '.context/reviews/evidence/T-1212/AC1-judge-t-1212-r5-opencode-faaa75c4458c.md'
+  - '.context/reviews/evidence/T-1212/gateway-marker-1024-zoom-judge-t-1212-r5-claude-code-19c77ddc003b.png'
+  - '.context/reviews/evidence/T-1212/gateway-marker-1440-zoom-judge-t-1212-r5-claude-code-19c77ddc003b.png'
+  - '.context/reviews/evidence/T-1212/gateway-marker-1440-zoom-judge-t-1212-r5-claude-code-a54b0d9a2dea.png'
+  - '.context/reviews/evidence/T-1212/gateway-marker-1920-zoom-judge-t-1212-r5-claude-code-19c77ddc003b.png'
+  - '.context/reviews/evidence/T-1212/gateway-marker-1920-zoom-judge-t-1212-r5-claude-code-a54b0d9a2dea.png'
+  - '.context/reviews/evidence/T-1212/t1212-check-1024-judge-t-1212-r5-claude-code-19c77ddc003b.png'
+  - '.context/reviews/evidence/T-1212/t1212-check-1024-judge-t-1212-r5-claude-code-a54b0d9a2dea.png'
+  - '.context/reviews/evidence/T-1212/t1212-check-1440-judge-t-1212-r5-claude-code-19c77ddc003b.png'
+  - '.context/reviews/evidence/T-1212/t1212-check-1440-judge-t-1212-r5-claude-code-a54b0d9a2dea.png'
+  - '.context/reviews/evidence/T-1212/t1212-check-1920-judge-t-1212-r5-claude-code-19c77ddc003b.png'
+  - '.context/reviews/evidence/T-1212/t1212-check-1920-judge-t-1212-r5-claude-code-a54b0d9a2dea.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1212-downgrade-e-gw-outgoing--e-xml-gw-outgoi.md'
+  - 'docs/authoring-kit/AUTHORING.md'
+  - 'docs/releases/PENDING-next-release.md'
+  - 'docs/reports/T-1212-evidence/t1212-check-1024.png'
+  - 'docs/reports/T-1212-evidence/t1212-check-1440.png'
+  - 'docs/reports/T-1212-evidence/t1212-check-1920.png'
+  - 'tests/fixtures/valid/gw-converging.workflow.yaml'
+  - 'tests/fixtures/warn/W-GW-OUTGOING.yaml'
+  - 'tests/fixtures/warn/W-XML-GW-AMBIGUOUS.xml'
+  - 'tests/fixtures/warn/W-XML-GW-OUTGOING.xml'
+  - 'tests/test_finding_anchorability.py'
+  - 'tests/test_harness_cross_form_agreement.py'
+  - 'tests/test_rule_dialect_axis.py'
+  - 'tests/test_rule_form_parity.py'
+  - 'tools/README.md'
+  - 'tools/_t1212-gw-warning-shots.py'
+  - 'tools/validate-workflow.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-19T11:43:31'
+    action: 'T-1212: capture operator decision 2026-10-19 — gateway-outgoing rules become warnings (option 1)'
+  - time: '2026-10-19T12:17:23'
+    action: 'T-1212: the exclusive-gateway arity rules are warnings now (operator decision 2026-10-19): E-GW-OUTGOING -> W-GW-OUTGOING, E-XML-GW-OUTGOING -> W-XML-GW-OUTGOING'
+  - time: '2026-10-19T12:17:33'
+    action: 'T-1212: the rest of the change — the previous commit (ded9bc04) carried only the fixture moves (git add stopped at a moved path)'
+  - time: '2026-10-19T12:19:44'
+    action: 'T-1212: the designer shows the gateway finding as a warning — asserted and shot at 1024/1440/1920 (tools/_t1212-gw-warning-shots.py), visual verification recorded, reviewer-routed criterion'
+  - time: '2026-10-19T12:21:41'
+    action: 'T-1212: reviewer verdict'
+  - time: '2026-10-19T12:22:48'
+    action: 'T-1212: reviewer verdict (codex seat codex, recorded by the runtime)'
+  - time: '2026-10-19T12:29:44'
+    action: 'T-1212: reviewer verdict (opencode seat opencode, recorded by the runtime)'
+  - time: '2026-10-19T13:23:03'
+    action: 'T-1212: AUTHORING.md no longer names the retired id (T-974: the kit names only rules that exist); the uncontrolled absence line leaves Verification (T-560 census back at baseline 74)'
+  - time: '2026-10-19T13:34:10'
+    action: 'T-1212: five of six criteria ticked with evidence; the full-suite one waits for a clean full run'
+  - time: '2026-10-19T14:50:53'
+    action: 'T-1212: full bridge run 299 passed, 0 failed; last criterion ticked'
+  - time: '2026-10-19T14:53:19'
+    action: 'T-1212: commit the review-run records of the rung-5 panel (claude-code, codex, opencode)'
+  - time: '2026-10-19T14:54:09'
+    action: 'T-1212: the panel greens are ineligible (render criterion needs fw ux shots captures; the reviewed state has no URL) — recorded, reported to AEF, not bypassed'
+  - time: '2026-10-19T14:59:37'
+    action: 'T-1212: AEF filed T-4391 (steps executed by ux_shots, hashed) — the route to close this'
+  - time: '2026-10-19T17:31:43'
+    action: 'T-1212: AEF T-4391 (scripted ux shots) landed on bleeding-edge — the route to re-judge; AEF filed T-4403 for the hook-erasure bug'
+  - time: '2026-11-16T16:23:46'
+    action: 'T-1212: agent side closed (partial-complete) — stale verification pointed at the 0.24.0 notes it shipped in, context lines, GO recommendation; the open review criterion has three green panel verdicts (2026-10-19) awaiting apply'
+  - time: '2026-11-17T02:20:59'
+    action: 'T-1212: reviewer verdict'
+  - time: '2026-11-17T02:21:37'
+    action: 'T-1212: reviewer verdict (codex seat codex, recorded by the runtime)'
+  - time: '2026-11-17T02:22:25'
+    action: 'T-1212: reviewer verdict (antigravity seat antigravity, recorded by the runtime)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 18 commit(s), 40659 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 40659
+  commits: 19
+  files_changed: 47
+  lines_added: 1464
+  lines_removed: 80
+  footprint_refreshed_at: '2026-11-17T14:24:04Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1212-downgrade-e-gw-outgoing--e-xml-gw-outgoi.md
+generated_by: context-agent-hybrid
