@@ -210,6 +210,14 @@ cost_estimate_proposed:
   **If not:** if the question is not the right one to be asking, say so — the alternative is
   that the archived corpus is simply never made ready and the gate change is abandoned rather
   than parked, which is also a legitimate answer.
+  **Reviewer escalation (V-20261116-d559b365, reviewer-judge-t-353-r3-0b73c29eed94:reviewer, rung rung-3-termlink-single-reviewer):** Needs the operator: the criterion asks for a yes/no ruling on whether an agent may edit Verification blocks in other owners' archived tasks (.tasks/completed/), a convention/sovereignty call; no ruling is recorded and nothing has been applied (the task's own recommendation is DEFER). Before ruling, note steps 1 and 2 do not reproduce as written at this revision: the probe gives 13 passed / 10 failed and the convert tool gives DIVERGENT remaining 19, because the gate line in update-task.sh now evals $_verify_tmp_env (re-vendored 2026-10-28) and the tools' runner leaves it unbound under set -u. With _verify_tmp_env="" exported, they give 23 passed / 0 failed and 19 converted, DIVERGENT remaining 0, so the proof holds but the harness needs that one variable defined, and '16/16' is now 23/23. PROPOSED RESTATEMENT: [REVIEW] Ruling: may an agent edit `## Verification` blocks inside `.tasks/completed/`? Steps: 1. `bash tools/_t353-repair-probe.sh` reports 23 passed, 0 failed. 2. `python3 tools/_t353-convert.py` reports 19 converted and proven, DIVERGENT remaining 0. 3. Read docs/reports/T-353-corpus-readiness.md sections 3 and 4. 4. Answer yes or no. Expected: a yes or no recorded here. The evidence does not meet the restatement yet: steps 1 and 2 pass only once the tools define _verify_tmp_env, and the yes/no is still the operator's to give. (verbatim: .context/reviews/verdicts.jsonl V-20261116-d559b365)
+  **Operator ruling, recorded 2026-11-18 (given in session 2026-11-17, answering the escalation above): "a" — YES,
+  the agent may have these edits applied to `.tasks/completed/`.** Applied as the operator's own act, because the
+  closed-record gate (T-4285) reserves archived edits to the operator: runme job 155 applied the 23 lines, job 158
+  verified them (23/23: each new line present once, no original left, each runnable line passes) and committed them
+  as `7b2794288`. Delivered under T-1432 (closed, `e0d6e4d68`). The harness drift the reviewer noted is fixed: both
+  tools now define `_verify_tmp_env` (probe 23 passed / 0 failed; convert 19/19, DIVERGENT remaining 0). The operator
+  called this tick a rubber stamp (2026-11-18), so it is routed to the reviewer to confirm the ruling is recorded.
 
 ## Recommendation
 
