@@ -127,7 +127,9 @@ unmapped hops, and keep the derived path only as a labelled fallback when `trave
   2. Check that the traversed edges read as one route, distinct from untaken edges but not louder than the current
      node; that "×2" is legible beside its edge and does not collide with the edge label; and that the title says
      "recorded".
-  **Expected:** the route and its count read at all three widths, nothing clipped.
+  **Expected:** the route reads as one route at all three widths (fitted to the whole map), nothing clipped; the ×2
+  count reads in the 100% close-ups. At fit-to-map zoom every label on the map, the ×2 included, is a few pixels
+  high; that is the zoom, not the mark (review r3, 2026-11-17).
   **If not:** name the screenshot and what is wrong.
 
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
