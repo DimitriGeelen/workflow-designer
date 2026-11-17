@@ -1,13 +1,22 @@
 ---
 id: T-1428
-name: "Overlay draws the recorded path (runtime projection v2 'traversed') instead of the derived shortest path"
+name: "Overlay draws the recorded path (runtime projection v2 'traversed') instead
+  of the derived shortest path"
 description: >
-  AEF T-5193 (msg 6698c523, 8f458c628): /api/instances now carries runtime_projection_version 2 and per instance 'traversed' (ordered lifecycle edge aef:uids, from the task's own recorded status changes; placed only when exactly one edge chain fits) and 'unmapped' ({from,to,at}). The designer's ✓ path is DERIVED (shortest flow path from start, T-884) because nothing recorded the route; with v2 it can draw the real traversed edges, say when part of the route is unmapped, and fall back to the derived path (labelled as such) only when traversed is absent. Our Q11 ask. Full UI path: CDP legs, person-sees gate, screenshots at three widths, independent reviewer.
+  AEF T-5193 (msg 6698c523, 8f458c628): /api/instances now carries runtime_projection_version
+  2 and per instance 'traversed' (ordered lifecycle edge aef:uids, from the task's
+  own recorded status changes; placed only when exactly one edge chain fits) and 'unmapped'
+  ({from,to,at}). The designer's ✓ path is DERIVED (shortest flow path from start,
+  T-884) because nothing recorded the route; with v2 it can draw the real traversed
+  edges, say when part of the route is unmapped, and fall back to the derived path
+  (labelled as such) only when traversed is absent. Our Q11 ask. Full UI path: CDP
+  legs, person-sees gate, screenshots at three widths, independent reviewer.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +47,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-17T01:05:25Z
-last_update: 2026-11-17T01:05:25Z
-date_finished: null
+last_update: '2026-11-17T09:57:23Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +59,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-17T09:57:23Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1428: Overlay draws the recorded path (runtime projection v2 'traversed') instead of the derived shortest path
@@ -74,10 +103,33 @@ unmapped hops, and keep the derived path only as a labelled fallback when `trave
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] With `traversed` in the selected instance, `instanceOverlayState` returns mode `recorded`: ✓ nodes are the
+  ends of the traversed edges on this map (not the current node), each traversed edge uid with its count, and how
+  many hops are unmapped or name an edge not on this map. Without `traversed` it returns mode `derived`, exactly as
+  today.
+- [ ] A traversed edge is drawn marked (`data-instance="traversed"` on its `g.edge`, a green path), and an edge taken
+  more than once carries a "×N" count; nothing is drawn on edges outside `traversed`.
+- [ ] The picker's title says which: "✓ recorded path (the edges this task took)" or "✓ derived path (the shortest
+  flow path from the start, not a recorded history)", and names unmapped hops when there are any.
+- [ ] CDP legs in `_t884-instance-overlay-cdp.mjs`: a v2 snapshot with `traversed` (one edge twice, one unmapped hop)
+  draws exactly those edges, "×2", recorded ✓ nodes and the title; a v1 snapshot draws the derived path unchanged
+  (L2 still passes). Export bytes are unchanged with the overlay on (L3).
+- [ ] The person-sees gate exits 0; browser and core tiers are green on pool and here; the next release's draft notes
+  name the change for AEF.
 
 ### Human
+- [ ] Independent screenshot review (reviewer-judged, `fw reviewer judge T-1428 --criterion 1`): the recorded path
+  and its legend.
+  **Steps:**
+  1. Open `docs/reports/t884-shots/t1428-recorded-{1024,1440,1920}.png` (fitted to the whole map),
+     `t1428-recorded-title.txt`, and the 100% close-ups `t1428-recorded-e_07.png` and `t1428-recorded-e_09.png`,
+     where the ×2 pills are readable.
+  2. Check that the traversed edges read as one route, distinct from untaken edges but not louder than the current
+     node; that "×2" is legible beside its edge and does not collide with the edge label; and that the title says
+     "recorded".
+  **Expected:** the route and its count read at all three widths, nothing clipped.
+  **If not:** name the screenshot and what is wrong.
+
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -261,6 +313,25 @@ unmapped hops, and keep the derived path only as a labelled fallback when `trave
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+$HOME/.nvm/versions/node/v22.22.1/bin/node tools/_t884-instance-overlay-cdp.mjs
+grep -q 'T-1428' docs/releases/PENDING-next-release.md
+
+## Visual Verification
+
+Evidence from `tools/_t884-instance-overlay-cdp.mjs` (doc E, legs L10, L11, L12) in `docs/reports/t884-shots/`:
+`t1428-recorded-{1024,1440,1920}.png` (fitted), `t1428-recorded-title.txt`, `t1428-recorded-e_07.png` and
+`t1428-recorded-e_09.png` (100%).
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| v2 recorded route | traversed edges (e_01, e_03, e_05, e_06, e_07, e_09) | ok | ok | ok | green, heavier than untaken edges; small at fit, clear in the close-ups |
+| v2 recorded route | ×2 pills on e_06, e_07, e_09 | ok | ok | ok | readable at 100% (close-ups); a few pixels at fit, as expected |
+| v2 recorded route | current node agt_2_perform | ok | ok | ok | accent halo and "● T-9991" stay louder than the route |
+| v2 recorded route | instance picker and title | ok | ok | ok | "T-9991 · agt_2_perform · started-work"; title says recorded, 1 unmapped hop, 1 edge not in this map version |
+| v2 recorded route | toolbar | ok | ok | ok | at 1024 it wraps to two rows, as before |
+
+Seen, not changed by this task: the outcome gateway's ✓ done badge (T-884 placement) sits over the start of the
+"blocked / failing" edge label in `t1428-recorded-e_07.png`.
 
 ## RCA
 
@@ -358,3 +429,7 @@ unmapped hops, and keep the derived path only as a labelled fallback when `trave
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1428-overlay-draws-the-recorded-path-runtime-.md
 - **Context:** Initial task creation
+
+### 2026-11-17T09:57:21Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

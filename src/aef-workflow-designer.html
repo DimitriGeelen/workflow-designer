@@ -731,6 +731,12 @@ font-family: 'Outfit';
   /* The badge sits above the top-right corner, where incoming edges cross; a surface-coloured pill
      under the text keeps it legible over an edge line (read in the T-884 screenshots, not measured). */
   .node-instance-pill { fill: var(--surface); stroke: var(--border-strong); stroke-width: .5px; pointer-events: none; }
+  /* T-1428: the RECORDED route (AEF runtime projection v2 `traversed`): the edges the task took, in the done colour,
+     a little heavier than an untaken edge and quieter than the current node's accent halo; ×N where it took an edge
+     more than once. */
+  .edge[data-instance="traversed"] .edge-path { stroke: var(--green); stroke-width: 2px; opacity: .9; }
+  .edge-instance-count-bg { fill: var(--surface); stroke: var(--green); stroke-width: .75px; pointer-events: none; }
+  .edge-instance-count { fill: var(--green); font-family: var(--mono); font-size: 8px; font-weight: 600; pointer-events: none; }
   #instancePicker { font-size: 12px; max-width: 260px; background: var(--surface-2); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 1px 4px; }
   /* T-355: the real tag of a foreign (out-of-allowlist) flow node, drawn above the shape.
      Mono because it is a literal from the source document, not prose; --text-dim rather
@@ -2189,11 +2195,26 @@ function effectiveLaneDefault(lane) {
 // `refused` is the LATEST audit line for this task whose node is on this template, with its
 // rule and — when the refused hop named one and it is on this template — its target. Reads;
 // never writes.
-function instanceOverlayState(nodeIds, flows, startIds, instance, refusals) {
+function instanceOverlayState(nodeIds, flows, startIds, instance, refusals, edgeEnds) {
   const ids = new Set(nodeIds || []);
-  const out = { current: null, done: [], refused: null };
+  const out = { current: null, done: [], refused: null, mode: 'derived', traversed: {}, unmapped: 0, offMap: 0 };
   if (!instance) return out;
-  if (instance.state === 'NODE' && ids.has(instance.node)) {
+  // T-1428: AEF's runtime projection v2 (its T-5193) records the route: `traversed` is the ordered list of edge
+  // aef:uids the task took, repeats kept; `unmapped` the hops no single edge chain could place. When it is there, the
+  // overlay shows that route and nothing derived. edgeEnds maps an edge uid to [source display id, target display id].
+  if (Array.isArray(instance.traversed) && edgeEnds) {
+    out.mode = 'recorded';
+    if (instance.state === 'NODE' && ids.has(instance.node)) out.current = instance.node;
+    const done = new Set();
+    for (const uid of instance.traversed) {
+      const ends = edgeEnds.get(uid);
+      if (!ends) { out.offMap++; continue; }
+      out.traversed[uid] = (out.traversed[uid] || 0) + 1;
+      for (const n of ends) if (ids.has(n) && n !== out.current) done.add(n);
+    }
+    out.done = Array.from(done);
+    out.unmapped = Array.isArray(instance.unmapped) ? instance.unmapped.length : 0;
+  } else if (instance.state === 'NODE' && ids.has(instance.node)) {
     out.current = instance.node;
     let best = null;
     for (const s of (startIds || [])) {
@@ -5662,6 +5683,20 @@ function renderEdges() {
     const g = el('g', { class: 'edge' + (isSelected ? ' selected' : '') + (isBeingDragged ? ' dragging' : '') + (isFloating ? ' floating' : ''), 'data-id': e.id });
     g.appendChild(el('path', { d: path, class: 'edge-hit' }));
     g.appendChild(el('path', { d: path, class: 'edge-path', 'marker-start': isSelected ? 'url(#arrow-source-selected)' : 'url(#arrow-source)', 'marker-end': isSelected ? 'url(#arrow-selected)' : 'url(#arrow)' }));
+    // T-1428: an edge the selected instance actually took (AEF projection v2 `traversed`) is marked; one taken more
+    // than once carries ×N at its middle (a task sent back and restarted walks it again).
+    const _ov = (typeof instanceView !== 'undefined' && instanceView.overlay) || null;
+    const _taken = _ov && _ov.mode === 'recorded' ? (_ov.traversed[e.uid] || 0) : 0;
+    if (_taken && !isBeingDragged) {
+      g.setAttribute('data-instance', 'traversed');
+      if (_taken > 1) {
+        const poly = (e._renderedPolyline && e._renderedPolyline.length >= 2) ? e._renderedPolyline : points;
+        const mid = poly[Math.floor((poly.length - 1) / 2)], nxt = poly[Math.floor((poly.length - 1) / 2) + 1] || mid;
+        const mx = (mid.x + nxt.x) / 2, my = (mid.y + nxt.y) / 2;
+        g.appendChild(el('rect', { x: mx - 11, y: my - 7, width: 22, height: 13, rx: 6, class: 'edge-instance-count-bg' }));
+        g.appendChild(el('text', { x: mx, y: my + 3, 'text-anchor': 'middle', class: 'edge-instance-count', 'data-instance-count': String(_taken) }, [text('×' + _taken)]));
+      }
+    }
 
     if (e.name && labelPrefs.showEdge && !isBeingDragged) {
       // Place on the ACTUAL routed polyline (not the pre-route points) and lift
@@ -12172,7 +12207,8 @@ function selectInstance(task) {
   instanceView.notFound = !!task && !instanceView.instances.some(i => i.task === task);
   computeInstanceOverlay();
   renderInstancePicker();
-  if (state) renderNodes();
+  // T-1428: edges too, in renderAll's order: a recorded route marks the edges the instance took.
+  if (state) { renderEdges(); renderNodes(); }
 }
 function computeInstanceOverlay() {
   const inst = instanceView.selected ? instanceView.instances.find(i => i.task === instanceView.selected) : null;
@@ -12185,7 +12221,13 @@ function computeInstanceOverlay() {
     if (src && tgt) (flows[src] = flows[src] || []).push(tgt);
   }
   const startIds = state.nodes.filter(n => n.type === 'startEvent').map(n => displayIdOf(n));
-  instanceView.overlay = instanceOverlayState(nodeIds, flows, startIds, inst, instanceView.refusals);
+  // T-1428: edge uid -> its two ends, for the recorded route (projection v2 `traversed`).
+  const edgeEnds = new Map();
+  for (const e of state.edges) {
+    const src = idOf.get(e.source), tgt = idOf.get(e.target);
+    if (src && tgt && e.uid) edgeEnds.set(e.uid, [src, tgt]);
+  }
+  instanceView.overlay = instanceOverlayState(nodeIds, flows, startIds, inst, instanceView.refusals, edgeEnds);
 }
 function renderInstancePicker() {
   const sel = $('instancePicker');
@@ -12195,8 +12237,14 @@ function renderInstancePicker() {
   const v = instanceView;
   // T-1427: the legend names ⛔ only when this snapshot holds a refusal the overlay can draw. A host that serves none
   // (AEF until its runtime projection v2, T-5193) is not promised a marker it cannot show.
-  sel.title = 'Instance overlay (T-884): where a governed entity is on this template. ● current node · ✓ completed '
-    + 'path (DERIVED: the shortest flow path from the start, not a recorded history)'
+  // T-1428: with AEF's projection v2 the ✓ path is the RECORDED route; otherwise it is derived, and says so.
+  const ov = v.overlay;
+  const pathText = ov && ov.mode === 'recorded'
+    ? '✓ recorded path (the edges this task took, ×N where it took one more than once)'
+      + (ov.unmapped ? ' · ' + ov.unmapped + ' hop' + (ov.unmapped === 1 ? '' : 's') + ' not on this map' : '')
+      + (ov.offMap ? ' · ' + ov.offMap + ' recorded edge' + (ov.offMap === 1 ? '' : 's') + ' not in this map version' : '')
+    : '✓ derived path (the shortest flow path from the start, not a recorded history)';
+  sel.title = 'Instance overlay (T-884): where a governed entity is on this template. ● current node · ' + pathText
     + (v.refusals && v.refusals.length
       ? ' · ⛔ the node a refusal fired on, with the rule that refused it'
       : '')

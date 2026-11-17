@@ -63,9 +63,19 @@ const SNAPSHOT_AEF_V2 = Object.assign({}, SNAPSHOT, {
   refusals: [{ task: 'T-9991', node: 'frw_gw_all', reason_code: 'unresolved_reference', target: 'frw_5_finalize' }],
 });
 const TITLE = `document.getElementById('instancePicker').title`;
+// T-1428: projection v2 with a RECORDED route. T-9991 went start -> build gate -> start work -> perform, then twice
+// round perform -> outcome -> enter issues -> perform (e_06, e_07, e_09 taken twice); one hop AEF could not place
+// (unmapped) and one edge uid this map version does not have (tl_e99).
+const ROUTE = ['e_01', 'e_03', 'e_05', 'e_06', 'e_07', 'e_09', 'e_06', 'e_07', 'e_09', 'tl_e99'];
+const SNAPSHOT_V2_ROUTE = Object.assign({}, SNAPSHOT, {
+  runtime_projection_version: 2, refusals: [], unplaced: [],
+  instances: SNAPSHOT.instances.map(i => i.task === 'T-9991'
+    ? Object.assign({}, i, { traversed: ROUTE, unmapped: [{ from: 'parked', to: 'captured', at: '2026-11-16T10:00:00Z' }] })
+    : Object.assign({}, i, { traversed: [], unmapped: [] })),
+});
 // T-1427 evidence for the independent screenshot review: the whole view at three widths, and the picker's title as
 // text beside it (a tooltip is not in a headless screenshot).
-async function widthShots(cmd, ev, tag) {
+async function widthShots(cmd, ev, tag, prefix = 't1427') {
   const titles = {};
   for (const w of [1024, 1440, 1920]) {
     await cmd('Emulation.setDeviceMetricsOverride', { width: w, height: 900, deviceScaleFactor: 1, mobile: false });
@@ -73,11 +83,11 @@ async function widthShots(cmd, ev, tag) {
     // reviewer's amber (V-…, judge-t-1427-r3) was exactly that the v1 and v2 shots were then byte-identical.
     await ev(cmd, 'renderAll(); setZoom(null); true'); await sleep(400);
     const s = await cmd('Page.captureScreenshot', { format: 'png' });
-    mkdirSync(OUT, { recursive: true }); writeFileSync(join(OUT, `t1427-${tag}-${w}.png`), Buffer.from(s.data, 'base64'));
+    mkdirSync(OUT, { recursive: true }); writeFileSync(join(OUT, `${prefix}-${tag}-${w}.png`), Buffer.from(s.data, 'base64'));
     titles[w] = await ev(cmd, TITLE);
   }
   await cmd('Emulation.clearDeviceMetricsOverride');
-  writeFileSync(join(OUT, `t1427-${tag}-title.txt`), Object.entries(titles).map(([w, t]) => `${w}: ${t}`).join('\n') + '\n');
+  writeFileSync(join(OUT, `${prefix}-${tag}-title.txt`), Object.entries(titles).map(([w, t]) => `${w}: ${t}`).join('\n') + '\n');
 }
 
 function makeDoc(withApi, snapshot) {
@@ -170,8 +180,11 @@ const COUNTS = `({ current: document.querySelectorAll('g.node[data-instance="cur
     await shot(cmd, await nodeSel('frw_3_run'), 'current-and-refused-m.png', 30);
     const tA = await ev(cmd, TITLE);
     leg('L7', "832's transition refusals: the picker's title explains ⛔ (T-1427)",
-        tA.includes('⛔ the node a refusal fired on') && tA.includes('● current node') && tA.includes('✓ completed path'),
+        tA.includes('⛔ the node a refusal fired on') && tA.includes('● current node') && tA.includes('✓ derived path'),
         JSON.stringify(tA));
+    const e12 = await ev(cmd, `document.querySelectorAll('g.edge[data-instance]').length`);
+    leg('L12', 'v1 snapshot (no traversed): the title says derived, and no edge is marked (T-1428)',
+        tA.includes('✓ derived path') && !tA.includes('recorded path') && e12 === 0, JSON.stringify({ e12 }));
 
     // ---- doc C: AEF's shape of 'refusals' (unplaceable task files) — T-1427 ----
     const C = await serve(makeDoc(true, SNAPSHOT_AEF)); servers.push(C.py);
@@ -199,6 +212,38 @@ const COUNTS = `({ current: document.querySelectorAll('g.node[data-instance="cur
         JSON.stringify({ c9, t9 }));
     await shot(cmd, await nodeSel('frw_gw_all'), 't1427-aef-v2-refused-node.png', 40);
     await widthShots(cmd, ev, 'aef-v2');
+
+    // ---- doc E: projection v2 with a RECORDED route — T-1428 ----
+    const E = await serve(makeDoc(true, SNAPSHOT_V2_ROUTE)); servers.push(E.py);
+    await cmd('Page.navigate', { url: `${E.BASE}/designer.html?load=rendered/task-lifecycle.bpmn&instance=T-9991` });
+    await waitReady(cmd); await waitOverlayLoaded(cmd);
+    await ev(cmd, 'labelPrefs.size = "m"; renderAll(); true');
+    const r10 = await ev(cmd, `(() => {
+      const ov = instanceView.overlay;
+      const taken = Array.from(document.querySelectorAll('g.edge[data-instance="traversed"]')).map(g => (state.edges.find(e => e.id === g.getAttribute('data-id')) || {}).uid).sort();
+      const counts = Array.from(document.querySelectorAll('[data-instance-count]')).map(t => { const g = t.closest('g.edge'); return (state.edges.find(e => e.id === g.getAttribute('data-id')) || {}).uid + ':' + t.textContent; }).sort();
+      const done = Array.from(document.querySelectorAll('g.node[data-instance="done"]')).map(g => displayIdOf(findNode(g.getAttribute('data-id')))).sort();
+      const cur = Array.from(document.querySelectorAll('g.node[data-instance="current"]')).map(g => displayIdOf(findNode(g.getAttribute('data-id'))));
+      return { mode: ov && ov.mode, taken, counts, done, cur, unmapped: ov && ov.unmapped, offMap: ov && ov.offMap, title: document.getElementById('instancePicker').title };
+    })()`);
+    leg('L10', 'v2 recorded route: exactly the traversed edges marked, ×2 on the three taken twice, ✓ on their ends, current kept (T-1428)',
+        r10.mode === 'recorded'
+          && JSON.stringify(r10.taken) === JSON.stringify(['e_01', 'e_03', 'e_05', 'e_06', 'e_07', 'e_09'])
+          && JSON.stringify(r10.counts) === JSON.stringify(['e_06:×2', 'e_07:×2', 'e_09:×2'])
+          && JSON.stringify(r10.done) === JSON.stringify(['frw_1_start', 'frw_2_enter', 'frw_gw_build', 'frw_gw_outcome', 'frw_start_task'])
+          && JSON.stringify(r10.cur) === JSON.stringify(['agt_2_perform']),
+        JSON.stringify(r10));
+    leg('L11', 'the title says recorded, and names the unmapped hop and the edge not in this map version (T-1428)',
+        r10.title.includes('✓ recorded path') && r10.title.includes('1 hop not on this map')
+          && r10.title.includes('1 recorded edge not in this map version') && !r10.title.includes('derived'),
+        JSON.stringify(r10.title));
+    // A close-up of the loop at normal zoom, where ×2 can be read (at fit-to-map it is a few pixels).
+    await ev(cmd, 'setZoom(1); renderAll(); true'); await sleep(200);
+    for (const uid of ['e_07', 'e_09']) {
+      const id = await ev(cmd, `(state.edges.find(e => e.uid === ${JSON.stringify(uid)}) || {}).id`);
+      await shot(cmd, `g.edge[data-id="${id}"]`, `t1428-recorded-${uid}.png`, 50);
+    }
+    await widthShots(cmd, ev, 'recorded', 't1428');
 
     // ---- doc B: endpoint absent ----
     const B = await serve(makeDoc(false)); servers.push(B.py);
