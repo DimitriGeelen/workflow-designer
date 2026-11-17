@@ -1,0 +1,95 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1425: Shared Designer-AEF contracts: own 832's side of the five pairings agreed with AEF (AEF T-5183)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-17T01:17:00Z
+# ============================================================================
+
+task_id: T-1425
+task_name: "Shared Designer-AEF contracts: own 832's side of the five pairings agreed with AEF (AEF T-5183)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-16T12:53:37Z
+completed: 2026-11-17T01:16:46Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-11-16T15:57:54+01:00
+last_commit: 2026-11-17T01:45:11+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  rows 1 and 3 read against the vendored contracts — row 1 needs row 2's mapping (BPMN XML vs JSON procedure), row 3 pairs design-time findings with a runtime ledger record; refusal v2 not vendored; asked AEF (msg 66c77219). release notes must say which shared-contract artifacts moved — tools/_t1425-shared-contracts.py measures each of the five rows between releases; core leg test_t1425_shared_contracts (4 wrong-table controls); 0.43.0 notes backfilled. AEF confirmed rows 1 and 3 readings (msg 622398de): row 1 waits on T-5184, row 3 is a code mapping owned by AEF T-5189; refusal v2 is in tag be.54. row 3 checked — AEF's validator-refusal mapping (T-5189/T-5191) pinned by sha256 713cb005; --mapping and the core leg hold it to all 80 validator codes and refusal v2's 18 reason_codes, both ways (4 controls); rows 2 and 4 drafts and the open human-gate point recorded. row 2 pinned — AEF's designer-0.43 mapping (T-5192/T-5197, aab4e9289) and its worked example; the check holds the pins and our validator passing AEF's example map clean (wrong-pin control); rows 2 and 4 criterion met
+
+# Key outcomes
+outcomes:
+  - 'The pairing is agreed and recorded on both sides (832: this table; AEF: T-5183, owners T-5184 and T-5185).'
+  - 'Rows 1 and 3: a test checks the designer''s export against `procedure.schema.json`, and the validator''s'
+  - 'Rows 2 and 4: AEF''s drafted mapping (T-5184) and frozen projection schema (T-5185) are received and checked the'
+  - 'The release-notes template carries a "Shared contracts" table naming each pair''s current hashes, so a release'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1425-shared-designer-aef-contracts-own-832s-s.md'
+  - 'docs/contracts/aef-v2/designer-0.43-mapping.md'
+  - 'docs/contracts/aef-v2/examples-mapping/human-script-human.bpmn'
+  - 'docs/contracts/aef-v2/examples-mapping/human-script-human.procedure.json'
+  - 'docs/contracts/aef-v2/validator-refusal-mapping.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.43.0.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_t1425_shared_contracts.py'
+  - 'tools/_t1425-shared-contracts.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-16T15:57:54'
+    action: 'T-1425: rows 1 and 3 read against the vendored contracts — row 1 needs row 2''s mapping (BPMN XML vs JSON procedure), row 3 pairs design-time findings with a runtime ledger record; refusal v2 not vendored; asked AEF (msg 66c77219)'
+  - time: '2026-11-16T16:01:44'
+    action: 'T-1425: release notes must say which shared-contract artifacts moved — tools/_t1425-shared-contracts.py measures each of the five rows between releases; core leg test_t1425_shared_contracts (4 wrong-table controls); 0.43.0 notes backfilled'
+  - time: '2026-11-16T16:31:34'
+    action: 'T-1425: AEF confirmed rows 1 and 3 readings (msg 622398de): row 1 waits on T-5184, row 3 is a code mapping owned by AEF T-5189; refusal v2 is in tag be.54'
+  - time: '2026-11-16T20:38:07'
+    action: 'T-1425: row 3 checked — AEF''s validator-refusal mapping (T-5189/T-5191) pinned by sha256 713cb005; --mapping and the core leg hold it to all 80 validator codes and refusal v2''s 18 reason_codes, both ways (4 controls); rows 2 and 4 drafts and the open human-gate point recorded'
+  - time: '2026-11-17T01:45:11'
+    action: 'T-1425: row 2 pinned — AEF''s designer-0.43 mapping (T-5192/T-5197, aab4e9289) and its worked example; the check holds the pins and our validator passing AEF''s example map clean (wrong-pin control); rows 2 and 4 criterion met'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 743 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 743
+  commits: 7
+  files_changed: 14
+  lines_added: 2367
+  lines_removed: 26
+  footprint_refreshed_at: '2026-11-17T01:17:09Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1425-shared-designer-aef-contracts-own-832s-s.md
+generated_by: context-agent-hybrid
