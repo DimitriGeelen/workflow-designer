@@ -153,8 +153,15 @@ Read against the vendored contracts (`.agentic-framework/docs/research/executabl
   pinned at `docs/contracts/aef-v2/validator-refusal-mapping.yaml` (sha256 713cb005…). `--mapping` and the core leg
   hold it to every code `validate-workflow.py` emits (80) and every `reason_code` of the vendored `refusal.schema.json`
   v2 (18, c4148a34), both ways round. **A new validator code turns core red until AEF maps it**, on purpose.
-- [ ] Rows 2 and 4: AEF's drafted mapping (T-5184) and frozen projection schema (T-5185) are received and checked the
+- [x] Rows 2 and 4: AEF's drafted mapping (T-5184) and frozen projection schema (T-5185) are received and checked the
   same way.
+  Row 2: the mapping, after our 15 answers (T-5192) and the single-outflow human gate (T-5197, aab4e9289), is pinned
+  with its worked example at `docs/contracts/aef-v2/` (sha256 34161afd…, b955510e…, 3df41a86…). `--mapping` and the core
+  leg check the pins, and that our validator still passes AEF's example map with no findings. AEF's own test validates
+  the example procedure against `procedure.schema.json`. Row 4: the projection schema (ca21db29a) was read against what
+  src 0.43.0 reads. One mismatch: `refusals` meant transition refusals in 832 and unplaced task files in AEF. AEF
+  renames theirs in projection v2 (T-5193), and T-1427 made the designer draw only transition refusals (`rule` or
+  `reason_code`), held by CDP legs L7-L9.
 - [x] The release-notes template carries a "Shared contracts" table naming each pair's current hashes, so a release
   that moves a paired artifact says so.
   Done as a gate, not a template file (832 has no notes template; each release's notes are written by hand):

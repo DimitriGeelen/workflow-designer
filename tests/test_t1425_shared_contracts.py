@@ -74,6 +74,17 @@ def main():
     if t.validator_codes("x = 'E-XML-FOO-BAR'; y = \"W-Q\"; z = 'not-a-code'") != {"E-XML-FOO-BAR", "W-Q"}:
         fails.append("validator_codes reads the source wrong")
 
+    # Row 2: pinned mapping and example; our validator passes AEF's example map clean.
+    rc2, lines2 = t.check_row2()
+    print("\n".join(lines2))
+    if rc2 != 0:
+        fails.append("row 2 check rc %d" % rc2)
+    saved = dict(t.ROW2_FILES)
+    t.ROW2_FILES[next(iter(t.ROW2_FILES))] = "0" * 64
+    if t.check_row2()[0] == 0:
+        fails.append("control: a wrong pin for the row-2 mapping passed")
+    t.ROW2_FILES.clear(); t.ROW2_FILES.update(saved)
+
     for n, name, aef, pin, vendored, mine, paths in t.PAIRS:
         if pin and vendored and os.path.exists(os.path.join(ROOT, vendored)):
             state = "matches" if t.sha(vendored).startswith(pin) else "DIFFERS (AEF moved its side; tell AEF/832)"

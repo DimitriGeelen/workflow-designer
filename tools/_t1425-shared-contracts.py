@@ -67,6 +67,40 @@ VALIDATOR_SRC = "tools/validate-workflow.py"
 CODE_RE = re.compile(r"""["']([EWI]-[A-Z0-9]+(?:-[A-Z0-9]+)*)["']""")
 
 
+# Row 2 (AEF T-5184/T-5192/T-5197, aab4e9289): designer 0.43.0 export -> contracts v2 procedure. AEF's test validates
+# the example procedure against procedure.schema.json; 832 holds its own side: the pinned bytes, and our validator
+# still passing AEF's example map with no findings. A validator change that refuses the shape AEF maps from breaks
+# the pairing, and this says so.
+ROW2_FILES = {
+    "docs/contracts/aef-v2/designer-0.43-mapping.md":
+        "34161afd0d6002cd934c8b961dbdaff60eda7440835e33366d5b78e5c2a530f5",
+    "docs/contracts/aef-v2/examples-mapping/human-script-human.bpmn":
+        "b955510e5ed60a6b2bf82ea766dd764c6bf013c999f68999cd655106661d0623",
+    "docs/contracts/aef-v2/examples-mapping/human-script-human.procedure.json":
+        "3df41a8626c4bb3b04dfdfc47f0789fe2f794391532556ab7a446e31e08d77d5",
+}
+ROW2_EXAMPLE = "docs/contracts/aef-v2/examples-mapping/human-script-human.bpmn"
+
+
+def check_row2():
+    """(exit code, lines) for row 2: 0 agree, 1 disagree, 2 NOT CHECKED."""
+    bad = []
+    try:
+        for path, want in ROW2_FILES.items():
+            if sha(path) != want:
+                bad.append("%s does not hash to the agreed %s…" % (path, want[:12]))
+    except OSError as e:
+        return 2, ["NOT CHECKED: %s" % e]
+    r = subprocess.run([sys.executable, os.path.join(ROOT, VALIDATOR_SRC), os.path.join(ROOT, ROW2_EXAMPLE)],
+                       capture_output=True, text=True)
+    out = (r.stdout + r.stderr).strip()
+    if r.returncode != 0 or "no findings" not in out:
+        bad.append("our validator no longer passes AEF's example map clean (rc %d): %s" % (r.returncode, out[-300:]))
+    if bad:
+        return 1, bad
+    return 0, ["ok  row 2: mapping and example pinned; the validator passes the example with no findings"]
+
+
 def validator_codes(src_text):
     """Every finding code the validator source names (the same reading AEF's own test uses)."""
     return set(CODE_RE.findall(src_text))
@@ -226,8 +260,9 @@ def main():
     a = ap.parse_args()
     if a.mapping:
         rc, lines = check_mapping()
-        print("\n".join(lines))
-        return rc
+        rc2, lines2 = check_row2()
+        print("\n".join(lines + lines2))
+        return max(rc, rc2)
     try:
         version = open(os.path.join(ROOT, "VERSION")).read().strip()
         if a.version:
