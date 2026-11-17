@@ -12,13 +12,13 @@ description: >
   at the clip centre is not inside the node), then a shared guard or census for the
   other clip shots.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t884-instance-overlay-cdp.mjs, tools/_t884-live-proof-cdp.mjs, tools/_t892-lane-default-cdp.mjs, tools/_t893-authority-marker-shots.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -47,8 +47,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-17T01:25:07Z
-last_update: '2026-11-17T01:25:11Z'
-date_finished:
+last_update: 2026-11-17T09:52:10Z
+date_finished: 2026-11-17T09:52:10Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -105,16 +105,29 @@ covered or off-screen element.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] `_t893-authority-marker-shots.mjs` brings each node into clear view (widens the window past the properties
+- [x] `_t893-authority-marker-shots.mjs` brings each node into clear view (widens the window past the properties
   panel when needed) and has a leg that fails when `elementFromPoint` at the clip centre is not inside the node; its
   nine shots are re-taken, read, and show the markers.
-- [ ] One shared guard (a small module the harnesses import, or a check in an existing shared place) states the rule
+  — L3 9/9, L4 control (with widening off the guard refuses n_issues: "right 1274 > panel 1080"); I read differs-m
+  ("◆ ini"), missing-m ("⚠ no auth"), none-m (silent).
+- [x] One shared guard (a small module the harnesses import, or a check in an existing shared place) states the rule
   "the element is what is painted at the clip", and a census lists every clip-shot harness as guarded or not.
-- [ ] The census is a core check: a new clip shot without the guard fails it. The harnesses not yet guarded are
+  — `tools/_cdp-clear-shot.mjs` (`clearShot`). Learned while converting: a flow drawn across a node is still the
+  canvas; an element inside the properties panel is not covered by it; `widen: false` for controls. Census:
+  `tests/test_t1429_clip_shot_census.py`.
+- [x] The census is a core check: a new clip shot without the guard fails it. The harnesses not yet guarded are
   named with a reason, or guarded.
-- [ ] T-893's criterion is re-judged on the new shots. Its Visual Verification names frw_2_enter, the node the script
+  — core leg `test_t1429_clip_shot_census` (4 controls). Guarded: _t884-instance-overlay, _t884-live-proof, _t892,
+  _t893, i.e. every single-node clip shot. 22 listed with reasons: fixed UI, the canvas region, composite regions
+  (_t1366/_t1369/_t1381/_t601, needing a region form) and one iframe node (_t258, needing a frame-aware form).
+  Browser 142/142 and core 231/231 on the pool; pushed 95eb10b6f.
+- [x] T-893's criterion is re-judged on the new shots. Its Visual Verification names frw_2_enter, the node the script
   uses, not frw_4_enter; that edit is the operator's (T-893 is human-owned and partial-complete).
-- [ ] The class is registered in `.context/project/concerns.yaml`: two instances in two days, both exiting 0.
+  — re-judged 2026-11-17, run run-t-893-d519ae5e7a: claude-code green; codex and opencode not-evaluated (cannot
+  read images); the panel is incomplete, so it goes to the operator. Filed with AEF as their inception T-5199. The
+  frw_4_enter wording stays the operator's.
+- [x] The class is registered in `.context/project/concerns.yaml`: two instances in two days, both exiting 0.
+  — G-095, prevention-in-place.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -300,6 +313,9 @@ covered or off-screen element.
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+python3 tests/test_t1429_clip_shot_census.py
+$HOME/.nvm/versions/node/v22.22.1/bin/node tools/_t893-authority-marker-shots.mjs
+grep -q 'id: G-095' .context/project/concerns.yaml
 
 ## RCA
 
@@ -316,6 +332,17 @@ covered or off-screen element.
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+**Symptom:** screenshot evidence went blank (`_t884` refused-*.png, 902 B) or showed the properties panel instead of
+the node (`_t893` differs-*.png), while both harnesses exited 0. One was caught by me, one only by the independent
+reviewer.
+**Root cause:** `Page.captureScreenshot` with a `clip` captures a viewport rectangle without regard to what is painted
+there. The harnesses computed the rectangle from `getBoundingClientRect()`, which is the same whether the node is
+visible, under the panel or past the window. As the designer layout moved, nodes drifted under the panel.
+**Why structurally allowed:** no harness asserted that its subject was visible. Screenshot legs asserted DOM facts
+(counts, attributes), and the PNG was a side output nobody checked. The person-sees gate measures the live page, not
+the harnesses' saved evidence.
+**Prevention:** the shared guard refuses a covered or off-window element (with a control proving it refuses), and the
+census core leg fails any new clip shot without it. G-095 tracks the composite-region and iframe forms still to come.
 
 ## Evolution
 
@@ -400,3 +427,16 @@ covered or off-screen element.
 
 ### 2026-11-17T01:25:10Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-17T09:52:10Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-4ce1d56e
+- **Timestamp:** 2026-11-17T09:52:17Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

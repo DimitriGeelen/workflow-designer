@@ -1,0 +1,102 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1429: CDP element shots silently capture whatever covers the element (properties panel, off-canvas): fix _t893, then guard every clip shot
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-17T09:52:26Z
+# ============================================================================
+
+task_id: T-1429
+task_name: "CDP element shots silently capture whatever covers the element (properties panel, off-canvas): fix _t893, then guard every clip shot"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-17T01:25:07Z
+completed: 2026-11-17T09:52:10Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-17T02:28:27+01:00
+last_commit: 2026-11-17T10:06:51+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  a clip screenshot shows its element or fails — tools/_cdp-clear-shot.mjs (widen past the properties panel, elementFromPoint at the clip centre must be the element); _t893 uses it (L3 9/9, nine shots re-taken: differs shows '◆ ini', missing '⚠ no auth', none silent); core leg test_t1429_clip_shot_census (new unguarded clip shot fails; 25 existing listed with a reason; 4 controls); G-095 registered. every single-node clip shot guarded (_t884-instance-overlay, _t884-live-proof, _t892 join _t893); guard: a flow drawn across a node is still the canvas, an element inside the properties panel is not covered by it, widen:false for controls; _t893 L4 proves the guard refuses a covered node; census reclassified (composite regions, iframe, canvas region) with reasons; G-095 prevention-in-place
+
+# Key outcomes
+outcomes:
+  - '`_t893-authority-marker-shots.mjs` brings each node into clear view (widens the window past the properties'
+  - 'One shared guard (a small module the harnesses import, or a check in an existing shared place) states the rule'
+  - 'The census is a core check: a new clip shot without the guard fails it. The harnesses not yet guarded are'
+  - 'T-893''s criterion is re-judged on the new shots. Its Visual Verification names frw_2_enter, the node the script'
+  - 'The class is registered in `.context/project/concerns.yaml`: two instances in two days, both exiting 0.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/concerns.yaml'
+  - '.tasks/active/T-1429-cdp-element-shots-silently-capture-whate.md'
+  - 'docs/reports/t892-shots/node-after.png'
+  - 'docs/reports/t892-shots/node-before.png'
+  - 'docs/reports/t892-shots/panel-field.png'
+  - 'docs/reports/t893-shots/differs-l.png'
+  - 'docs/reports/t893-shots/differs-m.png'
+  - 'docs/reports/t893-shots/differs-s.png'
+  - 'docs/reports/t893-shots/missing-l.png'
+  - 'docs/reports/t893-shots/missing-m.png'
+  - 'docs/reports/t893-shots/missing-s.png'
+  - 'docs/reports/t893-shots/none-l.png'
+  - 'docs/reports/t893-shots/none-m.png'
+  - 'docs/reports/t893-shots/none-s.png'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_t1429_clip_shot_census.py'
+  - 'tools/_cdp-clear-shot.mjs'
+  - 'tools/_t884-instance-overlay-cdp.mjs'
+  - 'tools/_t884-live-proof-cdp.mjs'
+  - 'tools/_t892-lane-default-cdp.mjs'
+  - 'tools/_t893-authority-marker-shots.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-17T02:28:27'
+    action: 'T-1429: a clip screenshot shows its element or fails — tools/_cdp-clear-shot.mjs (widen past the properties panel, elementFromPoint at the clip centre must be the element); _t893 uses it (L3 9/9, nine shots re-taken: differs shows ''◆ ini'', missing ''⚠ no auth'', none silent); core leg test_t1429_clip_shot_census (new unguarded clip shot fails; 25 existing listed with a reason; 4 controls); G-095 registered'
+  - time: '2026-11-17T10:06:51'
+    action: 'T-1429: every single-node clip shot guarded (_t884-instance-overlay, _t884-live-proof, _t892 join _t893); guard: a flow drawn across a node is still the canvas, an element inside the properties panel is not covered by it, widen:false for controls; _t893 L4 proves the guard refuses a covered node; census reclassified (composite regions, iframe, canvas region) with reasons; G-095 prevention-in-place'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 507 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 507
+  commits: 3
+  files_changed: 24
+  lines_added: 868
+  lines_removed: 54
+  footprint_refreshed_at: '2026-11-17T09:52:34Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1429-cdp-element-shots-silently-capture-whate.md
+generated_by: context-agent-hybrid

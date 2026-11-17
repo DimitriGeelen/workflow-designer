@@ -22959,3 +22959,39 @@ scan_id: R-c344b699
 task_id: T-1425
 payload:
   task_file: .tasks/active/T-1425-shared-designer-aef-contracts-own-832s-s.md
+---
+kind: scan_emitted
+timestamp: '2026-11-17T06:01:20Z'
+scan_id: R-65777b50
+task_id: T-593
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-17T06:01:20Z'
+scan_id: R-65777b50
+task_id: T-593
+payload:
+  task_file: .tasks/active/T-593-ewcr-handoff-envelope-records-an-operato.md
+---
+kind: scan_emitted
+timestamp: '2026-11-17T09:52:17Z'
+scan_id: R-4ce1d56e
+task_id: T-1429
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-17T09:52:17Z'
+scan_id: R-4ce1d56e
+task_id: T-1429
+payload:
+  task_file: .tasks/active/T-1429-cdp-element-shots-silently-capture-whate.md
