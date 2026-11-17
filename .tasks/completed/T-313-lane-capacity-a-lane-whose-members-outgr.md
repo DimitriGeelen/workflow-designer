@@ -200,15 +200,15 @@ python3 tests/test_t313_lane_capacity.py
 out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "36 passed, 0 failed"
 out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "48 passed, 0 failed"
 # containment is STRICT — a bottom edge landing exactly ON the band edge is contained
-out=$(python3 tools/validate-workflow.py tests/fixtures/warn/W-XML-LANE-CAPACITY.xml 2>&1); echo "$out" | grep -q "W-XML-LANE-CAPACITY"
+out=$(python3 tools/validate-workflow.py tests/fixtures/warn/W-XML-LANE-CAPACITY.xml 2>&1 || true); echo "$out" | grep -q "W-XML-LANE-CAPACITY"
 # the lowest-drawn node is chosen by BOTTOM EDGE, not by y (AEF's gateway/task counterexample)
-out=$(python3 tools/validate-workflow.py tests/fixtures/warn/W-XML-LANE-CAPACITY.xml 2>&1); echo "$out" | grep -q "agt_1_gate' (exclusiveGateway at y=199"
+out=$(python3 tools/validate-workflow.py tests/fixtures/warn/W-XML-LANE-CAPACITY.xml 2>&1 || true); echo "$out" | grep -q "agt_1_gate' (exclusiveGateway at y=199"
 # the large-spill fixture reproduces AEF's live knowledge-leveling numbers
-out=$(python3 tools/validate-workflow.py tests/fixtures/aef-bpmn/lane-capacity-large-spill.bpmn 2>&1); echo "$out" | grep -q "member extent 567, spilling 307 px"
+out=$(python3 tools/validate-workflow.py tests/fixtures/aef-bpmn/lane-capacity-large-spill.bpmn 2>&1 || true); echo "$out" | grep -q "member extent 567, spilling 307 px"
 # an unevaluable lane is SKIPPED, not passed (the false-green T-312 closed)
 out=$(python3 tools/validate-workflow.py tests/fixtures/aef-bpmn/lane-geometry-unpositioned.bpmn 2>&1); echo "$out" | grep -q "SKIPPED by lane_overflow, not passed by it"
 # zero false positives AND zero silent skips across the 24-map rendered corpus
-n=0; s=0; for f in examples/aef-processes/rendered/*.bpmn; do out=$(python3 tools/validate-workflow.py "$f" 2>&1); if echo "$out" | grep -q "W-XML-LANE-CAPACITY"; then n=$((n+1)); fi; if echo "$out" | grep -q "I-XML-LANE-CAPACITY-SKIP"; then s=$((s+1)); fi; done; [ "$n" -eq 0 ] && [ "$s" -eq 0 ]
+n=0; s=0; for f in examples/aef-processes/rendered/*.bpmn; do out=$(python3 tools/validate-workflow.py "$f" 2>&1 || true); if echo "$out" | grep -q "W-XML-LANE-CAPACITY"; then n=$((n+1)); fi; if echo "$out" | grep -q "I-XML-LANE-CAPACITY-SKIP"; then s=$((s+1)); fi; done; [ "$n" -eq 0 ] && [ "$s" -eq 0 ]
 # the YAML corpus is self-consistent: every forward-converted map contains its own lanes
 for f in examples/aef-processes/*.workflow.yaml; do python3 tools/yaml-to-bpmn.py "$f" > /tmp/.t313.bpmn 2>/dev/null || continue; out=$(python3 tools/validate-workflow.py /tmp/.t313.bpmn 2>&1); echo "$out" | grep -q "W-XML-LANE-CAPACITY" && exit 1; done; true
 # the counted tolerance stays COUNTED — a 6th note means a fixture joined silently

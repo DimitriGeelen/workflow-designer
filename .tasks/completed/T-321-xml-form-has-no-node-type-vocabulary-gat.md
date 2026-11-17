@@ -171,13 +171,13 @@ out=$(python3 tests/test_xml_node_type_vocab.py 2>&1); echo "$out" | grep -q "^x
 out=$(python3 tests/test_rule_form_parity.py 2>&1); echo "$out" | grep -q "^rule-form parity: OK$"
 out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -qE "^bridge round-trip: [0-9]+ passed, 0 failed$"
 out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -qE "^== summary: [0-9]+ passed, 0 failed ==$"
-out=$(python3 tools/validate-workflow.py tests/fixtures/invalid/E-XML-NODE-TYPE.xml 2>&1); echo "$out" | grep -q "E-XML-NODE-TYPE"
+out=$(python3 tools/validate-workflow.py tests/fixtures/invalid/E-XML-NODE-TYPE.xml 2>&1 || true); echo "$out" | grep -q "E-XML-NODE-TYPE"
 # the silence control in that same fixture: boundaryEvent must NOT be reported.
 # Anchored on the BRACKETED rule id: the bare token also matches the fixture's own
 # FILENAME in the summary line, which made this assert 2 and read as a real failure
 # (same anchoring class as the prose-in-the-haystack findings — match a structural
 # literal that cannot occur in a path or a comment).
-out=$(python3 tools/validate-workflow.py tests/fixtures/invalid/E-XML-NODE-TYPE.xml 2>&1); test "$(echo "$out" | grep -c '\[E-XML-NODE-TYPE\]')" = "1"
+out=$(python3 tools/validate-workflow.py tests/fixtures/invalid/E-XML-NODE-TYPE.xml 2>&1 || true); test "$(echo "$out" | grep -c '\[E-XML-NODE-TYPE\]')" = "1"
 # exactly one authored file fires (3 findings, all offpage-seam) — the T-324 true
 # positive. Scope note: this globs *.bpmn, so the new *.xml fixture is deliberately
 # outside it; the fixture is asserted separately above.

@@ -135,7 +135,7 @@ at creation; no status predicate) → wire-the-predicates vs pin-the-hole.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
-out=$(python3 tools/validate-workflow.py /tmp/claude-0/-opt-832-Workflow-designer/500d44d9-1e04-4f5a-b40e-f29988622253/scratchpad/draft-task-creation-v2.bpmn 2>&1); echo "$out" | grep -q "VALID"
+out=$(python3 tools/validate-workflow.py /tmp/claude-0/-opt-832-Workflow-designer/500d44d9-1e04-4f5a-b40e-f29988622253/scratchpad/draft-task-creation-v2.bpmn 2>&1); echo "$out" | grep -q "^VALID"
 [ $(grep -c "<bpmn:startEvent" examples/aef-processes/rendered/context-memory.bpmn) -eq 2 ]
 [ $(grep -c "<bpmn:startEvent" examples/aef-processes/rendered/error-escalation-ladder.bpmn) -eq 2 ]
 

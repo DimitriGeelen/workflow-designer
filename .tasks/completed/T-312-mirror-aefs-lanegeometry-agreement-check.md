@@ -236,13 +236,13 @@ python3 tests/test_t312_lane_geometry.py
 bash tests/run-validator-tests.sh
 bash tests/run-bridge-tests.sh
 # each of the three shapes fires, and is classified correctly
-out=$(python3 tools/validate-workflow.py tests/fixtures/warn/W-XML-LANE-GEOMETRY.xml 2>&1); echo "$out" | grep -q "wholesale inversion"
-out=$(python3 tools/validate-workflow.py tests/fixtures/aef-bpmn/lane-geometry-partial-overflow.bpmn 2>&1); echo "$out" | grep -q "hum_2_gate"
-out=$(python3 tools/validate-workflow.py tests/fixtures/aef-bpmn/lane-position-conflict.bpmn 2>&1); echo "$out" | grep -q "agt_2_act"
+out=$(python3 tools/validate-workflow.py tests/fixtures/warn/W-XML-LANE-GEOMETRY.xml 2>&1 || true); echo "$out" | grep -q "wholesale inversion"
+out=$(python3 tools/validate-workflow.py tests/fixtures/aef-bpmn/lane-geometry-partial-overflow.bpmn 2>&1 || true); echo "$out" | grep -q "hum_2_gate"
+out=$(python3 tools/validate-workflow.py tests/fixtures/aef-bpmn/lane-position-conflict.bpmn 2>&1 || true); echo "$out" | grep -q "agt_2_act"
 # an unevaluable map is SKIPPED, not passed
 out=$(python3 tools/validate-workflow.py tests/fixtures/aef-bpmn/lane-geometry-unpositioned.bpmn 2>&1); echo "$out" | grep -q "not passed by it"
 # zero false positives AND zero silent skips across the 24-map rendered corpus
-n=0; s=0; for f in examples/aef-processes/rendered/*.bpmn; do out=$(python3 tools/validate-workflow.py "$f" 2>&1); if echo "$out" | grep -q "W-XML-LANE-GEOMETRY"; then n=$((n+1)); fi; if echo "$out" | grep -q "I-XML-LANE-GEOMETRY-SKIP"; then s=$((s+1)); fi; done; [ "$n" -eq 0 ] && [ "$s" -eq 0 ]
+n=0; s=0; for f in examples/aef-processes/rendered/*.bpmn; do out=$(python3 tools/validate-workflow.py "$f" 2>&1 || true); if echo "$out" | grep -q "W-XML-LANE-GEOMETRY"; then n=$((n+1)); fi; if echo "$out" | grep -q "I-XML-LANE-GEOMETRY-SKIP"; then s=$((s+1)); fi; done; [ "$n" -eq 0 ] && [ "$s" -eq 0 ]
 # the predicate stays origin-free — no band reconstruction from lane heights.
 # (the test module proves this structurally by scanning the rule body for a
 # height read; this line only pins the intent marker, so keep both)

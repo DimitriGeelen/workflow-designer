@@ -279,7 +279,7 @@ but they are not equally benign:
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
 # AC2: the new rule fires on its fixture and names itself.
-out=$(python3 tools/validate-workflow.py tests/fixtures/invalid/E-XML-LANES-EMPTY.xml 2>&1); echo "$out" | grep -q "\[E-XML-LANES-EMPTY\]"
+out=$(python3 tools/validate-workflow.py tests/fixtures/invalid/E-XML-LANES-EMPTY.xml 2>&1 || true); echo "$out" | grep -q "\[E-XML-LANES-EMPTY\]"
 # AC5: silence on every .bpmn in the tree. Zero, asserted as a count, not eyeballed.
 test "$(for f in $(find . -name '*.bpmn' -not -path './node_modules/*' -not -path './.git/*'); do python3 tools/validate-workflow.py "$f" 2>&1; done | grep -c 'E-XML-LANES-EMPTY')" -eq 0
 # AC7: the counts, and the shape of the outcome table.

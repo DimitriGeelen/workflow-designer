@@ -165,7 +165,7 @@ way on the rail.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
-out=$(python3 tools/validate-workflow.py examples/aef-processes/rendered/error-escalation-ladder.bpmn 2>&1); echo "$out" | grep -q "VALID"
+out=$(python3 tools/validate-workflow.py examples/aef-processes/rendered/error-escalation-ladder.bpmn 2>&1); echo "$out" | grep -q "^VALID"
 python3 -c "import yaml; yaml.safe_load(open('examples/aef-processes/error-escalation-ladder.workflow.yaml'))"
 grep -q 'version: 2' examples/aef-processes/error-escalation-ladder.workflow.yaml
 grep -q 'version="2"' examples/aef-processes/rendered/error-escalation-ladder.bpmn

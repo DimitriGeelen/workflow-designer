@@ -173,8 +173,8 @@ out=$(python3 tests/test_rule_form_parity.py 2>&1); echo "$out" | grep -q "^rule
 out=$(python3 tests/test_rule_form_parity.py 2>&1); echo "$out" | grep -q "rules classified"
 out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -qE "^== summary: [0-9]+ passed, 0 failed ==$"
 out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -qE "^bridge round-trip: [0-9]+ passed, 0 failed$"
-out=$(python3 tools/validate-workflow.py tests/fixtures/invalid/E-INCEPTION-NOT-SOVEREIGN.yaml 2>&1); echo "$out" | grep -q "E-INCEPTION-NOT-SOVEREIGN"
-out=$(python3 tools/validate-workflow.py tests/fixtures/warn/W-TYPE-LANE-MISMATCH.yaml 2>&1); echo "$out" | grep -q "W-TYPE-LANE-MISMATCH"
+out=$(python3 tools/validate-workflow.py tests/fixtures/invalid/E-INCEPTION-NOT-SOVEREIGN.yaml 2>&1 || true); echo "$out" | grep -q "E-INCEPTION-NOT-SOVEREIGN"
+out=$(python3 tools/validate-workflow.py tests/fixtures/warn/W-TYPE-LANE-MISMATCH.yaml 2>&1 || true); echo "$out" | grep -q "W-TYPE-LANE-MISMATCH"
 # silence: the whole canonical YAML corpus must stay at zero findings for both new rules
 test "$(for f in $(find examples -name '*.workflow.yaml'); do python3 tools/validate-workflow.py "$f" 2>&1; done | grep -cE 'E-INCEPTION-NOT-SOVEREIGN|W-TYPE-LANE-MISMATCH')" = "0"
 

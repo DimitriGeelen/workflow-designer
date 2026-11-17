@@ -138,7 +138,7 @@ Non-normative inventory edit only — §2 input contract and §3 mapping rules a
 
 # The 5th fixture is now named in §5, and the stale "Four ... diagrams" whole-corpus claim is gone.
 grep -q "inception-gonogo.bpmn" docs/standards/aef-bpmn-forward-compile-v1.md
-out=$(grep -c "Four authentic editor-emitted diagrams" docs/standards/aef-bpmn-forward-compile-v1.md); test "$out" = "0"
+out=$(grep -c "Four authentic editor-emitted diagrams" docs/standards/aef-bpmn-forward-compile-v1.md || true); test "$out" = "0"
 grep -qi "hand-authored" docs/standards/aef-bpmn-forward-compile-v1.md
 grep -qi "provisional" docs/standards/aef-bpmn-forward-compile-v1.md
 # The guarded corpus the spec describes is still conformant (5 fixtures).

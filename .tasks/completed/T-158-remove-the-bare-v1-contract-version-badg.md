@@ -164,8 +164,8 @@ two JS refs: the `versionEl` updater (~1929, already null-guarded) and the **ung
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
-out=$(grep -c "getElementById('brand-version')\|\$('brand-version')" src/aef-workflow-designer.html); test "$out" = "0"
-out=$(grep -c "id=\"brand-version\"" src/aef-workflow-designer.html); test "$out" = "0"
+out=$(grep -c "getElementById('brand-version')\|\$('brand-version')" src/aef-workflow-designer.html || true); test "$out" = "0"
+out=$(grep -c "id=\"brand-version\"" src/aef-workflow-designer.html || true); test "$out" = "0"
 diff -q src/aef-workflow-designer.html build/gallery/designer.html
 test -f .playwright-mcp/t158-toolbar-no-v1.png
 

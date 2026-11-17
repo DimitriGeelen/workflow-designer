@@ -167,7 +167,7 @@ Server side already accepts + persists `note` (gallery-serve.py: `note = (payloa
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 out=$(grep -n "window.prompt('Optional note for this version" src/aef-workflow-designer.html); echo "$out" | grep -q "Optional note"
-out=$(grep -c "note: ''" src/aef-workflow-designer.html); test "$out" = "0"
+out=$(grep -c "note: ''" src/aef-workflow-designer.html || true); test "$out" = "0"
 out=$(grep -n "JSON.stringify({ id, bpmn, png, note })" src/aef-workflow-designer.html); echo "$out" | grep -q "note })"
 diff -q src/aef-workflow-designer.html build/gallery/designer.html
 test -f .playwright-mcp/t150-version-note-rendered.png

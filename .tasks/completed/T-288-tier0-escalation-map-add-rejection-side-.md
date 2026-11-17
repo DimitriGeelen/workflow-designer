@@ -177,8 +177,8 @@ write mechanically executes framework-side), re-render, validate, reply on the r
 grep -q "n_record_reject" examples/aef-processes/tier0-escalation.workflow.yaml
 grep -q "n_record_reject" examples/aef-processes/rendered/tier0-escalation.bpmn
 grep -q "version: 2" examples/aef-processes/tier0-escalation.workflow.yaml
-out=$(python3 tools/validate-workflow.py examples/aef-processes/tier0-escalation.workflow.yaml 2>&1); echo "$out" | grep -q "VALID"
-out=$(python3 tools/validate-workflow.py examples/aef-processes/rendered/tier0-escalation.bpmn 2>&1); echo "$out" | grep -q "VALID"
+out=$(python3 tools/validate-workflow.py examples/aef-processes/tier0-escalation.workflow.yaml 2>&1); echo "$out" | grep -q "^VALID"
+out=$(python3 tools/validate-workflow.py examples/aef-processes/rendered/tier0-escalation.bpmn 2>&1); echo "$out" | grep -q "^VALID"
 
 ## RCA
 

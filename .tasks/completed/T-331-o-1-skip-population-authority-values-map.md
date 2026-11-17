@@ -305,7 +305,7 @@ out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "46 passed,
 out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "66 passed, 0 failed"
 out=$(python3 tests/test_harness_cross_form_agreement.py 2>&1); echo "$out" | grep -q "20 pairs compared, 17 AGREE"
 out=$(python3 tests/test_rule_form_parity.py 2>&1); echo "$out" | grep -q "49 rules classified, 11 gaps"
-out=$(python3 tools/validate-workflow.py examples/aef-processes/context-memory.workflow.yaml 2>&1); echo "$out" | grep -q "7 warning(s)"
+out=$(python3 tools/validate-workflow.py examples/aef-processes/context-memory.workflow.yaml 2>&1 || true); echo "$out" | grep -q "7 warning(s)"
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
