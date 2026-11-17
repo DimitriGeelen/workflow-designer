@@ -188,7 +188,8 @@ cost_estimate_proposed:
        `bin/fw reviewer T-353 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
-- [ ] [REVIEW] Ruling: may an agent edit `## Verification` blocks inside `.tasks/completed/`?
+- [ ] [REVIEW] Ruling: may an agent edit `## Verification` blocks inside `.tasks/completed/`? (step 1's probe reports 23 passed, 0 failed, not 16/16)
+  **Restated:** 2026-11-17, accepting V-20261117-e5fc8e02; was: [REVIEW] Ruling: may an agent edit `## Verification` blocks inside `.tasks/completed/`?
 
   This is a convention question about other owners' archived records, not a technical one —
   the patch set is already built and proven, and no part of it has been applied.
