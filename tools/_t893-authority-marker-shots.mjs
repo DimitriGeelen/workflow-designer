@@ -88,12 +88,19 @@ function fixture() {
     console.log(`L1 ${l1 ? 'PASS' : 'FAIL'}  marker counts per size: ${JSON.stringify(counts)}; agent-lane nodes=${agentNodes} (all MISSING under the retired sentinel), frw_2_enter DIFFERS`);
     const l2 = before === after && before.length > 1000;
     console.log(`L2 ${l2 ? 'PASS' : 'FAIL'}  buildBpmnXml before == after rendering markers (${before.length} bytes); the default never writes`);
+    // Control (T-1429): with widening off, the differs node — under the properties panel at this 1400 px window, which
+    // is exactly how the old shots went wrong — must be REFUSED. A guard that never refuses proves nothing.
+    let refused = null;
+    try { await clearShot(cmd, ev, `g.node[data-id="${pick.differs}"]`, { pad: 24, widen: false }); refused = false; }
+    catch (e) { refused = String(e.message || e); }
+    const l4 = typeof refused === 'string' && /properties panel|not what is painted/.test(refused);
+    console.log(`L4 ${l4 ? 'PASS' : 'FAIL'}  control: the guard refuses the differs node under the panel when it may not widen: ${JSON.stringify(refused)}`);
     const notClear = Object.entries(clear).filter(([, v]) => v !== true);
     const l3 = Object.keys(clear).length === 9 && notClear.length === 0;
     console.log(`L3 ${l3 ? 'PASS' : 'FAIL'}  every shot shows its node (elementFromPoint at the clip centre is inside it; T-1429): ${l3 ? '9/9' : JSON.stringify(notClear)}`);
     console.log(`lanes: ${JSON.stringify(lanes)}`);
     console.log(`screenshots: ${readdirSync(OUT).filter(f => f.endsWith('.png')).length} in ${OUT}`);
-    rc = (l1 && l2 && l3) ? 0 : 2;
+    rc = (l1 && l2 && l3 && l4) ? 0 : 2;
   } catch (e) { console.error('DRIVER ERROR', e && e.message); rc = 2; }
   finally { try { br.kill(); } catch (_) {} try { py.kill(); } catch (_) {} }
   process.exit(rc);

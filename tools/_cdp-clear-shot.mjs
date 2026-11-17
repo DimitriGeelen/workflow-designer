@@ -27,11 +27,18 @@ function measureExpr(sel, pad) {
     const r = el.getBoundingClientRect();
     const p = document.querySelector(${JSON.stringify(PANEL)});
     const pr = p ? p.getBoundingClientRect() : null;
-    const edge = (pr && pr.width > 0 && pr.left > 0) ? pr.left : innerWidth;
+    // The panel covers the canvas, not itself: an element inside the panel is bounded by the window only.
+    const inPanel = !!(p && p.contains(el));
+    const edge = (!inPanel && pr && pr.width > 0 && pr.left > 0) ? pr.left : innerWidth;
     const cx = r.x + r.width / 2, cy = r.y + r.height / 2;
     const hit = (cx >= 0 && cy >= 0 && cx < innerWidth && cy < innerHeight) ? document.elementFromPoint(cx, cy) : null;
+    // On screen means: what is painted at the centre is the element, inside it, or on the same canvas (an SVG element
+    // of the element's own <svg>, e.g. a flow drawn across a gateway). A panel, a dialog, the page background past the
+    // window, or nothing at all is not.
+    const svg = el.ownerSVGElement || null;
+    const sameCanvas = !!(hit && svg && (hit === svg || (hit.ownerSVGElement === svg)));
     return { x: r.x, y: r.y, w: r.width, h: r.height, edge, iw: innerWidth, ih: innerHeight,
-             painted: !!(hit && (hit === el || el.contains(hit))),
+             painted: !!(hit && (hit === el || el.contains(hit) || sameCanvas)),
              hit: hit ? (hit.id ? '#' + hit.id : hit.tagName.toLowerCase() + (hit.className && hit.className.baseVal === undefined ? '.' + String(hit.className).split(' ')[0] : '')) : null,
              pad: ${pad} };
   })()`;
@@ -47,7 +54,7 @@ export async function clearShot(cmd, ev, sel, opts = {}) {
   let widened = false;
   const right = m.x + m.w + pad;
   const bottom = m.y + m.h + pad;
-  if (right > m.edge || bottom > m.ih) {
+  if (opts.widen !== false && (right > m.edge || bottom > m.ih)) {
     const w = Math.ceil(Math.max(m.iw, m.iw + (right - m.edge) + 40));
     const h = Math.ceil(Math.max(m.ih, bottom + 40));
     await cmd('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 1, mobile: false });

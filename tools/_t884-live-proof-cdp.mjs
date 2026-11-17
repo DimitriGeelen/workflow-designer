@@ -12,6 +12,7 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { pageWsUrl } from './_cdp-attach.mjs';
 import { cdp } from './_cdp-client.mjs';   // T-1395: rejects on Chrome's death and after cmdMs, never waits for ever
+import { clearShot } from './_cdp-clear-shot.mjs';   // T-1429: the shot shows its element, or fails
 const HERE = dirname(fileURLToPath(import.meta.url));
 const OUT = join(HERE, '..', 'docs', 'reports', 't884-shots');
 const [BASE, TASK, WANT_CUR, WANT_REF_NODE, WANT_RULE] = process.argv.slice(2);
@@ -36,7 +37,9 @@ async function ev(cmd, e) { const r = await cmd('Runtime.evaluate', { expression
     const ok = r.available === true && r.selected === TASK && r.current === WANT_CUR && r.refusedNode === WANT_REF_NODE && r.refusedBadge === '⛔ ' + WANT_RULE;
     console.log(`LIVE ${ok ? 'PASS' : 'FAIL'}  ${TASK}: current=${r.current} refused=${r.refusedNode} badge=${JSON.stringify(r.refusedBadge)} picker=${JSON.stringify(r.picker)}`);
     mkdirSync(OUT, { recursive: true });
-    const shot = async (sel, file, pad) => { const box = await ev(cmd, `(() => { const g = document.querySelector(${JSON.stringify(sel)}); if (!g) return null; const b = g.getBoundingClientRect(); return { x: b.x, y: b.y, w: b.width, h: b.height }; })()`); if (!box) return; const s = await cmd('Page.captureScreenshot', { format: 'png', clip: { x: Math.max(0, box.x - pad), y: Math.max(0, box.y - pad - 6), width: box.w + 2 * pad, height: box.h + 2 * pad + 6, scale: 2 } }); writeFileSync(join(OUT, file), Buffer.from(s.data, 'base64')); };
+    // T-1429: the shared guard (widen past the properties panel; the element must be what is painted there). A missing
+    // element is skipped as before; a covered one now fails instead of saving the panel.
+    const shot = async (sel, file, pad) => { const there = await ev(cmd, `!!document.querySelector(${JSON.stringify(sel)})`); if (!there) return; writeFileSync(join(OUT, file), await clearShot(cmd, ev, sel, { pad, padTop: pad, rerender: 'renderAll(); true' })); };
     await shot('g.node[data-instance="current"]', `live-${TASK}-current-m.png`, 30);
     if (r.refusedNode && r.refusedNode !== r.current) await shot('g.node[data-instance="refused"]', `live-${TASK}-refused-m.png`, 30);
     const full = await cmd('Page.captureScreenshot', { format: 'png', clip: { x: 0, y: 0, width: 1600, height: 1000, scale: 1 } });

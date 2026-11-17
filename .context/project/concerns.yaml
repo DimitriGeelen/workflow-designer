@@ -4175,7 +4175,7 @@ concerns:
   related_tasks: ['T-1420', 'T-876', 'T-1374', 'T-1409', 'T-1423']
 - id: G-095
   type: gap
-  status: watching
+  status: prevention-in-place
   severity: medium
   title: A CDP clip screenshot shows whatever covers its element (properties panel, off-window) and the harness exits 0
   detected: '2026-11-17'
@@ -4191,5 +4191,8 @@ concerns:
     _t893-authority-marker-shots with the shared guard (elementFromPoint at the clip centre must be the element).'
   prevention: 'T-1429: core leg test_t1429_clip_shot_census. A NEW clip-shot harness without the guard fails it; the 25
     existing ones are listed with a reason (9 shoot map nodes, to guard next) and an entry goes stale the moment its
-    harness is guarded. Partial: the 9 node-shooting harnesses are not yet guarded.'
+    harness is guarded. 2026-11-17: every single-node clip shot is guarded (_t884-instance-overlay, _t884-live-proof,
+    _t892, _t893), each with a control that the guard refuses a covered node (_t893 L4). Still open, named in the
+    census: composite-region clips (_t1366, _t1369, _t1381, _t601) and one node inside an iframe (_t258) need a region
+    or frame-aware form of the guard.'
   related_tasks: ['T-1429', 'T-1427', 'T-893', 'T-884']

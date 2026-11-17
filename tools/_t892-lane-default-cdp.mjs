@@ -20,6 +20,7 @@ import { fileURLToPath } from 'node:url';
 import net from 'node:net';
 import { pageWsUrl } from './_cdp-attach.mjs';
 import { cdp } from './_cdp-client.mjs';   // T-1395: rejects on Chrome's death and after cmdMs, never waits for ever
+import { clearShot } from './_cdp-clear-shot.mjs';   // T-1429: the shot shows its element, or fails
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..');
 const OUT = join(REPO, 'docs', 'reports', 't892-shots');
@@ -52,10 +53,9 @@ const legs = []; const leg = (id, name, ok, detail) => { legs.push({ id, name, o
   const br = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--window-size=1400,900', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let cl, rc = 0;
   const shot = async (cmd, sel, file, pad) => {
-    const box = await ev(cmd, `(() => { const g = document.querySelector(${JSON.stringify(sel)}); if (!g) return null; const r = g.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; })()`);
-    if (!box) throw new Error('no element for ' + sel);
-    const s = await cmd('Page.captureScreenshot', { format: 'png', clip: { x: Math.max(0, box.x - pad), y: Math.max(0, box.y - pad - 4), width: box.w + 2 * pad, height: box.h + 2 * pad + 4, scale: 2 } });
-    mkdirSync(OUT, { recursive: true }); writeFileSync(join(OUT, file), Buffer.from(s.data, 'base64'));
+    // T-1429: the shared guard (widen past the properties panel; the element must be what is painted there).
+    const buf = await clearShot(cmd, ev, sel, { pad, padTop: pad + 4, rerender: 'renderAll(); true' });
+    mkdirSync(OUT, { recursive: true }); writeFileSync(join(OUT, file), buf);
   };
   try {
     let up = false; for (let i = 0; i < 60; i++) { try { const r = await fetch(BASE + '/designer.html'); if (r.ok) { up = true; break; } } catch (_) {} await sleep(100); }

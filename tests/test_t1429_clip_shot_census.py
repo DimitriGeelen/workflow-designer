@@ -23,17 +23,18 @@ GUARD = "_cdp-clear-shot.mjs"
 
 NODE = "shoots map nodes, which move under the properties panel or past the window as the layout changes: guard next (T-1429)"
 CHROME = "shoots fixed UI (toolbar, panels, dialogs, labels at known places), not map nodes that move: lower risk, guard when touched"
+COMPOSITE = ("clips a computed region spanning several elements (save(name, clip) over a union of rects), not one "
+             "element: clearShot's one-element rule does not apply as is; needs a region form of the guard (T-1429)")
 UNGUARDED = {
-    "_t1078-advisory-overlap-cdp.mjs": NODE,
-    "_t1366-shots.mjs": NODE,
-    "_t1381-shots.mjs": NODE,
-    "_t1369-shots.mjs": NODE,
-    "_t258-annotation-seam-cdp.mjs": NODE,
-    "_t601-lane-boundary.mjs": NODE,
-    "_t884-instance-overlay-cdp.mjs": "has its own equivalent guard from T-1427 (widens the window, fails on a blank shot); move to the shared one",
-    "_t892-lane-default-cdp.mjs": NODE,
-    "_t1327-notice-shots.mjs": NODE,
-    "_t884-live-proof-cdp.mjs": NODE,
+    "_t1078-advisory-overlap-cdp.mjs": "clips the whole .canvas-wrap (the canvas region itself, top 360 px), not a node "
+                                       "that can move under it: nothing in the canvas can cover the canvas",
+    "_t1366-shots.mjs": COMPOSITE,
+    "_t1381-shots.mjs": COMPOSITE,
+    "_t1369-shots.mjs": COMPOSITE,
+    "_t258-annotation-seam-cdp.mjs": "shoots a node inside an <iframe> (offset by the frame's rect); elementFromPoint "
+                                     "does not cross into the frame, so the guard needs a frame-aware form (T-1429)",
+    "_t601-lane-boundary.mjs": COMPOSITE + "; uses captureBeyondViewport, so an off-window region is rendered, not blank",
+    "_t1327-notice-shots.mjs": CHROME,
     "_t1126-field-suggestions-cdp.mjs": CHROME,
     "_t1125-field-profile-cdp.mjs": CHROME,
     "_selection-align-verify-cdp.mjs": CHROME,

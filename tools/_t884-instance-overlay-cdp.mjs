@@ -23,6 +23,7 @@ import { fileURLToPath } from 'node:url';
 import net from 'node:net';
 import { pageWsUrl } from './_cdp-attach.mjs';
 import { cdp } from './_cdp-client.mjs';   // T-1395: rejects on Chrome's death and after cmdMs, never waits for ever
+import { clearShot } from './_cdp-clear-shot.mjs';   // T-1429: the shot shows its element, or fails
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..');
 const OUT = join(REPO, 'docs', 'reports', 't884-shots');
@@ -102,24 +103,10 @@ const COUNTS = `({ current: document.querySelectorAll('g.node[data-instance="cur
   const udd = makeProfileDir('t884-udd-');
   const br = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--window-size=1600,1000', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let cl, rc = 0; const servers = [];
+  // T-1429: the shared guard (widen past the properties panel; elementFromPoint at the clip centre must be the node),
+  // replacing T-1427's local version.
   const shot = async (cmd, sel, file, pad) => {
-    const measure = `(() => { const g = document.querySelector(${JSON.stringify(sel)}); if (!g) return null; const r = g.getBoundingClientRect(); const p = document.querySelector('.props-panel, #props, aside.right, #properties'); const pr = p ? p.getBoundingClientRect() : null; return { x: r.x, y: r.y, w: r.width, h: r.height, edge: pr && pr.width ? pr.left : innerWidth }; })()`;
-    let box = await ev(cmd, measure);
-    if (!box) throw new Error('no element for ' + sel);
-    // T-1427: a node right of the canvas (under the properties panel, or past the window) shot as a blank rectangle:
-    // refused-*.png went from 6.8 KB to 902 B without a leg noticing. Widen the window until the node clears the
-    // panel, shoot, then put the window back.
-    let widened = false;
-    if (box.x + box.w + pad > box.edge) {
-      const w = Math.ceil(box.x + box.w + pad + 520);
-      await cmd('Emulation.setDeviceMetricsOverride', { width: w, height: 1000, deviceScaleFactor: 1, mobile: false });
-      await ev(cmd, 'renderAll(); true'); await sleep(200);
-      box = await ev(cmd, measure); widened = true;
-    }
-    const s = await cmd('Page.captureScreenshot', { format: 'png', clip: { x: Math.max(0, box.x - pad), y: Math.max(0, box.y - pad - 6), width: box.w + 2 * pad, height: box.h + 2 * pad + 6, scale: 2 } });
-    if (widened) { await cmd('Emulation.clearDeviceMetricsOverride'); await ev(cmd, 'renderAll(); true'); await sleep(150); }
-    const buf = Buffer.from(s.data, 'base64');
-    if (buf.length < 2000) throw new Error(`blank screenshot ${file} (${buf.length} B): the node is not on screen`);
+    const buf = await clearShot(cmd, ev, sel, { pad, padTop: pad + 6, rerender: 'renderAll(); true' });
     mkdirSync(OUT, { recursive: true }); writeFileSync(join(OUT, file), buf);
   };
   try {
