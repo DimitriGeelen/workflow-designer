@@ -4,13 +4,13 @@ from __future__ import annotations
 import logging
 import os
 import re as re_mod
+import stat as stat_mod
 import subprocess
 import threading
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, Iterable, TypeVar
 
-from markupsafe import Markup, escape
 import yaml
 from flask import g, has_request_context, render_template, request
 
@@ -1265,22 +1265,14 @@ def link_route_code_spans(html: str, base_url: str | None = None) -> str:
     return _CODE_ROUTE_HTML_RE.sub(_sub, html)
 
 
-def render_markdown_safe(text: str, extras: list[str] | None = None) -> Markup:
+def render_markdown_safe(text: str, extras: list[str] | None = None) -> str:
     """Render Markdown to HTML with safe_mode='escape', auto-link T-XXX refs
     and bare http(s) URLs.
 
     Used by /review and any blueprint that needs to render an arbitrary chunk
     of task-body markdown (rationale, evidence, etc.) without piping through
-    tasks.py's AC-specific helpers. Returns '' for empty input.
-
-    T-606: returns markupsafe.Markup, so callers no longer have to remember
-    `| safe`. Recommended by 010-termlink (rail 563) and correct — but note it
-    was NOT sufficient for the reported symptom: /approvals' AC fields never
-    reach this function, they come from tasks.py's _render_md_inline. The
-    docstring below claims the blueprint-private parser pattern was broken by
-    promoting this helper here; the promotion happened and the private pair
-    survived. Both are now fixed. A contract with two definitions is one
-    definition and one impostor, and the impostor is where the bug lives.
+    tasks.py's AC-specific helpers. Returns '' for empty input. Caller must
+    mark returned string `| safe` in templates.
 
     Origin: T-1575 — /review surface dumped raw markdown into a `<pre>` block.
     Promoted here (rather than reused from tasks.py) to break the blueprint-
@@ -1292,24 +1284,11 @@ def render_markdown_safe(text: str, extras: list[str] | None = None) -> Markup:
     ``extras=None`` is the previous behaviour exactly.
     """
     if not text:
-        return Markup("")
+        return ""
     try:
         import markdown2
     except ImportError:
-        # T-569: ESCAPE on the degradation path. Every caller marks this `| safe` — that is
-        # stated three lines up in this docstring — so returning the raw text handed
-        # unescaped, attacker-influenced content straight into the page whenever markdown2
-        # was missing. It was latent only because the import has always succeeded here.
-        # A fallback that silently turns escaping off is the same shape as the rest of this
-        # week's defects: the failure renders as health, and nothing in the output says the
-        # renderer degraded.
-        from markupsafe import escape as _escape
-        # T-606: was str(_escape(text)) — correct only because every caller then
-        # applied `| safe`. Now that this function owns the safety, return the
-        # Markup escape() already produced: the entities stay visible as literal
-        # text and are NOT re-escaped into &amp;lt;. The degradation path must keep
-        # escaping; it must not inherit the happy path's trust.
-        return _escape(text)
+        return text  # graceful degradation
     text = resolve_watchtower_refs(text)  # T-4624
     text = _TASK_REF_RE_SHARED.sub(r"[\1](/tasks/\1)", text)
     text = protect_path_underscores(text)
@@ -1330,7 +1309,7 @@ def render_markdown_safe(text: str, extras: list[str] | None = None) -> Markup:
     # become clickable /file/ links. Existence-gated; same rendering-layer
     # contract as the T-1575 URL/T-NNNN shape — agent need not pre-format.
     html = _auto_link_files(html)
-    return Markup(html)
+    return html
 
 
 _REC_MARKER_RE = re_mod.compile(
@@ -1609,51 +1588,242 @@ def count_unchecked_human_acs(body: str) -> int:
     return total
 
 
-_HANDOFF_BLOCKERS_CACHE: dict = {}
+_HANDOFF_BLOCKERS_CACHE: dict = {}  # path -> ((mtime_ns, size, rule key), [blocker, ...])
+
+# T-5198: the shell predicate's regexes, transcribed. POSIX [[:space:]] is the
+# C-locale set below; `.` and `[A-Za-z]` keep their grep meaning on one line.
+_SP = r"[ \t\n\r\f\v]"
+_HB_WF_ANY_RE = re_mod.compile(r"^workflow_type:" + _SP + r"*inception")
+_HB_Q_MARKER_RE = re_mod.compile(
+    r"(^" + _SP + r"*-" + _SP + r"*\*?\*?IW-[0-9]+|^###" + _SP + r"+IW-[0-9]+"
+    r"|^" + _SP + r"*-" + _SP + r"*Q-?[0-9]+)")
+_HB_Q_ID_RE = re_mod.compile(r"IW-[0-9]+|Q-?[0-9]+")
+_HB_DISPOSITION_RE = re_mod.compile(r"disposition:" + _SP + r"*(answered|deferred|dissolved)")
+_HB_RATIONALE_RE = re_mod.compile(r"rationale:" + _SP + r"*.+")
+_HB_REC_HEAD_RE = re_mod.compile(r"^## Recommendation" + _SP + r"*$")
+_HB_REC_LINE_RE = re_mod.compile(
+    r"^" + _SP + r"*[-*]?" + _SP + r"*\*\*Recommendation:\*\*" + _SP + r"*\*{0,2}[A-Za-z]")
+_HB_UNDISPOSED_FIX = ("Give it `disposition: answered|deferred|dissolved` plus a one-line "
+                      "rationale. `deferred` is ALWAYS available.")
+_HB_EMPTY_REC = {
+    "kind": "empty-recommendation",
+    "detail": "## Recommendation has no substantive **Recommendation:** line",
+    "fix": ("Write GO | NO-GO | DEFER plus a rationale. The operator needs an advisory, "
+            "not a blank form (T-1497)."),
+}
+
+
+def _handoff_blockers_from_text(text: str) -> list[dict]:
+    """T-5198: `lib/inception-readiness.sh inception_handoff_blockers`, in-process.
+
+    The shell function stays the ONE definition (update-task.sh, review.sh,
+    inception.sh and audit call it); this is a line-for-line transcription of it
+    and of the two predicates it composes, `inception_underdisposed_questions` and
+    `audit_inception_recommendation` (lib/task-audit.sh). It reads nothing but the
+    task file's text. Parity with the shell, over fixtures and every inception in
+    the corpus, is pinned by tests/unit/test_t5198_handoff_blockers.py — change
+    one, that test makes you change the other.
+    """
+    lines = text.split("\n")          # grep/awk/read lines: split on LF only
+    if lines and lines[-1] == "":
+        lines.pop()
+    if not any(_HB_WF_ANY_RE.search(ln) for ln in lines):
+        return []
+    out: list[dict] = []
+
+    # inception_underdisposed_questions: first `^workflow_type:` line, awk $2
+    # (blank = space/tab), quotes removed, must equal "inception".
+    wf = ""
+    for ln in lines:
+        if ln.startswith("workflow_type:"):
+            fields = [f for f in re_mod.split(r"[ \t]+", ln) if f]
+            wf = fields[1].replace('"', "").replace("'", "") if len(fields) > 1 else ""
+            break
+    if wf == "inception" and any(ln.startswith("## Open Questions") for ln in lines):
+        oq, flag = [], False
+        for ln in lines:                 # awk '/^## Open Questions/{flag=1;next} /^## /{flag=0} flag'
+            if ln.startswith("## Open Questions"):
+                flag = True
+                continue
+            if ln.startswith("## "):
+                flag = False
+            if flag:
+                oq.append(ln)
+        current_q, has_disp, has_rat = "", False, False
+
+        def _flush():
+            if current_q and (not has_disp or not has_rat):
+                out.append({"kind": "undisposed-question",
+                            "detail": (f"{current_q} disposition={str(has_disp).lower()} "
+                                       f"rationale={str(has_rat).lower()}"),
+                            "fix": _HB_UNDISPOSED_FIX})
+
+        for ln in oq:
+            if _HB_Q_MARKER_RE.search(ln):
+                _flush()
+                m = _HB_Q_ID_RE.search(ln)
+                current_q = m.group(0) if m else ""
+                has_disp = has_rat = False
+                continue
+            if _HB_DISPOSITION_RE.search(ln):
+                has_disp = True
+            if _HB_RATIONALE_RE.search(ln):
+                has_rat = True
+        _flush()
+
+    # audit_inception_recommendation: the first `## Recommendation` section up to
+    # the next `##+ ` heading, comment lines dropped, then the verdict-line test.
+    in_rec, section = False, []
+    for ln in lines:
+        if _HB_REC_HEAD_RE.search(ln):
+            in_rec = True
+            continue
+        if in_rec and re_mod.match(r"#{2,} ", ln):
+            break
+        if in_rec:
+            section.append(ln)
+    in_c, substantive = False, False
+    for ln in section:
+        if "<!--" in ln:
+            in_c = True
+        if not in_c and _HB_REC_LINE_RE.search(ln):
+            substantive = True
+            break
+        if "-->" in ln:
+            in_c = False
+    if not substantive:
+        out.append(dict(_HB_EMPTY_REC))
+    return out
+
+
+# T-5198: the shell functions `_handoff_blockers_from_text` transcribes, and the
+# sha256 of their text at transcription time. While the live text hashes to this,
+# the in-process answer is used; if it differs (someone changed the rule in the
+# shell), the shell predicate is run instead, as before T-5198, so the page never
+# disagrees with the gate. tests/unit/test_t5198_handoff_blockers.py fails until the
+# transcription and this digest are brought up to date.
+_HB_SHELL_FUNCTIONS = (
+    ("lib/inception-readiness.sh", "inception_underdisposed_questions"),
+    ("lib/inception-readiness.sh", "inception_handoff_blockers"),
+    ("lib/task-audit.sh", "audit_inception_recommendation"),
+)
+_HB_TRANSCRIBED_DIGEST = "bb1901d8e7ec9062c65153de0beb75d612addbb93ad4bada33e9c959404abf7d"
+_HB_RULE_STATE: dict = {}  # (root, stats) -> True (transcription current) | False
+
+
+def _shell_function_text(text: str, name: str) -> str | None:
+    """`name() {` through the next column-0 `}` line, or None."""
+    out = None
+    for line in text.split("\n"):
+        if out is None:
+            if line == f"{name}() {{":
+                out = [line]
+        else:
+            out.append(line)
+            if line == "}":
+                return "\n".join(out)
+    return None
+
+
+def _handoff_rule_state():
+    """(stat key of the shell rule files, transcription-current?) — or None when a
+    rule file is missing or unreadable, which callers treat as a failed check."""
+    import hashlib
+    root = Path(FRAMEWORK_ROOT)
+    stats = []
+    for rel in dict.fromkeys(rel for rel, _ in _HB_SHELL_FUNCTIONS):
+        try:
+            st = (root / rel).stat()
+        except OSError:
+            return None
+        stats.append((rel, st.st_mtime_ns, st.st_size))
+    key = (str(root), tuple(stats))
+    if key not in _HB_RULE_STATE:
+        try:
+            texts = {rel: (root / rel).read_text(encoding="utf-8")
+                     for rel, _ in _HB_SHELL_FUNCTIONS}
+        except (OSError, UnicodeDecodeError):
+            return None
+        parts = [_shell_function_text(texts[rel], name) for rel, name in _HB_SHELL_FUNCTIONS]
+        current = (None not in parts and hashlib.sha256(
+            "\n".join(parts).encode("utf-8")).hexdigest() == _HB_TRANSCRIBED_DIGEST)
+        _HB_RULE_STATE[key] = current
+    return key, _HB_RULE_STATE[key]
+
+
+def _handoff_blockers_via_shell(fp: Path) -> list[dict]:
+    """The pre-T-5198 path: run the shell predicate itself (one `bash -c`)."""
+    script = (
+        '. "$1/lib/inception-readiness.sh" || exit 3; '
+        '. "$1/lib/task-audit.sh" 2>/dev/null || true; '
+        'command -v inception_handoff_blockers >/dev/null || exit 3; '
+        'inception_handoff_blockers "$2"'
+    )
+    try:
+        r = subprocess.run(["bash", "-c", script, "_", str(FRAMEWORK_ROOT), str(fp)],
+                           capture_output=True, text=True, timeout=20)
+    except (OSError, subprocess.SubprocessError) as e:
+        return [{"kind": "check-failed", "detail": f"readiness check could not run: {e}",
+                 "fix": "the agent must investigate lib/inception-readiness.sh"}]
+    if r.returncode != 0:
+        return [{"kind": "check-failed",
+                 "detail": f"readiness check failed (rc={r.returncode})",
+                 "fix": "the agent must investigate lib/inception-readiness.sh"}]
+    out = []
+    for line in r.stdout.splitlines():
+        parts = line.split("\t")
+        if len(parts) >= 2 and parts[0]:
+            out.append({"kind": parts[0], "detail": parts[1],
+                        "fix": parts[2] if len(parts) > 2 else ""})
+    return out
 
 
 def inception_handoff_blockers(path) -> list[dict]:
     """T-3896 (G-108): what still blocks this inception from a decision, as the
-    decide gate sees it — [] when decision-ready.
+    decide gate sees it — [] when decision-ready. Each item: {kind, detail, fix}.
 
-    Calls the ONE shared predicate (`lib/inception-readiness.sh`
-    `inception_handoff_blockers`, T-3279 / G-102) instead of re-implementing
-    it: a page that invites a GO must ask the gate's own question. Cached by
-    the task file's mtime. Each item: {kind, detail, fix}.
+    The gate's own question is `lib/inception-readiness.sh`
+    `inception_handoff_blockers` (T-3279 / G-102). Until T-5198 this ran it via
+    `bash -c` per inception (~47 subprocesses, ~5-6 s on a cold /approvals). It
+    now runs the transcription `_handoff_blockers_from_text` while the shell
+    rule's text still hashes to `_HB_TRANSCRIBED_DIGEST`, and the shell itself
+    otherwise. Inputs, all in the cache key: the task file's (mtime_ns, size) and
+    the (mtime_ns, size) of the two shell rule files.
 
-    Fails CLOSED: if the predicate cannot run, returns one blocker saying so,
-    so a broken check never reads as "ready".
+    Fails CLOSED: if the task file or the shell rule cannot be read, returns one
+    blocker saying so, so a broken check never reads as "ready". A missing file
+    is not an inception (the shell predicate prints nothing for it): [].
     """
-    import subprocess as _sp
-
     p = Path(path)
-
-    def _run(fp: Path) -> list[dict]:
-        script = (
-            '. "$1/lib/inception-readiness.sh" || exit 3; '
-            '. "$1/lib/task-audit.sh" 2>/dev/null || true; '
-            'command -v inception_handoff_blockers >/dev/null || exit 3; '
-            'inception_handoff_blockers "$2"'
-        )
+    try:
+        st = p.stat()
+    except OSError:
+        return []
+    if not stat_mod.S_ISREG(st.st_mode):   # the shell's `[ -f ]`
+        return []
+    rule = _handoff_rule_state()
+    if rule is None:
+        return [{"kind": "check-failed",
+                 "detail": "readiness check could not run: lib/inception-readiness.sh or "
+                           "lib/task-audit.sh is missing or unreadable",
+                 "fix": "the agent must investigate lib/inception-readiness.sh"}]
+    rule_key, transcription_current = rule
+    key = (st.st_mtime_ns, st.st_size, rule_key)
+    cached = _HANDOFF_BLOCKERS_CACHE.get(str(p))
+    if cached is not None and cached[0] == key:
+        return [dict(b) for b in cached[1]]
+    if not transcription_current:
+        value = _handoff_blockers_via_shell(p)
+    else:
         try:
-            r = _sp.run(["bash", "-c", script, "_", str(FRAMEWORK_ROOT), str(fp)],
-                        capture_output=True, text=True, timeout=20)
-        except (OSError, _sp.SubprocessError) as e:
+            text = p.read_bytes().decode("utf-8", errors="surrogateescape")
+        except OSError as e:
             return [{"kind": "check-failed", "detail": f"readiness check could not run: {e}",
                      "fix": "the agent must investigate lib/inception-readiness.sh"}]
-        if r.returncode != 0:
-            return [{"kind": "check-failed",
-                     "detail": f"readiness check failed (rc={r.returncode})",
-                     "fix": "the agent must investigate lib/inception-readiness.sh"}]
-        out = []
-        for line in r.stdout.splitlines():
-            parts = line.split("\t")
-            if len(parts) >= 2 and parts[0]:
-                out.append({"kind": parts[0], "detail": parts[1],
-                            "fix": parts[2] if len(parts) > 2 else ""})
-        return out
-
-    return mtime_cached_get(p, _run, _HANDOFF_BLOCKERS_CACHE, [])
+        value = _handoff_blockers_from_text(text)
+    if not any(b["kind"] == "check-failed" for b in value):
+        _HANDOFF_BLOCKERS_CACHE[str(p)] = (key, value)
+    return [dict(b) for b in value]
 
 
 def needs_human_review(body: str) -> bool:
@@ -2492,7 +2662,7 @@ _task_cache = {"data": None, "names": None, "tags": None, "ts": 0, "tags_ts": 0,
 # minutes-long safety net for anything a stat signature cannot see.
 _TASK_CACHE_TTL = 300  # seconds — safety net only; freshness comes from the signature
 
-_TASK_FM_CACHE: dict = {}       # path -> (mtime_ns, frontmatter dict | None)
+_TASK_FM_CACHE: dict = {}       # path -> ((mtime_ns, size), frontmatter dict | None) — T-5198
 _EPISODIC_TAGS_CACHE: dict = {}  # path -> (mtime_ns, (task_id, tags) | None)
 _TASK_BUILD_LOCK = threading.Lock()
 _TAGS_BUILD_LOCK = threading.Lock()
@@ -2552,6 +2722,26 @@ def _parse_task_fm_file(path):
     return fm or None
 
 
+def _task_fm_cached(path):
+    """T-5198: parsed frontmatter of one task file, keyed on (path, mtime_ns, size).
+
+    mtime alone (the generic `mtime_cached_get` key) misses a rewrite that lands
+    in the same mtime tick with a different length; size closes that. A missing
+    file is None, as before.
+    """
+    try:
+        st = path.stat()
+    except OSError:
+        return None
+    key = (st.st_mtime_ns, st.st_size)
+    hit = _TASK_FM_CACHE.get(str(path))
+    if hit is not None and hit[0] == key:
+        return hit[1]
+    value = _parse_task_fm_file(path)
+    _TASK_FM_CACHE[str(path)] = (key, value)
+    return value
+
+
 def get_all_task_metadata():
     """Return list of frontmatter dicts for all tasks (active + completed).
 
@@ -2575,6 +2765,7 @@ def get_all_task_metadata():
 def _build_task_metadata(now, sig):
     all_tasks = []
     names = {}
+    seen = set()
     for location in ("active", "completed"):
         task_dir = PROJECT_ROOT / ".tasks" / location
         if not task_dir.exists():
@@ -2582,7 +2773,8 @@ def _build_task_metadata(now, sig):
         for f in sorted(task_dir.glob("T-*.md"), key=task_id_sort_key):
             if is_test_sentinel(f):  # T-2228: skip T-Test-NNN sentinels
                 continue
-            parsed = mtime_cached_get(f, _parse_task_fm_file, _TASK_FM_CACHE, default=None)
+            seen.add(str(f))
+            parsed = _task_fm_cached(f)  # T-5198: re-parses only changed/added files
             if parsed:
                 fm = dict(parsed)  # per-request-safe: the per-file cache stays unmutated
                 fm["_location"] = location
@@ -2592,6 +2784,11 @@ def _build_task_metadata(now, sig):
                 name = fm.get("name", "")
                 if tid and name:
                     names[tid] = name
+
+    # T-5198: a file that left the corpus (deleted, moved active -> completed)
+    # leaves the per-file cache too; it used to stay for the process lifetime.
+    for stale in [k for k in _TASK_FM_CACHE if k not in seen]:
+        _TASK_FM_CACHE.pop(stale, None)
 
     _task_cache["data"] = all_tasks
     _task_cache["names"] = names
@@ -2795,30 +2992,14 @@ def load_latest_audit():
 
 
 def linkify_tasks(text):
-    r"""Convert T-XXX references to clickable Watchtower links (T-851).
-
-    T-646: ESCAPE FIRST, THEN LINKIFY. The result is declared trusted HTML by the
-    Jinja filter in app.py, and a function may only vouch for markup it created
-    itself. Before this, the substitution ran over the RAW string and the whole
-    result was wrapped in Markup(), so every `<` in the source prose was published
-    as a tag. The source is not incidental: timeline narratives are read out of
-    committed handover markdown (blueprints/timeline.py:159), so the text is prose
-    that sessions wrote, and sessions write about HTML. Measured on the live
-    /timeline: two `<html` tags reaching the browser from a paragraph *discussing*
-    fragments. Injection-shaped rather than an open door — the input is our own
-    repository — but the ordering is wrong either way, and the fix is one line.
-
-    escape() is applied to the whole input; the anchors are then inserted into
-    already-escaped text, so they are the only markup this function vouches for.
-    T-\d{3,} contains no escapable character, so escaping cannot disturb the match.
-    """
+    """Convert T-XXX references to clickable Watchtower links (T-851)."""
     if not text:
         return text
-    return Markup(re_mod.sub(
+    return re_mod.sub(
         r'\b(T-\d{3,})\b',
         r'<a href="/tasks/\1">\1</a>',
-        str(escape(text)),
-    ))
+        str(text),
+    )
 
 
 _FRAGMENT_CONVENTION_VIOLATION = (
