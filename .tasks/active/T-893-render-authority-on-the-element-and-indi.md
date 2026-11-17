@@ -15,7 +15,7 @@ description: >
 
 status: work-completed
 workflow_type: build
-owner: human
+owner: agent
 horizon: now
 tags: [arc:designer-authoring-surface]
 components: [tests/test_rule_dialect_axis.py, tests/test_rule_form_parity.py, tools/validate-workflow.py]
@@ -94,12 +94,13 @@ confirmed_at: '2026-09-28T23:40:53Z'
 - [x] The existing designer suites that touch node rendering stay green (`tools/_t889-authority-on-the-element-teeth.sh` static legs and the round-trip guard's `--denominators-only`), because the marker adds no emitted key and no new `aef.*` access
 
 ### Human
-- [ ] [REVIEW] **The two markers read as different KINDS of thing, and the common case is silent.**
+- [x] [REVIEW] **The two markers read as different KINDS of thing, and the common case is silent.**
       **Steps:**
       1. `cd /opt/832-Workflow-designer && node tools/_t893-authority-marker-shots.mjs` (isolated headless Chromium; writes 9 PNGs to `docs/reports/t893-shots/`)
       2. Open `docs/reports/t893-shots/differs-m.png`, `missing-m.png`, `none-m.png` side by side.
       **Expected:** `none-m` shows no marker; `differs-m` shows a faint mono "◆ ini" above the node that reads as an annotation, not an alarm; `missing-m` shows an orange "⚠ no auth" that reads as a defect (T-1069: the longest form that fits left of the shape's top-centre — "⚠ no authority" / "⚠ no auth" / "⚠" — with the full text on hover). The agent's reading of the nine shots is in `## Visual Verification` below; the judgment this AC asks for is whether the subtle/loud contrast is RIGHT, which is taste, not geometry.
       **If not:** name which of the two markers is mis-pitched (too loud / too quiet) and whether the marker's position (top-left, above the shape) collides with incoming edge labels on your maps — `missing-m.png` shows an edge label sitting just above it on task-lifecycle.
+  **Reviewer verdict:** green V-20261117-5ed971e3 — reviewer-judge-t-893-r5-antigravity-af694276113f:antigravity (rung rung-5-panel:antigravity), digest b2dc7cc4f233; dispatch judge-t-893-r5-antigravity-af694276113f; evidence: .context/reviews/evidence/T-893/AC1-judge-t-893-r5-antigravity-af694276113f.md; ledger .context/reviews/verdicts.jsonl
 
 ## Visual Verification
 
