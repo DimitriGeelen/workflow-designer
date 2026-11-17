@@ -1,0 +1,1 @@
+stopped at step 3 by a bug in --verify (it required the original lines, which a correct --apply removes); steps 1-2 ran and applied all 23 edits. The fixed verify passes 23/23; job 158 verifies and commits. 2026-11-17

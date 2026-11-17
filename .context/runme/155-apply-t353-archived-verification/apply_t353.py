@@ -64,8 +64,49 @@ def plan():
     return out
 
 
+def expected():
+    """[(task, old, new)] derived from the T-353 sources alone, without reading the archived files' current state.
+
+    --verify needs this: after a correct --apply the original lines are gone, so plan() (which requires each original
+    to occur exactly once) refuses by design. That refusal stopped job 155 at step 3 on 2026-11-17 (T-1432).
+    """
+    c = _convert_module()
+    out = [(tid, orig, c.convert(orig)) for tid, orig in c.extract_members()]
+    for tid in REPAIR_TASKS:
+        for f in glob.glob(os.path.join(ROOT, ".tasks", "completed", "%s-*.md" % tid)):
+            for line in open(f).read().splitlines():
+                if "validate-workflow.py" in line and 'grep -q "^VALID"' in line:
+                    out.append((tid, line.replace('grep -q "^VALID"', 'grep -q "VALID"'), line))
+    return out
+
+
+def verify():
+    fails = []
+    exp = expected()
+    if len(exp) != 23:
+        fails.append("expected 23 lines, derived %d" % len(exp))
+    for tid, old, new in exp:
+        files = glob.glob(os.path.join(ROOT, ".tasks", "completed", "%s-*.md" % tid))
+        text = "".join(open(f).read() for f in files)
+        if text.count(new) != 1:
+            fails.append("%s: new line found %d times" % (tid, text.count(new)))
+        if old != new and old in text.replace(new, ""):
+            fails.append("%s: original line still present" % tid)
+        if tid in NOT_RUNNABLE:
+            continue
+        r = subprocess.run(["bash", "-c", new], cwd=ROOT, capture_output=True, text=True, timeout=180)
+        if r.returncode != 0:
+            fails.append("%s: the new line does not pass today (rc %d): %s" % (tid, r.returncode, new[:120]))
+    for x in fails:
+        print("FAIL " + x)
+    print("%s: %d failure(s) over %d lines" % ("PASS" if not fails else "FAIL", len(fails), len(exp)))
+    return 1 if fails else 0
+
+
 def main():
     mode = (sys.argv[1] if len(sys.argv) > 1 else "--check")
+    if mode == "--verify":
+        return verify()
     try:
         edits = plan()
     except (OSError, ValueError) as e:
