@@ -194,7 +194,8 @@ cost_estimate_proposed:
   the patch set is already built and proven, and no part of it has been applied.
 
   **Steps:**
-  1. `cd /opt/832-Workflow-designer && bash tools/_t353-repair-probe.sh` — 16/16, the 4 latent
+  1. `cd /opt/832-Workflow-designer && bash tools/_t353-repair-probe.sh` — reports 23 passed, 0 failed
+     (was 16/16 before the gate re-vendor added legs; reviewer restatement V-20261117-e5d3dd96), the 4 latent
      pattern repairs proven to discriminate.
   2. `cd /opt/832-Workflow-designer && python3 tools/_t353-convert.py` — 19/19, DIVERGENT
      remaining 0, every conversion proven under both the current and the remedy construct.
