@@ -2100,6 +2100,20 @@ else
 fi
 }
 leg core "test_t1425_shared_contracts" _leg_t1425
+_leg_t1429() {
+
+# ── T-1429: a clip screenshot shows its element, or the harness is listed as unguarded with a reason ──
+# A clip is a viewport rectangle; an element under the properties panel or past the window is "shot" as whatever
+# covers it and the harness exits 0 (T-1427 _t884 blank refused-*.png; T-893 differs-*.png of the panel).
+if python3 "$ROOT/tests/test_t1429_clip_shot_census.py" > "$TMP/leg-_t1429.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a CDP harness clips a screenshot without tools/_cdp-clear-shot.mjs and is not listed with a reason, or a listed entry went stale (run 'python3 tests/test_t1429_clip_shot_census.py'; T-1429)"
+  show_output "$TMP/leg-_t1429.out" "test_t1429_clip_shot_census.py"
+  fail=$((fail + 1))
+fi
+}
+leg core "test_t1429_clip_shot_census" _leg_t1429
 _leg_075() {
 
 # ── T-1273: an in-place mutation script cannot survive INT/TERM with its mutant ──

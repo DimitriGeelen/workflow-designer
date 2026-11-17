@@ -15,6 +15,7 @@ import { fileURLToPath } from 'node:url';
 import net from 'node:net';
 import { pageWsUrl } from './_cdp-attach.mjs';
 import { cdp } from './_cdp-client.mjs';   // T-1395: rejects on Chrome's death and after cmdMs, never waits for ever
+import { clearShot } from './_cdp-clear-shot.mjs';   // T-1429: the shot shows its element, or fails
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..');
 const OUT = join(REPO, 'docs', 'reports', 't893-shots');
@@ -64,16 +65,21 @@ function fixture() {
     if (!pick.none || !pick.differs || !pick.missing) throw new Error('display ids not resolved: ' + JSON.stringify(pick) + ' sample=' + JSON.stringify(nodes.slice(0, 3)));
     mkdirSync(OUT, { recursive: true });
     const counts = {};
+    const clear = {};
     for (const size of ['s', 'm', 'l']) {
       await ev(cmd, `labelPrefs.size = ${JSON.stringify(size)}; renderAll(); true`);
       await sleep(150);
       const c = await ev(cmd, `({ differs: document.querySelectorAll('[data-authority-marker="differs"]').length, missing: document.querySelectorAll('[data-authority-marker="missing"]').length, nodes: state.nodes.length })`);
       counts[size] = c;
       for (const [st, id] of Object.entries(pick)) {
-        const box = await ev(cmd, `(() => { const g = document.querySelector('g.node[data-id="${id}"]'); if (!g) return null; const r = g.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; })()`);
-        if (!box) throw new Error('no node ' + id + ' for ' + st);
-        const shot = await cmd('Page.captureScreenshot', { format: 'png', clip: { x: Math.max(0, box.x - 24), y: Math.max(0, box.y - 28), width: box.w + 48, height: box.h + 44, scale: 2 } });
-        writeFileSync(join(OUT, `${st}-${size}.png`), Buffer.from(shot.data, 'base64'));
+        // T-1429: the node must be what is painted there. At 1400 px frw_2_enter sat under the properties panel and
+        // differs-*.png showed the panel (T-893 review, 2026-11-17); clearShot widens the window past it, or fails.
+        let png;
+        try {
+          png = await clearShot(cmd, ev, `g.node[data-id="${id}"]`, { pad: 24, padTop: 28, rerender: 'renderAll(); true' });
+          clear[`${st}-${size}`] = true;
+        } catch (e) { clear[`${st}-${size}`] = String(e.message || e); continue; }
+        writeFileSync(join(OUT, `${st}-${size}.png`), png);
       }
     }
     const after = await ev(cmd, 'buildBpmnXml(state)');
@@ -82,9 +88,12 @@ function fixture() {
     console.log(`L1 ${l1 ? 'PASS' : 'FAIL'}  marker counts per size: ${JSON.stringify(counts)}; agent-lane nodes=${agentNodes} (all MISSING under the retired sentinel), frw_2_enter DIFFERS`);
     const l2 = before === after && before.length > 1000;
     console.log(`L2 ${l2 ? 'PASS' : 'FAIL'}  buildBpmnXml before == after rendering markers (${before.length} bytes); the default never writes`);
+    const notClear = Object.entries(clear).filter(([, v]) => v !== true);
+    const l3 = Object.keys(clear).length === 9 && notClear.length === 0;
+    console.log(`L3 ${l3 ? 'PASS' : 'FAIL'}  every shot shows its node (elementFromPoint at the clip centre is inside it; T-1429): ${l3 ? '9/9' : JSON.stringify(notClear)}`);
     console.log(`lanes: ${JSON.stringify(lanes)}`);
     console.log(`screenshots: ${readdirSync(OUT).filter(f => f.endsWith('.png')).length} in ${OUT}`);
-    rc = (l1 && l2) ? 0 : 2;
+    rc = (l1 && l2 && l3) ? 0 : 2;
   } catch (e) { console.error('DRIVER ERROR', e && e.message); rc = 2; }
   finally { try { br.kill(); } catch (_) {} try { py.kill(); } catch (_) {} }
   process.exit(rc);

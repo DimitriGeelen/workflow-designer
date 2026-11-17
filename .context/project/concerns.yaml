@@ -4173,3 +4173,23 @@ concerns:
     session start, so a corpus-only push cannot leave a red browser leg unseen. It still runs at session start, not
     at push; close when a push that changes the corpus requires the browser tier.'
   related_tasks: ['T-1420', 'T-876', 'T-1374', 'T-1409', 'T-1423']
+- id: G-095
+  type: gap
+  status: watching
+  severity: medium
+  title: A CDP clip screenshot shows whatever covers its element (properties panel, off-window) and the harness exits 0
+  detected: '2026-11-17'
+  origin_task: T-1429
+  context: 'Page.captureScreenshot with a clip takes a viewport rectangle and does not check what is painted there. As
+    the designer layout moved, map nodes the harnesses shoot went under the properties panel or past the window.
+    Twice in a day: T-1427 found _t884 refused-*.png at 902 B (blank, was 6.8 KB); the reviewer on T-893 found
+    differs-*.png showing the panel, not the marker. Both harnesses passed. The evidence a screenshot review rests on
+    was silently empty, and only an independent read caught one of them.'
+  decision_trigger: 'Close when every clip-shot harness that shoots map nodes uses tools/_cdp-clear-shot.mjs (the
+    UNGUARDED list in tests/test_t1429_clip_shot_census.py holds no NODE entries).'
+  containment: 'T-1427 fixed _t884-instance-overlay (widens the window, fails on a blank shot). T-1429 fixed
+    _t893-authority-marker-shots with the shared guard (elementFromPoint at the clip centre must be the element).'
+  prevention: 'T-1429: core leg test_t1429_clip_shot_census. A NEW clip-shot harness without the guard fails it; the 25
+    existing ones are listed with a reason (9 shoot map nodes, to guard next) and an entry goes stale the moment its
+    harness is guarded. Partial: the 9 node-shooting harnesses are not yet guarded.'
+  related_tasks: ['T-1429', 'T-1427', 'T-893', 'T-884']
