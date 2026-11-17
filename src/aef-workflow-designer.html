@@ -5431,7 +5431,7 @@ function placeInstanceMarks() {
   const box = (x, y, w, h) => ({ x, y, w, h });
   const grow = (b, m) => box(b.x - m, b.y - m, b.w + 2 * m, b.h + 2 * m);
   const hits = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
-  const bb = elx => { try { const b = elx.getBBox(); return box(b.x, b.y, b.width, b.height); } catch (_) { return null; } };
+  const bb = elx => { try { const b = elx.getBBox(); return box(b.x, b.y, b.width, b.height); } catch (e) { aefRecordFault('instance-marks:bbox', e); return null; } };
   const labels = Array.from(gEdges.querySelectorAll('text.edge-label')).map(bb).filter(Boolean).map(b => grow(b, 2));
   const shapes = state.nodes.map(n => { const d = dims(n); return d ? box(n.x, n.y, d.w, d.h) : null; }).filter(Boolean);
   // A segment as a thin box (axis-aligned routes; a diagonal one is boxed by its extent, which is conservative).
@@ -5442,7 +5442,7 @@ function placeInstanceMarks() {
   for (const g of gEdges.querySelectorAll('g.edge[data-instance="traversed"][data-instance-poly]')) {
     const t = g.querySelector('text[data-instance-count]'), r = g.querySelector('rect.edge-instance-count-bg');
     if (!t || !r) continue;
-    let poly; try { poly = JSON.parse(g.getAttribute('data-instance-poly')).map(([x, y]) => ({ x, y })); } catch (_) { continue; }
+    let poly; try { poly = JSON.parse(g.getAttribute('data-instance-poly')).map(([x, y]) => ({ x, y })); } catch (e) { aefRecordFault('instance-marks:poly', e); continue; }
     const me = g.getAttribute('data-id');
     const others = [];
     for (const e of state.edges) {
