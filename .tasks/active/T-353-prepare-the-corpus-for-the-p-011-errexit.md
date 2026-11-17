@@ -17,7 +17,7 @@ description: >
 
 status: work-completed
 workflow_type: build
-owner: human
+owner: agent
 horizon: now
 tags: []
 components: []
@@ -188,7 +188,7 @@ cost_estimate_proposed:
        `bin/fw reviewer T-353 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
-- [ ] [REVIEW] Ruling: may an agent edit `## Verification` blocks inside `.tasks/completed/`? (step 1's probe reports 23 passed, 0 failed, not 16/16)
+- [x] [REVIEW] Ruling: may an agent edit `## Verification` blocks inside `.tasks/completed/`? (step 1's probe reports 23 passed, 0 failed, not 16/16)
   **Restated:** 2026-11-17, accepting V-20261117-e5fc8e02; was: [REVIEW] Ruling: may an agent edit `## Verification` blocks inside `.tasks/completed/`?
 
   This is a convention question about other owners' archived records, not a technical one —
@@ -220,6 +220,7 @@ cost_estimate_proposed:
   as `7b2794288`. Delivered under T-1432 (closed, `e0d6e4d68`). The harness drift the reviewer noted is fixed: both
   tools now define `_verify_tmp_env` (probe 23 passed / 0 failed; convert 19/19, DIVERGENT remaining 0). The operator
   called this tick a rubber stamp (2026-11-18), so it is routed to the reviewer to confirm the ruling is recorded.
+  **Reviewer verdict:** green V-20261117-85d5f11a — reviewer-judge-t-353-r3-408e3f91c942:reviewer (rung rung-3-termlink-single-reviewer), digest 798388abb18a; dispatch judge-t-353-r3-408e3f91c942; evidence: .context/reviews/evidence/T-353/AC1-judge-t-353-r3-408e3f91c942.md; ledger .context/reviews/verdicts.jsonl
 
 ## Recommendation
 
