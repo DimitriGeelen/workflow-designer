@@ -1,0 +1,150 @@
+# ============================================================================
+# EPISODIC MEMORY - T-922: Orchestrate 9 sequential procAsFit autonomous rounds, each fed the previous round's handback
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-17T01:15:55Z
+# ============================================================================
+
+task_id: T-922
+task_name: "Orchestrate 9 sequential procAsFit autonomous rounds, each fed the previous round's handback"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-28T22:45:51Z
+completed: 2026-11-17T01:15:43Z
+duration_days: 50
+updates_count: 3
+first_commit: 2026-09-29T00:49:07+02:00
+last_commit: 2026-11-16T18:18:48+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  nine-round procAsFit orchestration launched — bounded prompts, artefact-as-verdict, and a mandate taken verbatim rather than from the stale copy. the orchestrator burned seven rounds against a wall in 33 seconds, and the verdict column could not tell that from seven failures. the verbatim check the AC actually asked for — by hash, and exactly once, with the controls that prove it can fail. round 2 files T-924 — G-020 (frw_2_build) refusals as a fourth audited input-contract case, parked at horizon later; a follow-up named by T-883 and T-884, not part of V7. round 3 leaves its five filed tasks SCORED, not raw — T-925 enters the rank at 142, above every other open item bar T-189. round 3 handback — the board is decision-limited, not capacity-limited (stopped at 385K of an 800K budget). round 3 handback §12 — a concurrent session was writing this repo all round, which stales two of my own claims and resolves OBS-445. round 4 handback — no eligible unit; full-board eligibility join confirms the board is decision-limited, T-811's DEFER evidence partly staled by T-573, T-826's orphaned park committed. round 4 handback §7 — record the FOCUS-DRIFT refusal hit while committing the handback itself. commit the closed content of T-891, T-906, T-908. Their close commits (f1a61c90, 9d25b261, 3cb17878) carried only the git-mv rename, so HEAD held completed/ files that still said status: started-work. round 5 handback — board unchanged since round 4 (re-join confirms same 12 blocked candidates); committed the orphaned close content of T-891/T-906/T-908; F1 the close path commits the rename but not the close. round 6 handback — board unchanged since round 5 (re-join identical); only Q1 rows are later-parked (T-863, T-860) or human-owned (T-702); SQ 10 asks whether to promote T-863. round 7 handback — board unchanged since round 6 (empty git log, identical rank); no eligible unit; F1 round8/9 prompt files predate their predecessor handbacks. round 8 handback — board unchanged since round 7 (empty git log, identical rank); no eligible unit; F1 corrects round 7's timestamp finding (ls shows +02:00 local, orchestrator order is correct). round 9 (final) handback — board unchanged since round 8; no eligible unit; F4 proposes the orchestrator skip rounds after a Sovereign-block stop with an empty git log. the run closed — 9 handbacks, 4 rounds with nothing to do, and a selftest whose own control had rotted. Miss proposed under AC1 (feasibility probe before dispatch): not run, and a probe now would measure today's machine; all nine rounds handed back; accept with fw task accept-miss (operator only)
+
+# Key outcomes
+outcomes:
+  - 'Nine rounds run **in order**, each prompt containing the mandate **verbatim** plus the previous round''s handback and nothing else. Verbatim is asserted by hash against the stored mandate, not by eye'
+  - '**Every prompt''s byte count is bounded and asserted** before dispatch, against the sum of its inputs. The 92,818-byte prompt read as a plausible instruction set; only the arithmetic caught it'
+  - '**A round that produces no handback is a FAILED round** — recorded as such, never skipped and never counted as a quiet success. The next round is still fed the last *real* handback, and the substitution is recorded'
+  - '**The orchestrator does not execute the mandate.** It builds prompts, dispatches, collects artefacts. Any work on project tasks in this run is the workers''; if the orchestrator does a unit of work itself, that is a finding against this task'
+  - 'The run record is **on TermLink**, so it survives a context reset (mandate §TermLink), with producer attribution in metadata'
+  - 'A **final report** states, per round: dispatched or not, handback produced or not, and what it claimed — with the failed rounds named rather than averaged into a success count'
+
+# Accepted misses (operator-accepted, NOT met — closed with 1 accepted miss(es); T-5181)
+accepted_misses:
+  - id: 'AM-bee149bb'
+    criterion: '**Feasibility measured before dispatch, not assumed** — `claude` present, hub up, and a print-mode worker proven able to WRITE in this repo. Recorded with its evidence, because a worker that cannot write reports as dispatched and produces nothing'
+    reason: 'No feasibility probe ran before dispatch; all nine rounds ran in order and handed back, so the failure it guards against did not occur. A probe now would measure a different machine state. Accepted, never counted as met.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.context/telemetry/bvp-auto-approval.jsonl'
+  - '.context/working/procasfit9/FINAL-REPORT.md'
+  - '.context/working/procasfit9/mandate.md'
+  - '.context/working/procasfit9/orchestrator-resume.log'
+  - '.context/working/procasfit9/orchestrator.log'
+  - '.context/working/procasfit9/round1-handback.md'
+  - '.context/working/procasfit9/round1.out'
+  - '.context/working/procasfit9/round3-handback.md'
+  - '.context/working/procasfit9/round3.out'
+  - '.context/working/procasfit9/round4-handback.md'
+  - '.context/working/procasfit9/round5-handback.md'
+  - '.context/working/procasfit9/round6-handback.md'
+  - '.context/working/procasfit9/round7-handback.md'
+  - '.context/working/procasfit9/round8-handback.md'
+  - '.context/working/procasfit9/round9-handback.md'
+  - '.context/working/procasfit9/run-log.tsv'
+  - '.tasks/active/T-922-orchestrate-9-sequential-procasfit-auton.md'
+  - '.tasks/active/T-924-g-020-frw2build-refusals-land-in-the-ins.md'
+  - '.tasks/active/T-925-toolsyaml-to-bpmnpy-drops-document-level.md'
+  - '.tasks/active/T-926-index-in-testfindinganchorabilitypy-meas.md'
+  - '.tasks/active/T-927-the-five-t-820-classification-axes-have-.md'
+  - '.tasks/active/T-928-c-003-inception-research-checkpoint-has-.md'
+  - '.tasks/active/T-929-fabric-describepy-cannot-read-a--header-.md'
+  - '.tasks/active/T-930-focusyaml-is-session-global-with-no-owne.md'
+  - '.tasks/completed/T-891-unresolvable-flownoderef-becomes-a-hard-.md'
+  - '.tasks/completed/T-906-backfill-components-on-the-40-tasks-with.md'
+  - '.tasks/completed/T-908-component-fabric-ship-the-subsystem-taxo.md'
+  - 'tools/_procasfit-orchestrate.sh'
+  - 'tools/_t922-prompt-integrity.sh'
+  - 'tools/fixtures/t922-clean-round.out'
+  - 'tools/fixtures/t922-quota-refusal.out'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-29T00:49:07'
+    action: 'T-922: nine-round procAsFit orchestration launched — bounded prompts, artefact-as-verdict, and a mandate taken verbatim rather than from the stale copy'
+  - time: '2026-09-29T08:57:03'
+    action: 'T-922: the orchestrator burned seven rounds against a wall in 33 seconds, and the verdict column could not tell that from seven failures'
+  - time: '2026-09-29T09:01:16'
+    action: 'T-922: the verbatim check the AC actually asked for — by hash, and exactly once, with the controls that prove it can fail'
+  - time: '2026-09-29T09:39:01'
+    action: 'T-922: round 2 files T-924 — G-020 (frw_2_build) refusals as a fourth audited input-contract case, parked at horizon later; a follow-up named by T-883 and T-884, not part of V7'
+  - time: '2026-09-29T10:35:29'
+    action: 'T-922: round 3 leaves its five filed tasks SCORED, not raw — T-925 enters the rank at 142, above every other open item bar T-189'
+  - time: '2026-09-29T10:38:24'
+    action: 'T-922: round 3 handback — the board is decision-limited, not capacity-limited (stopped at 385K of an 800K budget)'
+  - time: '2026-09-29T10:40:01'
+    action: 'T-922: round 3 handback §12 — a concurrent session was writing this repo all round, which stales two of my own claims and resolves OBS-445'
+  - time: '2026-09-29T10:44:03'
+    action: 'T-922: round 4 handback — no eligible unit; full-board eligibility join confirms the board is decision-limited, T-811''s DEFER evidence partly staled by T-573, T-826''s orphaned park committed'
+  - time: '2026-09-29T10:44:11'
+    action: 'T-922: round 4 handback §7 — record the FOCUS-DRIFT refusal hit while committing the handback itself'
+  - time: '2026-09-29T10:45:46'
+    action: 'T-922: commit the closed content of T-891, T-906, T-908. Their close commits (f1a61c90, 9d25b261, 3cb17878) carried only the git-mv rename, so HEAD held completed/ files that still said status: started-work'
+  - time: '2026-09-29T10:46:55'
+    action: 'T-922: round 5 handback — board unchanged since round 4 (re-join confirms same 12 blocked candidates); committed the orphaned close content of T-891/T-906/T-908; F1 the close path commits the rename but not the close'
+  - time: '2026-09-29T10:48:32'
+    action: 'T-922: round 6 handback — board unchanged since round 5 (re-join identical); only Q1 rows are later-parked (T-863, T-860) or human-owned (T-702); SQ 10 asks whether to promote T-863'
+  - time: '2026-09-29T10:49:46'
+    action: 'T-922: round 7 handback — board unchanged since round 6 (empty git log, identical rank); no eligible unit; F1 round8/9 prompt files predate their predecessor handbacks'
+  - time: '2026-09-29T10:50:57'
+    action: 'T-922: round 8 handback — board unchanged since round 7 (empty git log, identical rank); no eligible unit; F1 corrects round 7''s timestamp finding (ls shows +02:00 local, orchestrator order is correct)'
+  - time: '2026-09-29T10:51:49'
+    action: 'T-922: round 9 (final) handback — board unchanged since round 8; no eligible unit; F4 proposes the orchestrator skip rounds after a Sovereign-block stop with an empty git log'
+  - time: '2026-09-29T11:25:10'
+    action: 'T-922: the run closed — 9 handbacks, 4 rounds with nothing to do, and a selftest whose own control had rotted'
+  - time: '2026-11-16T18:18:48'
+    action: 'T-922: Miss proposed under AC1 (feasibility probe before dispatch): not run, and a probe now would measure today''s machine; all nine rounds handed back; accept with fw task accept-miss (operator only)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 18 commit(s), 70709 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 70709
+  commits: 19
+  files_changed: 36
+  lines_added: 3668
+  lines_removed: 156
+  footprint_refreshed_at: '2026-11-17T01:16:07Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-922-orchestrate-9-sequential-procasfit-auton.md
+generated_by: context-agent-hybrid
