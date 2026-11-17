@@ -136,12 +136,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 335
-  commits: 6
-  files_changed: 69
-  lines_added: 7694
-  lines_removed: 3739
-  footprint_refreshed_at: '2026-11-17T14:24:04Z'
-  footprint_refreshed_by_commit: pre-commit
+  commits: 5
+  files_changed: 61
+  lines_added: 7124
+  lines_removed: 3715
+  footprint_refreshed_at: '2026-11-17T14:24:06Z'
+  footprint_refreshed_by_commit: acd269adb
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1430-upgrade-aef-v1816-be54-to-be55-4bd71eecb.md

@@ -145,12 +145,12 @@ metrics:
   #             counters are null (absent measurement), NOT zero (T-3129).
   git_mining: ok
   wall_clock_minutes: 40659
-  commits: 19
-  files_changed: 47
-  lines_added: 1464
-  lines_removed: 80
-  footprint_refreshed_at: '2026-11-17T14:24:04Z'
-  footprint_refreshed_by_commit: pre-commit
+  commits: 18
+  files_changed: 39
+  lines_added: 894
+  lines_removed: 56
+  footprint_refreshed_at: '2026-11-17T14:24:05Z'
+  footprint_refreshed_by_commit: acd269adb
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-1212-downgrade-e-gw-outgoing--e-xml-gw-outgoi.md
