@@ -4650,6 +4650,7 @@ function renderNodes() {
   clearLabelsOfFlows();     // T-1256: last, off every drawn flow and clear of the flow labels just placed
   adjustEdgeLabelPlacements();   // T-1256: a flow label still on a line may find room the moved names left; strictly better only
   clearFlowLabels();             // T-1256: last word on flow labels: off other drawn flows and off every other label
+  placeInstanceMarks();          // T-1428: instance pills (×N, ✓, ●) off the settled flow labels and other flows
   addIdBadgeHalos();
   layerIdBadges();
   fitPoolToLabels();   // T-1154: last, after every label and badge is placed; most renderNodes() calls bypass renderAll
@@ -5417,6 +5418,77 @@ function clearFlowLabels() {
 // otherwise the strictly best one. Runs after the node-label pass so node
 // labels are final obstacles. The halo rect is repositioned from the
 // MEASURED final bbox — estimated widths drifted off the text (PL-008).
+// T-1428 (review of the recorded route): instance pills are placed LAST, off what is already settled.
+//  - ×N on a traversed edge: the first segment midpoint, longest segment first, whose pill is clear of every flow
+//    label, every node shape, every other flow's segments and every other pill. A pill on a crossing reads as
+//    belonging to either flow, so other flows count as obstacles.
+//  - ✓ / ● / ⛔ / ✗ above a node: if the pill covers a flow label, it moves up in 12 px steps (at most three), then
+//    left along the node's top edge, keeping the first clear position.
+// It reads the overlay and moves only these marks; the model is never touched.
+function placeInstanceMarks() {
+  const ov = (typeof instanceView !== 'undefined' && instanceView.overlay) || null;
+  if (!ov) return;
+  const box = (x, y, w, h) => ({ x, y, w, h });
+  const grow = (b, m) => box(b.x - m, b.y - m, b.w + 2 * m, b.h + 2 * m);
+  const hits = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+  const bb = elx => { try { const b = elx.getBBox(); return box(b.x, b.y, b.width, b.height); } catch (_) { return null; } };
+  const labels = Array.from(gEdges.querySelectorAll('text.edge-label')).map(bb).filter(Boolean).map(b => grow(b, 2));
+  const shapes = state.nodes.map(n => { const d = dims(n); return d ? box(n.x, n.y, d.w, d.h) : null; }).filter(Boolean);
+  // A segment as a thin box (axis-aligned routes; a diagonal one is boxed by its extent, which is conservative).
+  const segBoxes = poly => { const out = []; for (let i = 0; i + 1 < poly.length; i++) { const [a, b] = [poly[i], poly[i + 1]];
+    out.push(grow(box(Math.min(a.x, b.x), Math.min(a.y, b.y), Math.abs(a.x - b.x), Math.abs(a.y - b.y)), 1.5)); } return out; };
+  const placed = [];
+  // ×N pills
+  for (const g of gEdges.querySelectorAll('g.edge[data-instance="traversed"][data-instance-poly]')) {
+    const t = g.querySelector('text[data-instance-count]'), r = g.querySelector('rect.edge-instance-count-bg');
+    if (!t || !r) continue;
+    let poly; try { poly = JSON.parse(g.getAttribute('data-instance-poly')).map(([x, y]) => ({ x, y })); } catch (_) { continue; }
+    const me = g.getAttribute('data-id');
+    const others = [];
+    for (const e of state.edges) {
+      if (e.id === me || !e._renderedPolyline || e._renderedPolyline.length < 2) continue;
+      others.push(...segBoxes(e._renderedPolyline));
+    }
+    const cands = [];
+    for (let i = 0; i + 1 < poly.length; i++) {
+      const a = poly[i], b = poly[i + 1], len = Math.hypot(b.x - a.x, b.y - a.y);
+      if (len < 26) continue;   // too short to carry a 22 px pill clear of its own corners
+      // The middle first, then a third of the way from either end: a short flow squeezed by a label still has room.
+      for (const [f, pref] of [[0.5, 0], [0.3, 1], [0.7, 1]]) cands.push({ len, pref, x: a.x + (b.x - a.x) * f, y: a.y + (b.y - a.y) * f });
+      // Last resort, a crowded short flow: beside its own segment, 15 px off the line (perpendicular), never on another.
+      const nx = -(b.y - a.y) / (len || 1), ny = (b.x - a.x) / (len || 1), mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+      for (const s of [15, -15]) cands.push({ len, pref: 2, x: mx + nx * s, y: my + ny * s });
+    }
+    cands.sort((p, q) => (p.pref - q.pref) || (q.len - p.len));
+    const clear = c => { const p = box(c.x - 13, c.y - 9, 26, 17);
+      return !labels.some(l => hits(p, l)) && !shapes.some(s => hits(p, s)) && !others.some(o => hits(p, o)) && !placed.some(q => hits(p, q)); };
+    const pick = cands.find(clear) || cands[0];
+    if (!pick) continue;
+    r.setAttribute('x', pick.x - 11); r.setAttribute('y', pick.y - 7);
+    t.setAttribute('x', pick.x); t.setAttribute('y', pick.y + 3);
+    t.setAttribute('data-instance-clear', cands.find(clear) ? '1' : '0');
+    placed.push(box(pick.x - 11, pick.y - 7, 22, 13));
+  }
+  // Node badges (✓ ● ⛔ ✗)
+  for (const r of gNodes.querySelectorAll('rect[data-instance-pill]')) {
+    const key = r.getAttribute('data-instance-pill');
+    const t = r.parentNode.querySelector(`text[data-instance-badge="${key}"]`);
+    if (!t) continue;
+    const x0 = +r.getAttribute('x'), y0 = +r.getAttribute('y'), w = +r.getAttribute('width'), h = +r.getAttribute('height');
+    const tx0 = +t.getAttribute('x'), ty0 = +t.getAttribute('y');
+    const clear = (dx, dy) => { const p = grow(box(x0 + dx, y0 + dy, w, h), 1); return !labels.some(l => hits(p, l)) && !placed.some(q => hits(p, q)); };
+    if (clear(0, 0)) { placed.push(box(x0, y0, w, h)); continue; }
+    const tries = [[0, -12], [0, -24], [0, -36], [-24, 0], [-48, 0], [-72, 0]];
+    const ok = tries.find(([dx, dy]) => clear(dx, dy));
+    if (!ok) { placed.push(box(x0, y0, w, h)); continue; }
+    const [dx, dy] = ok;
+    r.setAttribute('x', x0 + dx); r.setAttribute('y', y0 + dy);
+    t.setAttribute('x', tx0 + dx); t.setAttribute('y', ty0 + dy);
+    t.setAttribute('data-instance-moved', `${dx},${dy}`);
+    placed.push(box(x0 + dx, y0 + dy, w, h));
+  }
+}
+
 function adjustEdgeLabelPlacements() {
   const pad = 1;
   const inter = (a, b) => !(a.x2 < b.x1 || a.x1 > b.x2 || a.y2 < b.y1 || a.y1 > b.y2);
@@ -5690,9 +5762,12 @@ function renderEdges() {
     if (_taken && !isBeingDragged) {
       g.setAttribute('data-instance', 'traversed');
       if (_taken > 1) {
+        // Drawn at the middle segment for now; placeInstanceMarks() moves it, once every label is settled, to the
+        // first segment midpoint (longest first) clear of labels, nodes, other flows and other pills (T-1428 review).
         const poly = (e._renderedPolyline && e._renderedPolyline.length >= 2) ? e._renderedPolyline : points;
         const mid = poly[Math.floor((poly.length - 1) / 2)], nxt = poly[Math.floor((poly.length - 1) / 2) + 1] || mid;
         const mx = (mid.x + nxt.x) / 2, my = (mid.y + nxt.y) / 2;
+        g.setAttribute('data-instance-poly', JSON.stringify(poly.map(p => [Math.round(p.x), Math.round(p.y)])));
         g.appendChild(el('rect', { x: mx - 11, y: my - 7, width: 22, height: 13, rx: 6, class: 'edge-instance-count-bg' }));
         g.appendChild(el('text', { x: mx, y: my + 3, 'text-anchor': 'middle', class: 'edge-instance-count', 'data-instance-count': String(_taken) }, [text('×' + _taken)]));
       }

@@ -237,6 +237,21 @@ const COUNTS = `({ current: document.querySelectorAll('g.node[data-instance="cur
         r10.title.includes('✓ recorded path') && r10.title.includes('1 hop not on this map')
           && r10.title.includes('1 recorded edge not in this map version') && !r10.title.includes('derived'),
         JSON.stringify(r10.title));
+    // L13 (T-1428 review r3 amber): no instance pill covers a flow label, and every ×N pill found a clear spot (not on
+    // a crossing, a node or another pill). Measured in the page's own coordinates.
+    const r13 = await ev(cmd, `(() => {
+      const bb = e => { const b = e.getBBox(); return { x: b.x, y: b.y, w: b.width, h: b.height }; };
+      const hit = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+      const labels = Array.from(document.querySelectorAll('#g-edges text.edge-label')).map(t => ({ t: t.textContent, b: bb(t) }));
+      const pills = Array.from(document.querySelectorAll('#g-edges rect.edge-instance-count-bg, #g-nodes rect[data-instance-pill]')).map(r => ({ k: r.getAttribute('data-instance-pill') || 'count', b: bb(r) }));
+      const covered = [];
+      for (const p of pills) for (const l of labels) if (hit(p.b, l.b)) covered.push(p.k + ' on "' + l.t + '"');
+      const un = Array.from(document.querySelectorAll('[data-instance-count]')).filter(t => t.getAttribute('data-instance-clear') !== '1');
+      const unclearIds = un.map(t => { const g = t.closest('g.edge'); const e = state.edges.find(x => x.id === g.getAttribute('data-id')); return e && e.uid + ' poly=' + g.getAttribute('data-instance-poly'); });
+      return { covered, unclear: un.length, unclearIds, pills: pills.length };
+    })()`);
+    leg('L13', 'no instance pill covers a flow label, and every ×N pill sits clear of crossings, nodes and other pills (T-1428 review)',
+        r13.covered.length === 0 && r13.unclear === 0 && r13.pills >= 3, JSON.stringify(r13));
     // A close-up of the loop at normal zoom, where ×2 can be read (at fit-to-map it is a few pixels).
     await ev(cmd, 'setZoom(1); renderAll(); true'); await sleep(200);
     for (const uid of ['e_07', 'e_09']) {
