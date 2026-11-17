@@ -18,11 +18,12 @@ TOOL=.context/runme/155-apply-t353-archived-verification/apply_t353.py
 preflight() {
     check "on bleeding-edge" '[ "$(git rev-parse --abbrev-ref HEAD)" = bleeding-edge ]'
     check "nothing staged" '[ -z "$(git diff --cached --name-only)" ]'
-    check "exactly the 13 archived files carry uncommitted changes, 23 lines" \
-        '[ "$(git diff --name-only -- .tasks/completed | wc -l)" = 13 ] && [ "$(git diff --numstat -- .tasks/completed | awk "{a+=\$1} END {print a}")" = 23 ]'
 }
 
 steps() {
+    # Not a preflight check: the rehearsal clone has none of the uncommitted edits, so it could never pass there.
+    step_operator "Check that exactly the 13 archived files carry uncommitted changes, 23 lines in all" \
+        '[ "$(git diff --name-only -- .tasks/completed | wc -l)" = 13 ] && [ "$(git diff --numstat -- .tasks/completed | awk "{a+=\$1} END {print a}")" = 23 ] && echo "ok  13 files, 23 lines"'
     step_operator "Verify the applied lines: each new line present once, no original left, each runnable one passes" \
         'python3 $TOOL --verify'
     step_operator "Commit the 13 archived files" 'do_commit'
