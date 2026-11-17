@@ -15,8 +15,9 @@ description: >
 
 status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [arc:designer-authoring-surface]
 components: [tests/test_rule_dialect_axis.py, tests/test_rule_form_parity.py, tools/validate-workflow.py]
 related_tasks: []
@@ -31,7 +32,7 @@ arc_id: designer-authoring-surface
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-09-27T10:41:46Z
-last_update: 2026-09-28T23:45:31Z
+last_update: 2026-11-17T20:53:48Z
 date_finished: 2026-09-28T23:45:31Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -75,6 +76,7 @@ bvp_scores:
   F1: 3
 confirmed_by: agent:auto (BVP_AUTO_CONFIRM)
 confirmed_at: '2026-09-28T23:40:53Z'
+date_finalised: 2026-11-17T20:53:48Z
 ---
 
 # T-893: Render authority on the element, and indicate mismatch and missing DIFFERENTLY
@@ -135,13 +137,13 @@ full-text title (bridge leg, with a poison arm).
 # The pure state function, sliced from the editor and run without a browser (13 cases incl. the exact three-state partition).
 node tests/t893-authority-marker-state.test.mjs | grep -qE '^PASS [0-9]+ / FAIL 0$'
 # The render is wired to it and to the effective-default helper (property, not prose).
-grep -q 'const mstate = authorityMarkerState(n.aef?.authority, effectiveLaneDefault(lane));' src/aef-workflow-designer.html
+grep -q 'mstate = authorityMarkerState(n.aef?.authority, effectiveLaneDefault(lane));' src/aef-workflow-designer.html
 # Both marker classes exist and take their colour from tokens — control first (PL-328): the token pattern hits where tokens are defined.
 grep -q '^\s*--orange: ' src/aef-workflow-designer.html
 grep -qE '\.node-authority-missing \{ fill: var\(--orange\)' src/aef-workflow-designer.html
 grep -qE '\.node-authority-badge +\{ fill: var\(--text-faint\)' src/aef-workflow-designer.html
 # Isolated-Chromium driver: marker counts per state x size match the fixture, buildBpmnXml unchanged by rendering (clause 3), 9 PNGs written.
-timeout 120 node tools/_t893-authority-marker-shots.mjs | grep -q '^L2 PASS'
+timeout 120 $HOME/.nvm/versions/node/v22.22.1/bin/node tools/_t893-authority-marker-shots.mjs | grep '^L2 PASS'
 test "$(ls docs/reports/t893-shots/*.png | wc -l)" -ge 9  # T-1015: was =9; G-015, the population grows
 # The marker adds no emitted key and no new aef.* access inside the emitter: the static guard is unchanged.
 node tools/_roundtrip-serialization-cdp.mjs --denominators-only | grep -q 'computed sources 3 verified'
