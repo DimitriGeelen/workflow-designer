@@ -1,0 +1,148 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1433: Upgrade AEF v1.8.16-be.55 to be.57 (efdf6aa3c): image evidence seats only vision-capable reviewers (T-5199/T-5209)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-17T20:17:26Z
+# ============================================================================
+
+task_id: T-1433
+task_name: "Upgrade AEF v1.8.16-be.55 to be.57 (efdf6aa3c): image evidence seats only vision-capable reviewers (T-5199/T-5209)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-17T17:58:41Z
+completed: 2026-11-17T20:16:35Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-17T18:59:35+01:00
+last_commit: 2026-11-17T19:14:59+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  be.57 upgrade task and operator job 156 (job 154's code with be.57 values). job 156 dry-run and rehearsal passed. pristine vendor commit — AEF v1.8.16-be.57 (efdf6aa3c) as fw upgrade wrote it (re-vendor protocol step 1, T-1000). advance the divergence baseline to the pristine AEF v1.8.16-be.57 commit, and record the upgrade in .framework.yaml (re-vendor protocol step 2, T-1000). re-apply 832's local fixes onto pristine AEF v1.8.16-be.57 (re-vendor protocol step 3, T-1000)
+
+# Key outcomes
+outcomes:
+  - 'An operator job (job 154''s code with be.57 values) upgrades from a full clone of tag commit efdf6aa3c, verified'
+  - 'After the run: `version_sha` is efdf6aa3c…, pristine and baseline commits exist, settings survived; 832''s local'
+  - 'Both tiers green on the upgraded tree before the push (core and browser, pool and local).'
+  - 'T-893 AC1 re-judged on be.57, and the seats that judged it are vision-capable per the vendored registry.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 're-apply 832''s local fixes onto pristine AEF v1.8.16-be.57 (re-vendor protocol step 3, T-1000)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/.fw-vendor-stamp.json'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/VERSION'
+  - '.agentic-framework/agents/audit/active-task-scan.py'
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.agentic-framework/agents/audit/completed-task-scan.py'
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.agentic-framework/agents/context/check-human-ac-tick.py'
+  - '.agentic-framework/agents/context/checkpoint.sh'
+  - '.agentic-framework/agents/context/lib/extract_decisions.py'
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/agents/fabric/lib/drift.sh'
+  - '.agentic-framework/agents/fabric/lib/traverse.sh'
+  - '.agentic-framework/agents/git/lib/hooks.sh'
+  - '.agentic-framework/agents/handover/handover.sh'
+  - '.agentic-framework/agents/observe/observe.sh'
+  - '.agentic-framework/agents/task-create/create-task.sh'
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/agents/termlink/bvp-estimator/estimator.py'
+  - '.agentic-framework/agents/termlink/termlink.sh'
+  - '.agentic-framework/bin/fw'
+  - '.agentic-framework/docs/reports/T-5190-subscription-quota-overview.md'
+  - '.agentic-framework/docs/reports/T-5199-image-only-rung5-evidence.md'
+  - '.agentic-framework/docs/reports/field-test-v1.8.16-results.md'
+  - '.agentic-framework/docs/screenshots/T-5209-probe-vision-default.png'
+  - '.agentic-framework/lib/arc.sh'
+  - '.agentic-framework/lib/bvp.sh'
+  - '.agentic-framework/lib/delegation_cli.py'
+  - '.agentic-framework/lib/dispatch_tokens.py'
+  - '.agentic-framework/lib/inception-readiness.sh'
+  - '.agentic-framework/lib/inception.sh'
+  - '.agentic-framework/lib/quota_ledger.py'
+  - '.agentic-framework/lib/quota_limits.py'
+  - '.agentic-framework/lib/quota_status.py'
+  - '.agentic-framework/lib/review_cost.py'
+  - '.agentic-framework/lib/reviewer/judge_cli.py'
+  - '.agentic-framework/lib/reviewer/probe_vision.py'
+  - '.agentic-framework/lib/shell_write_scan.py'
+  - '.agentic-framework/lib/sidecar/inbox.py'
+  - '.agentic-framework/lib/subscriptions.py'
+  - '.agentic-framework/lib/task-audit.sh'
+  - '.agentic-framework/lib/ts/dist/loop-detect.js'
+  - '.agentic-framework/lib/verification-port.sh'
+  - '.agentic-framework/policy/subscriptions.yaml'
+  - '.agentic-framework/web/app.py'
+  - '.agentic-framework/web/blueprints/bvp.py'
+  - '.agentic-framework/web/blueprints/designer.py'
+  - '.agentic-framework/web/blueprints/fabric.py'
+  - '.agentic-framework/web/blueprints/tasks.py'
+  - '.agentic-framework/web/conftest.py'
+  - '.agentic-framework/web/shared.py'
+  - '.agentic-framework/web/templates/approvals.html'
+  - '.agentic-framework/web/templates/designer_landing.html'
+  - '.agentic-framework/web/templates/designer_open.html'
+  - '.agentic-framework/web/templates/fabric_detail.html'
+  - '.agentic-framework/web/test_app.py'
+  - '.agentic-framework/web/test_costs.py'
+  - '.context/runme/156-upgrade-aef-v1.8.16-be.57/dryrun.ok'
+  - '.context/runme/156-upgrade-aef-v1.8.16-be.57/job.sh'
+  - '.framework.yaml'
+  - '.tasks/active/T-1433-upgrade-aef-v1816-be55-to-be57-efdf6aa3c.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-17T18:59:35'
+    action: 'T-1433: be.57 upgrade task and operator job 156 (job 154''s code with be.57 values)'
+  - time: '2026-11-17T19:01:40'
+    action: 'T-1433: job 156 dry-run and rehearsal passed'
+  - time: '2026-11-17T19:13:44'
+    action: 'T-1433: pristine vendor commit — AEF v1.8.16-be.57 (efdf6aa3c) as fw upgrade wrote it (re-vendor protocol step 1, T-1000)'
+  - time: '2026-11-17T19:13:47'
+    action: 'T-1433: advance the divergence baseline to the pristine AEF v1.8.16-be.57 commit, and record the upgrade in .framework.yaml (re-vendor protocol step 2, T-1000)'
+  - time: '2026-11-17T19:14:59'
+    action: 'T-1433: re-apply 832''s local fixes onto pristine AEF v1.8.16-be.57 (re-vendor protocol step 3, T-1000)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 137 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 137
+  commits: 6
+  files_changed: 64
+  lines_added: 6517
+  lines_removed: 3748
+  footprint_refreshed_at: '2026-11-17T20:17:42Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1433-upgrade-aef-v1816-be55-to-be57-efdf6aa3c.md
+generated_by: context-agent-hybrid

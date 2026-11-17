@@ -9,11 +9,11 @@ description: >
   not re-run harnesses; probe-vision's default image ships. Unblocks T-893 AC1. Same
   protocol as T-1430 (job 154).
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-17T17:58:41Z
-last_update: '2026-11-17T17:58:46Z'
-date_finished:
+last_update: 2026-11-17T20:16:35Z
+date_finished: 2026-11-17T20:16:35Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -95,12 +95,21 @@ vision-capable seats.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] An operator job (job 154's code with be.57 values) upgrades from a full clone of tag commit efdf6aa3c, verified
+- [x] An operator job (job 154's code with be.57 values) upgrades from a full clone of tag commit efdf6aa3c, verified
   as the tag's `^{}` entry and a descendant of be.55 (4bd71eecb); dry-run and rehearsed.
-- [ ] After the run: `version_sha` is efdf6aa3c…, pristine and baseline commits exist, settings survived; 832's local
+  — job 156, rehearsed green (sha 69f99be2e33d); run 2026-11-17 18:06-18:15Z, 11/11, done rc=0.
+- [x] After the run: `version_sha` is efdf6aa3c…, pristine and baseline commits exist, settings survived; 832's local
   fixes re-applied (`_t517` diverged = declared).
-- [ ] Both tiers green on the upgraded tree before the push (core and browser, pool and local).
-- [ ] T-893 AC1 re-judged on be.57, and the seats that judged it are vision-capable per the vendored registry.
+  — local fixes eb0a943ff, 37/37 clean, `_t517` OK; Watchtower answers on be.57 (step 10).
+- [x] Both tiers green on the upgraded tree before the push (core and browser, pool and local).
+  — first run: browser 142/142 on both; core red on both, the T-451 unwired-guard census +2 (T-1212's shots tool left
+  without a caller when T-1212 closed; the one-shot T-353 applier under tools/). Fixed in e631c1e14 (leg
+  test_t1212_gw_warning; applier moved into job 155's folder). Second run: core 231/231 on both; browser 143/143 here,
+  pool red once on a Chrome start failure ("no devtools port", first ever, recorded in build/tiergate/rerun-notes.log).
+  Browser re-run: 143/143 on pool and here. Pushed 250c8a7b5.
+- [x] T-893 AC1 re-judged on be.57, and the seats that judged it are vision-capable per the vendored registry.
+  — claude-code, codex and antigravity, all green, each naming the nine PNGs; opencode (vision false) not seated.
+  Applying it is job 157 (T-893 is human-owned).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -286,6 +295,10 @@ vision-capable seats.
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+grep -qx 'version_sha: efdf6aa3c6859dfafd6013e4358bafccb6a91731' .framework.yaml
+test -f .context/runme/156-upgrade-aef-v1.8.16-be.57/done
+python3 tools/_t517-vendor-divergence.py
+python3 tools/_t451-unwired-guard-census.py --ratchet
 
 ## RCA
 
@@ -386,3 +399,16 @@ vision-capable seats.
 
 ### 2026-11-17T17:58:45Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-17T20:16:35Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-8428c118
+- **Timestamp:** 2026-11-17T20:16:42Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none
