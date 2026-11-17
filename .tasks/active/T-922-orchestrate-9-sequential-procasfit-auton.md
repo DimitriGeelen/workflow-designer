@@ -94,7 +94,8 @@ truthfully — including rounds that produced nothing.
 | prompts grew 4.6K → 15K → 26K → **37K** by carrying every prior handback | feed the **previous handback only**; nine cumulative rounds would not fit |
 | a worker was "verified alive" and then **refused at the model by quota** | alive is not running; only the artefact closes a round |
 
-- [ ] **Feasibility measured before dispatch, not assumed** — `claude` present, hub up, and a print-mode worker proven able to WRITE in this repo. Recorded with its evidence, because a worker that cannot write reports as dispatched and produces nothing
+- [~] **Feasibility measured before dispatch, not assumed** — `claude` present, hub up, and a print-mode worker proven able to WRITE in this repo. Recorded with its evidence, because a worker that cannot write reports as dispatched and produces nothing
+  **Accepted miss:** AM-bee149bb — No feasibility probe ran before dispatch; all nine rounds ran in order and handed back, so the failure it guards against did not occur. A probe now would measure a different machine state. Accepted, never counted as met.
   **Miss proposed:** not met: no feasibility probe ran before this task's dispatch, and the final report says so
   rather than ticking it. What the probe protects against did not happen: all nine rounds ran in order and handed
   back (the criteria above are met on the handback artefacts, not on dispatch status). A probe now, after the fact,

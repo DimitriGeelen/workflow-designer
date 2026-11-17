@@ -60,7 +60,8 @@ outside this sequence."* So this task orchestrates; it does not do the selected 
 
 - [x] Feasibility is **measured, not assumed**, before any round is dispatched: hub running, `claude` present, and a print-mode worker proved able to write in this repo — recorded with the evidence, because a worker that hangs on its first write would report as dispatched and produce nothing
 - [x] The mandate is delivered from a **file**, not embedded in argv or injected over a PTY — PTY inject is the known-lossy path and is not a delivery mechanism
-- [ ] Each round runs as a TermLink-spawned session the hub can name, and the run record is posted to a TermLink channel so it survives a context reset (mandate §TermLink)
+- [~] Each round runs as a TermLink-spawned session the hub can name, and the run record is posted to a TermLink channel so it survives a context reset (mandate §TermLink)
+  **Accepted miss:** AM-dacf525c — Rounds were launched directly after termlink_spawn returned a false ready (OBS-405) and then timed out; the four-round chain ended at the weekly quota and T-922 ran the mandate. The run record lives in the task file, not a TermLink channel. Not meetable now; accepted, never counted as met.
   **Miss proposed:** not met, and cannot be met now: the four-round chain ended (round 1 done; round 2 refused at the
   model by the weekly quota; T-922 then ran the full mandate as nine rounds). Rounds were launched directly after
   `termlink_spawn` #1 returned a false `ready` (a 62.6 h old session from another project, OBS-405) and #2 timed out
