@@ -1,0 +1,133 @@
+# ============================================================================
+# EPISODIC MEMORY - T-897: Orchestrate 4 sequential procAsFit autonomous rounds over TermLink, each fed the previous handback
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-17T01:15:26Z
+# ============================================================================
+
+task_id: T-897
+task_name: "Orchestrate 4 sequential procAsFit autonomous rounds over TermLink, each fed the previous handback"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-27T10:47:28Z
+completed: 2026-11-17T01:15:14Z
+duration_days: 51
+updates_count: 2
+first_commit: 2026-09-27T12:48:50+02:00
+last_commit: 2026-11-16T18:20:27+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  orchestration ACs, and feasibility measured before dispatch — a print-mode worker CAN write here (exit 0, file written), which I had predicted it could not. The project settings carry zero allow rules but the user-level settings do, so no permission grant from me is needed and the Sovereign question I was about to raise dissolves.. round 1 landed the guard the ruling was waiting on; round 2 was refused by the weekly limit and is reported as failed, not skipped. round 4 stopped at the operator's direction, mid-T-891 — its work preserved rather than discarded. T-894 closure records — the Evolution gate refused the close until I wrote down why I abandoned T-893, and that note is the calibration finding. blast_radius counts components, so a one-file rendering change scores cheap while carrying the most expensive verification standard in the project.. T-903 closure — the Evolution gate again refused the close until I recorded that the task's real scope was not two registrations but one constant three tasks were queued behind, and that the pre-existing discrepancy had an owner (T-889/T-902) all along.. T-909 closed 6/6 — and the absence gate refused two of my verification legs, both correctly. A negated assertion passes identically when the pattern is typo'd, the file is missing, or the diff is empty; both are now positive claims, and one of them required running the suite to learn what verdict string it actually prints rather than guessing '0 failed', which it does not say.. T-891 closed 6/6 — the close gate refused it four times and every refusal was a real defect in my own verification. An uncontrolled absence; a leg pointing at .tasks/active/T-909 that went red when T-909 SUCCEEDED and moved to completed/; an ls glob returning 2 under pipefail; and a missing RCA. A leg that fails on its dependency succeeding is worse than no leg, because the red says nothing about the task it guards.. session learnings — a recorded failure mode is not a stopped one. T-910 scoped, scored and made startable — the next run opens on a real Q1 instead of an observation. Miss proposed under AC3 (TermLink-spawned rounds): not met and no longer meetable; evidence named; accept with fw task accept-miss (AEF be.54, operator only). operator job 151 — accept the T-897/T-922 misses (operator-only steps), apply T-1212's green verdicts. job 151 dry-run passed (operator-only steps listed, T-1212 apply rehearsed)
+
+# Key outcomes
+outcomes:
+  - 'Feasibility is **measured, not assumed**, before any round is dispatched: hub running, `claude` present, and a print-mode worker proved able to write in this repo — recorded with the evidence, because a worker that hangs on its first write would report as dispatched and produce nothing'
+  - 'The mandate is delivered from a **file**, not embedded in argv or injected over a PTY — PTY inject is the known-lossy path and is not a delivery mechanism'
+  - 'Rounds are **serialized**, never concurrent: every round writes the same repository, and the mandate''s own rule is to serialize anything touching shared state'
+  - 'Round N+1''s prompt carries round N''s handback verbatim; the chaining is checkable from the prompt files, not from my summary of them'
+  - 'Each round''s handback is reported to the operator **between** rounds, so a Sovereign question raised in round 1 can be answered before round 4 acts on it — a 4-round chain with nobody reading it can only accumulate them'
+  - 'A round that produces no handback, or whose worker exits non-zero, is reported as a **failed round** — not skipped, and not counted as a quiet success'
+  - 'I make no repository edits of my own while a round is in flight, and that is asserted rather than intended'
+
+# Accepted misses (operator-accepted, NOT met — closed with 1 accepted miss(es); T-5181)
+accepted_misses:
+  - id: 'AM-dacf525c'
+    criterion: 'Each round runs as a TermLink-spawned session the hub can name, and the run record is posted to a TermLink channel so it survives a context reset (mandate §TermLink)'
+    reason: 'Rounds were launched directly after termlink_spawn returned a false ready (OBS-405) and then timed out; the four-round chain ended at the weekly quota and T-922 ran the mandate. The run record lives in the task file, not a TermLink channel. Not meetable now; accepted, never counted as met.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/episodic/T-894.yaml'
+  - '.context/episodic/T-903.yaml'
+  - '.context/episodic/T-909.yaml'
+  - '.context/inbox.yaml'
+  - '.context/project/learnings.yaml'
+  - '.context/runme/151-accept-misses-and-t1212-verdict/dryrun.ok'
+  - '.context/runme/151-accept-misses-and-t1212-verdict/job.sh'
+  - '.context/working/procasfit/mandate.md'
+  - '.context/working/procasfit/round1-handback.md'
+  - '.context/working/procasfit/round1-prompt.md'
+  - '.context/working/procasfit/round1.out'
+  - '.context/working/procasfit/round2-prompt.md'
+  - '.context/working/procasfit/round2.out'
+  - '.tasks/active/T-737-handoversh-reports-3-urgent-observations.md'
+  - '.tasks/active/T-889-aefmeta-authority-on-the-element--the-si.md'
+  - '.tasks/active/T-891-unresolvable-flownoderef-becomes-a-hard-.md'
+  - '.tasks/active/T-897-orchestrate-4-sequential-procasfit-auton.md'
+  - '.tasks/active/T-906-backfill-components-on-the-40-tasks-with.md'
+  - '.tasks/active/T-910-the-round-trip-guard-covers-aefworkflowm.md'
+  - '.tasks/completed/T-891-unresolvable-flownoderef-becomes-a-hard-.md'
+  - '.tasks/completed/T-894-the-authority-mismatch-check-lives-in-th.md'
+  - '.tasks/completed/T-903-e-workflow-kind-and-e-xml-workflow-kind-.md'
+  - '.tasks/completed/T-909-two-t-889-order-fixtures-carry-orphan-no.md'
+  - 'tests/.run-history.tsv'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-27T12:48:50'
+    action: 'T-897: orchestration ACs, and feasibility measured before dispatch — a print-mode worker CAN write here (exit 0, file written), which I had predicted it could not. The project settings carry zero allow rules but the user-level settings do, so no permission grant from me is needed and the Sovereign question I was about to raise dissolves.'
+  - time: '2026-09-27T15:29:20'
+    action: 'T-897: round 1 landed the guard the ruling was waiting on; round 2 was refused by the weekly limit and is reported as failed, not skipped'
+  - time: '2026-09-27T18:09:35'
+    action: 'T-897: round 4 stopped at the operator''s direction, mid-T-891 — its work preserved rather than discarded'
+  - time: '2026-09-27T21:51:19'
+    action: 'T-897: T-894 closure records — the Evolution gate refused the close until I wrote down why I abandoned T-893, and that note is the calibration finding. blast_radius counts components, so a one-file rendering change scores cheap while carrying the most expensive verification standard in the project.'
+  - time: '2026-09-27T22:04:34'
+    action: 'T-897: T-903 closure — the Evolution gate again refused the close until I recorded that the task''s real scope was not two registrations but one constant three tasks were queued behind, and that the pre-existing discrepancy had an owner (T-889/T-902) all along.'
+  - time: '2026-09-27T22:35:06'
+    action: 'T-897: T-909 closed 6/6 — and the absence gate refused two of my verification legs, both correctly. A negated assertion passes identically when the pattern is typo''d, the file is missing, or the diff is empty; both are now positive claims, and one of them required running the suite to learn what verdict string it actually prints rather than guessing ''0 failed'', which it does not say.'
+  - time: '2026-09-27T22:41:13'
+    action: 'T-897: T-891 closed 6/6 — the close gate refused it four times and every refusal was a real defect in my own verification. An uncontrolled absence; a leg pointing at .tasks/active/T-909 that went red when T-909 SUCCEEDED and moved to completed/; an ls glob returning 2 under pipefail; and a missing RCA. A leg that fails on its dependency succeeding is worse than no leg, because the red says nothing about the task it guards.'
+  - time: '2026-09-27T23:19:40'
+    action: 'T-897: session learnings — a recorded failure mode is not a stopped one'
+  - time: '2026-09-27T23:26:31'
+    action: 'T-897: T-910 scoped, scored and made startable — the next run opens on a real Q1 instead of an observation'
+  - time: '2026-11-16T18:18:46'
+    action: 'T-897: Miss proposed under AC3 (TermLink-spawned rounds): not met and no longer meetable; evidence named; accept with fw task accept-miss (AEF be.54, operator only)'
+  - time: '2026-11-16T18:20:09'
+    action: 'T-897: operator job 151 — accept the T-897/T-922 misses (operator-only steps), apply T-1212''s green verdicts'
+  - time: '2026-11-16T18:20:27'
+    action: 'T-897: job 151 dry-run passed (operator-only steps listed, T-1212 apply rehearsed)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 12 commit(s), 72867 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 72867
+  commits: 13
+  files_changed: 27
+  lines_added: 1943
+  lines_removed: 84
+  footprint_refreshed_at: '2026-11-17T01:16:05Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-897-orchestrate-4-sequential-procasfit-auton.md
+generated_by: context-agent-hybrid
