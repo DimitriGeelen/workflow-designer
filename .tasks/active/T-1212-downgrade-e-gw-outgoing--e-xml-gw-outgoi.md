@@ -18,7 +18,7 @@ description: >
 status: work-completed
 workflow_type: build
 current_node: frw_4_partial
-owner: human
+owner: agent
 horizon: now
 tags: []
 components: [tests/test_finding_anchorability.py, tests/test_harness_cross_form_agreement.py, tests/test_rule_dialect_axis.py, tests/test_rule_form_parity.py, tools/validate-workflow.py]
@@ -141,7 +141,7 @@ no requirement says it is wrong; an uncited rule should not fail a map.
      once 832 takes bleeding-edge or the next release. -->
 
 
-- [ ] Independent screenshot review (reviewer-judged, `fw reviewer judge T-1212 --criterion 1`): the designer shows a 1-in/1-out exclusive gateway as a WARNING, legibly, at three widths
+- [x] Independent screenshot review (reviewer-judged, `fw reviewer judge T-1212 --criterion 1`): the designer shows a 1-in/1-out exclusive gateway as a WARNING, legibly, at three widths
   **Steps:**
   1. Open `docs/reports/T-1212-evidence/t1212-check-1024.png`, `t1212-check-1440.png` and `t1212-check-1920.png` (the warn fixture `tests/fixtures/warn/W-XML-GW-OUTGOING.xml` loaded into designer 0.23.0 plus T-1212, Check pressed, served with the real validator)
   2. In each, check: the Validator dock line reads "1 finding · 0 errors, 1 warning · 1 on the map"; the row shows WARN (not ERROR), the rule id `W-XML-GW-OUTGOING` and its message; the dock's close button and the toolbar's Check button are visible and unclipped; the gateway on the map carries its finding marker where the map is drawn large enough to see it
@@ -191,6 +191,7 @@ no requirement says it is wrong; an uncited rule should not fail a map.
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261117-8d1f22b9 — reviewer-judge-t-1212-r5-antigravity-ad276131b370:antigravity (rung rung-5-panel:antigravity), digest f5a097a1b861; dispatch judge-t-1212-r5-antigravity-ad276131b370; evidence: .context/reviews/evidence/T-1212/AC1-judge-t-1212-r5-antigravity-ad276131b370.md; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
