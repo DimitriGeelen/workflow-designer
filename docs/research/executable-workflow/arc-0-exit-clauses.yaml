@@ -103,7 +103,7 @@ clauses:
     definition_ratified: true
     ratification:
       by: operator
-      on: 2026-11-18
+      date: 2026-11-18
       in: 832 T-736 (operator ruling 'A'; written by operator jobs 161, 162)
     evaluation:
       method: counterparty-attestation
@@ -451,7 +451,7 @@ clauses:
     definition_ratified: true
     ratification:
       by: operator
-      on: 2026-11-18
+      date: 2026-11-18
       in: 832 T-732 (operator ruling 'a', in session; written by operator job 163)
     evaluation:
       method: local-register
