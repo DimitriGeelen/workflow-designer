@@ -1,0 +1,102 @@
+# ============================================================================
+# EPISODIC MEMORY - T-596: Arc-0 exit gate is uncheckable: the operator decisions it depends on have no register and no status
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-18T19:40:19Z
+# ============================================================================
+
+task_id: T-596
+task_name: "Arc-0 exit gate is uncheckable: the operator decisions it depends on have no register and no status"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-26T15:28:58Z
+completed: 2026-09-21T20:24:52Z
+duration_days: 26
+updates_count: 1
+first_commit: 2026-11-16T12:15:39+01:00
+last_commit: 2026-11-18T20:05:19+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  reviewer verdict
+
+# Key outcomes
+outcomes:
+  - '`docs/research/executable-workflow/operator-decisions.yaml` exists, parses as YAML,'
+  - 'No entry anywhere in the register carries `decided_by: agent` — the agent may fill'
+  - 'Every `status: resolved` entry names a `source_of_truth` whose file EXISTS on disk'
+  - 'H2''s register entry and the envelope''s `to_project_resolution` AGREE on `chosen` and'
+  - '`tools/_t596-arc0-exit-gate.sh` evaluates the Arc-0 exit gate clause by clause, names'
+  - 'The gate is proven non-inert in BOTH directions by `--self-test`: the real register'
+  - 'H1 and H3 are recorded as **open** with their operative state noted, not as resolved:'
+  - '[REVIEW] Confirm the register read H1 and H3 as **open** when T-596 landed (33b7d204d, 2026-08-26), that each became `resolved` only by an operator ruling (H1 under T-732, H3 under T-830), and that `tools/_t596-arc0-exit-gate.sh` exits non-zero and prints `BLOCKED` for clause 3, naming exactly the questions still open (H5, H6 at this revision).'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  - decision: '2026-08-26 — H1 and H3 recorded as open rather than resolved'
+    chose: 'treat H1 and H3 as still open, with an `operative_state` describing what holds in the absence of a decision.'
+    rationale: 'T-587''s GO decided the scope of one slice. Its rationale explicitly names the absence of an H1 answer — *"without a superseding decision"* — so reading that GO as also answering H1 would manufacture a decision out of an adjacent one. H3 is the softer case and the more dangerous: `ewcr-v1` and `ewcr-v1-designer-fixture` are already in use in T-590 and the envelope, and repetition is how an unratified value comes to look decided. In-use is not ratified.'
+    alternatives_rejected: ['marking both resolved with T-587 as `source_of_truth`. It would have turned the gate green today and left two operator decisions permanently unmade.']
+  - decision: '2026-08-26 — exit code 2 for integrity, separate from exit code 1 for blocked'
+    chose: 'three exit codes — 0 satisfied, 1 blocked-but-honest, 2 integrity violation.'
+    rationale: 'the real register is red and will stay red until the operator answers four questions. If integrity failures also returned 1, every poison arm would "pass" simply because the gate was already red for an unrelated reason. The controls would have proven nothing. Separating the codes is what makes the poison arms discriminating.'
+    alternatives_rejected: ['a boolean pass/fail gate. It reads more simply and cannot be tested.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/evidence/T-596/AC1-judge-t-596-r3-0a00240fe1fc.md'
+  - '.context/reviews/evidence/T-596/AC1-judge-t-596-r3-5212973e012b.md'
+  - '.context/reviews/evidence/T-596/AC1-judge-t-596-r3-fec819af58ff.md'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-16T12:15:39'
+    action: 'T-596: reviewer verdict'
+  - time: '2026-11-18T18:27:37'
+    action: 'T-596: reviewer verdict'
+  - time: '2026-11-18T20:05:19'
+    action: 'T-596: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 37735 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:ewcr-governed-delivery]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 37735
+  commits: 4
+  files_changed: 11
+  lines_added: 235
+  lines_removed: 2
+  footprint_refreshed_at: '2026-11-18T19:41:05Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-596-arc-0-exit-gate-is-uncheckable-the-opera.md
+generated_by: context-agent-hybrid
