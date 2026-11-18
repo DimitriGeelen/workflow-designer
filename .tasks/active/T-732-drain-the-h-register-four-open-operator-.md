@@ -204,6 +204,12 @@ Sources: `arc-0-exit-clauses.yaml`, `operator-decisions.yaml`, `.tasks/active/T-
   wording, not a mechanism: `ratification_pending` states "it becomes ratified when the operator ticks
   T-596's Human AC, not before". Nothing enforces that chain, so if you disagree that ticking T-596
   should ratify clause-3, say so and the register's wording is what needs changing — not this task.
+  **Reviewer escalation (V-20261118-88db7ab8, reviewer-judge-t-732-r1-508782bf2508:reviewer, rung rung-1-same-vendor-independent):** Not met: the criterion's check prints 'False True' (clause-3 definition_ratified: false, ratification_pending still present) and T-596's Human AC is '- [ ]'. Both remaining steps are the operator's by the criterion's own wording (only the operator may tick T-596; the agent is forbidden from writing definition_ratified). Operator: tick T-596's Human AC, then set definition_ratified: true on clause-3 and delete ratification_pending. Note before ticking: T-596's AC asks to confirm H1 and H3 are recorded as OPEN, but the register now has H1 resolved (2026-10-19) and H3 resolved (2026-09-22), so that AC's wording is out of date; it can only confirm the agent was right to record them open on 2026-08-26. H5 and H6 are still open, so clause-3 stays unsatisfied after ratification either way.
+  **Operator ruling, 2026-11-18 (in session): "a" — the clause-3 definition is approved as written** ("Arc 0 cannot
+  close while any H-question is unanswered or lacks a checkable record"). The fields are the operator's, so operator
+  job 163 writes them (`definition_ratified: true`, `ratification_pending` removed, a `ratification:` record by
+  operator), accepts the reviewer's restatement of T-596's out-of-date box (V-20261118-7571175e), and re-judges both.
+  Measured on a copy: the gate then reads clause-3 BLOCKED on H5/H6 only, Arc 0 1 of 3.
 
 ## Verification
 

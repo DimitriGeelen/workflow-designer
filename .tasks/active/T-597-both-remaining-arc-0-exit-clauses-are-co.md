@@ -198,7 +198,7 @@ evaluated only what is visible from here would report Arc 0 as fine.
 python3 -c "import yaml;yaml.safe_load(open('docs/research/executable-workflow/arc-0-exit-clauses.yaml',encoding='utf-8'))"
 tools/_t596-arc0-exit-gate.sh --self-test
 python3 -c "import yaml;d=yaml.safe_load(open('docs/research/executable-workflow/arc-0-exit-clauses.yaml',encoding='utf-8'));ids=[c['id'] for c in d['clauses']];assert ids==['clause-1','clause-2','clause-3'],ids"
-python3 -c "import yaml;d=yaml.safe_load(open('docs/research/executable-workflow/arc-0-exit-clauses.yaml',encoding='utf-8'));bad=[c['id'] for c in d['clauses'] if c.get('proposed_by')=='agent' and c.get('definition_ratified')];assert not bad,bad"
+python3 -c "import yaml;d=yaml.safe_load(open('docs/research/executable-workflow/arc-0-exit-clauses.yaml',encoding='utf-8'));bad=[c['id'] for c in d['clauses'] if c.get('proposed_by')=='agent' and c.get('definition_ratified') and (c.get('ratification') or {}).get('by')!='operator'];assert not bad,bad"
 python3 -c "import yaml;d=yaml.safe_load(open('docs/research/executable-workflow/arc-0-exit-clauses.yaml',encoding='utf-8'));bad=[c['id'] for c in d['clauses'] if c.get('satisfied')];assert not bad,bad"
 python3 -c "l=open('docs/research/executable-workflow/roadmap-5be23719.md',encoding='utf-8').readlines()[63];c=[x.strip() for x in l.split('|')];assert 'refusal matrix' in c[2].lower() and 'aef topology' in c[2].lower(),c[2];assert 'refusal matrix' not in c[3].lower(),c[3]"
 python3 -c "import glob;m=[f for f in glob.glob('docs/**/*.md',recursive=True)+glob.glob('docs/**/*.yaml',recursive=True) if 'refusal-matrix' in f or 'threat-matrix' in f];assert not m,m"

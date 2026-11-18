@@ -146,7 +146,7 @@ close H6 and nothing here ratifies anything.
 # The register must still parse, must name the dangling offsets, and must NOT have moved any
 # clause verdict. The last assertion is the load-bearing one: this task edited a governance
 # register, and the check exists to prove the edit was additive.
-python3 -c 'import yaml,sys;d=yaml.safe_load(open("docs/research/executable-workflow/arc-0-exit-clauses.yaml"));r=d["rail_citation_integrity"];cs=[(c.get("attestation"),c.get("definition_ratified")) for c in d["clauses"]];ok=(sorted(r["dangling_offsets"])==[602,643,650,734,737,741,742] and r["clause_state_changed"] is False and cs==[(None,False)]*3);print("offsets",r["dangling_offsets"],"| clause states",cs);sys.exit(0 if ok else 1)'
+python3 -c 'import yaml,sys;d=yaml.safe_load(open("docs/research/executable-workflow/arc-0-exit-clauses.yaml"));r=d["rail_citation_integrity"];cs=[(c.get("attestation"),c.get("definition_ratified")) for c in d["clauses"]];ok=(sorted(r["dangling_offsets"])==[602,643,650,734,737,741,742] and r["clause_state_changed"] is False and all((c.get("ratification") or {}).get("by")=="operator" for c in d["clauses"] if c.get("definition_ratified") or c.get("attestation")));print("offsets",r["dangling_offsets"],"| clause states",cs);sys.exit(0 if ok else 1)'
 
 ## RCA
 
