@@ -59,6 +59,13 @@ date_finished: null
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
 **Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
 
+**Facts from AEF (msgs c4b02491, f6bd5371, 2026-11-18):** the `aef-inception-lifecycle` map carries 8 state uids;
+`/api/instances` can produce 7 of them (`il_wait_agent`, `il_wait_peer`, `il_wait_operator`, `il_ready`,
+`il_awaiting_decision`, `il_go_building`, `il_decided`). `il_closed` is on the map but never produced (open inceptions
+only), as `tl_archive` is for the task map: a node that can never hold a count must not read as "0 stuck here".
+No instance is overdue yet: overdue needs `waiting_on`/`revisit_at` on AEF's inceptions (their T-5228); a sample
+response with an overdue instance follows from AEF. The projection schema is not frozen; its sha256 comes at freeze.
+
 **Problem / hypothesis:** <what we think is wrong and why>
 
 **Goal:** <what we are trying to achieve>
