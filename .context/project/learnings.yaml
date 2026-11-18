@@ -3025,3 +3025,22 @@ learnings:
   task: T-1297
   date: 2026-11-15
   context: Added via context agent
+- id: PL-440
+  learning: "Fleet doctor observed tofu-violation on hub 'laptop-141' (<lan-host>:9100). date_observed=2026-11-15T17:30:50Z hub_fingerprint=sha256:2bde8ad8f81a221cbe211dca722cededb32919bf97e840e54913ee2595aad2ba. T-1051 Option D auto-registration — if a later agent sees a different pinned fingerprint for this hub, this learning is stale and should not be acted on."
+  source: T-1052
+  task: T-1051
+  date: 2026-11-15
+  context: fleet-doctor auto-registered
+  application: "Drift-detection: compare hub_fingerprint in this learning against current KnownHubStore.get(address)"
+- id: PL-441
+  learning: "A reviewer's PROPOSED RESTATEMENT is never applied by hand: the operator accepts it with 'fw reviewer restatement accept <verdict-id>' (a runme step_operator), then the criterion is re-judged. A hand edit changes the criterion digest, orphans the proposal and leaves the decision unrecorded (T-353, 4f81ed69b)."
+  source: unknown
+  task: T-1063
+  date: 2026-11-17
+  context: Added via context agent
+- id: PL-442
+  learning: "A runme job that writes a field another tool reads must run that tool right after the write and assert its output; 'the file still parses' is the wrong oracle (a YAML string parses). Job 161 wrote Arc-0 attestation as a string, the checker wanted a mapping and crashed (T-1435)."
+  source: unknown
+  task: T-1435
+  date: 2026-11-18
+  context: Added via context agent

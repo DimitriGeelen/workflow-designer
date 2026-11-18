@@ -6,6 +6,7 @@ description: >
 
 status: started-work
 workflow_type: build
+current_node: frw_3_run
 owner: agent
 horizon: now
 tags: []
@@ -288,6 +289,23 @@ python3 tools/_t597_arc0_clauses.py docs/research/executable-workflow/arc-0-exit
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** after operator job 161 ratified Arc-0 clause 1, `tools/_t596-arc0-exit-gate.sh` crashed with
+AttributeError at `_t597_arc0_clauses.py:128`; the reviewer left T-736 amber.
+
+**Root cause:** I wrote job 161's field edit from the task's prose ("set `attestation:` to cite @1539") without
+reading the checker that consumes the field. The checker requires a mapping (`attested_by`, `attested_at`) and a
+`satisfied: true` flag; the prose named neither. The checker also assumed the field was a mapping and called `.get`
+on it, so a wrong shape crashed it instead of being refused.
+
+**Why structurally allowed:** the job's rehearsal cannot run an operator-only write step, and nothing in the job ran
+the consumer of the field after writing it. My scratch test checked "the file parses", which is the wrong oracle: a
+YAML string parses fine.
+
+**Prevention:** (1) the checker now refuses a non-mapping attestation as an integrity violation, with a poison leg
+(`attestation-is-a-string`) in its self-test; (2) job 162 ran the consumer as its own step and required the expected
+lines; the practice for any job that writes a field another tool reads: run that tool in the job, right after the
+write, and assert its output, not just that the file parses. Recorded as a learning.
 
 ## Evolution
 
