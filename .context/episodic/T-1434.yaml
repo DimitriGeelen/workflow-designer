@@ -1,0 +1,94 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1434: Fix the live vacuous verification legs, then make check-vacuous-verification a blocking gate (T-592 ruling b)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-18T14:15:12Z
+# ============================================================================
+
+task_id: T-1434
+task_name: "Fix the live vacuous verification legs, then make check-vacuous-verification a blocking gate (T-592 ruling b)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-18T11:17:28Z
+completed: 2026-11-18T14:14:52Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-18T14:18:08+01:00
+last_commit: 2026-11-18T15:14:51+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  step 1 — core leg runs check-vacuous-verification --self-test (its caller was T-592's Verification, gone at close); T-353's two proof tools and T-893's shot harness join the unwired-guard baseline with their reasons (pool core was RED 230/1 on the census). plan — no operator job for the legs in operator-held tasks (operator: rubber stamping); they are baselined and drain as those tasks close; detector tightened first; gate blocks new legs. learning — no mechanical approvals for the operator. steps 2-3 — detector flags only the ';'-discard form (26 -> 20 live; T-1249/T-1256/T-826 were false positives), T-858's doctor leg rewritten, 19 legs in operator-held tasks baselined (no rubber-stamp job), core leg now gates new vacuous legs (--gate; a closed task's entries drain without failing). RCA recorded
+
+# Key outcomes
+outcomes:
+  - 'Step 1: a core leg runs `check-vacuous-verification.py --self-test`, so the detector has a live caller and is'
+  - 'Step 2a: the detector flags only legs that really discard the producing command''s exit status. A'
+  - 'Step 2b: every LIVE RISK leg in a task the agent may edit is rewritten (the bare command where it exits non-zero'
+  - 'Step 2c: legs in tasks waiting on the operator are NOT edited and NOT sent to the operator as a job (operator,'
+  - 'Step 3: a core leg fails when the detector finds a LIVE RISK leg that is not in the baseline (a new one), and'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/learnings.yaml'
+  - '.tasks/active/T-1434-fix-the-live-vacuous-verification-legs-t.md'
+  - '.tasks/active/T-858-403-handler-writes-a-whole-html-document.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/vacuous-verification-baseline.txt'
+  - 'tools/check-vacuous-verification.py'
+  - 'tools/unwired-guard-baseline.txt'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-18T14:18:08'
+    action: 'T-1434: step 1 — core leg runs check-vacuous-verification --self-test (its caller was T-592''s Verification, gone at close); T-353''s two proof tools and T-893''s shot harness join the unwired-guard baseline with their reasons (pool core was RED 230/1 on the census)'
+  - time: '2026-11-18T14:37:34'
+    action: 'T-1434: plan — no operator job for the legs in operator-held tasks (operator: rubber stamping); they are baselined and drain as those tasks close; detector tightened first; gate blocks new legs'
+  - time: '2026-11-18T14:37:47'
+    action: 'T-1434: learning — no mechanical approvals for the operator'
+  - time: '2026-11-18T14:46:30'
+    action: 'T-1434: steps 2-3 — detector flags only the '';''-discard form (26 -> 20 live; T-1249/T-1256/T-826 were false positives), T-858''s doctor leg rewritten, 19 legs in operator-held tasks baselined (no rubber-stamp job), core leg now gates new vacuous legs (--gate; a closed task''s entries drain without failing)'
+  - time: '2026-11-18T15:14:51'
+    action: 'T-1434: RCA recorded'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 177 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 177
+  commits: 6
+  files_changed: 10
+  lines_added: 418
+  lines_removed: 34
+  footprint_refreshed_at: '2026-11-18T14:15:40Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1434-fix-the-live-vacuous-verification-legs-t.md
+generated_by: context-agent-hybrid
