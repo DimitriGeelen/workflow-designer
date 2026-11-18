@@ -10,7 +10,7 @@ description: >
 
 status: started-work
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_3_run
 owner: agent
 horizon: now
 tags: []
@@ -329,6 +329,22 @@ grep -q '_leg_t1434' tests/run-bridge-tests.sh
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** Verification legs of the form `out=$(cmd 2>&1); echo "$out" | grep -q PAT` (T-592 counted 24, 27 on
+2026-11-18) pass even when `cmd` fails. Separately, closing T-592 turned the core census red (its detector lost its
+only caller).
+
+**Root cause:** P-011 runs each line as the condition of an `if`, so `a; b` is judged on `b` alone (T-352); the
+capture form puts the producing command before a `;`. The template once recommended that form (L-387, for SIGPIPE
+safety) while T-352 documented its blindness separately; nobody joined the two. The detector existed (T-592) but was
+advisory and called only from T-592's own Verification, which stops counting as a caller once the task closes.
+
+**Why structurally allowed:** nothing ran the detector on push, and its first rule (any pipe into `grep -q`) over-
+flagged honest forms, so it could not have been a gate without reddening honest legs.
+
+**Prevention:** the core leg `check_vacuous_verification_selftest` runs `--self-test` (planted defect, honest-form
+controls, ratchet controls) and `--gate` on every push: a new vacuous leg fails the push. The template now teaches the
+`&&` file form as the default (AEF T-4921). The 19 legacy legs in operator-held tasks are baselined and drain at close.
 
 ## Evolution
 
