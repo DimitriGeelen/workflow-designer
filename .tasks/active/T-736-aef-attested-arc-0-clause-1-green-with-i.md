@@ -8,7 +8,7 @@ description: >
 
 status: work-completed
 workflow_type: build
-owner: human
+owner: agent
 horizon: now
 tags: []
 components: []
@@ -97,7 +97,7 @@ answers the one thing that was asked of us, and routes the ruling.
       → `yaml.safe_load` rc=0; verification leg 1.
 
 ### Human
-- [ ] [REVIEW] Rule on clause 1 — this is the ratification AEF's post explicitly declines
+- [x] [REVIEW] Rule on clause 1 — this is the ratification AEF's post explicitly declines
       to be.
   **Steps:**
   1. Read @1539 (or the `counterparty_response_superseding` block in
@@ -156,6 +156,7 @@ answers the one thing that was asked of us, and routes the ruling.
   inception described generally … then if I have inception 001 … you instance that and you track it, you update the
   status of that. And we start to do the same thing with tasks. So very much alive." — i.e. live instances of a
   workflow class, tracked with status (the designer's instance overlay, T-884/T-1428, draws one such recorded path).
+  **Reviewer verdict:** green V-20261118-2c474244 — reviewer-judge-t-736-r3-5b818fe1ea3d:reviewer (rung rung-3-termlink-single-reviewer), digest d7d7e6caee38; dispatch judge-t-736-r3-5b818fe1ea3d; evidence: .context/reviews/evidence/T-736/AC1-judge-t-736-r3-5b818fe1ea3d.md; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
