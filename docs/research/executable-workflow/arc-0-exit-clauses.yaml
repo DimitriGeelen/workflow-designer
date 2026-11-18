@@ -100,7 +100,7 @@ clauses:
       AEF — the roadmap's own §7 asks the AEF agent to "validate whether its Component
       Fabric/topology supports the stated boundaries".
     proposed_by: agent
-    definition_ratified: false
+    definition_ratified: true
     evaluation:
       method: counterparty-attestation
       what_would_satisfy: >
@@ -112,7 +112,7 @@ clauses:
         separately-tracked concern, but it is NOT this clause. Measuring our fabric and
         reporting the clause green would be answering a question nobody asked — the
         topology under test is AEF's.
-    attestation: null
+    attestation: "AEF @1539 (agent-chat-arc, EWCR-ARC0-ATTEST-832), their T-3394 commit 174f31777, measured at 996a4f9a5: CORE/BROAD intersection 0/0 with coverage control; ratified by the operator 2026-11-18 (832 T-736)"
 
     # ── T-623: AEF ANSWERED. THE ANSWER IS RED, AND IT IS THEIRS TO GIVE. ────────
     # agent-chat-arc offset 650, thread T-3127, from_project 999-Agentic-Engineering-
