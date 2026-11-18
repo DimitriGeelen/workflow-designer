@@ -80,8 +80,52 @@ re-measure both rather than trust that record.
 3. Fidelity table (IW-3) on 3 corpus maps, including opening our BPMN in Camunda Modeler.
 4. Ask Greenfield and AEF which they need first (IW-4), then propose an order to the operator.
 
+## Step 4: what the users said (IW-4)
+
+Asked 2026-11-15 on conversation `832-t1093-formats` (AEF msg b9f57d56, Sprind msg d27ad97e). Greenfield cannot be
+reached until the hub on its host is up (runme job 140); its original T-172 #4 list stands for it until then.
+
+| Project | Ranked answer | Why, in their words (abridged) | Not needed |
+|---|---|---|---|
+| 1409-sprind (msg b7b1e37a, its agent's view, not its operator's ruling) | **SVG, PDF, Mermaid, CSV**; then PNG. Import: BPMN is enough. | SVG to embed inline in evidence pages that run with no external service and no script: it must be self-contained, with **no webfont or remote reference** inside. PDF for submission and evidence documents. Mermaid for Markdown reports kept in git, diffable. CSV as a flat list of steps and gateways with ids, to check a diagram against their step classes mechanically. PNG only where SVG is not accepted. | Visio, Word, Excel, Camunda export |
+| Greenfield (T-172 #4, earlier) | PDF, SVG, PNG 1x/2x/4x, Camunda BPMN with DI; optionally JPEG/GIF; steps-per-lane CSV/Markdown | — | — |
+| AEF (msg 9eb66d6e) | **BPMN** (as today, their corpus format), **SVG, Mermaid, PNG**; nothing else for now. | Mermaid for docs and the Markdown in task files. | Visio, Word, Excel, CSV, Camunda-specific import/export; PDF only if it comes free with SVG |
+
+**All three projects want SVG.** Greenfield and Sprind also put PDF first and want CSV. Sprind and AEF want Mermaid,
+and all three want PNG at least as a fallback. **Nobody has asked for Visio, Word or Excel.** Those came from the
+operator alone, so they need the operator's own reason before they are ranked. Sprind adds a requirement the
+spike must test: an SVG with no webfont or remote reference (the designer embeds its fonts as base64 woff2 today, so
+the export either inlines them or falls back to system fonts).
+
 ## Dialogue log
 
 - 2026-11-15, operator: "can we add export formats like bpmn camunda pdf word visio mermaid … and then also we want to
   be able to import stuff like visio bpmn camunda". Then: "Maybe also Excel, good import and export format." A further
   short reply was read as CSV (spoken input). T-1093 was widened from Greenfield's export menu to import and export.
+- 2026-11-18, the agent asked what Visio, Word and Excel are for (show / bring in / round trip), first in abstract
+  terms the operator did not follow, then plainly ("save out to give someone" vs "load in old files"). Operator:
+  "it's indeed import and export … with Excel, with Visio, with BPMN, with Camunda, XML, what formats we can think
+  are relevant, they want to be able to import and export. And with Word and PDF … it's nice to export a file to give
+  a PDF or Word." Then: "Another export and import format is Mermaid for instance … might be good."
+- 2026-11-18, operator: "If it already works I don't see it, there is no interface for it." Checked in
+  `src/aef-workflow-designer.html`: BPMN import IS the toolbar's **Load…** (file picker, `.bpmn/.xml`, line ~13641) and
+  BPMN export IS **Save** (downloads `<id>.v<n>.bpmn`, line ~12179). Neither is labelled import, export or BPMN, so the
+  capability exists and is invisible. **Finding:** the menu this task builds must be a clearly named Import / Export
+  entry listing every format, BPMN included; renaming Load/Save is part of it, not an afterthought.
+
+**Operator's direction (2026-11-18), the IW-4 answer for this project:**
+
+| Format | Import | Export | Source |
+|---|---|---|---|
+| BPMN 2.0 / Camunda (XML) | yes (exists, as "Load…") | yes (exists, as "Save") | operator |
+| Excel (.xlsx) | yes | yes | operator |
+| Visio (.vsdx) | yes | yes | operator |
+| Mermaid | yes | yes | operator ("might be good") |
+| Word (.docx) | no | yes, a document to hand someone | operator |
+| PDF | no | yes, a document to hand someone | operator |
+| CSV | yes | yes | agent's addition (Excel's plain-text form; Greenfield and Sprind asked for it) |
+| SVG / PNG | no | yes | agent's addition (all three consumer projects asked for SVG) |
+
+The operator's set and the consumer projects' set are complementary: the projects asked for SVG/PDF/Mermaid/CSV
+(their ranking above); the operator adds Visio and Excel both ways, and Word out. Ordering within the set is the next
+proposal (step 5).

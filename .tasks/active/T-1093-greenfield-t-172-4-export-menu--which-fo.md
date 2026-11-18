@@ -126,9 +126,12 @@ round-trip or render test) or recorded as NO-GO with its reason, and no import t
   rationale: (a loss table per format)
 - **IW-4: Who needs which format first?** Greenfield asked for PDF/PNG/SVG/Camunda/CSV; the operator added Word,
   Visio, Mermaid, Excel and imports. AEF consumes BPMN only.
-  confidence: 0
-  disposition: (open)
-  rationale: (ask Greenfield and AEF; the operator rules the order)
+  confidence: 0.8
+  disposition: answered (which formats and which direction); the ORDER is still to propose
+  rationale: operator 2026-11-18: import AND export for BPMN/Camunda, Excel, Visio, Mermaid; export only for Word and
+    PDF (documents to hand someone). Agent adds CSV both ways and SVG/PNG out (asked for by Greenfield, Sprind, AEF).
+    Also found: BPMN import/export exist but are invisible ("Load…"/"Save", unlabelled); the menu must name them.
+    Detail and quotes: docs/reports/T-1093-import-export-formats.md, dialogue log 2026-11-18.
 - **IW-5: For imports, how is a map with no layout or no BPMN semantics (Excel/CSV/Visio) turned into a valid,
   readable map?** (auto-layout through Clean; mapping table shape-to-element; validator run after import)
   confidence: 0
