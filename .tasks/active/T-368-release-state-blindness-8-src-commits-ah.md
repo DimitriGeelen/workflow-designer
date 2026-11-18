@@ -299,6 +299,12 @@ window before it is cut.
 
   **If not (i.e. if it IS planned):** tell me today — AEF is drafting against the
   current notation on my say-so and would rather draft into the new one than re-cut.
+  **Reviewer escalation (V-20261116-4b135262, reviewer-judge-t-368-r3-9b1841cebf26:reviewer, rung rung-3-termlink-single-reviewer):** Project-direction call: only the operator knows whether a notation/routing revision is planned, and no answer is recorded (no PD entry; T-1065 triage line 35 holds only a proposed answer, "No further revision planned"). Operator: answer yes-with-scope or no. Context: routing prefs shipped under T-1090 (PD-360/361, routingPrefs.crossLane toggle; its task file does not mention aef:routing/routingHint/loopDetour/anchors); T-599 (manual connector routing, status captured) is the only active task named for routing. If yes, say whether it touches lane semantics, cycle/return-edge authoring or the §1 presentational clause, and whether T-599 counts.
+  **Operator ruling, 2026-11-18 (in session, answering the escalation above): "a" — NO.** No notation or routing
+  revision was planned in August 2026 and none is planned now. Incremental improvements do not count: T-1090's
+  routing preferences (PD-360/361) and T-599 (manual connector routing, captured) refine the current notation and
+  do not change lane semantics, cycle/return-edge authoring or the §1 presentational clause. So my RAIL-444 answer to
+  AEF ("draft into the current notation") stands; no correction is owed.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
