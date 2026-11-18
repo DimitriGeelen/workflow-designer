@@ -96,7 +96,8 @@ could mark itself resolved would be the same defect T-593 removed from the envel
 
 ### Human
 
-- [ ] [REVIEW] Confirm the register reads H1 and H3 correctly as **open**, not as already answered
+- [ ] [REVIEW] Confirm the register read H1 and H3 as **open** when T-596 landed (33b7d204d, 2026-08-26), that each became `resolved` only by an operator ruling (H1 under T-732, H3 under T-830), and that `tools/_t596-arc0-exit-gate.sh` exits non-zero and prints `BLOCKED` for clause 3, naming exactly the questions still open (H5, H6 at this revision).
+  **Restated:** 2026-11-18, accepting V-20261118-7571175e; was: [REVIEW] Confirm the register reads H1 and H3 correctly as **open**, not as already answered
 
   **Steps:**
   1. Run: `cd /opt/832-Workflow-designer && cat docs/research/executable-workflow/operator-decisions.yaml`
