@@ -152,6 +152,10 @@ answers the one thing that was asked of us, and routes the ruling.
   `174f31777`, measured at `996a4f9a5`: CORE/BROAD intersection 0/0 with the coverage control; r2 @1603 CORE 31/31).
   The two clause-1 fields are the operator's, so they are set by the operator's own job (161): `attestation:` cites
   @1539 / `174f31777`, `definition_ratified: true`. Arc 0 then stands at 1 of 3.
+  The operator added, same day: "I actually just asked AEF to [track] instances of workflow classes … the class
+  inception described generally … then if I have inception 001 … you instance that and you track it, you update the
+  status of that. And we start to do the same thing with tasks. So very much alive." — i.e. live instances of a
+  workflow class, tracked with status (the designer's instance overlay, T-884/T-1428, draws one such recorded path).
 
 ## Verification
 
