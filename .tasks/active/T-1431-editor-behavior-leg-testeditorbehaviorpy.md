@@ -1,13 +1,19 @@
 ---
 id: T-1431
-name: "Editor behavior leg (test_editor_behavior.py) fails intermittently in the local browser tier under load (2026-11-13, 2026-11-17), passes alone and on the pool"
+name: "Editor behavior leg (test_editor_behavior.py) fails intermittently in the local
+  browser tier under load (2026-11-13, 2026-11-17), passes alone and on the pool"
 description: >
-  Seen red in build/tiergate/tier-browser.red-20261113T164022Z.log and tier-browser.red-20261117T105027Z.log, both local runs; the pool passed the same tree, and the leg passed 3/3 alone on 2026-11-17. The leg's wrapper prints no detail into the tier log, so the cause is not recorded. First: make the wrapper print the failing sub-check, then find the load-dependent step (likely a timing wait).
+  Seen red in build/tiergate/tier-browser.red-20261113T164022Z.log and tier-browser.red-20261117T105027Z.log,
+  both local runs; the pool passed the same tree, and the leg passed 3/3 alone on
+  2026-11-17. The leg's wrapper prints no detail into the tier log, so the cause is
+  not recorded. First: make the wrapper print the failing sub-check, then find the
+  load-dependent step (likely a timing wait).
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-17T11:14:19Z
-last_update: 2026-11-17T11:14:19Z
-date_finished: null
+last_update: '2026-11-18T14:39:00Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +56,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-18T14:39:00Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=pool); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=2 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L2:keyword=editor)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1431: Editor behavior leg (test_editor_behavior.py) fails intermittently in the local browser tier under load (2026-11-13, 2026-11-17), passes alone and on the pool
@@ -57,20 +83,53 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** browser leg `test_editor_behavior` (`tools/_editor-behavior-verify-cdp.mjs`, normally
+12-13 s) hit the wrapper's 180 s timeout three times: local 2026-11-13 and 2026-11-17, pool-w1 2026-11-17 (tree
+6d1dfcb62); the same tree passed elsewhere each time. Quarantined in `tests/quarantine.yaml` until 2026-11-24.
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** a hang leaves no record, for two reasons found 2026-11-18: (1) the wrapper
+(`tests/test_editor_behavior.py`, `subprocess.run(..., timeout=180)`) discards the harness's captured output on
+TimeoutExpired; (2) the harness prints only a final verdict, so even kept output would not say which step waited.
+Candidate causes, measured one at a time:
+- H1 (DISPROVED on a quiet host, 2026-11-18): Chrome's children keep the harness's stderr pipe open after the main
+  process is SIGKILLed, so node never exits. Measured 3/3: the pipe closes ~0.3 s after the kill.
+- H2: an unbounded wait outside the CDP client: `fetch(BASE + '/api/health')` has no timeout.
+- H3: bounded waits that add up past 180 s under load (the CDP client's per-command limit is 120 s, so one
+  timed-out command plus the rest of the run outlives the wrapper, and the CDP TIMEOUT message that names the
+  command is lost with the output).
 
-**Goal:** <what we are trying to achieve>
+**Evidence found 2026-11-18 — the 2026-11-17 hang's Chrome was still alive.** The old wrapper killed only node on
+timeout, so the hung run's Chrome survived as an orphan (ppid 1, profile `ebv-udd-CktDj5`, 28 h old). Its page was
+still answering CDP:
+- URL `designer.html?load=rendered/arc-lifecycle.bpmn` (the harness's LOAD_X), `_appReady` true, deep link settled,
+  14 nodes, zoom readout `fit`, no selection.
+- `n_req` at y=441 = its loaded position (file `aef:position y="416.0"` + 25), i.e. NOT yet mutated (Leg 1 adds 37,
+  Leg 2 adds 41).
+- An autosave record written 2026-11-17 10:25:13 UTC with `src` = the deep link.
+So the run stopped after a `localStorage.clear()` + `nav(LOAD_X)` and before that leg's mutation or zoom: Leg 2's
+mutate, Leg 9's `setZoom(null)`/zoom-in, or Leg 10's first step. The page was idle and responsive, so the harness
+was not waiting on the page becoming ready (H2's health fetch is ruled out too: it precedes every leg). That points to
+the CDP side (a command whose answer did not arrive, or arrived after the run's budget): H3. The 120 s per-command
+limit plus the time already spent under load outlives the 180 s wrapper, and the CDP TIMEOUT that would have named
+the command died with the output. The orphan was killed by PID after the evidence was read.
 
-**Expected outcome:** <what will be different when this is done>
+**Goal:** the next hang names the step it waited in, and no single wait can outlive the wrapper.
+
+**Expected outcome:** the harness logs each step with elapsed time to stderr; the wrapper prints the partial output
+and the last step on a timeout; every wait in the harness is bounded below the wrapper's limit; the quarantine is
+lifted only on evidence (repeated runs green, or the cause found and fixed).
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] The harness writes one `[ebv +<ms>] <step>` line to stderr per step, and exits explicitly when done.
+- [ ] On a timeout the wrapper prints the harness's partial stdout/stderr and names the last step reached
+      (proven with a forced short timeout).
+- [ ] No wait in the harness can outlive the wrapper: the health fetch has a timeout and the CDP per-command limit
+      for this harness is below 180 s.
+- [ ] The leg runs green 20 times in a row on this host (12 of them under parallel load), or the hang is captured
+      with its step named and fixed; the quarantine entry is then removed in the same commit.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -353,3 +412,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1431-editor-behavior-leg-testeditorbehaviorpy.md
 - **Context:** Initial task creation
+
+### 2026-11-18T14:38:58Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

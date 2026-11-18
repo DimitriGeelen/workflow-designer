@@ -63,6 +63,12 @@ const RENDERED = join(REPO, 'examples', 'aef-processes', 'rendered');
 const MAP_X = 'arc-lifecycle.bpmn';    // deep-link map (the "X" of the T-234 repro)
 const MAP_Y = 'audit-process';         // jump target (resolved via /api/list)
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+// T-1431: a hang used to leave no record of which step waited. Every step and every CDP command is logged to
+// stderr as it starts, so the wrapper can name the last one when it has to kill the run.
+const T0 = Date.now();
+const step = s => { try { process.stderr.write(`[ebv +${Date.now() - T0}] ${s}\n`); } catch (_) {} };
+// Below the wrapper's 180 s, so a stuck command reports CDP TIMEOUT itself instead of dying unnamed.
+const EBV_CMD_MS = (() => { const v = parseInt(process.env.EBV_CMD_MS || '', 10); return v > 0 ? v : 60000; })();
 
 function findChrome() { const cache = join(homedir(), '.cache', 'ms-playwright'); const c = []; if (existsSync(cache)) for (const d of readdirSync(cache)) if (d.startsWith('chromium-')) c.push(join(cache, d, 'chrome-linux64', 'chrome')); c.sort().reverse(); for (const x of c) if (existsSync(x)) return x; throw new Error('no chromium'); }
 function freePort() { return new Promise((res, rej) => { const s = net.createServer(); s.listen(0, '127.0.0.1', () => { const p = s.address().port; s.close(() => res(p)); }); s.on('error', rej); }); }
@@ -384,11 +390,16 @@ async function main() {
   const br = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--window-size=1200,820', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   let cl; const verdict = { legs: [], pass: false };
   try {
-    let up = false; for (let i = 0; i < 60; i++) { try { const r = await fetch(BASE + '/api/health'); if (r.ok) { up = true; break; } } catch (_) {} await sleep(100); }
+    step('wait for the sidecar /api/health');
+    // T-1431: each probe bounded (a server that accepts and never answers held fetch for ever).
+    let up = false; for (let i = 0; i < 60; i++) { try { const r = await fetch(BASE + '/api/health', { signal: AbortSignal.timeout(2000) }); if (r.ok) { up = true; break; } } catch (_) {} await sleep(100); }
     if (!up) throw new Error('sidecar down:\n' + pyErr.slice(-400));
+    step('wait for DevToolsActivePort');
     const dp = await waitPortFile(join(udd, 'DevToolsActivePort'));
+    step('attach to the page target');
     const page = { webSocketDebuggerUrl: await pageWsUrl(dp) };
-    cl = cdp(page.webSocketDebuggerUrl); await cl.ready; const { cmd } = cl;
+    cl = cdp(page.webSocketDebuggerUrl, { cmdMs: EBV_CMD_MS }); await cl.ready;
+    const cmd = (me, pa = {}) => { step(`cdp ${me}${pa.expression ? ' ' + JSON.stringify(pa.expression.slice(0, 70)) : pa.url ? ' ' + pa.url : ''}`); return cl.cmd(me, pa); };
     await cmd('Page.enable'); await cmd('Runtime.enable');
     const nav = async url => { await cmd('Page.navigate', { url }); await waitReady(cmd); await sleep(350); };
     const LOAD_X = BASE + '/designer.html?load=' + encodeURIComponent('rendered/' + MAP_X);
@@ -732,6 +743,10 @@ async function main() {
     try { rmSync(repo, { recursive: true, force: true }); } catch (_) {}
     try { rmSync(doc, { recursive: true, force: true }); } catch (_) {}
     try { rmSync(udd, { recursive: true, force: true }); } catch (_) {}
+    step('cleanup done');
   }
 }
-main();
+// T-1431: exit explicitly. Waiting for the event loop to drain leaves the run at the mercy of any handle still open
+// (a child's pipe, a socket), which looks exactly like a hang after a passing verdict. stdout to a pipe is synchronous
+// on Linux, so the verdict is written before the exit.
+main().finally(() => { step('exit ' + (process.exitCode ?? 0)); process.exit(process.exitCode ?? 0); });

@@ -54,12 +54,44 @@ def _skip_reason():
     return None
 
 
+def _text(b):
+    if b is None:
+        return ""
+    return b.decode("utf-8", "replace") if isinstance(b, bytes) else b
+
+
+def _last_step(err):
+    steps = [l for l in err.splitlines() if l.startswith("[ebv +")]
+    return steps[-1] if steps else "(no step logged — the harness never started its first step)"
+
+
 def run_harness():
+    """(exit code, output). The harness logs `[ebv +ms] step` lines to stderr (T-1431); they are shown only when the
+    run fails, and on a timeout the partial output is KEPT and the last step named. Before T-1431 a timeout raised
+    TimeoutExpired, which discarded everything the harness had printed, so three hangs left no trace."""
     assert os.path.isfile(HARNESS), "harness missing: %s" % HARNESS
-    proc = subprocess.run(
-        ["node", HARNESS], cwd=ROOT, capture_output=True, text=True, timeout=180
-    )
-    return proc.returncode, (proc.stdout or "") + (proc.stderr or "")
+    limit = int(os.environ.get("EBV_TIMEOUT_S", "180"))   # override only to prove the timeout path
+    # Own process group: on a timeout the WHOLE group (node, its Chrome, its sidecar) is killed, not node alone,
+    # which left the hung run's Chrome and server behind to load the next leg.
+    proc = subprocess.Popen(["node", HARNESS], cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                            text=True, start_new_session=True)
+    try:
+        out, err = proc.communicate(timeout=limit)
+    except subprocess.TimeoutExpired:
+        import signal
+        try:
+            os.killpg(proc.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        out, err = proc.communicate()
+        tail = "\n".join((err or "").splitlines()[-40:])
+        return 124, ("HANG: the harness was killed after %d s. Last step reached:\n  %s\n"
+                     "Partial stdout:\n%s\nLast 40 stderr lines:\n%s\n" % (limit, _last_step(err or ""), out or "", tail))
+    if proc.returncode == 0:
+        return 0, out or ""
+    err = err or ""
+    return proc.returncode, (out or "") + "\nLast step: %s\nLast 40 stderr lines:\n%s\n" % (
+        _last_step(err), "\n".join(err.splitlines()[-40:]))
 
 
 def test_editor_behavior():
