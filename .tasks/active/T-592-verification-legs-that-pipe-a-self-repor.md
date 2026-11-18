@@ -8,7 +8,7 @@ description: >
 
 status: work-completed
 workflow_type: build
-owner: human
+owner: agent
 horizon: now
 tags: []
 components: []
@@ -118,7 +118,7 @@ visible if you run controls in both directions. Removed.
 
 ### Human
 
-- [ ] [REVIEW] Decide whether the vacuous-verification detector becomes a blocking gate
+- [x] [REVIEW] Decide whether the vacuous-verification detector becomes a blocking gate
   **Steps:**
   1. See the live population for yourself — 24 legs across 15 active tasks:
      `cd /opt/832-Workflow-designer && python3 tools/check-vacuous-verification.py`
@@ -175,6 +175,7 @@ visible if you run controls in both directions. Removed.
   ruling: LIVE RISK 27 legs in 10 active tasks (detector run 2026-11-18). **Doc edit: yes, and already done
   upstream** — `.tasks/templates/default.md` lines 148-167 (AEF T-4921, 832 T-1340) make the `&&` file form THE
   DEFAULT and forbid `echo "$out" | grep -q`; no further edit is needed here.
+  **Reviewer verdict:** green V-20261118-4b41d54a — reviewer-judge-t-592-r3-eab0f46fb117:reviewer (rung rung-3-termlink-single-reviewer), digest c81c390bf36d; dispatch judge-t-592-r3-eab0f46fb117; evidence: .context/reviews/evidence/T-592/AC1-judge-t-592-r3-eab0f46fb117.md; ledger .context/reviews/verdicts.jsonl
 
 ## Recommendation
 
