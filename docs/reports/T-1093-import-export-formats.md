@@ -80,6 +80,42 @@ re-measure both rather than trust that record.
 3. Fidelity table (IW-3) on 3 corpus maps, including opening our BPMN in Camunda Modeler.
 4. Ask Greenfield and AEF which they need first (IW-4), then propose an order to the operator.
 
+## Step 2: feasibility spike, the ZIP family and text (IW-2), 2026-11-18
+
+`docs/reports/T-1093-spikes/office-spike.mjs` (Node 22, no dependencies; 151 lines, 15 KB unminified) takes one real
+corpus map (`arc-lifecycle.bpmn`: 14 steps, 13 flows, 3 lanes) and writes Excel, Word, Visio, Mermaid and CSV, then
+reads the Excel file back with its own reader. Every file was then opened by an **independent** program:
+
+| Format | Written by the spike | Independent check | Result |
+|---|---|---|---|
+| Excel `.xlsx` (2.4 KB) | sheet "Steps": id, name, type, lane, next | `openpyxl` 3.1.5 | **opens; 15 rows, names and lanes correct**; our own reader re-reads it byte-for-row identical |
+| Word `.docx` (1.7 KB) | title, counts, steps table | `python-docx`, LibreOffice → PDF | **opens in both** after one fix: the schema requires `w:tblGrid` (python-docx refused without it, LibreOffice was lenient: test with the strict reader) |
+| Visio `.vsdx` (3.3 KB) | one box per step, one connector per flow | LibreOffice → PDF and PNG | **opens; every box drawn with its text.** Connectors render as loose lines, not attached: they need real begin/end geometry, and the boxes must take the map's own positions, not the spike's grid |
+| Mermaid | `flowchart LR`, shapes by type, labelled edges | self (14 nodes, 13 edges) | text; renderer check left for the build |
+| CSV | same columns as Excel | self | text |
+
+**What this settles:**
+- All three Office formats are ZIP packages of XML. A ZIP writer and reader is ~60 lines on top of what every
+  current browser already has (`CompressionStream`/`DecompressionStream('deflate-raw')`), so **no library** and an
+  estimated 3-5 KB added to the single HTML file for the shared core. The designer has none of it today (0 hits).
+- Excel both ways and Word out are low-risk. Visio out is feasible but the most work (connector geometry). Visio
+  **in** is not yet tested: it needs a real Visio file from the operator's world, because shapes drawn with Visio's
+  BPMN stencils, plain flowchart shapes and free drawings each map differently.
+- Import of anything without layout (Excel, CSV, Mermaid) lands as steps with no positions: the existing ✨ Clean
+  layout has to place them (IW-5), then the validator runs.
+- PDF needs no file writer at all: a print stylesheet and the browser's own "Save as PDF" (not spiked yet).
+
+## Step 5: proposed order (agent's proposal, 2026-11-18)
+
+1. **Make what exists visible:** one Import and one Export entry in the toolbar, BPMN/Camunda listed by name
+   (today hidden as "Load…" and "Save").
+2. **Pictures and print:** SVG, PNG (1x/2x/4x) and PDF out. All three consumer projects asked for SVG; no file format
+   code beyond SVG serialisation and a print stylesheet.
+3. **Text formats:** Mermaid and CSV out (small), then in (needs Clean to lay out).
+4. **Excel** out and in (the ZIP core arrives here and is reused below).
+5. **Word** out (diagram picture plus the steps table).
+6. **Visio** out (connector geometry), then **Visio in**, tested on a real Visio file from the operator.
+
 ## Step 4: what the users said (IW-4)
 
 Asked 2026-11-15 on conversation `832-t1093-formats` (AEF msg b9f57d56, Sprind msg d27ad97e). Greenfield cannot be
