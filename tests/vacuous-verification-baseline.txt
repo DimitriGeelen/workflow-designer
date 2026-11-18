@@ -1,0 +1,25 @@
+# vacuous-verification-baseline.txt (T-1434) -- DERIVED by
+#   python3 tools/check-vacuous-verification.py --write-baseline
+# Known vacuous Verification legs in active tasks that wait on the operator. Not edited for them
+# (operator, 2026-11-18: that would be a rubber stamp); each runs once more when its task closes,
+# then leaves. The core leg fails on a leg NOT listed here (new) and on a listed one no longer
+# found (stale): regenerate then, never to admit a new leg.
+T-308  1a8ecc169dae  out=$(node tools/_t308-export-byte-identity-cdp.mjs fb4c21c 2>&1); echo "$out" | grep -q '
+T-308  4b908d9ce649  out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "0 failed"
+T-308  e2ff34e84384  out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "0 failed"
+T-308  fd1e914b904b  out=$(python3 tests/test_t308_bare_catch_render.py 2>&1); echo "$out" | grep -qE '"ok": tr
+T-310  000f27becca0  out=$(timeout 300 node tools/_t308-export-byte-identity-cdp.mjs df5f5b6 2>&1); echo "$out"
+T-310  1260dfb9b0d5  out=$(timeout 300 node tools/_t310-lane-position-conflict-cdp.mjs 2>&1); echo "$out" | gre
+T-310  7b76e404577d  out=$(timeout 600 bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "0 failed
+T-310  8c5e0266ec3a  out=$(timeout 900 bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "0 failed"
+T-310  f6d50a48138b  out=$(sed -n '/^function laneAtY/,/^}/p' src/aef-workflow-designer.html); echo "$out" | gr
+T-647  c95bf5e07e64  python3 -m pytest .agentic-framework/web/test_safe_commands.py -q 2>&1 | tail -1 | grep -q
+T-866  d6e74f7f8e64  out=$(bash tools/_t866-hypothesis-form-teeth.sh --mutation 2>&1); echo "$out" | grep -q 'M
+T-866  e71436a96ab5  out=$(bash tools/_t866-hypothesis-form-teeth.sh 2>&1); echo "$out" | grep -qE '^PASS [0-9]
+T-884  416f2d540a76  out=$(python3 tools/instance-node.py snapshot no-such-template 2>&1 || true); echo "$out" 
+T-884  9392d00d4ae2  out=$(bash tools/_t923-framework-writer-teeth.sh 2>&1); echo "$out" | grep -qE '^PASS [0-9
+T-884  98d8674d9147  out=$(python3 -c "import ast,sys;t=ast.parse(open('tools/instance-node.py').read());t.body
+T-884  a6d0aa0a5e78  out=$(bash tools/_t880-instance-node-teeth.sh 2>&1); echo "$out" | grep -qE '^PASS [0-9]+ 
+T-884  d083d493ad63  out=$(bash tools/_t881-resolution-teeth.sh 2>&1); echo "$out" | grep -qE '^PASS [0-9]+ / F
+T-884  d9c7d3114a7e  out=$(bash tools/_t883-refusal-audit-teeth.sh 2>&1); echo "$out" | grep -qE '^PASS [0-9]+ 
+T-884  ea5ccb437859  out=$(bash tools/_t882-advance-teeth.sh 2>&1); echo "$out" | grep -qE '^PASS [0-9]+ / FAIL

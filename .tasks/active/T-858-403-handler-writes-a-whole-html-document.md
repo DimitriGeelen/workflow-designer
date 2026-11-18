@@ -290,7 +290,8 @@ grep -q 'T-858: write the 403 for the CLIENT THAT ASKED FOR IT' .agentic-framewo
 python3 -c "import ast; ast.parse(open('.agentic-framework/web/app.py').read())"
 
 # The zero-failure doctor reached earlier today is the baseline to protect.
-out=$(.agentic-framework/bin/fw doctor 2>&1 || true); echo "$out" | grep -q 'no failures'
+# doctor exits non-zero on warnings too, so its exit code is deliberately not the verdict; the text is (T-1434 form).
+.agentic-framework/bin/fw doctor > /tmp/.t858-doctor 2>&1; grep -q 'no failures' /tmp/.t858-doctor
 
 ## RCA
 

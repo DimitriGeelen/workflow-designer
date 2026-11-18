@@ -58,6 +58,39 @@ def verification_block(text):
     return text[start:start + nxt.start()] if nxt else text[start:]
 
 
+def top_level_statements(line):
+    """Split a shell line on `;` outside quotes, $(...) and (...): the statements P-011 runs in sequence.
+
+    T-1434: P-011 judges `a; b` on `b` alone (T-352) but keeps a pipeline's failure (pipefail is live), so the
+    exit status a leg discards is that of a statement BEFORE a `;`. `cmd | grep -q P` and
+    `cmd > F 2>&1 && head F | grep -q P` keep cmd's status and are not vacuous.
+    """
+    parts, cur, depth, quote, i = [], [], 0, None, 0
+    while i < len(line):
+        ch = line[i]
+        if quote:
+            if ch == '\\' and quote == '"' and i + 1 < len(line):
+                cur.append(line[i:i + 2]); i += 2; continue
+            if ch == quote:
+                quote = None
+        elif ch in '\'"':
+            quote = ch
+        elif ch == '(':
+            depth += 1
+        elif ch == ')':
+            depth = max(0, depth - 1)
+        elif ch == ';' and depth == 0:
+            parts.append(''.join(cur)); cur = []; i += 1; continue
+        cur.append(ch); i += 1
+    parts.append(''.join(cur))
+    return [x for x in (p.strip() for p in parts) if x]
+
+
+def last_statement(line):
+    st = top_level_statements(line)
+    return st[-1] if st else ''
+
+
 def scan_text(text):
     """Yield (kind, line) for each vacuous leg in this file's Verification block."""
     for raw in verification_block(text).split('\n'):
@@ -66,7 +99,7 @@ def scan_text(text):
             continue
         if RE_LOUD.search(line):
             yield ('loud', line)
-        elif RE_QUIET.search(line):
+        elif RE_QUIET.search(last_statement(line)) and len(top_level_statements(line)) > 1:
             # The PIPE is the discriminator, not the presence of `&&`. CLAUDE.md's honest file
             # form (`cmd > /tmp/.o 2>&1 && grep -q PAT /tmp/.o`) has no pipe into grep and is
             # therefore already outside RE_QUIET. An earlier draft ALSO excluded any line
@@ -106,6 +139,9 @@ def self_test():
             "bash tests/run.sh\n"
             'bash tests/run.sh > /tmp/.o 2>&1 && grep -q "passed" /tmp/.o\n'
             '! grep -qE "forbidden" some/file\n'
+            # T-1434: these keep the producing command's exit status (pipefail; `&&`), so they are not vacuous.
+            'node tools/x.mjs > /tmp/.o 2>&1 && head -2 /tmp/.o | grep -q \'"ok": true\'\n'
+            'python3 tools/y.py | grep -q "ok; fine"\n'
         )
         open(os.path.join(d, 'poisoned.md'), 'w', encoding='utf-8').write(poisoned)
         open(os.path.join(d, 'clean.md'), 'w', encoding='utf-8').write(clean)
@@ -127,7 +163,7 @@ def self_test():
             print(f"FAIL  self-test: the honest forms were flagged ({len(clean_hits)} false positives)")
             ok = False
         else:
-            print("PASS  self-test: honest forms (bare, && file form, ! grep -qE) not flagged")
+            print("PASS  self-test: honest forms (bare, && file form, ! grep -qE, pipefail pipe, && then head|grep) not flagged")
 
         # Anchoring: a SECOND ## Verification block must supersede the first. If this fails,
         # the scanner has the T-588 first-wins defect.
@@ -141,13 +177,106 @@ def self_test():
             ok = False
         else:
             print("PASS  self-test: anchors on the LAST ## Verification block")
+
+    # T-1434: the ratchet must fail on a NEW leg and on a STALE baseline entry, or it gates nothing.
+    import contextlib, io
+    with tempfile.TemporaryDirectory() as r:
+        os.makedirs(os.path.join(r, '.tasks', 'active'))
+        os.makedirs(os.path.join(r, 'tests'))
+        leg = os.path.join(r, '.tasks', 'active', 'T-9-x.md')
+        open(leg, 'w').write(poisoned)
+        quiet = io.StringIO()
+        with contextlib.redirect_stdout(quiet):
+            gate(r, write=True)
+            open(os.path.join(r, BASELINE), 'w').write("# empty\n")
+            rc_new = gate(r)
+            gate(r, write=True)
+            rc_same = gate(r)
+            open(leg, 'w').write(poisoned.replace('passed', 'PASSED'))   # rewritten, task still open
+            gate(r, write=False)
+            open(os.path.join(r, BASELINE), 'a').write("T-9  000000000000  (old form)\n")
+            open(leg, 'w').write("# T\n\n## Verification\n\nbash x\n")   # fixed, task still open
+            rc_stale = gate(r)
+            os.remove(leg)                                                   # task closed: drain, not a failure
+            rc_gone = gate(r)
+        if (rc_new, rc_same, rc_stale, rc_gone) == (1, 0, 1, 0):
+            print("PASS  self-test: the gate fails on a new leg and on a stale entry of an open task; "
+                  "passes when they match and when a listed task closes")
+        else:
+            print(f"FAIL  self-test: gate rc new/same/stale/gone = {rc_new}/{rc_same}/{rc_stale}/{rc_gone}, "
+                  f"expected 1/0/1/0")
+            ok = False
     return ok
+
+
+BASELINE = os.path.join('tests', 'vacuous-verification-baseline.txt')
+
+
+def _key(name, line):
+    """Task id + a hash of the leg: stable while the line is unchanged, gone once it is rewritten or the task closes."""
+    import hashlib
+    tid = re.match(r'(T-\d+)', name)
+    return '%s  %s' % (tid.group(1) if tid else name, hashlib.sha256(line.encode()).hexdigest()[:12])
+
+
+def gate(repo, write=False):
+    """T-1434 (T-592 ruling b): a ratchet. Fails on a live leg not in the baseline (a NEW vacuous leg) and on a
+    baseline entry no longer found (stale: rewritten, or its task closed). The baseline lists only legs in tasks that
+    wait on the operator, which are not edited on their behalf (operator, 2026-11-18: no rubber stamping)."""
+    live = scan_dir(os.path.join(repo, '.tasks', 'active'))
+    keys = {_key(n, l): (n, l) for n, _, l in live}
+    path = os.path.join(repo, BASELINE)
+    if write:
+        with open(path, 'w', encoding='utf-8') as f:
+            f.write("# vacuous-verification-baseline.txt (T-1434) -- DERIVED by\n"
+                    "#   python3 tools/check-vacuous-verification.py --write-baseline\n"
+                    "# Known vacuous Verification legs in active tasks that wait on the operator. Not edited for them\n"
+                    "# (operator, 2026-11-18: that would be a rubber stamp); each runs once more when its task closes,\n"
+                    "# then leaves. The core leg fails on a leg NOT listed here (new) and on a listed one no longer\n"
+                    "# found (stale): regenerate then, never to admit a new leg.\n")
+            for k in sorted(keys):
+                f.write("%s  %s\n" % (k, keys[k][1][:90]))
+        print("wrote %s: %d entr%s" % (BASELINE, len(keys), "y" if len(keys) == 1 else "ies"))
+        return 0
+    try:
+        base = set()
+        for raw in open(path, encoding='utf-8'):
+            if raw.strip() and not raw.startswith('#'):
+                tid, h = raw.split()[:2]
+                base.add('%s  %s' % (tid, h))
+    except OSError:
+        print("NOT CHECKED: no baseline at %s" % BASELINE)
+        return 2
+    new = sorted(set(keys) - base)
+    missing = sorted(base - set(keys))
+    # A task that closed takes its legs with it: that is the drain, reported but not a failure (closing an
+    # operator-held task must not turn the push gate red). A leg missing while its task is still active was
+    # rewritten without regenerating the baseline: stale, a failure.
+    active_ids = {m.group(1) for m in (re.match(r'(T-\d+)-', f) for f in
+                                       os.listdir(os.path.join(repo, '.tasks', 'active'))) if m}
+    stale = [k for k in missing if k.split()[0] in active_ids]
+    for k in new:
+        print("NEW    %s  %s  %s" % (k, keys[k][0][:40], keys[k][1][:80]))
+    for k in missing:
+        if k in stale:
+            print("STALE  %s  (rewritten while its task is still open; regenerate the baseline)" % k)
+        else:
+            print("GONE   %s  (its task closed; drop it at the next --write-baseline)" % k)
+    print("%s: %d live, %d in baseline, %d new, %d stale" % ("PASS" if not (new or stale) else "FAIL",
+                                                              len(keys), len(base), len(new), len(stale)))
+    if new:
+        print("Remedy for a NEW leg: the bare command, or cmd > /tmp/.out 2>&1 && grep -q PATTERN /tmp/.out")
+    return 1 if (new or stale) else 0
 
 
 def main():
     repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     if '--self-test' in sys.argv:
         return 0 if self_test() else 1
+    if '--write-baseline' in sys.argv:
+        return gate(repo, write=True)
+    if '--gate' in sys.argv:
+        return gate(repo)
 
     live = scan_dir(os.path.join(repo, '.tasks', 'active'))
     residue = scan_dir(os.path.join(repo, '.tasks', 'completed'))

@@ -2117,12 +2117,15 @@ leg core "test_t1429_clip_shot_census" _leg_t1429
 _leg_t1434() {
 
 # ── T-1434 (T-592 ruling b): the vacuous-verification detector can see a planted defect ──
-# Step 1 of "fix forward, then gate": the detector runs on every push. Step 3 adds the blocking run over active tasks.
-if python3 "$ROOT/tools/check-vacuous-verification.py" --self-test > "$TMP/leg-_t1434.out" 2>&1; then
+# The detector proves it can see a planted defect and that its ratchet bites (--self-test), then gates the active
+# tasks: a NEW vacuous Verification leg fails the push. Known legs in operator-held tasks are listed in
+# tests/vacuous-verification-baseline.txt and drain as those tasks close (operator: no rubber-stamp job for them).
+if python3 "$ROOT/tools/check-vacuous-verification.py" --self-test > "$TMP/leg-_t1434.out" 2>&1 \
+   && python3 "$ROOT/tools/check-vacuous-verification.py" --gate >> "$TMP/leg-_t1434.out" 2>&1; then
   pass=$((pass + 1))
 else
-  report FAIL "the vacuous-verification detector is blind to a planted 'out=\$(cmd); echo \"\$out\" | grep -q' leg, or flags an honest form (run 'python3 tools/check-vacuous-verification.py --self-test'; T-1434)"
-  show_output "$TMP/leg-_t1434.out" "check-vacuous-verification.py --self-test"
+  report FAIL "a NEW vacuous Verification leg ('a; b | grep -q' judges only b), a stale baseline entry, or a blind detector (run 'python3 tools/check-vacuous-verification.py --gate' and '--self-test'; remedy: the bare command, or cmd > F 2>&1 && grep -q P F; T-1434)"
+  show_output "$TMP/leg-_t1434.out" "check-vacuous-verification.py --self-test / --gate"
   fail=$((fail + 1))
 fi
 }

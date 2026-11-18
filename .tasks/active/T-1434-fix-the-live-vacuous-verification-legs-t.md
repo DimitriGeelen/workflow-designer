@@ -101,18 +101,30 @@ command or `cmd > F 2>&1 && grep -q PAT F` (step 2); the detector over active ta
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Step 1: a core leg runs `check-vacuous-verification.py --self-test`, so the detector has a live caller and is
+- [x] Step 1: a core leg runs `check-vacuous-verification.py --self-test`, so the detector has a live caller and is
       proven able to see a planted defect on every push.
-- [ ] Step 2a: the detector flags only legs that really discard the producing command's exit status. A
+      Evidence: leg `check_vacuous_verification_selftest` (5b541ec12); census ratchet back to 97/97.
+- [x] Step 2a: the detector flags only legs that really discard the producing command's exit status. A
       `cmd > F 2>&1 && head F | grep -q P` leg keeps cmd's status and is not flagged (T-1249's two lines, measured
       2026-11-18); a self-test control pins that.
-- [ ] Step 2b: every LIVE RISK leg in a task the agent may edit is rewritten (the bare command where it exits non-zero
+      Evidence: a pipe-into-grep leg is flagged only when a top-level `;` precedes it (P-011 judges `a; b` on `b`;
+      pipefail keeps a pipeline's failure). Two new honest controls (pipefail pipe; `&&` then head|grep). LIVE RISK
+      26 -> 20; all 20 are the `VAR=$(cmd); echo "$VAR" | grep -q` capture form or the loud `grep -qv`.
+- [x] Step 2b: every LIVE RISK leg in a task the agent may edit is rewritten (the bare command where it exits non-zero
       on failure, else the `&&` file form), each rewritten line still passing.
-- [ ] Step 2c: legs in tasks waiting on the operator are NOT edited and NOT sent to the operator as a job (operator,
+      Evidence: the one agent-editable leg left, T-858's doctor line, rewritten to `fw doctor > F 2>&1; grep -q
+      'no failures' F` (doctor's exit is deliberately not the verdict: it exits non-zero on warnings); passes today
+      (`107 warning(s), no failures`). T-1249/T-1256/T-826 were false positives of the old rule.
+- [x] Step 2c: legs in tasks waiting on the operator are NOT edited and NOT sent to the operator as a job (operator,
       2026-11-18: "that sounds like rubber stamping again"). They are listed in a baseline, each with its task, and
       leave it when that task closes (each runs once more, at close, then never again).
-- [ ] Step 3: a core leg fails when the detector finds a LIVE RISK leg that is not in the baseline (a new one), and
+      Evidence: `tests/vacuous-verification-baseline.txt`, 19 entries, all in T-308, T-310, T-647, T-866, T-884
+      (owner human, partial-complete). Derived by `--write-baseline`, never hand-typed.
+- [x] Step 3: a core leg fails when the detector finds a LIVE RISK leg that is not in the baseline (a new one), and
       when a baseline entry is no longer found (the baseline is stale); the baseline only shrinks.
+      Evidence: the leg now also runs `--gate`. Refinement: an entry whose task CLOSED is reported GONE, not a
+      failure, so closing an operator-held task never turns the push gate red; STALE (fails) means a listed leg
+      vanished while its task is still open. Self-test pins new/same/stale/gone = 1/0/1/0.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -298,6 +310,9 @@ command or `cmd > F 2>&1 && grep -q PAT F` (step 2); the detector over active ta
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+python3 tools/check-vacuous-verification.py --self-test
+python3 tools/check-vacuous-verification.py --gate
+grep -q '_leg_t1434' tests/run-bridge-tests.sh
 
 ## RCA
 
