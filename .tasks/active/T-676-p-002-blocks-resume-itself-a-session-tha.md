@@ -266,6 +266,14 @@ ratifiable proposal. AC 4 is the operator's, and nothing here edits the hook bef
       **Expected:** a recorded ruling. Nothing edits `check-active-task.sh` before it.
       **If not:** leave this unticked; the task stays parked and the workaround
       (`fw context focus <active task>`) remains the standing answer.
+  **Reviewer escalation (V-20261116-3d4eead8, reviewer-judge-t-676-r1-fd4a151d052e:reviewer, rung rung-1-same-vendor-independent):** Needs the operator: the criterion asks for a GO / NO-GO / DEFER ruling on loosening a Tier-1 enforcement hook, and no ruling is recorded (Decision sections empty, no T-676 row in the ledgers or approvals). No T-676 commit and no uncommitted change edits check-active-task.sh, so that half holds. The question is largely overtaken: the vendored hook (AEF v1.8.16-be.54, T-1426) already lets read-only Bash through before any focus check (check-active-task.sh:350-372, lib/safe-commands.sh); the register's refused commands (git status, git log, fw arc list, checkpoint.sh status, cat of the bypass log) all test SAFE there. The live choice is: close T-676 as overtaken by upstream, or keep it open for a gap upstream leaves. Note when ruling: upstream also classes 'git push' as safe, wider than the T-676 proposal asked. Also out of date: the criterion says eight occurrences, the register has nine.
+  **Operator ruling, 2026-11-18 (in session, answering the escalation above): "a" — close T-676 as overtaken
+  upstream.** No local change to `check-active-task.sh`: AEF's read-only allow-list (be.54, `lib/safe-commands.sh`,
+  checked before any focus test) already does what this criterion proposed, and the operator accepts its wider
+  scope (`git push` counted safe; the push still passes the T-1288 core-suite gate). The one residual seen
+  2026-11-18 (committing a task's own close record after it moves to `completed/` needs focus on another task;
+  the commit still carries the right task id) goes to AEF as an observation, not a local fix, so the vendored hook
+  does not drift from upstream.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
