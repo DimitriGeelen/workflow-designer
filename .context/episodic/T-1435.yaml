@@ -1,0 +1,90 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1435: Arc-0 gate: crash on the ratified clause-1 attestation, and stale 0-of-3 narrative
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-18T12:58:10Z
+# ============================================================================
+
+task_id: T-1435
+task_name: "Arc-0 gate: crash on the ratified clause-1 attestation, and stale 0-of-3 narrative"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-18T12:25:13Z
+completed: 2026-11-18T12:57:53Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-11-18T13:27:17+01:00
+last_commit: 2026-11-18T13:57:47+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Arc-0 checker refuses a non-mapping attestation (was a crash), prints the derived 'Arc 0: N of 3', and shows the 'did NOT attest' history only for blocked clauses; new poison leg (14/14); T-736 pins moved to the ruling's values. operator job 162 — rewrite clause-1 ratification in the checker's shape, re-judge and tick T-736. criteria met (job 162 output, self-test 14/14). RCA recorded
+
+# Key outcomes
+outcomes:
+  - 'The checker never crashes on a malformed `attestation:`: a non-mapping is reported as an integrity problem'
+  - 'The report''s "answered and did NOT attest" paragraph is printed only for clauses that are still blocked, and'
+  - 'After operator job 162 writes clause 1 as a mapping with `satisfied: true` and `blocks_arc_0_exit: false`, the'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/learnings.yaml'
+  - '.context/runme/162-fix-arc0-clause1-shape/dryrun.ok'
+  - '.context/runme/162-fix-arc0-clause1-shape/job.sh'
+  - '.tasks/active/T-1435-arc-0-gate-crash-on-the-ratified-clause-.md'
+  - '.tasks/active/T-736-aef-attested-arc-0-clause-1-green-with-i.md'
+  - 'tools/_t596-arc0-exit-gate.sh'
+  - 'tools/_t597_arc0_clauses.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-18T13:27:17'
+    action: 'T-1435: Arc-0 checker refuses a non-mapping attestation (was a crash), prints the derived ''Arc 0: N of 3'', and shows the ''did NOT attest'' history only for blocked clauses; new poison leg (14/14); T-736 pins moved to the ruling''s values'
+  - time: '2026-11-18T13:28:08'
+    action: 'T-1435: operator job 162 — rewrite clause-1 ratification in the checker''s shape, re-judge and tick T-736'
+  - time: '2026-11-18T13:57:10'
+    action: 'T-1435: criteria met (job 162 output, self-test 14/14)'
+  - time: '2026-11-18T13:57:47'
+    action: 'T-1435: RCA recorded'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 32 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 32
+  commits: 5
+  files_changed: 10
+  lines_added: 653
+  lines_removed: 17
+  footprint_refreshed_at: '2026-11-18T12:58:33Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1435-arc-0-gate-crash-on-the-ratified-clause-.md
+generated_by: context-agent-hybrid
