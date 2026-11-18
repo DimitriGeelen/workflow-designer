@@ -145,6 +145,13 @@ answers the one thing that was asked of us, and routes the ruling.
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-736 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+  **Reviewer escalation (V-20261116-3cfd012a, reviewer-judge-t-736-r3-aa2fcbf766fa:reviewer, rung rung-3-termlink-single-reviewer):** Operator ruling required: this criterion IS the ratification of AEF's clause-1 attestation (sovereignty / Arc-0 exit direction); the task reserves attestation: and definition_ratified: to the operator. No ruling exists yet: clause 1 still has attestation: null, definition_ratified: false, blocks_arc_0_exit: true. Input is in place (counterparty_response_superseding quotes @1539, commit 174f31777, CORE/BROAD intersection 0/0 with coverage control; r2 @1603 CORE 31/31). Operator: pick A, B or C and, for A or B, make the two field edits on clause 1. Note: brief's bin/fw does not exist here; only .agentic-framework/bin/fw.
+  **Operator ruling, 2026-11-18 (in session, answering the escalation above): "A" — ratify.** In the operator's
+  words: "this is definitely something I still want, and if AEF says it's done, then it's done." So the Executable
+  Workflow Runtime roadmap stays live, and clause 1 is accepted on AEF's attestation (@1539, their T-3394, commit
+  `174f31777`, measured at `996a4f9a5`: CORE/BROAD intersection 0/0 with the coverage control; r2 @1603 CORE 31/31).
+  The two clause-1 fields are the operator's, so they are set by the operator's own job (161): `attestation:` cites
+  @1539 / `174f31777`, `definition_ratified: true`. Arc 0 then stands at 1 of 3.
 
 ## Verification
 
