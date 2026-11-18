@@ -274,6 +274,9 @@ ratifiable proposal. AC 4 is the operator's, and nothing here edits the hook bef
   2026-11-18 (committing a task's own close record after it moves to `completed/` needs focus on another task;
   the commit still carries the right task id) goes to AEF as an observation, not a local fix, so the vendored hook
   does not drift from upstream.
+  **Waiting on AEF (2026-11-18):** `fw task delegate` classes this box act-in-the-world / operator-only only because
+  its body names `git push` (a refused command in the list). The operator declined to rubber-stamp it; AEF was asked
+  to fix `classify()` (sidecar msg e106c38e). After the fix is vendored: `fw reviewer judge T-676`, then apply.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
