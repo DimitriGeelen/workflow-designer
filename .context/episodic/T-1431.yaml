@@ -1,0 +1,86 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1431: Editor behavior leg (test_editor_behavior.py) fails intermittently in the local browser tier under load (2026-11-13, 2026-11-17), passes alone and on the pool
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-18T15:13:07Z
+# ============================================================================
+
+task_id: T-1431
+task_name: "Editor behavior leg (test_editor_behavior.py) fails intermittently in the local browser tier under load (2026-11-13, 2026-11-17), passes alone and on the pool"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-17T11:14:19Z
+completed: 2026-11-18T15:12:55Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-11-17T14:23:46+01:00
+last_commit: 2026-11-18T15:49:12+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  quarantine test_editor_behavior until 2026-11-24 — an intermittent 180 s HANG of _editor-behavior-verify-cdp.mjs (normally 13 s): local 2026-11-13 and 2026-11-17, pool 2026-11-17; the other machine passed the same tree each time; predates T-1428. instrument the editor-behavior harness (step log, explicit exit, 60 s per-command and 2 s health limits) and its wrapper (keeps partial output on timeout, names the last step, kills the whole process group); the 2026-11-17 hang's orphaned Chrome read as evidence. lift the test_editor_behavior quarantine — 20/20 green (12 under load), the leg now names its step and stays below the wrapper's limit; criteria, verification and RCA recorded
+
+# Key outcomes
+outcomes:
+  - 'The harness writes one `[ebv +<ms>] <step>` line to stderr per step, and exits explicitly when done.'
+  - 'On a timeout the wrapper prints the harness''s partial stdout/stderr and names the last step reached'
+  - 'No wait in the harness can outlive the wrapper: the health fetch has a timeout and the CDP per-command limit'
+  - 'The leg runs green 20 times in a row on this host (12 of them under parallel load), or the hang is captured'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1431-editor-behavior-leg-testeditorbehaviorpy.md'
+  - 'tests/quarantine.yaml'
+  - 'tests/test_editor_behavior.py'
+  - 'tools/_editor-behavior-verify-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-17T14:23:46'
+    action: 'T-1431: quarantine test_editor_behavior until 2026-11-24 — an intermittent 180 s HANG of _editor-behavior-verify-cdp.mjs (normally 13 s): local 2026-11-13 and 2026-11-17, pool 2026-11-17; the other machine passed the same tree each time; predates T-1428'
+  - time: '2026-11-18T15:45:13'
+    action: 'T-1431: instrument the editor-behavior harness (step log, explicit exit, 60 s per-command and 2 s health limits) and its wrapper (keeps partial output on timeout, names the last step, kills the whole process group); the 2026-11-17 hang''s orphaned Chrome read as evidence'
+  - time: '2026-11-18T15:49:12'
+    action: 'T-1431: lift the test_editor_behavior quarantine — 20/20 green (12 under load), the leg now names its step and stays below the wrapper''s limit; criteria, verification and RCA recorded'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 1678 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1678
+  commits: 4
+  files_changed: 7
+  lines_added: 658
+  lines_removed: 43
+  footprint_refreshed_at: '2026-11-18T15:13:32Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1431-editor-behavior-leg-testeditorbehaviorpy.md
+generated_by: context-agent-hybrid
