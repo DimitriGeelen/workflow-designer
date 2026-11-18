@@ -1,0 +1,102 @@
+# ============================================================================
+# EPISODIC MEMORY - T-736: AEF attested Arc-0 clause 1 green with its numbers at @1539 — record the response as T-623 did, route ratification to the operator, answer R7
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-18T12:59:01Z
+# ============================================================================
+
+task_id: T-736
+task_name: "AEF attested Arc-0 clause 1 green with its numbers at @1539 — record the response as T-623 did, route ratification to the operator, answer R7"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-09-20T08:02:55Z
+completed: 2026-09-21T20:24:53Z
+duration_days: 1
+updates_count: 1
+first_commit: 2026-09-20T10:06:42+02:00
+last_commit: 2026-11-18T13:55:12+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  AEF attested Arc-0 clause 1 green at @1539 — recorded beneath their red, not instead of it; R7 answered with IW-11; ratification routed to the operator. reviewer verdict. operator ratifies Arc-0 clause 1 on AEF's attestation (@1539, 174f31777) — attestation set, definition_ratified true (operator job 161). Arc-0 clause 1 ratification rewritten as an attestation record with satisfied: true and blocks_arc_0_exit: false (operator job 162; job 161 had written a string the checker cannot read)
+
+# Key outcomes
+outcomes:
+  - 'Clause 1''s `counterparty_response:` in `arc-0-exit-clauses.yaml` carries AEF''s @1539'
+  - '`attestation:` and `definition_ratified:` on every clause are byte-identical before'
+  - 'R7 is answered on the rail with the IW-11 disposition record quoted inline and its'
+  - 'The ACK to @1539 states plainly what we did and did not do: recorded, not ratified;'
+  - 'The YAML still parses after the edit.'
+  - '[REVIEW] Rule on clause 1 — this is the ratification AEF''s post explicitly declines'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-736/AC1-judge-t-736-r3-13b1b5435435.md'
+  - '.context/reviews/evidence/T-736/AC1-judge-t-736-r3-5b818fe1ea3d.md'
+  - '.context/reviews/evidence/T-736/AC1-judge-t-736-r3-aa2fcbf766fa.md'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-736-aef-attested-arc-0-clause-1-green-with-i.md'
+  - 'docs/research/executable-workflow/arc-0-exit-clauses.yaml'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-09-20T10:06:42'
+    action: 'T-736: AEF attested Arc-0 clause 1 green at @1539 — recorded beneath their red, not instead of it; R7 answered with IW-11; ratification routed to the operator'
+  - time: '2026-11-16T23:49:42'
+    action: 'T-736: reviewer verdict'
+  - time: '2026-11-18T13:21:16'
+    action: 'T-736: operator ratifies Arc-0 clause 1 on AEF''s attestation (@1539, 174f31777) — attestation set, definition_ratified true (operator job 161)'
+  - time: '2026-11-18T13:22:52'
+    action: 'T-736: reviewer verdict'
+  - time: '2026-11-18T13:54:02'
+    action: 'T-736: Arc-0 clause 1 ratification rewritten as an attestation record with satisfied: true and blocks_arc_0_exit: false (operator job 162; job 161 had written a string the checker cannot read)'
+  - time: '2026-11-18T13:55:12'
+    action: 'T-736: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 2181 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2181
+  commits: 7
+  files_changed: 14
+  lines_added: 676
+  lines_removed: 6
+  footprint_refreshed_at: '2026-11-18T12:59:24Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-736-aef-attested-arc-0-clause-1-green-with-i.md
+generated_by: context-agent-hybrid

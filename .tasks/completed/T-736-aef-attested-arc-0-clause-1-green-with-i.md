@@ -8,8 +8,9 @@ description: >
 
 status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -19,7 +20,7 @@ arc_id: ewcr-governed-delivery
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-20T08:02:55Z
-last_update: '2026-09-21T20:24:53Z'
+last_update: 2026-11-18T12:58:54Z
 date_finished: 2026-09-20T08:06:47Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -42,6 +43,7 @@ cost_estimate_proposed:
       (paths:docs/research/executable-workflow/arc-0-exit-clauses.yaml); tier=2 
       (no-signal); effort=8 (no-signal)
     rubric_sha: e4a00f38e801
+date_finalised: 2026-11-18T12:58:54Z
 ---
 
 # T-736: AEF attested Arc-0 clause 1 green with its numbers at @1539 — record the response as T-623 did, route ratification to the operator, answer R7
