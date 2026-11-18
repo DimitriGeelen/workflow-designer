@@ -164,7 +164,7 @@ Sources: `arc-0-exit-clauses.yaml`, `operator-decisions.yaml`, `.tasks/active/T-
   judge H6 against it once the arc-0 register is updated.
 
 ### Human
-- [x] [REVIEW] Rule H1 — do roadmap Arcs 4–6 supersede the standing DEFERs (T-279/280/281/282) and AEF's T-2669 NO-GO?
+- [ ] [REVIEW] Rule H1 — do roadmap Arcs 4–6 supersede the standing DEFERs (T-279/280/281/282) and AEF's T-2669 NO-GO?
   **2026-10-19, ruled again by the operator in session, and REVERSED:** after the reviewer escalated the
   2026-09-21 transcription, the agent laid out the background, options A-D, scoring and steelman/strawman. The
   operator wrote "So definitely want all this stuff that we discussed here, absolutely. If you can build it, that
@@ -178,12 +178,11 @@ Sources: `arc-0-exit-clauses.yaml`, `operator-decisions.yaml`, `.tasks/active/T-
   **Expected:** `operator-decisions.yaml` H1 carries `status: resolved` and a `source_of_truth`
   **If not:** the four tasks named above stay parked at a flat BVP 126 with nothing distinguishing them
   **Reviewer escalation (V-20261019-55e219da, reviewer-judge-t-732-r1-7c9df386bc3a:reviewer, rung rung-1-same-vendor-independent):** The register mechanically meets Expected: H1 is status resolved and has a source_of_truth. But H1 is a sovereignty call, and its only provenance is an agent transcription of a verbal ruling (ruling_channel: 'NOT a Watchtower tick ... the tick wins'). The operator needs to tick H1 on /approvals to confirm the 2026-09-21 ruling (DEFERs T-279/280/281/282 and the T-2669 NO-GO stand), or correct the register if the transcription is wrong. A reviewer cannot sign in the operator's place.
-  **Reviewer verdict:** green V-20261118-29a9caad — reviewer-judge-t-732-r1-b3b6b775376b:reviewer (rung rung-1-same-vendor-independent), digest fed92a31fa54; dispatch judge-t-732-r1-b3b6b775376b; evidence: .context/reviews/evidence/T-732/AC1-judge-t-732-r1-b3b6b775376b.md; ledger .context/reviews/verdicts.jsonl
 
 
 
 
-- [ ] [REVIEW] Tick T-596's Human AC to set `definition_ratified: true` on clause 3 — without it the clause refuses to be satisfiable at all, and all four rulings above buy nothing
+- [x] [REVIEW] Tick T-596's Human AC to set `definition_ratified: true` on clause 3 — without it the clause refuses to be satisfiable at all, and all four rulings above buy nothing
   **Steps:**
   1. Do T-596's Human AC first — it is the substance, this criterion is its consequence:
      `cd /opt/832-Workflow-designer && cat docs/research/executable-workflow/operator-decisions.yaml`
@@ -211,6 +210,7 @@ Sources: `arc-0-exit-clauses.yaml`, `operator-decisions.yaml`, `.tasks/active/T-
   job 163 writes them (`definition_ratified: true`, `ratification_pending` removed, a `ratification:` record by
   operator), accepts the reviewer's restatement of T-596's out-of-date box (V-20261118-7571175e), and re-judges both.
   Measured on a copy: the gate then reads clause-3 BLOCKED on H5/H6 only, Arc 0 1 of 3.
+  **Reviewer verdict:** green V-20261118-866f97ca — reviewer-judge-t-732-r1-3cb45e360ecb:reviewer (rung rung-1-same-vendor-independent), digest 0954a3854f61; dispatch judge-t-732-r1-3cb45e360ecb; evidence: .context/reviews/evidence/T-732/AC2-judge-t-732-r1-3cb45e360ecb.md; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
