@@ -8,7 +8,7 @@ description: >
 
 status: work-completed
 workflow_type: build
-owner: human
+owner: agent
 horizon: now
 tags: [arc:ewcr-governed-delivery]
 components: []
@@ -96,7 +96,7 @@ could mark itself resolved would be the same defect T-593 removed from the envel
 
 ### Human
 
-- [ ] [REVIEW] Confirm the register read H1 and H3 as **open** when T-596 landed (33b7d204d, 2026-08-26), that each became `resolved` only by an operator ruling (H1 under T-732, H3 under T-830), and that `tools/_t596-arc0-exit-gate.sh` exits non-zero and prints `BLOCKED` for clause 3, naming exactly the questions still open (H5, H6 at this revision).
+- [x] [REVIEW] Confirm the register read H1 and H3 as **open** when T-596 landed (33b7d204d, 2026-08-26), that each became `resolved` only by an operator ruling (H1 under T-732, H3 under T-830), and that `tools/_t596-arc0-exit-gate.sh` exits non-zero and prints `BLOCKED` for clause 3, naming exactly the questions still open (H5, H6 at this revision).
   **Restated:** 2026-11-18, accepting V-20261118-7571175e; was: [REVIEW] Confirm the register reads H1 and H3 correctly as **open**, not as already answered
 
   **Steps:**
@@ -149,6 +149,7 @@ could mark itself resolved would be the same defect T-593 removed from the envel
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-596 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+  **Reviewer verdict:** green V-20261118-5a0608da — reviewer-judge-t-596-r3-5212973e012b:reviewer (rung rung-3-termlink-single-reviewer), digest 32acdcb2f10f; dispatch judge-t-596-r3-5212973e012b; evidence: .context/reviews/evidence/T-596/AC1-judge-t-596-r3-5212973e012b.md; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
