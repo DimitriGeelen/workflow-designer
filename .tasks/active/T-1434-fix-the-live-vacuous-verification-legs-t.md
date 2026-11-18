@@ -103,9 +103,16 @@ command or `cmd > F 2>&1 && grep -q PAT F` (step 2); the detector over active ta
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
 - [ ] Step 1: a core leg runs `check-vacuous-verification.py --self-test`, so the detector has a live caller and is
       proven able to see a planted defect on every push.
-- [ ] Step 2: every LIVE RISK leg is rewritten (the bare command where it exits non-zero on failure, else the `&&`
-      file form), each rewritten line still passing; operator-owned tasks via an operator job.
-- [ ] Step 3: a core leg fails when the detector finds any LIVE RISK leg in active tasks, and it reports 0 at close.
+- [ ] Step 2a: the detector flags only legs that really discard the producing command's exit status. A
+      `cmd > F 2>&1 && head F | grep -q P` leg keeps cmd's status and is not flagged (T-1249's two lines, measured
+      2026-11-18); a self-test control pins that.
+- [ ] Step 2b: every LIVE RISK leg in a task the agent may edit is rewritten (the bare command where it exits non-zero
+      on failure, else the `&&` file form), each rewritten line still passing.
+- [ ] Step 2c: legs in tasks waiting on the operator are NOT edited and NOT sent to the operator as a job (operator,
+      2026-11-18: "that sounds like rubber stamping again"). They are listed in a baseline, each with its task, and
+      leave it when that task closes (each runs once more, at close, then never again).
+- [ ] Step 3: a core leg fails when the detector finds a LIVE RISK leg that is not in the baseline (a new one), and
+      when a baseline entry is no longer found (the baseline is stale); the baseline only shrinks.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
