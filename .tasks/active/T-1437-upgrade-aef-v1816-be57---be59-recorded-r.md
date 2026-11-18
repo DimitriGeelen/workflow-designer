@@ -75,7 +75,8 @@ closed through the recorded-ruling route.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `.framework.yaml` version_sha is `ea167a69d…` and `.agentic-framework/VERSION` names be.59 (operator job).
+- [ ] `.framework.yaml` version_sha is `6956275849f2041c5d419296ad3f140ab3c94fb0` (be.60; AEF released it on top of
+      be.59 before job 166 ran, msg b22fecff, adding the inception lifecycle map; job 167 replaces job 166).
 - [ ] Every declared local fix the upgrade overwrote is resolved via `tools/_t1000-revendor-worklist.py`, and
       `tools/_t517-vendor-divergence.py` reports no STALE entry.
 - [ ] `fw reviewer ruling record --help` works in the vendored framework.
