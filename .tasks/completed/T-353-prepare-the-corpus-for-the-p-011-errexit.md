@@ -17,8 +17,9 @@ description: >
 
 status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -27,7 +28,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T10:35:08Z
-last_update: '2026-08-16T14:33:02Z'
+last_update: 2026-11-18T00:03:14Z
 date_finished: 2026-08-03T11:09:29Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -95,6 +96,7 @@ cost_estimate_proposed:
       (paths:docs/reports/T-353-corpus-readiness.md,tools/_t352-member-scan.py,tools/_t353-classify.py,tools/_t353-convert.py);
       tier=2 (no-signal); effort=8 (no-signal)
     rubric_sha: e4a00f38e801
+date_finalised: 2026-11-18T00:03:14Z
 ---
 
 # T-353: Prepare the corpus for the P-011 errexit gate change (4 latent patterns + 19 DIVERGENT lines)

@@ -1,0 +1,134 @@
+# ============================================================================
+# EPISODIC MEMORY - T-353: Prepare the corpus for the P-011 errexit gate change (4 latent patterns + 19 DIVERGENT lines)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-18T00:03:51Z
+# ============================================================================
+
+task_id: T-353
+task_name: "Prepare the corpus for the P-011 errexit gate change (4 latent patterns + 19 DIVERGENT lines)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-03T10:35:08Z
+completed: 2026-08-16T14:33:02Z
+duration_days: 13
+updates_count: 1
+first_commit: 2026-08-03T12:37:10+02:00
+last_commit: 2026-11-18T00:43:45+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  session bookkeeping — learning capture, episodic-gen log, hook counters, and overnight cron audit state. Carried under T-353 because T-352 is work-completed and terminal, so the focus-drift gate correctly refuses a T-352-labelled commit; recording the carry rather than reaching for FW_SWITCH_FOCUS. corpus readiness measured — AC2 19/19 FAILURE-PATH-CORRECT (zero genuine false greens, confirming T-352's inversion by measurement), AC1 repairs proven to discriminate 14/16. THE TWO RED LEGS ARE THE FINDING. (1) T-299 is NOT latent — its document validates to WARN and the string VALID does not appear in the output at all, so the line is red today, not passing-because-valid; corrected population is 3 latent + 1 red. (2) Tallying the LATENT bucket's own recorded verdict pairs: 159 (PASS/PASS) and 30 (FAIL/n/a) — those 30 never agreed, they FAILED, and 'n/a' is the ABSENCE of a second measurement not a matching one. The section's prose 'the first command simply succeeds today' is false for 30 of its 189 members. Same defect as the DIVERGENT inversion — a bucket named by a predicate then described as one of the two opposite states it spans — committed one section below the paragraph diagnosing it. Third on this arc. (3) LIVE CONSEQUENCE: 29 of the 30 are archived, ONE IS NOT — T-178 is active, work-completed, owner human, queued at /review/T-178, and its sha line pins 0.2.0 against MANIFEST's sha256 field which always names the LATEST release (now 0.8.0, verified internally correct). It was true exactly once and has been false through eight releases; completing T-178 will be REFUSED by P-011 for a reason unrelated to its deliverable. G-015 shape, third carrier. Filed separately, not repaired here (another owner's active task). Classifier carries 4 controls in 4 distinct buckets and caught three defects in itself first: all controls collapsed because the head is an ASSIGNMENT whose stdout is empty by construction; the error vocabulary listed imagined text and missed validate-workflow.py's actual 'E-LOAD/file not found'; and three real lines read ASSERTION-UNMET because I substring-tested grep BREs in Python instead of asking grep. AC3/AC4 conversions proven 19/19 (3 legs each, DIVERGENT remaining 0) and AC1 amended before ticking. Conversion appends '|| true' to the capture whose non-zero exit is BY DESIGN, so the assertion carries the whole verdict; only ASSIGNMENTS are converted because a $() inside the assertion is part of the verdict and blanketing it would make the assertion unable to fail. Leg 1 runs the ORIGINAL under the remedy and requires FAIL — without it a conversion that changed nothing scores 2/2 and the corpus gets declared ready on lines that were never at risk. AC1 amended rather than quietly re-scoped: its 'require PASS on the real document' clause presupposed all four documents are valid and T-299's is not, so for that target the probe asserts what IS true and falsifiable — the ORIGINAL line already fails (correcting T-352's classification) and the repair cannot fix a stale document. Expected validity is DECLARED per target, not derived from the run, so if that document ever becomes valid the leg goes red and someone has to come back and say so. Probe 16/16. RCA names the general defect: LATENT was defined by 'the two constructs did not differ', which is true both when both PASS and when the first FAILS and the second never runs — the recorded verdict pairs preserved the difference, the prose describing the bucket did not. Prevention is narrow and cheap: any bucket whose members carry a per-member verdict must report the DISTRIBUTION, not the cardinality — 189 hides a 159/30 split, a distribution cannot. T-575: landing mode session 1 — evidence pack for the 12 parked tasks.. reviewer verdict
+
+# Key outcomes
+outcomes:
+  - '**AC1 — the 4 latent patterns are tightened, and the tightening is proven to'
+  - '**AC2 — each of the 19 DIVERGENT lines is classified by hand before anything changes.**'
+  - '**AC3 — converted lines express the intended failure as success.** A line asserting "the'
+  - '**AC4 — the readiness claim is mechanical, not asserted.** `tools/_t352-member-scan.py`'
+  - '**AC5 — the scope boundary is respected and recorded.** All 4 latent instances and most'
+  - '[REVIEW] Ruling: may an agent edit `## Verification` blocks inside `.tasks/completed/`? (step 1''s probe reports 23 passed, 0 failed, not 16/16)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'AC3/AC4 conversions proven 19/19 (3 legs each, DIVERGENT remaining 0) and AC1 amended before ticking. Conversion appends ''|| true'' to the capture whose non-zero exit is BY DESIGN, so the assertion carries the whole verdict; only ASSIGNMENTS are converted because a $() inside the assertion is part of the verdict and blanketing it would make the assertion unable to fail. Leg 1 runs the ORIGINAL under the remedy and requires FAIL — without it a conversion that changed nothing scores 2/2 and the corpus gets declared ready on lines that were never at risk. AC1 amended rather than quietly re-scoped: its ''require PASS on the real document'' clause presupposed all four documents are valid and T-299''s is not, so for that target the probe asserts what IS true and falsifiable — the ORIGINAL line already fails (correcting T-352''s classification) and the repair cannot fix a stale document. Expected validity is DECLARED per target, not derived from the run, so if that document ever becomes valid the leg goes red and someone has to come back and say so. Probe 16/16. RCA names the general defect: LATENT was defined by ''the two constructs did not differ'', which is true both when both PASS and when the first FAILS and the second never runs — the recorded verdict pairs preserved the difference, the prose describing the bucket did not. Prevention is narrow and cheap: any bucket whose members carry a per-member verdict must report the DISTRIBUTION, not the cardinality — 189 hides a 159/30 split, a distribution cannot'
+    source: git-mined
+  - description: 'corpus readiness measured — AC2 19/19 FAILURE-PATH-CORRECT (zero genuine false greens, confirming T-352''s inversion by measurement), AC1 repairs proven to discriminate 14/16. THE TWO RED LEGS ARE THE FINDING. (1) T-299 is NOT latent — its document validates to WARN and the string VALID does not appear in the output at all, so the line is red today, not passing-because-valid; corrected population is 3 latent + 1 red. (2) Tallying the LATENT bucket''s own recorded verdict pairs: 159 (PASS/PASS) and 30 (FAIL/n/a) — those 30 never agreed, they FAILED, and ''n/a'' is the ABSENCE of a second measurement not a matching one. The section''s prose ''the first command simply succeeds today'' is false for 30 of its 189 members. Same defect as the DIVERGENT inversion — a bucket named by a predicate then described as one of the two opposite states it spans — committed one section below the paragraph diagnosing it. Third on this arc. (3) LIVE CONSEQUENCE: 29 of the 30 are archived, ONE IS NOT — T-178 is active, work-completed, owner human, queued at /review/T-178, and its sha line pins 0.2.0 against MANIFEST''s sha256 field which always names the LATEST release (now 0.8.0, verified internally correct). It was true exactly once and has been false through eight releases; completing T-178 will be REFUSED by P-011 for a reason unrelated to its deliverable. G-015 shape, third carrier. Filed separately, not repaired here (another owner''s active task). Classifier carries 4 controls in 4 distinct buckets and caught three defects in itself first: all controls collapsed because the head is an ASSIGNMENT whose stdout is empty by construction; the error vocabulary listed imagined text and missed validate-workflow.py''s actual ''E-LOAD/file not found''; and three real lines read ASSERTION-UNMET because I substring-tested grep BREs in Python instead of asking grep'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/cron/2026-08-03-1245.yaml'
+  - '.context/audits/cron/2026-08-03-1300.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/locks/T-575.lock'
+  - '.context/project/learnings.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-353/AC1-judge-t-353-r3-0b73c29eed94.md'
+  - '.context/reviews/evidence/T-353/AC1-judge-t-353-r3-0bd31277bf62.md'
+  - '.context/reviews/evidence/T-353/AC1-judge-t-353-r3-408e3f91c942.md'
+  - '.context/reviews/evidence/T-353/AC1-judge-t-353-r3-9b5dcf1d5db1.md'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.compact-log'
+  - '.context/working/.edit-counter'
+  - '.context/working/.hook-counter'
+  - '.context/working/.loop-detect.json'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.pre-compact.last-run'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-start-ts'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/landing-notes.md'
+  - '.tasks/active/T-353-prepare-the-corpus-for-the-p-011-errexit.md'
+  - '.tasks/active/T-354-t-178-verification-pins-020-against-mani.md'
+  - '.tasks/active/T-575-landing-drain-the-parked-backlog-to-cons.md'
+  - 'docs/reports/T-353-corpus-readiness.md'
+  - 'tools/_t353-classify.py'
+  - 'tools/_t353-convert.py'
+  - 'tools/_t353-repair-probe.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-08-03T12:37:10'
+    action: 'T-353: session bookkeeping — learning capture, episodic-gen log, hook counters, and overnight cron audit state. Carried under T-353 because T-352 is work-completed and terminal, so the focus-drift gate correctly refuses a T-352-labelled commit; recording the carry rather than reaching for FW_SWITCH_FOCUS'
+  - time: '2026-08-03T13:02:58'
+    action: 'T-353: corpus readiness measured — AC2 19/19 FAILURE-PATH-CORRECT (zero genuine false greens, confirming T-352''s inversion by measurement), AC1 repairs proven to discriminate 14/16. THE TWO RED LEGS ARE THE FINDING. (1) T-299 is NOT latent — its document validates to WARN and the string VALID does not appear in the output at all, so the line is red today, not passing-because-valid; corrected population is 3 latent + 1 red. (2) Tallying the LATENT bucket''s own recorded verdict pairs: 159 (PASS/PASS) and 30 (FAIL/n/a) — those 30 never agreed, they FAILED, and ''n/a'' is the ABSENCE of a second measurement not a matching one. The section''s prose ''the first command simply succeeds today'' is false for 30 of its 189 members. Same defect as the DIVERGENT inversion — a bucket named by a predicate then described as one of the two opposite states it spans — committed one section below the paragraph diagnosing it. Third on this arc. (3) LIVE CONSEQUENCE: 29 of the 30 are archived, ONE IS NOT — T-178 is active, work-completed, owner human, queued at /review/T-178, and its sha line pins 0.2.0 against MANIFEST''s sha256 field which always names the LATEST release (now 0.8.0, verified internally correct). It was true exactly once and has been false through eight releases; completing T-178 will be REFUSED by P-011 for a reason unrelated to its deliverable. G-015 shape, third carrier. Filed separately, not repaired here (another owner''s active task). Classifier carries 4 controls in 4 distinct buckets and caught three defects in itself first: all controls collapsed because the head is an ASSIGNMENT whose stdout is empty by construction; the error vocabulary listed imagined text and missed validate-workflow.py''s actual ''E-LOAD/file not found''; and three real lines read ASSERTION-UNMET because I substring-tested grep BREs in Python instead of asking grep'
+  - time: '2026-08-03T13:07:55'
+    action: 'T-353: AC3/AC4 conversions proven 19/19 (3 legs each, DIVERGENT remaining 0) and AC1 amended before ticking. Conversion appends ''|| true'' to the capture whose non-zero exit is BY DESIGN, so the assertion carries the whole verdict; only ASSIGNMENTS are converted because a $() inside the assertion is part of the verdict and blanketing it would make the assertion unable to fail. Leg 1 runs the ORIGINAL under the remedy and requires FAIL — without it a conversion that changed nothing scores 2/2 and the corpus gets declared ready on lines that were never at risk. AC1 amended rather than quietly re-scoped: its ''require PASS on the real document'' clause presupposed all four documents are valid and T-299''s is not, so for that target the probe asserts what IS true and falsifiable — the ORIGINAL line already fails (correcting T-352''s classification) and the repair cannot fix a stale document. Expected validity is DECLARED per target, not derived from the run, so if that document ever becomes valid the leg goes red and someone has to come back and say so. Probe 16/16. RCA names the general defect: LATENT was defined by ''the two constructs did not differ'', which is true both when both PASS and when the first FAILS and the second never runs — the recorded verdict pairs preserved the difference, the prose describing the bucket did not. Prevention is narrow and cheap: any bucket whose members carry a per-member verdict must report the DISTRIBUTION, not the cardinality — 189 hides a 159/30 split, a distribution cannot'
+  - time: '2026-08-20T23:48:09'
+    action: 'T-575: landing mode session 1 — evidence pack for the 12 parked tasks.'
+  - time: '2026-11-16T23:39:32'
+    action: 'T-353: reviewer verdict'
+  - time: '2026-11-18T00:25:32'
+    action: 'T-353: reviewer verdict'
+  - time: '2026-11-18T00:29:17'
+    action: 'T-353: reviewer verdict'
+  - time: '2026-11-18T00:43:45'
+    action: 'T-353: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 8 commit(s), 18957 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 18957
+  commits: 9
+  files_changed: 39
+  lines_added: 2285
+  lines_removed: 108
+  footprint_refreshed_at: '2026-11-18T00:04:23Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-353-prepare-the-corpus-for-the-p-011-errexit.md
+generated_by: context-agent-hybrid
