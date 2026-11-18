@@ -101,6 +101,10 @@ clauses:
       Fabric/topology supports the stated boundaries".
     proposed_by: agent
     definition_ratified: true
+    ratification:
+      by: operator
+      on: 2026-11-18
+      in: 832 T-736 (operator ruling 'A'; written by operator jobs 161, 162)
     evaluation:
       method: counterparty-attestation
       what_would_satisfy: >
@@ -444,12 +448,11 @@ clauses:
       correlations, dispositions, routing). They are tracked here and answered by the
       operator; neither side owns them alone.
     proposed_by: agent
-    definition_ratified: false
-    ratification_pending: >
-      T-596 built this definition and its Human AC is still unticked. Recording it as
-      ratified because a task exists would be the agent ratifying its own definition —
-      the same move the register forbids everywhere else. It becomes ratified when the
-      operator ticks T-596's Human AC, not before.
+    definition_ratified: true
+    ratification:
+      by: operator
+      on: 2026-11-18
+      in: 832 T-732 (operator ruling 'a', in session; written by operator job 163)
     evaluation:
       method: local-register
       register: docs/research/executable-workflow/operator-decisions.yaml
