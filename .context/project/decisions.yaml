@@ -3398,3 +3398,10 @@ decisions:
     date: 2026-11-15
     task: T-1072
     rationale: "External review F8: byte-identical (O-6) and lossless-within-standard (O-9) were contradictory oracles"
+
+  - id: PD-465
+    decision: "Q15 (AEF contracts v2): the designer does NOT emit exporterVersion on bpmn:definitions; the build stays identified by exporter='aef-workflow-designer' plus the artifact sha256 pin (policy/designer-pin.yaml)"
+    scope: project
+    date: 2026-11-18
+    task: T-1063
+    rationale: "Operator ruling 'b', 2026-11-18, after the pros and cons were put (standard field and easier lookup vs a per-release line in every saved file and a golden re-record)."
