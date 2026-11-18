@@ -161,10 +161,12 @@ answers the one thing that was asked of us, and routes the ruling.
 
 # 1. The register still parses.
 python3 -c "import yaml; yaml.safe_load(open('docs/research/executable-workflow/arc-0-exit-clauses.yaml'))"
-# 2-3. The operator's fields are pinned at their pre-task values. Only the operator may
-#      move them; if this goes red, someone other than the operator did.
-test "$(grep -c '^    attestation: null' docs/research/executable-workflow/arc-0-exit-clauses.yaml)" -eq 2
-test "$(grep -c '^    definition_ratified: false' docs/research/executable-workflow/arc-0-exit-clauses.yaml)" -eq 3
+# 2-3. The operator's fields, pinned at the operator's ruling "A" (2026-11-18, jobs 161/162): clause 1 ratified,
+#      the other two clauses untouched. Only the operator may move them; if this goes red, someone else did.
+test "$(grep -c '^    attestation: null' docs/research/executable-workflow/arc-0-exit-clauses.yaml)" -eq 1
+test "$(grep -c '^    definition_ratified: false' docs/research/executable-workflow/arc-0-exit-clauses.yaml)" -eq 2
+# 3b. The ratification is in the shape the gate reads, and the gate counts it (T-1435).
+python3 tools/_t597_arc0_clauses.py docs/research/executable-workflow/arc-0-exit-clauses.yaml docs/research/executable-workflow/roadmap-5be23719.md 1 > /tmp/.t736-gate 2>&1; grep -q "clause-1   SATISFIED" /tmp/.t736-gate && grep -q "Arc 0: 1 of 3 satisfied" /tmp/.t736-gate
 # 4. The superseding record exists.
 grep -q 'counterparty_response_superseding:' docs/research/executable-workflow/arc-0-exit-clauses.yaml
 # 5. The @650 RED record it supersedes is still there — history kept, not replaced.

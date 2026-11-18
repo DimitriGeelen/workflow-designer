@@ -125,6 +125,12 @@ def check(clause_path, roadmap_path, h_gate_result):
                     f"attestation — nothing visible from this repository can certify it"
                 )
                 continue
+            if att and not isinstance(att, dict):
+                # T-1435: job 161 wrote the ratification as a plain string and this line
+                # crashed with AttributeError. A malformed field is an integrity problem.
+                problems.append(f"{cid}: attestation must be a mapping with "
+                                f"attested_by/attested_at, not {type(att).__name__}")
+                continue
             if att and not (att.get("attested_by") and att.get("attested_at")):
                 problems.append(f"{cid}: attestation is missing attested_by/attested_at")
                 continue
@@ -180,6 +186,8 @@ def main():
                 print(f"  {cid:<10} SATISFIED")
             for cid, why in blocked:
                 print(f"  {cid:<10} BLOCKED — {why}")
+            # T-1435: the count is derived, never written as prose.
+            print(f"  Arc 0: {len(satisfied)} of {len(satisfied) + len(blocked)} satisfied")
             if blocked:
                 print()
                 # T-610: the previous wording said the attestation needed "a counterparty
@@ -200,10 +208,13 @@ def main():
                     reg = yaml.safe_load(open(clause_path)) or {}
                 except (OSError, yaml.YAMLError):
                     reg = {}
+                # T-1435: only clauses still blocked. A satisfied clause keeps its old red
+                # response as history, and printing it here said "0 of 3" after ratification.
+                blocked_ids = {b for b, _ in blocked}
                 answered = [
                     (c.get("id"), c.get("counterparty_response"))
                     for c in (reg.get("clauses") or [])
-                    if c.get("counterparty_response")
+                    if c.get("counterparty_response") and c.get("id") in blocked_ids
                 ]
                 if answered:
                     print()
@@ -220,8 +231,8 @@ def main():
                         print("        clause stays BLOCKED rather than becoming satisfied.")
                     print()
                     print("  What changed is the KIND of blocker, not the count: from 'nobody has")
-                    print("  answered' to 'answered, red, on their own numbers'. Arc 0 is still")
-                    print("  0 of 3, and no Designer-side work moves it.")
+                    print("  answered' to 'answered, red, on their own numbers'. No Designer-side")
+                    print("  work moves it.")
                 else:
                     print("  Requested 2026-08-27 on agent-chat-arc offset 602, thread")
                     print("  EWCR-ARC0-ATTEST-832, under the roadmap §2.3 envelope. Awaiting a")

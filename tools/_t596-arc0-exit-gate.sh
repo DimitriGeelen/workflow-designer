@@ -158,6 +158,11 @@ elif mode == 'attestation_unsigned':
     by_id['clause-2']['definition_ratified'] = True
     by_id['clause-2']['satisfied'] = True
     by_id['clause-2']['attestation'] = {'note': 'AEF said it was fine'}
+elif mode == 'attestation_string':
+    # T-1435: the shape job 161 wrote. It crashed the checker instead of being refused.
+    by_id['clause-2']['definition_ratified'] = True
+    by_id['clause-2']['satisfied'] = True
+    by_id['clause-2']['attestation'] = 'AEF said so at @1539'
 yaml.safe_dump(d, open(sys.argv[2], 'w', encoding='utf-8'))
 PY
   python3 "$CLAUSE_CHECK" "$tmp/c.yaml" "$ROADMAP" 1 --quiet >/dev/null 2>&1
@@ -175,6 +180,7 @@ clause_poison "satisfied-while-unratified"  satisfied_unratified
 clause_poison "satisfied-no-attestation"    satisfied_no_attestation
 clause_poison "owner-reassigned-to-us"      owner_reassigned
 clause_poison "attestation-names-nobody"    attestation_unsigned
+clause_poison "attestation-is-a-string"     attestation_string
 
 # The real clause register must be BLOCKED (1), not integrity-violating (2).
 python3 "$CLAUSE_CHECK" "$CLAUSES" "$ROADMAP" 1 --quiet >/dev/null 2>&1
@@ -208,7 +214,7 @@ fi
 rm -rf "$tmp"
 
 if [ "$fail" -eq 0 ]; then
-  echo "13/13 Arc-0 exit gate control legs passed (T-596 H-register + T-597 clauses)"
+  echo "14/14 Arc-0 exit gate control legs passed (T-596 H-register + T-597 clauses)"
   exit 0
 fi
 echo "Arc-0 exit gate control legs FAILED"
