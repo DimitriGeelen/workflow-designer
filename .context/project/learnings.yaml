@@ -3050,3 +3050,9 @@ learnings:
   task: T-1434
   date: 2026-11-18
   context: Added via context agent
+- id: PL-444
+  learning: "In YAML 1.1 (PyYAML) the bare keys on/off/yes/no/y/n parse as booleans: 'on: 2026-11-18' became {True: date}. A read-back must assert the exact key set (set(r) == {...}), not one known key; job 163 checked only 'by' and missed it (T-732, job 165)."
+  source: unknown
+  task: T-1063
+  date: 2026-11-18
+  context: Added via context agent
