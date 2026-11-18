@@ -76,12 +76,15 @@ only appears for clauses that are still blocked. The register fields change only
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The checker never crashes on a malformed `attestation:`: a non-mapping is reported as an integrity problem
+- [x] The checker never crashes on a malformed `attestation:`: a non-mapping is reported as an integrity problem
       (exit 2), not a traceback.
-- [ ] The report's "answered and did NOT attest" paragraph is printed only for clauses that are still blocked, and
+      Evidence: on the job-161 register it printed `! clause-1: attestation must be a mapping … not str`, rc 2; new
+      poison leg `attestation-is-a-string` PASS.
+- [x] The report's "answered and did NOT attest" paragraph is printed only for clauses that are still blocked, and
       the report states the count as "Arc 0: N of 3 satisfied", derived, not hard-coded.
-- [ ] After operator job 162 writes clause 1 as a mapping with `satisfied: true` and `blocks_arc_0_exit: false`, the
+- [x] After operator job 162 writes clause 1 as a mapping with `satisfied: true` and `blocks_arc_0_exit: false`, the
       gate prints `clause-1   SATISFIED` and `Arc 0: 1 of 3 satisfied`, and its own self-tests still pass.
+      Evidence: job 162 step 3 log (3451c9b37) shows both lines; `--self-test` 14/14.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
