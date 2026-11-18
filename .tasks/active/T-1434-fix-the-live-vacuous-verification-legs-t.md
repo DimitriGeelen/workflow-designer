@@ -1,13 +1,18 @@
 ---
 id: T-1434
-name: "Fix the live vacuous verification legs, then make check-vacuous-verification a blocking gate (T-592 ruling b)"
+name: "Fix the live vacuous verification legs, then make check-vacuous-verification
+  a blocking gate (T-592 ruling b)"
 description: >
-  Operator ruling b on T-592 (2026-11-18): rewrite the live verification legs that capture a command's output and grep it (exit status discarded) into the bare command or the && file form, then wire tools/check-vacuous-verification.py as a blocking gate so no new one lands.
+  Operator ruling b on T-592 (2026-11-18): rewrite the live verification legs that
+  capture a command's output and grep it (exit status discarded) into the bare command
+  or the && file form, then wire tools/check-vacuous-verification.py as a blocking
+  gate so no new one lands.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-18T11:17:28Z
-last_update: 2026-11-18T11:17:28Z
-date_finished: null
+last_update: '2026-11-18T13:16:45Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +55,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-18T13:16:45Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1434: Fix the live vacuous verification legs, then make check-vacuous-verification a blocking gate (T-592 ruling b)
@@ -57,20 +82,30 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** Operator ruling "b" on T-592 (2026-11-18): fix forward, then gate.
+`tools/check-vacuous-verification.py` reported LIVE RISK 27 legs in 10 active tasks that day. Closing T-592 also took
+away the detector's only live caller (T-592's Verification), which turned the unwired-guard census leg red on the
+pool (push of ae2d7360b: `tier core RED: 230 passed, 1 failed`).
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** a verification leg of the form `out=$(cmd 2>&1); echo "$out" | grep -q PAT` is judged on
+the grep alone (P-011 runs each line as the condition of an `if`, so `a; b` is judged on `b`), so `cmd` can fail and
+the leg still pass. The detector finds them, but nothing runs it.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** the detector runs on every push, the live legs are rewritten, then the detector blocks new ones.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** a core leg running the detector's self-test (step 1, now); every live leg rewritten to the bare
+command or `cmd > F 2>&1 && grep -q PAT F` (step 2); the detector over active tasks is a blocking core leg at LIVE RISK
+0 (step 3). Edits to tasks the operator owns go through an operator job.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] Step 1: a core leg runs `check-vacuous-verification.py --self-test`, so the detector has a live caller and is
+      proven able to see a planted defect on every push.
+- [ ] Step 2: every LIVE RISK leg is rewritten (the bare command where it exits non-zero on failure, else the `&&`
+      file form), each rewritten line still passing; operator-owned tasks via an operator job.
+- [ ] Step 3: a core leg fails when the detector finds any LIVE RISK leg in active tasks, and it reports 0 at close.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -353,3 +388,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1434-fix-the-live-vacuous-verification-legs-t.md
 - **Context:** Initial task creation
+
+### 2026-11-18T13:16:43Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

@@ -2114,6 +2114,19 @@ else
 fi
 }
 leg core "test_t1429_clip_shot_census" _leg_t1429
+_leg_t1434() {
+
+# ── T-1434 (T-592 ruling b): the vacuous-verification detector can see a planted defect ──
+# Step 1 of "fix forward, then gate": the detector runs on every push. Step 3 adds the blocking run over active tasks.
+if python3 "$ROOT/tools/check-vacuous-verification.py" --self-test > "$TMP/leg-_t1434.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the vacuous-verification detector is blind to a planted 'out=\$(cmd); echo \"\$out\" | grep -q' leg, or flags an honest form (run 'python3 tools/check-vacuous-verification.py --self-test'; T-1434)"
+  show_output "$TMP/leg-_t1434.out" "check-vacuous-verification.py --self-test"
+  fail=$((fail + 1))
+fi
+}
+leg core "check_vacuous_verification_selftest" _leg_t1434
 _leg_t1212() {
 
 # ── T-1212: a 1-in/1-out exclusive gateway shows in the designer's Check as a WARNING, at 1024/1440/1920 ──

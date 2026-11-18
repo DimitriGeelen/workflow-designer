@@ -281,3 +281,8 @@ _t1369-shots.mjs
 _t1381-shots.mjs
 # screenshot generator for T-1372's evidence (the import notice at three widths, a variant and before), not a guard; same class as _t1241-lens-shots
 _t1372-shots.mjs
+# T-353's proof tools (classify the 19 lines; convert and prove them under both gate constructs). Only caller was T-353's Verification, gone when T-353 closed (1d79a55a6) after the operator's ruling was applied (T-1432, 7b2794288); one-shot by use (T-1434)
+_t353-classify.py
+_t353-convert.py
+# screenshot generator for T-893's evidence (authority markers at three widths, judged by three vision seats), not a guard; only caller was T-893's Verification, gone when T-893 closed (54e281937); same class as _t1241-lens-shots (T-1434)
+_t893-authority-marker-shots.mjs
