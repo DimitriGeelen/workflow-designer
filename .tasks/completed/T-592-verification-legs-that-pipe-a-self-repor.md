@@ -8,8 +8,9 @@ description: >
 
 status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -18,7 +19,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-26T12:31:10Z
-last_update: '2026-09-21T20:24:52Z'
+last_update: 2026-11-18T12:59:44Z
 date_finished: 2026-08-26T12:47:17Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -40,6 +41,7 @@ cost_estimate_proposed:
     rationale: blast_radius=1 (paths:tools/check-vacuous-verification.py); 
       tier=2 (no-signal); effort=8 (no-signal)
     rubric_sha: e4a00f38e801
+date_finalised: 2026-11-18T12:59:44Z
 ---
 
 # T-592: Verification legs that pipe a self-reporting command into grep discard its exit status

@@ -1,0 +1,98 @@
+# ============================================================================
+# EPISODIC MEMORY - T-592: Verification legs that pipe a self-reporting command into grep discard its exit status
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-18T12:59:51Z
+# ============================================================================
+
+task_id: T-592
+task_name: "Verification legs that pipe a self-reporting command into grep discard its exit status"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-26T12:31:10Z
+completed: 2026-09-21T20:24:52Z
+duration_days: 26
+updates_count: 1
+first_commit: 2026-08-26T14:36:52+02:00
+last_commit: 2026-11-18T12:19:07+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the idiom our verification blocks are built on passes commands that failed — 24 live legs, and CLAUDE.md recommends it.. reviewer verdict
+
+# Key outcomes
+outcomes:
+  - 'The false green is **proven with a poisoned control**, not argued: a command that exits'
+  - 'The same control run against the honest form (bare command, or `&&`-chained) reports'
+  - 'A detector exists that reports occurrences in `## Verification` blocks, parsing from the'
+  - 'The detector **separates live risk from historical residue**: active-task occurrences are'
+  - 'The detector has a `--self-test` that **plants** a poisoned leg and a clean leg in a'
+  - '`--self-test` is proven to fail when the detector is broken: running it against a'
+  - 'The live population is reported as an exact count with file names, and that count is'
+  - '[REVIEW] Decide whether the vacuous-verification detector becomes a blocking gate'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-592/AC1-judge-t-592-r3-28f3086adaed.md'
+  - '.context/reviews/evidence/T-592/AC1-judge-t-592-r3-eab0f46fb117.md'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-592-verification-legs-that-pipe-a-self-repor.md'
+  - 'tools/check-vacuous-verification.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-08-26T14:36:52'
+    action: 'T-592: the idiom our verification blocks are built on passes commands that failed — 24 live legs, and CLAUDE.md recommends it.'
+  - time: '2026-11-16T23:47:11'
+    action: 'T-592: reviewer verdict'
+  - time: '2026-11-18T12:19:07'
+    action: 'T-592: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 37913 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 37913
+  commits: 5
+  files_changed: 24
+  lines_added: 791
+  lines_removed: 8
+  footprint_refreshed_at: '2026-11-18T13:00:14Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-592-verification-legs-that-pipe-a-self-repor.md
+generated_by: context-agent-hybrid
