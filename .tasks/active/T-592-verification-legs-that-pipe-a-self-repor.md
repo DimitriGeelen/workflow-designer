@@ -168,6 +168,13 @@ visible if you run controls in both directions. Removed.
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-592 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+  **Reviewer escalation (V-20261116-1e31a5c8, reviewer-judge-t-592-r3-28f3086adaed:reviewer, rung rung-3-termlink-single-reviewer):** Operator decision needed: this criterion asks you to choose (a) gate now, (b) fix forward then gate, or (c) advisory only, plus yes/no on the doc edit. No choice is recorded anywhere (Decisions section empty, AC unticked, detector wired to no hook). It is a project-direction call (a blocking gate on 15 active tasks), so a reviewer must not make it. Facts verified at this revision: the detector runs and its self-test passes (3 PASS lines); live population is now 33 legs in 15 active tasks, not the 24 the criterion states (one of the 33 is T-592's own demonstration leg); CLAUDE.md contains no L-387/T-352 text, and the Verification hints block already marks the && file form PREFERRED and the capture form errexit-blind, so the doc edit may already be done there.
+  **Operator ruling, 2026-11-18 (in session, answering the escalation above): "b" — fix forward, then gate.** The
+  detector stays advisory for now; the live legs are rewritten (bare command, or `cmd > F 2>&1 && grep -q PAT F`) and
+  then `tools/check-vacuous-verification.py` becomes a blocking gate. That work is **T-1434**. Population at the
+  ruling: LIVE RISK 27 legs in 10 active tasks (detector run 2026-11-18). **Doc edit: yes, and already done
+  upstream** — `.tasks/templates/default.md` lines 148-167 (AEF T-4921, 832 T-1340) make the `&&` file form THE
+  DEFAULT and forbid `echo "$out" | grep -q`; no further edit is needed here.
 
 ## Recommendation
 
