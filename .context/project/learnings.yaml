@@ -3044,3 +3044,9 @@ learnings:
   task: T-1435
   date: 2026-11-18
   context: Added via context agent
+- id: PL-443
+  learning: "Operator standing view (2026-11-18, twice in one session): never hand the operator a mechanical approval — a tick that only records a ruling already given, or a job whose steps need no judgement (e.g. 19 line rewrites in operator-held tasks). Find the non-operator path first: reviewer judge + verdict apply, a baseline that drains as tasks close, or a fix upstream (AEF classifier). Operator jobs are for acts only the operator may perform, and the job must say why it is theirs."
+  source: unknown
+  task: T-1434
+  date: 2026-11-18
+  context: Added via context agent
