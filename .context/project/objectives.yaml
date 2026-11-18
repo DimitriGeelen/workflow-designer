@@ -18,7 +18,10 @@
 # and the operator's rulings: O-2 no longer refuses; O-4 gains stalled-past-deadline, human-required
 # with a reason, override who/why, strictness tied to ratification; O-5 is many projects plus field
 # feedback; O-1 agrees with the canonical task; O-9 merged into O-6 (one interchange test, reverse
-# render its own still-unmeasured part). Still a draft until the operator ratifies it (T-986).
+# render its own still-unmeasured part).
+# Revised 2026-11-18 (T-1436) on the operator's ruling b at signing: new O-9, template forks. The id O-9 was free:
+# the earlier O-9 was merged into O-6 on 2026-11-15 and no arc or task referenced it.
+# Still a draft until the operator ratifies it (T-986).
 #
 # Stop conditions (purpose doc P5). The shape below has no field for these, so they are kept
 # here for the operator to place: the project is worth stopping
@@ -115,6 +118,13 @@ objectives:
       A recorded deviation can be raised as a template-change proposal that names the template
       version it departs from; the ratified template stays unchanged until AEF ratifies the new
       version.
+  - id: O-9
+    text: >-
+      A template can be forked: copied into another project or variant, adapted there, and still
+      record which template and version it came from, so changes can be compared and offered back.
+    measure: >-
+      A forked template names its origin template and version; the difference between fork and
+      origin can be shown.
 out_of_scope:
   - "A general-purpose BPMN editor. BPMN is the portable format, not the product."
   - "Replacing the task system. Tasks are canonical: a diagram proposes governed work and never authors it."
