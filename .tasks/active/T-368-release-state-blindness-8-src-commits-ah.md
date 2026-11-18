@@ -259,7 +259,8 @@ window before it is cut.
 
 ### Human
 
-- [ ] [REVIEW] **Decide whether to cut 0.9.0, and whether AEF should be told to re-pin.**
+- [ ] [REVIEW] **0.9.0 was cut and AEF was told to re-pin.** `dist/aef-workflow-designer-0.9.0.html` exists, its sha256 equals the `sha256:` that `dist/MANIFEST.yaml` recorded at release commit `8cd0c5d3` (tag `designer-v0.9.0`), and the artifact is byte-unchanged since that commit.
+  **Restated:** 2026-11-18, accepting V-20261118-45d4ce68; was: [REVIEW] **Decide whether to cut 0.9.0, and whether AEF should be told to re-pin.**
 
   This is a judgement call, not a mechanical one: 5 of the 8 unreleased commits change
   emitted bytes, one of them (T-311) is a defect AEF has reported four times and
