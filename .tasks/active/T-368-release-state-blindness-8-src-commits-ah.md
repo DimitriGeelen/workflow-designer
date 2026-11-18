@@ -8,6 +8,7 @@ description: >
 
 status: work-completed
 workflow_type: build
+current_node: agt_2_perform
 owner: agent
 horizon: now
 tags: []
@@ -379,7 +380,7 @@ delta is the prevention, and it is not built.
 ## Verification
 
 python3 -c "import yaml; yaml.safe_load(open('.context/project/concerns.yaml'))"
-.agentic-framework/bin/fw gaps 2>&1 | grep -q "G-024"
+.agentic-framework/bin/fw gaps 2>&1 | grep "G-024" >/dev/null
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
