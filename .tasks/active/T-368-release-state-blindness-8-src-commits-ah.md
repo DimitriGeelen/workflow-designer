@@ -8,7 +8,7 @@ description: >
 
 status: work-completed
 workflow_type: build
-owner: human
+owner: agent
 horizon: now
 tags: []
 components: []
@@ -259,7 +259,7 @@ window before it is cut.
 
 ### Human
 
-- [ ] [REVIEW] **0.9.0 was cut and AEF was told to re-pin.** `dist/aef-workflow-designer-0.9.0.html` exists, its sha256 equals the `sha256:` that `dist/MANIFEST.yaml` recorded at release commit `8cd0c5d3` (tag `designer-v0.9.0`), and the artifact is byte-unchanged since that commit.
+- [x] [REVIEW] **0.9.0 was cut and AEF was told to re-pin.** `dist/aef-workflow-designer-0.9.0.html` exists, its sha256 equals the `sha256:` that `dist/MANIFEST.yaml` recorded at release commit `8cd0c5d3` (tag `designer-v0.9.0`), and the artifact is byte-unchanged since that commit.
   **Restated:** 2026-11-18, accepting V-20261118-45d4ce68; was: [REVIEW] **Decide whether to cut 0.9.0, and whether AEF should be told to re-pin.**
 
   This is a judgement call, not a mechanical one: 5 of the 8 unreleased commits change
@@ -281,8 +281,9 @@ window before it is cut.
   **If not:** holding is a legitimate answer — but AEF is currently spending real effort
   on T-311, so if the answer is "hold", say roughly for how long and I will tell them
   to stop working around it rather than leaving them to keep paying for it.
+  **Reviewer verdict:** green V-20261118-3da13c4a — reviewer-judge-t-368-r3-1418ca9152e9:reviewer (rung rung-3-termlink-single-reviewer), digest c677dabb85c3; dispatch judge-t-368-r3-1418ca9152e9; evidence: .context/reviews/evidence/T-368/AC1-judge-t-368-r3-1418ca9152e9.md; ledger .context/reviews/verdicts.jsonl
 
-- [ ] [REVIEW] **Is a notation/routing revision actually planned?**
+- [x] [REVIEW] **Is a notation/routing revision actually planned?**
 
   AEF's operator told them I am "improving and revising the NOTATION and ROUTING" and
   they are holding a mid-draft 3-lane cycle map on the answer. **I searched my task tree
@@ -306,6 +307,7 @@ window before it is cut.
   routing preferences (PD-360/361) and T-599 (manual connector routing, captured) refine the current notation and
   do not change lane semantics, cycle/return-edge authoring or the §1 presentational clause. So my RAIL-444 answer to
   AEF ("draft into the current notation") stands; no correction is owed.
+  **Reviewer verdict:** green V-20261118-56a324a0 — reviewer-judge-t-368-r3-e364fe4cd44d:reviewer (rung rung-3-termlink-single-reviewer), digest ac06f2dc0f8c; dispatch judge-t-368-r3-e364fe4cd44d; evidence: .context/reviews/evidence/T-368/AC2-judge-t-368-r3-e364fe4cd44d.md; ledger .context/reviews/verdicts.jsonl
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
