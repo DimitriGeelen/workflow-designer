@@ -112,7 +112,16 @@ clauses:
         separately-tracked concern, but it is NOT this clause. Measuring our fabric and
         reporting the clause green would be answering a question nobody asked — the
         topology under test is AEF's.
-    attestation: "AEF @1539 (agent-chat-arc, EWCR-ARC0-ATTEST-832), their T-3394 commit 174f31777, measured at 996a4f9a5: CORE/BROAD intersection 0/0 with coverage control; ratified by the operator 2026-11-18 (832 T-736)"
+    attestation:
+      attested_by: 999-Agentic-Engineering-Framework (AEF T-3394, arc-019)
+      attested_at: "agent-chat-arc @1539, correlation EWCR-ARC0-ATTEST-832"
+      their_commit: 174f31777
+      measured_at_their_commit: 996a4f9a5
+      measurement: CORE/BROAD intersection 0/0 with coverage control; r2 @1603 CORE 31/31
+      ratified_by: operator
+      ratified_on: 2026-11-18
+      ratified_in: 832 T-736 (operator jobs 161, 162)
+    satisfied: true
 
     # ── T-623: AEF ANSWERED. THE ANSWER IS RED, AND IT IS THEIRS TO GIVE. ────────
     # agent-chat-arc offset 650, thread T-3127, from_project 999-Agentic-Engineering-
@@ -397,7 +406,7 @@ clauses:
       what_it_did_not_produce: >-
         Any movement in this register. Three clauses, zero satisfied, unchanged from the
         exchange's first message to its last.
-    blocks_arc_0_exit: true
+    blocks_arc_0_exit: false
 
   - id: clause-2
     text: every blocker finding has a contract disposition and testable scenario
