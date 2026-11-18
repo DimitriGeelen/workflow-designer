@@ -4,13 +4,9 @@
 # tier, an entry naming no leg fails the run, and an entry missing a field quarantines nothing. Only evidenced
 # entries: the reason says what was observed and why it is not the product. Leg names: `bash tests/run-bridge-tests.sh
 # --list-legs`. Remove an entry in the same commit that fixes its leg.
-quarantine:
-  - leg: test_editor_behavior
-    reason: >-
-      Intermittent HANG of tools/_editor-behavior-verify-cdp.mjs, not a failed check. It normally takes 12-13 s (three
-      runs on 2026-11-17), yet it hit the wrapper's 180 s timeout in the local browser tier on 2026-11-13 and
-      2026-11-17, and on the pool on 2026-11-17 (pool-w1, tree 6d1dfcb62). The same tree passed it on the other
-      machine each time. The first hang predates the changes then in flight (T-1428 did not exist on 2026-11-13). A
-      hang leaves no record of which step waited, so the cause is unknown; T-1431 instruments the harness and finds it.
-    owner: T-1431
-    fix_by: 2026-11-24
+#
+# 2026-11-18: test_editor_behavior lifted (T-1431). Its harness now logs each step, bounds every wait below the
+# wrapper's limit (60 s per CDP command, 2 s per health probe) and exits explicitly; the wrapper keeps the partial
+# output on a timeout, names the last step and kills the whole process group. 20/20 green (8 serial, 12 under load).
+# A recurrence is now a red leg that names its step, which is what the quarantine was waiting for.
+quarantine: []

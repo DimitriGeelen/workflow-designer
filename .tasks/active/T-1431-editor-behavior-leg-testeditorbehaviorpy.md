@@ -123,13 +123,20 @@ lifted only on evidence (repeated runs green, or the cause found and fixed).
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The harness writes one `[ebv +<ms>] <step>` line to stderr per step, and exits explicitly when done.
-- [ ] On a timeout the wrapper prints the harness's partial stdout/stderr and names the last step reached
+- [x] The harness writes one `[ebv +<ms>] <step>` line to stderr per step, and exits explicitly when done.
+      Evidence: steps for health, port, attach and every CDP command; `main().finally(... process.exit ...)`.
+- [x] On a timeout the wrapper prints the harness's partial stdout/stderr and names the last step reached
       (proven with a forced short timeout).
-- [ ] No wait in the harness can outlive the wrapper: the health fetch has a timeout and the CDP per-command limit
+      Evidence: `EBV_TIMEOUT_S=6` -> exit 124, `HANG: … Last step reached: [ebv +5958] cdp Runtime.evaluate "(function(){
+      try { var s=JSON.parse(localStorage.getItem('aefAutosaveD…"`; the process group is killed (no Chrome left behind).
+- [x] No wait in the harness can outlive the wrapper: the health fetch has a timeout and the CDP per-command limit
       for this harness is below 180 s.
-- [ ] The leg runs green 20 times in a row on this host (12 of them under parallel load), or the hang is captured
+      Evidence: `AbortSignal.timeout(2000)` per probe; `cdp(..., { cmdMs: EBV_CMD_MS })`, default 60 000 ms.
+- [x] The leg runs green 20 times in a row on this host (12 of them under parallel load), or the hang is captured
       with its step named and fixed; the quarantine entry is then removed in the same commit.
+      Evidence: 20/20 rc=0 (serial 12-16 s; 4 rounds of 3 in parallel, 15-17 s), 0 orphans after; quarantine lifted.
+      Honest limit: the hang did not recur, so its cause is narrowed (H3, CDP side, after a clear+reload and before
+      the leg's edit) but not proven. A recurrence now fails inside 60 s naming its command, instead of dying at 180 s.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -315,6 +322,10 @@ lifted only on evidence (repeated runs green, or the cause found and fixed).
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+grep -q "AbortSignal.timeout(2000)" tools/_editor-behavior-verify-cdp.mjs
+grep -q "process.exit(process.exitCode" tools/_editor-behavior-verify-cdp.mjs
+grep -q "os.killpg" tests/test_editor_behavior.py
+python3 -c "import yaml; d=yaml.safe_load(open('tests/quarantine.yaml')); assert not any(e.get('leg')=='test_editor_behavior' for e in (d.get('quarantine') or []))"
 
 ## RCA
 
@@ -331,6 +342,23 @@ lifted only on evidence (repeated runs green, or the cause found and fixed).
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** `test_editor_behavior` hung to the wrapper's 180 s limit 3 times in 5 days (twice locally, once on the
+pool), passing elsewhere on the same tree, with no record of where it waited.
+
+**Root cause:** not proven (the hang did not recur in 20 runs). Narrowed by the surviving Chrome of the 2026-11-17
+hang: the page was ready and idle after a clear + reload of LOAD_X and before that leg's edit, so the wait was on the
+CDP side. The structural causes of it being undiagnosable ARE proven: the wrapper's `subprocess.run(timeout=)`
+discarded all output on TimeoutExpired; the harness logged nothing until its final verdict; the CDP client's 120 s
+per-command limit sat close enough to the wrapper's 180 s that a timed-out command plus the run so far was killed
+before it could report; and killing only node left Chrome running as an orphan for 28 h.
+
+**Why structurally allowed:** the T-1395 client bounded every command, which made the harness look safe, but its
+bound was not set relative to the wrapper that kills it, and no wrapper kept output on timeout.
+
+**Prevention:** step log on stderr; the per-command limit (60 s) and health probes (2 s) set below the wrapper; the
+wrapper keeps partial output, names the last step and kills the process group. The quarantine is lifted, so a
+recurrence turns the browser tier red with its step named, rather than being absorbed.
 
 ## Evolution
 
