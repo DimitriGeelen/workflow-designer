@@ -1,0 +1,110 @@
+# ============================================================================
+# EPISODIC MEMORY - T-368: Release-state blindness: 8 src commits ahead of the 0.8.0 pin, AEF re-reporting a defect fixed 9 days ago
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-18T05:54:32Z
+# ============================================================================
+
+task_id: T-368
+task_name: "Release-state blindness: 8 src commits ahead of the 0.8.0 pin, AEF re-reporting a defect fixed 9 days ago"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-08T06:47:02Z
+completed: 2026-08-16T14:33:02Z
+duration_days: 8
+updates_count: 1
+first_commit: 2026-08-08T08:50:46+02:00
+last_commit: 2026-11-18T06:54:12+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  release-state blindness — 5 of 8 unreleased src commits are consumer-visible, and AEF spent 9 days on a defect we fixed the day after the cut. reviewer verdict. verification line — drop grep -q after a pipe (SIGPIPE killed fw gaps, exit 120; G-024 is listed)
+
+# Key outcomes
+outcomes:
+  - '**The `src`-vs-pin gap is stated per commit with its consumer visibility.** Not a'
+  - '**AEF''s specific harm is evidenced with dates**, so the escalation is not a'
+  - '**The structural question is answered, not the instance.** Why was this invisible'
+  - '**A concern is registered in `concerns.yaml`** with a trigger that is closable by'
+  - '**The escalation packet is delivered to the operator in one copy-pasteable'
+  - '[REVIEW] **0.9.0 was cut and AEF was told to re-pin.** `dist/aef-workflow-designer-0.9.0.html` exists, its sha256 equals the `sha256:` that `dist/MANIFEST.yaml` recorded at release commit `8cd0c5d3` (tag `designer-v0.9.0`), and the artifact is byte-unchanged since that commit.'
+  - '[REVIEW] **Is a notation/routing revision actually planned?**'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'release-state blindness — 5 of 8 unreleased src commits are consumer-visible, and AEF spent 9 days on a defect we fixed the day after the cut'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/episodic/T-367.yaml'
+  - '.context/project/concerns.yaml'
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-368/AC1-judge-t-368-r3-1418ca9152e9.md'
+  - '.context/reviews/evidence/T-368/AC1-judge-t-368-r3-9b1841cebf26.md'
+  - '.context/reviews/evidence/T-368/AC1-judge-t-368-r3-e364fe4cd44d.md'
+  - '.context/reviews/evidence/T-368/AC2-judge-t-368-r3-9b1841cebf26.md'
+  - '.context/reviews/evidence/T-368/AC2-judge-t-368-r3-e364fe4cd44d.md'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-368-release-state-blindness-8-src-commits-ah.md'
+  - '.tasks/completed/T-367-measure-the-full-aef-layer-we-inject-int.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-08-08T08:50:46'
+    action: 'T-368: release-state blindness — 5 of 8 unreleased src commits are consumer-visible, and AEF spent 9 days on a defect we fixed the day after the cut'
+  - time: '2026-11-16T23:41:27'
+    action: 'T-368: reviewer verdict'
+  - time: '2026-11-16T23:41:31'
+    action: 'T-368: reviewer verdict'
+  - time: '2026-11-18T01:36:20'
+    action: 'T-368: reviewer verdict'
+  - time: '2026-11-18T01:36:27'
+    action: 'T-368: reviewer verdict'
+  - time: '2026-11-18T01:54:37'
+    action: 'T-368: reviewer verdict'
+  - time: '2026-11-18T06:54:12'
+    action: 'T-368: verification line — drop grep -q after a pipe (SIGPIPE killed fw gaps, exit 120; G-024 is listed)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 7 commit(s), 11986 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 11986
+  commits: 8
+  files_changed: 18
+  lines_added: 851
+  lines_removed: 9
+  footprint_refreshed_at: '2026-11-18T05:54:55Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-368-release-state-blindness-8-src-commits-ah.md
+generated_by: context-agent-hybrid
