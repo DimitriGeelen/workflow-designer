@@ -57,20 +57,35 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** T-1093 GO step 3. The operator wants Mermaid both ways ("might be good", 2026-11-18); AEF and
+Sprind asked for Mermaid (Markdown in task files and reports, diffable in git); Greenfield and Sprind asked for CSV
+(a flat step list to check mechanically). The IW-5 spike proved the import route: BPMN without the diagram part, then
+the existing import and Clean layout (VALID, no findings).
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** neither text format exists. Both are lossy bridges, so the loss must be stated, never silent.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** Export and Import entries for Mermaid and CSV, with a stated loss in both directions.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** IO_FORMATS gains mermaid and csv in both lists. Export writes a Mermaid `flowchart LR` (one
+subgraph per lane, shapes by type, labelled edges) and a CSV (id, name, type, lane, next, next_labels). Import reads
+both, builds BPMN without a diagram, reuses the existing import, runs Clean, and tells the user what was not carried.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] Export → Mermaid writes a `flowchart LR` with one subgraph per lane, BPMN shapes mapped to Mermaid shapes
+      (event `(( ))`, task `[ ]`, gateway `{ }`), every flow with its label; it renders (Mermaid's own parser accepts it).
+- [ ] Export → CSV writes one row per step (id, name, type, lane, next, next_labels), RFC 4180 quoting; Python's csv
+      module reads it back to the same rows.
+- [ ] Import → Mermaid and Import → CSV each rebuild the steps, flows, labels and lanes of an exported corpus map:
+      round trip map → file → map keeps the same step ids, names, types, lanes and flows (a test compares them), the
+      result is laid out by Clean, and the validator finds no ERROR.
+- [ ] On import, what the format cannot carry (positions, step details such as io and roles, aef: fields) is named
+      in a notice to the user, never dropped silently.
+- [ ] A CDP harness covers export and the round trip on two corpus maps, is a browser-tier leg, and fails on the
+      T-1440 designer.
+- [ ] `bash tools/person-sees-gate.sh` exits 0 and the browser tier is green (pool and here).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
