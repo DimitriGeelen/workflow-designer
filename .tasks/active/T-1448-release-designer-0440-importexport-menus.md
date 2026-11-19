@@ -65,6 +65,18 @@ date_finished: null
 
 **Goal:** designer 0.44.0 released by the release job (calibration, gate, cut, tag, both tiers, push), AEF told.
 
+**STATE AT SESSION END (2026-11-19 ~15:45 UTC), next steps in order:**
+1. A browser-tier re-run (pool + here) was running for commit 36cfd219d (the T-1439 test fix: L2 no longer demands
+   exactly one Import entry). Check `build/tiergate/tier-browser.runs.log` (last line for 36cfd219d). If red, read
+   `build/tiergate/tier-browser.red-*.log`; disagreements are logged in `build/tiergate/rerun-notes.log`.
+2. When green on both: `git push origin HEAD` (high-risk: core runs on pool and here). 17+ commits are local.
+3. Close T-1440 (all ACs ticked; reviewer green; apply its verdict first) and T-1441 (tick its last AC with the
+   browser result; reviewer green V on 2026-11-19; apply verdict). Then T-1439's... already closed.
+4. Rehearse job 170 (`bash runme.sh --dry-run 170-release-designer-0.44.0`; its preflight needs T-1440/T-1441 closed
+   and RELEASE-NOTES-0.44.0.md committed: done, fba0389ac). Commit the job, hand the operator the one command.
+5. After the release: announce to AEF (version, tag, sha256, bytes; nothing changes in stored maps) and to Greenfield
+   (they wait for 0.44.0 to update from 0.38.0; send sha256 + bytes, conversation gf-io-v11-check-2026-10-24).
+
 **Expected outcome:** `dist/aef-workflow-designer-0.44.0.html` and the 0.44.0 kit in `dist/`, tag `designer-v0.44.0`
 on origin, release notes carrying the six changes, the endpoint table and the shared-contracts table, AEF announced.
 
