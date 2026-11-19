@@ -57,7 +57,11 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** Greenfield's routing findings on their workshop map (msg ef63bb29, items 6-7 on 0.38.0).
+Their msg 5468c2ba (2026-11-19, on 0.43.0, sha256 confirmed, 5 maps load without overlaps): items (5)-(7) are still
+exactly as before; new in 0.43.0: (8) the '(task)' label above "Open VO" and "Verkooporder compleet" lies over the
+vertical arrow from the task above; (9) the gateway label 'Redesign?' falls half outside the view on the left, against
+the lane boundary. They are waiting for 0.44.0 (the Import button). No reply expected.
 
 **Problem / hypothesis:** <what we think is wrong and why>
 
