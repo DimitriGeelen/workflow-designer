@@ -23157,3 +23157,29 @@ scan_id: R-84ec8bb2
 task_id: T-1437
 payload:
   task_file: .tasks/active/T-1437-upgrade-aef-v1816-be57---be59-recorded-r.md
+---
+kind: scan_emitted
+timestamp: '2026-11-19T09:13:19Z'
+scan_id: R-c26094b0
+task_id: T-1093
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-19T09:13:19Z'
+scan_id: R-c26094b0
+task_id: T-1093
+payload:
+  task_file: .tasks/active/T-1093-greenfield-t-172-4-export-menu--which-fo.md
+---
+kind: recommendation_claims_verdict
+timestamp: '2026-11-19T09:13:19Z'
+scan_id: RC-acf9a5b7
+task_id: T-1093
+payload:
+  overall: UNVERIFIED
+  claim_count: 0

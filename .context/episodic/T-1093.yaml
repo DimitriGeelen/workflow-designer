@@ -1,0 +1,110 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1093: Greenfield T-172 #4: Export menu — which formats (PDF, SVG, PNG 1x/2x/4x, Camunda-compatible BPMN 2.0 with DI, optional JPEG/GIF, steps-per-lane CSV/Markdown)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-19T09:13:25Z
+# ============================================================================
+
+task_id: T-1093
+task_name: "Greenfield T-172 #4: Export menu — which formats (PDF, SVG, PNG 1x/2x/4x, Camunda-compatible BPMN 2.0 with DI, optional JPEG/GIF, steps-per-lane CSV/Markdown)"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-10-08T08:38:37Z
+completed: 2026-11-19T09:13:18Z
+duration_days: 42
+updates_count: 3
+first_commit: 2026-10-21T10:24:19+02:00
+last_commit: 2026-11-19T10:13:20+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  reviewer verdict. widened on the operator's request (2026-11-15) to import AND export — BPMN, Camunda, PDF, Word, Visio, Mermaid, Excel, CSV out; Visio, BPMN, Camunda, Excel, CSV in — with problem, assumptions, five questions, plan, scope and per-format go/no-go. problem statement, hypothesis (replacing the estimator's placeholder) and five assumptions for the import/export inception. inventory (IW-1 answered) — designer exports BPMN 2.0 with DI and imports BPMN incl. Camunda/Zeebe/Bizagi extensions; no PDF/image download/Word/Visio/Mermaid/Excel/CSV exists; the requests grouped into image, print, zip and text families. IW-4 answered by the operator — import+export for BPMN/Camunda, Excel, Visio, Mermaid; export-only Word and PDF; CSV and SVG/PNG added; finding: BPMN import/export exist but are unlabelled (Load…/Save). feasibility spike — Excel/Word/Visio/Mermaid/CSV from a corpus map with a dependency-free ZIP core; Excel and Word open in openpyxl/python-docx, Visio in LibreOffice (connectors need geometry work); proposed order recorded. picture/print and no-layout spikes; IW-2, IW-3, IW-5 answered; recommendation GO with a six-step build order. report — picture/print and no-layout spike findings. operator job 169 — record the operator's GO (ruling a) in the six-step order. inception decision GO (via Watchtower)
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1093/AC1-judge-t-1093-r3-851442bc6cae.md'
+  - '.context/reviews/human-ac-ticks.jsonl'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.context/runme/169-decide-t1093-go/dryrun.ok'
+  - '.context/runme/169-decide-t1093-go/job.sh'
+  - 'docs/reports/T-1093-import-export-formats.md'
+  - 'docs/reports/T-1093-spikes/nolayout-spike.mjs'
+  - 'docs/reports/T-1093-spikes/office-spike.mjs'
+  - 'docs/reports/T-1093-spikes/picture-spike.mjs'
+  - '.tasks/active/T-1093-greenfield-t-172-4-export-menu--which-fo.md'
+  - '.tasks/completed/T-1093-greenfield-t-172-4-export-menu--which-fo.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-10-21T10:24:19'
+    action: 'T-1093: reviewer verdict'
+  - time: '2026-11-15T10:05:14'
+    action: 'T-1093: widened on the operator''s request (2026-11-15) to import AND export — BPMN, Camunda, PDF, Word, Visio, Mermaid, Excel, CSV out; Visio, BPMN, Camunda, Excel, CSV in — with problem, assumptions, five questions, plan, scope and per-format go/no-go'
+  - time: '2026-11-15T10:07:50'
+    action: 'T-1093: problem statement, hypothesis (replacing the estimator''s placeholder) and five assumptions for the import/export inception'
+  - time: '2026-11-15T15:33:53'
+    action: 'T-1093: inventory (IW-1 answered) — designer exports BPMN 2.0 with DI and imports BPMN incl. Camunda/Zeebe/Bizagi extensions; no PDF/image download/Word/Visio/Mermaid/Excel/CSV exists; the requests grouped into image, print, zip and text families'
+  - time: '2026-11-18T22:04:18'
+    action: 'T-1093: IW-4 answered by the operator — import+export for BPMN/Camunda, Excel, Visio, Mermaid; export-only Word and PDF; CSV and SVG/PNG added; finding: BPMN import/export exist but are unlabelled (Load…/Save)'
+  - time: '2026-11-18T22:13:33'
+    action: 'T-1093: feasibility spike — Excel/Word/Visio/Mermaid/CSV from a corpus map with a dependency-free ZIP core; Excel and Word open in openpyxl/python-docx, Visio in LibreOffice (connectors need geometry work); proposed order recorded'
+  - time: '2026-11-19T09:41:40'
+    action: 'T-1093: picture/print and no-layout spikes; IW-2, IW-3, IW-5 answered; recommendation GO with a six-step build order'
+  - time: '2026-11-19T09:41:54'
+    action: 'T-1093: report — picture/print and no-layout spike findings'
+  - time: '2026-11-19T09:52:49'
+    action: 'T-1093: operator job 169 — record the operator''s GO (ruling a) in the six-step order'
+  - time: '2026-11-19T10:13:20'
+    action: 'T-1093: inception decision GO (via Watchtower)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 10 commit(s), 60514 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 60514
+  commits: 11
+  files_changed: 16
+  lines_added: 917
+  lines_removed: 48
+  footprint_refreshed_at: '2026-11-19T09:13:29Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1093-greenfield-t-172-4-export-menu--which-fo.md
+generated_by: context-agent-hybrid
