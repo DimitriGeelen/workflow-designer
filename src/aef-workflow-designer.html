@@ -542,6 +542,9 @@ font-family: 'Outfit';
      scroll container and the SVG element carries an explicit inline size
      (viewBox × zoom) — the viewBox itself stays content-driven (T-043 untouched). */
   .canvas-wrap.zoomed { overflow: auto; }
+  /* T-1447 review: room to scroll the lowest content clear of the "Mode" chip that sits over the canvas's bottom-left
+     (Greenfield's bottom row of notes ended under it at full scroll). Zoomed only: the fit view is unchanged. */
+  .canvas-wrap.zoomed #canvas { margin-bottom: 48px; }
   .canvas-wrap.pan-ready #canvas { cursor: grab; }
   .canvas-wrap.panning #canvas { cursor: grabbing; }
   #zoom-level {

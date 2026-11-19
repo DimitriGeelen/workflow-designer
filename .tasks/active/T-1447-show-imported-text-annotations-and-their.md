@@ -139,6 +139,9 @@ bounds; associations draw as dotted lines (an arrowhead when associationDirectio
   8's line visible and its bracket clear of `tac_6_order`; note 5's line clear of the flow label "wel". All four are
   addressed (re-attach to a clear side when a line's end touches another step; notes are obstacles for id captions and
   flow labels).
+  Round 2 (amber, V-20261119-8ed2891f) confirmed those four and asked: the "Restored your unsaved work" notice off the
+  1440 tiles (each width now starts with fresh browser storage), and the bottom row of notes clear of the "Mode" chip
+  at full scroll (zoomed views now scroll 48px past the lowest content; the fit view is unchanged).
   **Expected:** the notes read as the map's content, nothing covers a step's name or a flow label it should not.
   **If not:** name the file and the note; the agent fixes and re-shoots.
 

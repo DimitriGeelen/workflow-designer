@@ -31,6 +31,8 @@ try {
   await cmd('Page.enable'); await cmd('Runtime.enable');
   for (const [w, h] of [[1024, 768], [1440, 900], [1920, 1080]]) {
     await cmd('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 1, mobile: false });
+    // a fresh start per width: no autosaved work from the previous width, so no "Restored your unsaved work" notice
+    await cmd('Storage.clearDataForOrigin', { origin: `http://127.0.0.1:${port}`, storageTypes: 'all' });
     await cmd('Page.navigate', { url: `http://127.0.0.1:${port}/designer.html` });
     for (let i = 0; i < 150; i++) { if (await ev(`typeof _appReady!=='undefined'&&_appReady===true`).catch(() => false)) break; await sleep(150); }
     await ev(`(async()=>{ const t = await (await fetch('m/gf.bpmn')).text(); await adoptImportedXml(t, { userImport: true }); await new Promise(r=>setTimeout(r,500)); })()`);
