@@ -19,9 +19,9 @@ description: >
 
 status: work-completed
 workflow_type: build
-current_node: agt_2_perform
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -30,7 +30,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-09-04T21:55:13Z
-last_update: '2026-09-21T20:24:52Z'
+last_update: 2026-11-19T07:55:13Z
 date_finished: 2026-09-09T07:46:36Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -53,6 +53,7 @@ cost_estimate_proposed:
       (paths:.agentic-framework/agents/context/budget-gate.sh,.agentic-framework/agents/context/check-active-task.sh,.tasks/active/T-676-p-002-blocks-resume-itself-a-session-tha.md);
       tier=2 (no-signal); effort=8 (no-signal)
     rubric_sha: e4a00f38e801
+date_finalised: 2026-11-19T07:55:13Z
 ---
 
 # T-676: P-002 blocks /resume itself: a session that ends by FILING a task cannot gather state in the next one
