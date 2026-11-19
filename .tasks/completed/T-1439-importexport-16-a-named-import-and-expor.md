@@ -9,13 +9,13 @@ description: >
   later steps add theirs), keeping today's behaviour. UI change: person-sees gate,
   screenshots at 1024/1440/1920, independent visual review.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: [T-1093]
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -44,8 +44,8 @@ related_tasks: [T-1093]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-19T09:14:11Z
-last_update: '2026-11-19T09:19:57Z'
-date_finished:
+last_update: 2026-11-19T10:45:29Z
+date_finished: 2026-11-19T10:45:29Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -119,7 +119,7 @@ its current behaviour. Nothing is lost at 1024/1440/1920.
       new test_t1439_io_menus leg).
 
 ### Human
-- [ ] The toolbar's Import and Export menus read and fit at three widths, judged on the screenshots.
+- [x] The toolbar's Import and Export menus read and fit at three widths, judged on the screenshots.
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1439 --criterion 1`), who may escalate.
   **Steps:**
   1. Open the nine screenshots in `docs/reports/T-1439-shots/`: `{1024,1440,1920}-{closed,import-open,export-open}.png`
@@ -172,6 +172,7 @@ its current behaviour. Nothing is lost at 1024/1440/1920.
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261119-b40727c2 — reviewer-judge-t-1439-r3-5ba663bf8938:reviewer (rung rung-3-termlink-single-reviewer), digest c280a85769fd; dispatch judge-t-1439-r3-5ba663bf8938; evidence: .context/reviews/evidence/T-1439/AC1-judge-t-1439-r3-5ba663bf8938.md, .context/reviews/evidence/T-1439/1024-closed-judge-t-1439-r3-5ba663bf8938.png, .context/reviews/evidence/T-1439/1024-export-open-judge-t-1439-r3-5ba663bf8938.png, .context/reviews/evidence/T-1439/1024-import-open-judge-t-1439-r3-5ba663bf8938.png, .context/reviews/evidence/T-1439/1440-closed-judge-t-1439-r3-5ba663bf8938.png, .context/reviews/evidence/T-1439/1440-export-open-judge-t-1439-r3-5ba663bf8938.png, .context/reviews/evidence/T-1439/1440-import-open-judge-t-1439-r3-5ba663bf8938.png, .context/reviews/evidence/T-1439/1920-closed-judge-t-1439-r3-5ba663bf8938.png, .context/reviews/evidence/T-1439/1920-export-open-judge-t-1439-r3-5ba663bf8938.png, .context/reviews/evidence/T-1439/1920-import-open-judge-t-1439-r3-5ba663bf8938.png; ledger .context/reviews/verdicts.jsonl
 
 ## Visual Verification
 
@@ -434,3 +435,26 @@ test -f docs/reports/T-1439-shots/1920-export-open.png
 
 ### 2026-11-19T09:19:56Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-19T10:45:29Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-92b9ddd8
+- **Timestamp:** 2026-11-19T10:45:40Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#4 (Agent)** — `bash tools/person-sees-gate.sh` exits 0, and the browser tier is green (pool and here).
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/person-sees-gate.sh in: `bash tools/person-sees-gate.sh` exits 0, and the browser tier is green (pool and here).`
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 140
+     - evidence: `git show ba141a62b^:src/aef-workflow-designer.html | grep 'id="btn-load"' >/dev/null`

@@ -1,0 +1,140 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1439: Import/Export 1/6: a named Import and Export menu, BPMN/Camunda listed (today hidden as Load…/Save)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-19T10:46:02Z
+# ============================================================================
+
+task_id: T-1439
+task_name: "Import/Export 1/6: a named Import and Export menu, BPMN/Camunda listed (today hidden as Load…/Save)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-19T09:14:11Z
+completed: 2026-11-19T10:45:29Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-19T10:21:15+01:00
+last_commit: 2026-11-19T11:30:27+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  real acceptance criteria. named Import and Export menus in the toolbar (replacing the unlabelled Load…), built from one IO_FORMATS list; BPMN 2.0 / Camunda in both; Save and Export share one download function; browser leg _t1439 (8 legs; fails on the old designer). screenshots at 1024/1440/1920 (closed, import-open, export-open) with measurements; Visual Verification table; the render criterion moved to Human for the reviewer. reviewer verdict. three criteria met with the harness evidence; verification commands. browser tier green on pool and here (144/0). push gate fixes — the screenshot criterion is the reviewer's (no [REVIEW] label, per T-1066); the Load…-absent leg gets its control (same grep finds it before T-1439, per T-560); the six T-1093 build tasks name T-1093 in related_tasks so the GO reads as built (T-949)
+
+# Key outcomes
+outcomes:
+  - 'The toolbar has an **Import** menu (in place of Load…) and an **Export** menu, each listing "BPMN 2.0 / Camunda"'
+  - 'The menus work from the keyboard (Enter/Space opens, arrows move, Escape closes and returns focus) and close on'
+  - 'The menus are built from one list of formats, so a later task adds a format with one entry (T-1440..T-1444).'
+  - '`bash tools/person-sees-gate.sh` exits 0, and the browser tier is green (pool and here).'
+  - 'The toolbar''s Import and Export menus read and fit at three widths, judged on the screenshots.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'push gate fixes — the screenshot criterion is the reviewer''s (no [REVIEW] label, per T-1066); the Load…-absent leg gets its control (same grep finds it before T-1439, per T-560); the six T-1093 build tasks name T-1093 in related_tasks so the GO reads as built (T-949)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/go-scope-unpropagated/LATEST.md'
+  - '.context/reviews/evidence/T-1439/1024-closed-judge-t-1439-r3-5ba663bf8938.png'
+  - '.context/reviews/evidence/T-1439/1024-closed-judge-t-1439-r3-993665a94d98.png'
+  - '.context/reviews/evidence/T-1439/1024-export-open-judge-t-1439-r3-5ba663bf8938.png'
+  - '.context/reviews/evidence/T-1439/1024-export-open-judge-t-1439-r3-993665a94d98.png'
+  - '.context/reviews/evidence/T-1439/1024-import-open-judge-t-1439-r3-5ba663bf8938.png'
+  - '.context/reviews/evidence/T-1439/1024-import-open-judge-t-1439-r3-993665a94d98.png'
+  - '.context/reviews/evidence/T-1439/1440-closed-judge-t-1439-r3-5ba663bf8938.png'
+  - '.context/reviews/evidence/T-1439/1440-closed-judge-t-1439-r3-993665a94d98.png'
+  - '.context/reviews/evidence/T-1439/1440-export-open-judge-t-1439-r3-5ba663bf8938.png'
+  - '.context/reviews/evidence/T-1439/1440-export-open-judge-t-1439-r3-993665a94d98.png'
+  - '.context/reviews/evidence/T-1439/1440-import-open-judge-t-1439-r3-5ba663bf8938.png'
+  - '.context/reviews/evidence/T-1439/1440-import-open-judge-t-1439-r3-993665a94d98.png'
+  - '.context/reviews/evidence/T-1439/1920-closed-judge-t-1439-r3-5ba663bf8938.png'
+  - '.context/reviews/evidence/T-1439/1920-closed-judge-t-1439-r3-993665a94d98.png'
+  - '.context/reviews/evidence/T-1439/1920-export-open-judge-t-1439-r3-5ba663bf8938.png'
+  - '.context/reviews/evidence/T-1439/1920-export-open-judge-t-1439-r3-993665a94d98.png'
+  - '.context/reviews/evidence/T-1439/1920-import-open-judge-t-1439-r3-5ba663bf8938.png'
+  - '.context/reviews/evidence/T-1439/1920-import-open-judge-t-1439-r3-993665a94d98.png'
+  - '.context/reviews/evidence/T-1439/AC1-judge-t-1439-r3-5ba663bf8938.md'
+  - '.context/reviews/evidence/T-1439/AC1-judge-t-1439-r3-993665a94d98.md'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1439-importexport-16-a-named-import-and-expor.md'
+  - '.tasks/active/T-1440-importexport-26-svg-png-1x2x4x-and-pdf-o.md'
+  - '.tasks/active/T-1441-importexport-36-mermaid-and-csv-out-then.md'
+  - '.tasks/active/T-1442-importexport-46-excel-xlsx-out-and-in-wi.md'
+  - '.tasks/active/T-1443-importexport-56-word-docx-out--diagram-p.md'
+  - '.tasks/active/T-1444-importexport-66-visio-vsdx-out-then-in-o.md'
+  - 'docs/reports/T-1439-shots/1024-closed.png'
+  - 'docs/reports/T-1439-shots/1024-export-open.png'
+  - 'docs/reports/T-1439-shots/1024-import-open.png'
+  - 'docs/reports/T-1439-shots/1440-closed.png'
+  - 'docs/reports/T-1439-shots/1440-export-open.png'
+  - 'docs/reports/T-1439-shots/1440-import-open.png'
+  - 'docs/reports/T-1439-shots/1920-closed.png'
+  - 'docs/reports/T-1439-shots/1920-export-open.png'
+  - 'docs/reports/T-1439-shots/1920-import-open.png'
+  - 'docs/reports/T-1439-shots/measure.json'
+  - 'docs/reports/T-1439-shots/shots.mjs'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1439-io-menu-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-19T10:21:15'
+    action: 'T-1439: real acceptance criteria'
+  - time: '2026-11-19T10:25:25'
+    action: 'T-1439: named Import and Export menus in the toolbar (replacing the unlabelled Load…), built from one IO_FORMATS list; BPMN 2.0 / Camunda in both; Save and Export share one download function; browser leg _t1439 (8 legs; fails on the old designer)'
+  - time: '2026-11-19T10:32:55'
+    action: 'T-1439: screenshots at 1024/1440/1920 (closed, import-open, export-open) with measurements; Visual Verification table; the render criterion moved to Human for the reviewer'
+  - time: '2026-11-19T10:33:59'
+    action: 'T-1439: reviewer verdict'
+  - time: '2026-11-19T10:56:53'
+    action: 'T-1439: three criteria met with the harness evidence; verification commands'
+  - time: '2026-11-19T10:58:25'
+    action: 'T-1439: browser tier green on pool and here (144/0)'
+  - time: '2026-11-19T11:24:26'
+    action: 'T-1439: push gate fixes — the screenshot criterion is the reviewer''s (no [REVIEW] label, per T-1066); the Load…-absent leg gets its control (same grep finds it before T-1439, per T-560); the six T-1093 build tasks name T-1093 in related_tasks so the GO reads as built (T-949)'
+  - time: '2026-11-19T11:30:27'
+    action: 'T-1439: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 8 commit(s), 91 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 91
+  commits: 9
+  files_changed: 50
+  lines_added: 936
+  lines_removed: 45
+  footprint_refreshed_at: '2026-11-19T10:46:30Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1439-importexport-16-a-named-import-and-expor.md
+generated_by: context-agent-hybrid
