@@ -20,13 +20,13 @@ description: >
   (verified 2026-11-19). SAVED 2026-11-19 to tests/fixtures/greenfield/nooteboom-offerte-tot-order-with-notes.bpmn
   (22903 bytes, sha256 matches; 12 textAnnotations, 10 associations, 4 lanes).
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tools/_t1327-comments-and-notice-cdp.mjs]
 related_tasks: [T-1326, T-1327]
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -55,8 +55,8 @@ related_tasks: [T-1326, T-1327]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-19T13:05:22Z
-last_update: '2026-11-19T14:50:19Z'
-date_finished:
+last_update: 2026-11-19T20:07:26Z
+date_finished: 2026-11-19T20:07:26Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -113,21 +113,27 @@ bounds; associations draw as dotted lines (an arrowhead when associationDirectio
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] On the Greenfield fixture all 12 annotations draw at their DI bounds with their full text, and all 10 associations
+- [x] On the Greenfield fixture all 12 annotations draw at their DI bounds with their full text, and all 10 associations
       draw as dotted lines between the right ends (annotation-to-node and node-to-node); a one-way association has an
-      arrowhead at its target. Measured in a CDP harness against the file's own DI and ids.
-- [ ] An association whose end node the person moves follows the node (its line is redrawn to the node's new place);
-      an unmoved one keeps the file's waypoints.
-- [ ] The drawing is read-only: annotations and associations are not selectable, draggable or deletable, and draw
-      under nodes and flows (never covering a step's name).
-- [ ] Save writes the same bytes as before this task for the fixture and for every corpus/third-party golden
+      arrowhead at its target. Measured in a CDP harness against the file's own DI and ids. (`_t1447-notes-cdp.mjs` N1, N2)
+- [x] An association whose end node the person moves follows the node (its line is redrawn to the node's new place);
+      an unmoved one keeps the file's waypoints. (N3)
+- [x] The drawing is read-only: annotations and associations are not selectable, draggable or deletable, and draw
+      under nodes and flows (never covering a step's name). (N4; layer pointer-events none, below g-edges and g-nodes)
+- [x] Save writes the same bytes as before this task for the fixture and for every corpus/third-party golden
       (byte-identity goldens unchanged); the import notice stops saying "not shown yet" for what is now drawn.
-- [ ] SVG/PNG/PDF export include the annotations and associations (paper palette).
-- [ ] The harness is wired as a browser leg; with the drawing removed it fails (bites).
-- [ ] `bash tools/person-sees-gate.sh` exits 0 and the browser tier is green (pool and here).
+      (N5 against 0.44.0 with the import-minted uuid masked; goldens green in the browser tier; N6; _t1327 leg3 updated)
+- [x] SVG/PNG/PDF export include the annotations and associations (paper palette). (N7 on the SVG; the PNG is drawn
+      from that SVG and the PDF sheet clones the same canvas; `greenfield-export.png` shows them)
+- [x] The harness is wired as a browser leg; with the drawing removed it fails (bites). (`test_t1447_notes`;
+      `T1447_EDITOR=dist/aef-workflow-designer-0.44.0.html … --expect-red`: N1 N2 N3 N6 N7 red)
+- [x] `bash tools/person-sees-gate.sh` exits 0 and the browser tier is green (pool and here). (2026-11-19 on 258abb19:
+      person-sees exit 0; browser tier HERE 147/0. The POOL gave no result: the job failed before any test,
+      "File size limit exceeded" joining the repo bundle on the worker — a pool-input defect, not a test result, so the
+      gate's rule applied (no pool result: the local run decides, and it says so). Bundle defect: own task.)
 
 ### Human
-- [ ] The workshop map's notes and links read well and look like BPMN text annotations, at three widths.
+- [x] The workshop map's notes and links read well and look like BPMN text annotations, at three widths.
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1447 --criterion 1`), who may escalate.
   **Steps:**
   1. `docs/reports/T-1447-shots/{1024,1440,1920}-greenfield.png`: the opening view (fit) at each width.
@@ -154,6 +160,7 @@ bounds; associations draw as dotted lines (an arrowhead when associationDirectio
   nearest first; greenfield-export.png and 1920-closeup.png re-shot and changed (sha256 75966ec8… -> a8f19ae5…).
   **Expected:** the notes read as the map's content, nothing covers a step's name or a flow label it should not.
   **If not:** name the file and the note; the agent fixes and re-shoots.
+  **Reviewer verdict:** green V-20261119-8d4410ec — reviewer-judge-t-1447-r3-573595b7a785:reviewer (rung rung-3-termlink-single-reviewer), digest 407b664f4003; dispatch judge-t-1447-r3-573595b7a785; evidence: .context/reviews/evidence/T-1447/AC1-judge-t-1447-r3-573595b7a785.md, .context/reviews/evidence/T-1447/1024-greenfield-judge-t-1447-r3-573595b7a785.png, .context/reviews/evidence/T-1447/1024-notes-01-judge-t-1447-r3-573595b7a785.png, .context/reviews/evidence/T-1447/1024-notes-02-judge-t-1447-r3-573595b7a785.png, .context/reviews/evidence/T-1447/1024-notes-03-judge-t-1447-r3-573595b7a785.png, .context/reviews/evidence/T-1447/1024-notes-04-judge-t-1447-r3-573595b7a785.png, .context/reviews/evidence/T-1447/1024-notes-05-judge-t-1447-r3-573595b7a785.png, .context/reviews/evidence/T-1447/1024-notes-06-judge-t-1447-r3-573595b7a785.png, .context/reviews/evidence/T-1447/1024-notes-07-judge-t-1447-r3-573595b7a785.png, .context/reviews/evidence/T-1447/1024-notes-08-judge-t-1447-r3-573595b7a785.png, .context/reviews/evidence/T-1447/1440-greenfield-judge-t-1447-r3-573595b7a785.png, .context/reviews/evidence/T-1447/1440-notes-01-judge-t-1447-r3-573595b7a785.png, .context/reviews/evidence/T-1447/1440-notes-02-judge-t-1447-r3-573595b7a785.png, .context/reviews/evidence/T-1447/1440-notes-03-judge-t-1447-r3-573595b7a785.png, .context/reviews/evidence/T-1447/1440-notes-04-judge-t-1447-r3-573595b7a785.png, .context/reviews/evidence/T-1447/1440-notes-05-judge-t-1447-r3-573595b7a785.png, .context/reviews/evidence/T-1447/1440-notes-06-judge-t-1447-r3-573595b7a785.png, .context/reviews/evidence/T-1447/1920-closeup-judge-t-1447-r3-573595b7a785.png, .context/reviews/evidence/T-1447/1920-greenfield-judge-t-1447-r3-573595b7a785.png, .context/reviews/evidence/T-1447/export-crop-notes-1-2-3-judge-t-1447-r3-573595b7a785.png, .context/reviews/evidence/T-1447/export-crop-notes-4-5-judge-t-1447-r3-573595b7a785.png, .context/reviews/evidence/T-1447/export-crop-notes-7-8-judge-t-1447-r3-573595b7a785.png, .context/reviews/evidence/T-1447/greenfield-export-judge-t-1447-r3-573595b7a785.png, .context/reviews/evidence/T-1447/zoom-1024-02-notes-5-6-7-judge-t-1447-r3-573595b7a785.png, .context/reviews/evidence/T-1447/zoom-1024-03-note7-end-judge-t-1447-r3-573595b7a785.png, .context/reviews/evidence/T-1447/zoom-1440-01-note2-end-judge-t-1447-r3-573595b7a785.png, .context/reviews/evidence/T-1447/zoom-1440-02-note7-end-judge-t-1447-r3-573595b7a785.png; ledger .context/reviews/verdicts.jsonl
 
 ### Human (template guidance)
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -339,6 +346,11 @@ bounds; associations draw as dotted lines (an arrowhead when associationDirectio
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+node --check tools/_t1447-notes-cdp.mjs
+grep -q 'test_t1447_notes' tests/run-bridge-tests.sh
+test "$(sha256sum tests/fixtures/greenfield/nooteboom-offerte-tot-order-with-notes.bpmn | cut -c1-64)" = c9afe963aad9f4b93ea3ca3cb8bc21e3423de38c606d4b793229a54581f71a0c
+grep -q 'function renderNotes' src/aef-workflow-designer.html && grep -q 'function fitNoteEnds' src/aef-workflow-designer.html
+python3 tools/_t821-swallowed-failure-census.py > /tmp/t1447-census.out 2>&1 && grep -q 'FINDINGS *0' /tmp/t1447-census.out
 
 ## RCA
 
@@ -440,3 +452,21 @@ bounds; associations draw as dotted lines (an arrowhead when associationDirectio
 ### 2026-11-19T14:50:18Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-19T20:07:26Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-6e99114d
+- **Timestamp:** 2026-11-19T20:07:32Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#7 (Agent)** — `bash tools/person-sees-gate.sh` exits 0 and the browser tier is green (pool and here). (2026-11-19 on 258abb19:
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/person-sees-gate.sh in: `bash tools/person-sees-gate.sh` exits 0 and the browser tier is green (pool and here). (2026-11-19 on 258abb19:`

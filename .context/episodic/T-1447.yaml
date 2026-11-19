@@ -1,0 +1,209 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1447: Show imported text annotations (and their associations) on the canvas — Greenfield's workshop maps
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-19T20:07:39Z
+# ============================================================================
+
+task_id: T-1447
+task_name: "Show imported text annotations (and their associations) on the canvas — Greenfield's workshop maps"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-19T13:05:22Z
+completed: 2026-11-19T20:07:26Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-19T14:05:56+01:00
+last_commit: 2026-11-19T19:35:26+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  capture showing imported text annotations (Greenfield T-436 workshop maps). scope adds task-to-task associations (Greenfield msg ef63bb29); T-1449 captures their routing findings. Greenfield workshop map saved as test fixture (22903 bytes, sha256 c9afe963…, owner consented; 12 annotations, 10 associations). scope written — context, 7 agent criteria (draw annotations and associations read-only from procKept, follow moved nodes, save bytes unchanged, export, wired bite-tested leg, gates) and a reviewer-judged visual criterion. draw imported text annotations and associations read-only (g-notes, under edges and nodes): notes at their DI bounds with wrapped text and BPMN's open bracket; associations dotted along the file's waypoints, straight between current outlines once a step moves; one-way/two-way arrowheads, moved clear of the id badge (T-1381 rule). Save bytes unchanged; notice keeps 'not shown yet' only for groups and undrawable associations. Harness _t1447-notes-cdp.mjs 8/8, bites on 0.44.0 (N1 N2 N3 N6 N7 red), wired as test_t1447_notes; shots at 3 widths + paper export. _t1327 leg3 follows the intended notice change — the kitchen-sink's annotation and 2 associations are drawn now, so the notice counts only its 3 groups as not shown (and must not call the drawn ones not shown). reviewer verdict. review round 1 (amber) addressed — a note's line whose end touches another step is re-attached to a clear side of its own step (note 7); notes and note lines are obstacles for id captions and flow labels (note 8's bracket and line, note 5 vs 'wel'); close-up tiles at 100% for 1024 and 1440; harness 8/8. review round 2 (amber) addressed — zoomed views scroll 48px past the lowest content so the Mode chip never covers it (fit view unchanged); shots start each width with fresh storage (no 'Restored' notice); tiles re-shot. review round 3 — a note line's end that runs through a step's caption slides along the step's edge clear of it (fitNoteEnds, after captions are placed; note 2 now visibly reaches Knop 'Tacton'); tiles overlap past the pinned lane column; the caption-over-type-tag finding (sal_6_opportunity, pre-existing) routed to T-1449. review round 4 — fitNoteEnds scans the whole edge (4px steps, nearest first) for a clear end, so a note line arriving at a slant past a caption lands clear of it (note 2 now visibly reaches Knop 'Tacton' at 1440, 1920 and on paper); shots re-taken and changed
+
+# Key outcomes
+outcomes:
+  - 'On the Greenfield fixture all 12 annotations draw at their DI bounds with their full text, and all 10 associations'
+  - 'An association whose end node the person moves follows the node (its line is redrawn to the node''s new place);'
+  - 'The drawing is read-only: annotations and associations are not selectable, draggable or deletable, and draw'
+  - 'Save writes the same bytes as before this task for the fixture and for every corpus/third-party golden'
+  - 'SVG/PNG/PDF export include the annotations and associations (paper palette). (N7 on the SVG; the PNG is drawn'
+  - 'The harness is wired as a browser leg; with the drawing removed it fails (bites). (`test_t1447_notes`;'
+  - '`bash tools/person-sees-gate.sh` exits 0 and the browser tier is green (pool and here). (2026-11-19 on 258abb19:'
+  - 'The workshop map''s notes and links read well and look like BPMN text annotations, at three widths.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Greenfield workshop map saved as test fixture (22903 bytes, sha256 c9afe963…, owner consented; 12 annotations, 10 associations)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1447/1024-greenfield-judge-t-1447-r3-573595b7a785.png'
+  - '.context/reviews/evidence/T-1447/1024-greenfield-judge-t-1447-r3-606f30697879.png'
+  - '.context/reviews/evidence/T-1447/1024-notes-01-judge-t-1447-r3-573595b7a785.png'
+  - '.context/reviews/evidence/T-1447/1024-notes-02-judge-t-1447-r3-41714bfe1920.png'
+  - '.context/reviews/evidence/T-1447/1024-notes-02-judge-t-1447-r3-573595b7a785.png'
+  - '.context/reviews/evidence/T-1447/1024-notes-03-judge-t-1447-r3-41714bfe1920.png'
+  - '.context/reviews/evidence/T-1447/1024-notes-03-judge-t-1447-r3-573595b7a785.png'
+  - '.context/reviews/evidence/T-1447/1024-notes-04-judge-t-1447-r3-41714bfe1920.png'
+  - '.context/reviews/evidence/T-1447/1024-notes-04-judge-t-1447-r3-573595b7a785.png'
+  - '.context/reviews/evidence/T-1447/1024-notes-05-judge-t-1447-r3-573595b7a785.png'
+  - '.context/reviews/evidence/T-1447/1024-notes-06-judge-t-1447-r3-573595b7a785.png'
+  - '.context/reviews/evidence/T-1447/1024-notes-07-judge-t-1447-r3-573595b7a785.png'
+  - '.context/reviews/evidence/T-1447/1024-notes-08-judge-t-1447-r3-573595b7a785.png'
+  - '.context/reviews/evidence/T-1447/1440-greenfield-judge-t-1447-r3-573595b7a785.png'
+  - '.context/reviews/evidence/T-1447/1440-greenfield-judge-t-1447-r3-606f30697879.png'
+  - '.context/reviews/evidence/T-1447/1440-notes-01-judge-t-1447-r3-573595b7a785.png'
+  - '.context/reviews/evidence/T-1447/1440-notes-01-judge-t-1447-r3-9f57df3592c4.png'
+  - '.context/reviews/evidence/T-1447/1440-notes-02-judge-t-1447-r3-573595b7a785.png'
+  - '.context/reviews/evidence/T-1447/1440-notes-02-judge-t-1447-r3-9f57df3592c4.png'
+  - '.context/reviews/evidence/T-1447/1440-notes-03-judge-t-1447-r3-573595b7a785.png'
+  - '.context/reviews/evidence/T-1447/1440-notes-04-judge-t-1447-r3-573595b7a785.png'
+  - '.context/reviews/evidence/T-1447/1440-notes-05-judge-t-1447-r3-41714bfe1920.png'
+  - '.context/reviews/evidence/T-1447/1440-notes-05-judge-t-1447-r3-573595b7a785.png'
+  - '.context/reviews/evidence/T-1447/1440-notes-06-judge-t-1447-r3-41714bfe1920.png'
+  - '.context/reviews/evidence/T-1447/1440-notes-06-judge-t-1447-r3-573595b7a785.png'
+  - '.context/reviews/evidence/T-1447/1440-notes-07-judge-t-1447-r3-41714bfe1920.png'
+  - '.context/reviews/evidence/T-1447/1440-notes-08-judge-t-1447-r3-41714bfe1920.png'
+  - '.context/reviews/evidence/T-1447/1920-closeup-judge-t-1447-r3-573595b7a785.png'
+  - '.context/reviews/evidence/T-1447/1920-greenfield-judge-t-1447-r3-573595b7a785.png'
+  - '.context/reviews/evidence/T-1447/1920-greenfield-judge-t-1447-r3-606f30697879.png'
+  - '.context/reviews/evidence/T-1447/AC1-judge-t-1447-r3-41714bfe1920.md'
+  - '.context/reviews/evidence/T-1447/AC1-judge-t-1447-r3-573595b7a785.md'
+  - '.context/reviews/evidence/T-1447/AC1-judge-t-1447-r3-606f30697879.md'
+  - '.context/reviews/evidence/T-1447/AC1-judge-t-1447-r3-9f57df3592c4.md'
+  - '.context/reviews/evidence/T-1447/AC1-judge-t-1447-r3-bf7bc0902552.md'
+  - '.context/reviews/evidence/T-1447/export-crop-notes-1-2-3-judge-t-1447-r3-573595b7a785.png'
+  - '.context/reviews/evidence/T-1447/export-crop-notes-4-5-judge-t-1447-r3-573595b7a785.png'
+  - '.context/reviews/evidence/T-1447/export-crop-notes-4-5-judge-t-1447-r3-606f30697879.png'
+  - '.context/reviews/evidence/T-1447/export-crop-notes-6-7-8-judge-t-1447-r3-606f30697879.png'
+  - '.context/reviews/evidence/T-1447/export-crop-notes-7-8-judge-t-1447-r3-573595b7a785.png'
+  - '.context/reviews/evidence/T-1447/greenfield-export-judge-t-1447-r3-41714bfe1920.png'
+  - '.context/reviews/evidence/T-1447/greenfield-export-judge-t-1447-r3-573595b7a785.png'
+  - '.context/reviews/evidence/T-1447/greenfield-export-judge-t-1447-r3-606f30697879.png'
+  - '.context/reviews/evidence/T-1447/zoom-1024-01-note2-end-judge-t-1447-r3-bf7bc0902552.png'
+  - '.context/reviews/evidence/T-1447/zoom-1024-01-note2-line-clean-judge-t-1447-r3-9f57df3592c4.png'
+  - '.context/reviews/evidence/T-1447/zoom-1024-02-note5-clipped-judge-t-1447-r3-9f57df3592c4.png'
+  - '.context/reviews/evidence/T-1447/zoom-1024-02-notes-5-6-7-judge-t-1447-r3-573595b7a785.png'
+  - '.context/reviews/evidence/T-1447/zoom-1024-02-sal_6-clean-judge-t-1447-r3-9f57df3592c4.png'
+  - '.context/reviews/evidence/T-1447/zoom-1024-03-note7-end-judge-t-1447-r3-573595b7a785.png'
+  - '.context/reviews/evidence/T-1447/zoom-1024-06-notes-5-6-7-judge-t-1447-r3-bf7bc0902552.png'
+  - '.context/reviews/evidence/T-1447/zoom-1440-01-note2-end-judge-t-1447-r3-573595b7a785.png'
+  - '.context/reviews/evidence/T-1447/zoom-1440-01-note2-end-judge-t-1447-r3-bf7bc0902552.png'
+  - '.context/reviews/evidence/T-1447/zoom-1440-01-note2-line-sal_2_knop-judge-t-1447-r3-9f57df3592c4.png'
+  - '.context/reviews/evidence/T-1447/zoom-1440-02-note7-end-judge-t-1447-r3-573595b7a785.png'
+  - '.context/reviews/evidence/T-1447/zoom-1440-02-note7-judge-t-1447-r3-bf7bc0902552.png'
+  - '.context/reviews/evidence/T-1447/zoom-1440-02-sal_6-over-task-judge-t-1447-r3-9f57df3592c4.png'
+  - '.context/reviews/evidence/T-1447/zoom-1920-closeup-note2-end-judge-t-1447-r3-bf7bc0902552.png'
+  - '.context/reviews/evidence/T-1447/zoom-bottom-notes-1024-04-judge-t-1447-r3-41714bfe1920.png'
+  - '.context/reviews/evidence/T-1447/zoom-export-note2-end-judge-t-1447-r3-bf7bc0902552.png'
+  - '.context/reviews/evidence/T-1447/zoom-export-note2-line-sal_2_knop-judge-t-1447-r3-9f57df3592c4.png'
+  - '.context/reviews/evidence/T-1447/zoom-note7-1024-judge-t-1447-r3-41714bfe1920.png'
+  - '.context/reviews/evidence/T-1447/zoom-note8-1024-judge-t-1447-r3-41714bfe1920.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1447-show-imported-text-annotations-and-their.md'
+  - '.tasks/active/T-1449-routing-on-greenfields-workshop-map-loop.md'
+  - 'docs/reports/T-1447-shots/1024-greenfield.png'
+  - 'docs/reports/T-1447-shots/1024-notes-01.png'
+  - 'docs/reports/T-1447-shots/1024-notes-02.png'
+  - 'docs/reports/T-1447-shots/1024-notes-03.png'
+  - 'docs/reports/T-1447-shots/1024-notes-04.png'
+  - 'docs/reports/T-1447-shots/1024-notes-05.png'
+  - 'docs/reports/T-1447-shots/1024-notes-06.png'
+  - 'docs/reports/T-1447-shots/1024-notes-07.png'
+  - 'docs/reports/T-1447-shots/1024-notes-08.png'
+  - 'docs/reports/T-1447-shots/1440-greenfield.png'
+  - 'docs/reports/T-1447-shots/1440-notes-01.png'
+  - 'docs/reports/T-1447-shots/1440-notes-02.png'
+  - 'docs/reports/T-1447-shots/1440-notes-03.png'
+  - 'docs/reports/T-1447-shots/1440-notes-04.png'
+  - 'docs/reports/T-1447-shots/1440-notes-05.png'
+  - 'docs/reports/T-1447-shots/1440-notes-06.png'
+  - 'docs/reports/T-1447-shots/1440-notes-07.png'
+  - 'docs/reports/T-1447-shots/1440-notes-08.png'
+  - 'docs/reports/T-1447-shots/1920-closeup.png'
+  - 'docs/reports/T-1447-shots/1920-greenfield.png'
+  - 'docs/reports/T-1447-shots/greenfield-export.png'
+  - 'docs/reports/T-1447-shots/shots.mjs'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/fixtures/greenfield/nooteboom-offerte-tot-order-with-notes.bpmn'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1327-comments-and-notice-cdp.mjs'
+  - 'tools/_t1447-notes-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-19T14:05:56'
+    action: 'T-1447: capture showing imported text annotations (Greenfield T-436 workshop maps)'
+  - time: '2026-11-19T14:47:55'
+    action: 'T-1447: scope adds task-to-task associations (Greenfield msg ef63bb29); T-1449 captures their routing findings'
+  - time: '2026-11-19T15:50:58'
+    action: 'T-1447: Greenfield workshop map saved as test fixture (22903 bytes, sha256 c9afe963…, owner consented; 12 annotations, 10 associations)'
+  - time: '2026-11-19T18:21:04'
+    action: 'T-1447: scope written — context, 7 agent criteria (draw annotations and associations read-only from procKept, follow moved nodes, save bytes unchanged, export, wired bite-tested leg, gates) and a reviewer-judged visual criterion'
+  - time: '2026-11-19T18:32:26'
+    action: 'T-1447: draw imported text annotations and associations read-only (g-notes, under edges and nodes): notes at their DI bounds with wrapped text and BPMN''s open bracket; associations dotted along the file''s waypoints, straight between current outlines once a step moves; one-way/two-way arrowheads, moved clear of the id badge (T-1381 rule). Save bytes unchanged; notice keeps ''not shown yet'' only for groups and undrawable associations. Harness _t1447-notes-cdp.mjs 8/8, bites on 0.44.0 (N1 N2 N3 N6 N7 red), wired as test_t1447_notes; shots at 3 widths + paper export'
+  - time: '2026-11-19T19:09:21'
+    action: 'T-1447: _t1327 leg3 follows the intended notice change — the kitchen-sink''s annotation and 2 associations are drawn now, so the notice counts only its 3 groups as not shown (and must not call the drawn ones not shown)'
+  - time: '2026-11-19T19:11:01'
+    action: 'T-1447: reviewer verdict'
+  - time: '2026-11-19T19:16:27'
+    action: 'T-1447: review round 1 (amber) addressed — a note''s line whose end touches another step is re-attached to a clear side of its own step (note 7); notes and note lines are obstacles for id captions and flow labels (note 8''s bracket and line, note 5 vs ''wel''); close-up tiles at 100% for 1024 and 1440; harness 8/8'
+  - time: '2026-11-19T19:20:30'
+    action: 'T-1447: reviewer verdict'
+  - time: '2026-11-19T19:22:44'
+    action: 'T-1447: review round 2 (amber) addressed — zoomed views scroll 48px past the lowest content so the Mode chip never covers it (fit view unchanged); shots start each width with fresh storage (no ''Restored'' notice); tiles re-shot'
+  - time: '2026-11-19T19:25:46'
+    action: 'T-1447: reviewer verdict'
+  - time: '2026-11-19T19:28:57'
+    action: 'T-1447: review round 3 — a note line''s end that runs through a step''s caption slides along the step''s edge clear of it (fitNoteEnds, after captions are placed; note 2 now visibly reaches Knop ''Tacton''); tiles overlap past the pinned lane column; the caption-over-type-tag finding (sal_6_opportunity, pre-existing) routed to T-1449'
+  - time: '2026-11-19T19:32:03'
+    action: 'T-1447: reviewer verdict'
+  - time: '2026-11-19T19:33:29'
+    action: 'T-1447: review round 4 — fitNoteEnds scans the whole edge (4px steps, nearest first) for a clear end, so a note line arriving at a slant past a caption lands clear of it (note 2 now visibly reaches Knop ''Tacton'' at 1440, 1920 and on paper); shots re-taken and changed'
+  - time: '2026-11-19T19:35:26'
+    action: 'T-1447: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 15 commit(s), 422 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 422
+  commits: 16
+  files_changed: 101
+  lines_added: 2029
+  lines_removed: 43
+  footprint_refreshed_at: '2026-11-19T20:07:46Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1447-show-imported-text-annotations-and-their.md
+generated_by: context-agent-hybrid

@@ -23309,3 +23309,21 @@ scan_id: R-b165f057
 task_id: T-1448
 payload:
   task_file: .tasks/active/T-1448-release-designer-0440-importexport-menus.md
+---
+kind: scan_emitted
+timestamp: '2026-11-19T20:07:32Z'
+scan_id: R-6e99114d
+task_id: T-1447
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-19T20:07:32Z'
+scan_id: R-6e99114d
+task_id: T-1447
+payload:
+  task_file: .tasks/active/T-1447-show-imported-text-annotations-and-their.md
