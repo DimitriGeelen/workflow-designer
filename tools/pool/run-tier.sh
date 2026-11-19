@@ -33,7 +33,7 @@ path, tier, commit, rc, line, fails, dur, err = sys.argv[1:]
 json.dump({"tier": tier, "commit": commit, "exit_code": int(rc), "result_line": line,
            "fail_lines": [l.strip() for l in fails.splitlines() if l.strip()], "duration_s": int(dur),
            "node": platform.node(), "arch": platform.machine(), "launcher": "tools/pool/run-tier.sh (832 T-1406)",
-           "error": err or None}, open(path, "w"), indent=2)
+           "error": err or None, "shard": os.environ.get("T1288_SHARD") or None}, open(path, "w"), indent=2)
 PY
     exit "$rc"
 }
@@ -128,6 +128,10 @@ fi
 git config --global user.name "832 pool run" 2>/dev/null
 git config --global user.email "832-pool@invalid" 2>/dev/null
 export T1406_POOL=1
+# T-1452 (lever B, shadow): the shard this job runs (from job.info: shard=i/k), and a per-leg record delivered in out/
+SHARD=$(sed -n 's/^shard=//p' "$JOB/job.info" 2>/dev/null | head -1)
+[ -n "$SHARD" ] && export T1288_SHARD="$SHARD"
+export T1288_LEGLOG="$OUT/legs.tsv"
 
 # 3. The tier, with no project pointer inherited from the caller (the T-1398 class: a session's PROJECT_ROOT or
 #    FRAMEWORK_ROOT made the first local proof's budget and audit legs read the REAL repo's .context/, not the clone's).

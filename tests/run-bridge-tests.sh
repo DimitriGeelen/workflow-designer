@@ -82,6 +82,7 @@ _t813_record() {
     [ "$_T813_RECORDED" = "1" ] && return 0
     _T813_RECORDED=1
     [ "$T1288_LIST" = 1 ] && return 0   # T-1288: --list-legs runs nothing, so it records nothing
+    [ -n "${T1288_SHARD:-}" ] && return 0   # T-1452: a shard ran part of a tier; it is not a run of the suite
     local rc=$1
     local dur=$(( $(date +%s) - _T813_START ))
     local sha

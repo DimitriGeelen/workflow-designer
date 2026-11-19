@@ -24,7 +24,7 @@ STAGE="$ROOT/build/pool/stage"
 mkdir -p "$STAGE" "$ROOT/build/pool/wait"
 COMMIT=$(git rev-parse HEAD)
 SHORT=${COMMIT:0:12}
-rm -f "$ROOT/build/pool/last-$TIER.result"   # T-1408: never let an older run's outcome stand in for this one
+rm -f "$ROOT/build/pool/last-$TIER${SHARD:+-shard}.result"   # T-1408: never let an older run's outcome stand in for this one
 
 # --- inputs, from git only ---------------------------------------------------------------------------------------
 # T-1453: where the chain is cut. CHAIN_MAX is the target size of one link, estimated cheaply with `rev-list
@@ -158,9 +158,11 @@ done
 # The pool toolchain the 832 entries require (ring20 names it; bridge832-2 since 2026-11-13 10:30Z adds the framework's
 # web stack, ruamel.yaml, ripgrep and sqlite3). POOL_ENV overrides it for a one-off run.
 POOL_ENV="${POOL_ENV:-bridge832-2}"
-NAME="832-$TIER-$SHORT-$(date -u +%Y%m%dT%H%M%S)"
+NAME="832-$TIER${SHARD:+-shard${SHARD%/*}of${SHARD#*/}}-$SHORT-$(date -u +%Y%m%dT%H%M%S)"
 FOLDER=$(mktemp -d "${TMPDIR:-/tmp}/832pool-folder.XXXXXX")
 printf 'tier=%s\ncommit=%s\n' "$TIER" "$COMMIT" > "$FOLDER/job.info"
+# T-1452 (lever B, shadow): SHARD=i/k runs one shard of the tier; its result counts for nothing but the comparison
+if [ -n "${SHARD:-}" ]; then printf 'shard=%s\n' "$SHARD" >> "$FOLDER/job.info"; fi
 pool-client --hub "$HUB" submit-cmd "$FOLDER" --name "$NAME" --unit "832/$SHORT" --step "$TIER" \
     --entry "832.bridge-$TIER" --env "$POOL_ENV" --client 832-Workflow-designer --task T-1406 "${REFS[@]}"
 rm -rf "$FOLDER"
@@ -182,7 +184,7 @@ cat "$ROOT/build/pool/wait/$NAME/exit_code" 2>/dev/null || true
 RES="$ROOT/build/pool/results/$NAME/result.json"
 for _ in 1 2 3 4 5 6; do [ -f "$RES" ] && break; sleep 10; done   # out/ is delivered just after the wait answers
 if [ -f "$RES" ]; then
-    python3 - "$RES" "$NAME" "$ROOT/build/pool/last-$TIER.result" <<'PY'
+    python3 - "$RES" "$NAME" "$ROOT/build/pool/last-$TIER${SHARD:+-shard}.result" <<'PY'
 import json, sys
 res, name, dest = sys.argv[1:]
 d = json.load(open(res))

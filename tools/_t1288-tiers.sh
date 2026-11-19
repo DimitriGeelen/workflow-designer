@@ -135,6 +135,13 @@ PY
 
 # ── per-tier bookkeeping ────────────────────────────────────────────────────────────────────────────────────────
 declare -A T1288_PASS=() T1288_FAIL=() T1288_FLAKY=() T1288_QUAR=() T1288_SECS=() T1288_RAN=() _T1288_LEG_TIER=()
+declare -A _T1288_SHARD_N=()   # T-1452: legs seen per tier, for T1288_SHARD
+if [ -n "${T1288_SHARD:-}" ]; then
+    if ! [[ "$T1288_SHARD" =~ ^([1-9][0-9]*)/([1-9][0-9]*)$ ]] || [ "${BASH_REMATCH[1]}" -gt "${BASH_REMATCH[2]}" ]; then
+        echo "T1288_SHARD='$T1288_SHARD' is not i/k with 1 <= i <= k (T-1452)" >&2; exit 2
+    fi
+    echo "T-1452: shard $T1288_SHARD — every ${T1288_SHARD#*/}th leg of the tier from the ${T1288_SHARD%/*}th (shadow; not a run of the suite)" >&2
+fi
 _T1288_RETRY=()          # "tier<TAB>name<TAB>fn<TAB>args..." of legs waiting for their one retry
 _T1288_PENDING_FAIL=0    # fails held back while a retry is pending (added back if the run dies first)
 T1288_FLAKY_LIST=()
@@ -174,6 +181,13 @@ leg() {
     _T1288_LEG_TIER[$name]="$tier"
     if [ "$T1288_LIST" = 1 ]; then echo "$tier $name"; return 0; fi
     [ "$T1288_TIER" = all ] || [ "$T1288_TIER" = "$tier" ] || return 0
+    # T-1452 (lever B, SHADOW only): T1288_SHARD=i/k runs every k-th leg of the tier, starting at the i-th (round robin
+    # in declaration order), so k pool workers run one tier between them. Names are still registered above, so the
+    # whole-suite checks (quarantine names, declared-twice) hold in every shard. Unset: every leg runs, as before.
+    if [ -n "${T1288_SHARD:-}" ]; then
+        _T1288_SHARD_N[$tier]=$(( ${_T1288_SHARD_N[$tier]:-0} + 1 ))
+        [ $(( (${_T1288_SHARD_N[$tier]} - 1) % ${T1288_SHARD#*/} )) -eq $(( ${T1288_SHARD%/*} - 1 )) ] || return 0
+    fi
     T1288_RAN[$tier]=1
     if [ -n "$_T1288_SECTION" ]; then printf '\n%s\n' "$_T1288_SECTION"; _T1288_SECTION=""; fi
     _t1288_run "$tier" "$name" first "$fn" "$@"
@@ -197,6 +211,9 @@ _t1288_run() {
     fi
     local dp=$((pass - p0)) df=$((fail - f0))
     T1288_SECS[$tier]=$(( ${T1288_SECS[$tier]} + SECONDS - t0 ))
+    # T-1452: one line per leg attempt (tier, name, attempt, passes, fails, seconds) when asked, so two runs can be
+    # compared leg by leg (a shard against the whole tier) and shards balanced by time. Unset: nothing is written.
+    [ -n "${T1288_LEGLOG:-}" ] && printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$tier" "$name" "$attempt" "$dp" "$df" "$((SECONDS - t0))" >> "$T1288_LEGLOG" 2>/dev/null
     if [ "$df" -gt 0 ] && [ -n "${_T1288_Q_OWNER[$name]:-}" ] && [ -z "${_T1288_Q_EXPIRED[$name]:-}" ]; then
         fail=$((fail - df))
         T1288_QUAR[$tier]=$(( ${T1288_QUAR[$tier]} + 1 ))
