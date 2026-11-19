@@ -134,6 +134,21 @@ else
     bad "comment counted as a site" "a commented-out catch was scored as a finding — the census's own first run made this mistake and this branch is why it cannot come back. $(tail -4 "$WORK/out")"
 fi
 
+# 5. a quote inside a regex literal must not hide the code after it (T-1450)
+#    Before T-1450 the mask read the `"` in /\sid="/ as an opening string and skipped real
+#    catches until the next quote: T-1109's catch went unseen from 0.16.0 to 0.43.0.
+build
+inject 'function _t1450ControlRegexQuote(s){ const hit = /\sid="/.test(s); try { JSON.parse(s); } catch (_) {} return hit; }'
+if run; then
+    bad "bare catch after a regex holding a quote not caught" "the census PASSED: the quote in the regex literal opened a 'string' that hid the bare catch after it — the T-1450 blind spot is back"
+else
+    if [ "$(findings)" -gt "${BASE_F:-0}" ]; then
+        ok "bare catch after a regex holding a quote -> FINDING (the regex is not a string)"
+    else
+        bad "regex control red for another reason" "the census went red but the findings did not rise. $(tail -4 "$WORK/out")"
+    fi
+fi
+
 echo
 echo "PASS=$PASS FAIL=$FAIL"
 [ "$FAIL" -eq 0 ] || exit 1

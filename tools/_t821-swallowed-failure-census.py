@@ -72,6 +72,10 @@ EXCUSES = {
             "you ARE embedded. Reporting it would record a fault on the healthy path."),
     "try { return new URLSearchParams(location.search).get('load') || null; } catch (_) { return null; }":
         (1, "no ?load parameter is the common case, not a fault."),
+    "} catch (_) { return null; } // not a URL at all: not a project load (a plain import follows)":
+        (1, "T-1109's projectIdFromLoadSrc: a ?load= value that is not a URL is a plain file path, "
+            "so 'not a project link' is the answer and the plain import that follows reports its own "
+            "failures. Hidden from this census until T-1450 (a quote in a regex literal masked it)."),
     # --- user-initiated, already visible to the operator ----------------------------
     "if (el.requestFullscreen) { try { el.requestFullscreen().catch(() => {}); } catch (_) {} }":
         (2, "fullscreen refusal is enacted by the browser in front of the operator — the "
@@ -165,6 +169,55 @@ EXCUSES = {
 def norm(line):
     return re.sub(r'\s+', ' ', line).strip()
 
+_REGEX_PREV_PUNCT = set('(,=:[!&|?{};+-*%<>~^')
+_REGEX_PREV_WORDS = ('return', 'typeof', 'case', 'in', 'of', 'void', 'delete', 'new', 'throw', 'yield', 'await')
+
+def _regex_may_start(text, i):
+    """True when a `/` at i begins a regex literal rather than a division (T-1450).
+
+    The usual rule: a regex may start where an expression may start, i.e. after an operator,
+    an opening bracket, a comma or semicolon, a keyword like `return`, or at the start of the text.
+    """
+    j = i - 1
+    while j >= 0 and text[j] in ' \t\r\n':
+        j -= 1
+    if j < 0:
+        return True
+    if text[j] in _REGEX_PREV_PUNCT:
+        return True
+    if text[j].isalnum() or text[j] in '_$':
+        k = j
+        while k >= 0 and (text[k].isalnum() or text[k] in '_$'):
+            k -= 1
+        return text[k + 1:j + 1] in _REGEX_PREV_WORDS
+    return False
+
+def _regex_end(text, i):
+    """Index just past the regex literal starting at i (flags included), or i if it is not one.
+
+    A regex never spans a line; reaching a newline first means this `/` was not a regex.
+    """
+    j, n, in_class = i + 1, len(text), False
+    while j < n:
+        c = text[j]
+        if c == '\n':
+            return i
+        if c == '\\':
+            j += 2
+            continue
+        if in_class:
+            if c == ']':
+                in_class = False
+        elif c == '[':
+            in_class = True
+        elif c == '/':
+            j += 1
+            while j < n and text[j].isalpha():
+                j += 1
+            return j
+        j += 1
+    return i
+
 def _code_mask(text):
     """True at every index that is real code — not a comment, string or template literal.
 
@@ -178,6 +231,16 @@ def _code_mask(text):
         c = text[i]
         nxt = text[i + 1] if i + 1 < n else ''
         if state is None:
+            if c == '/' and nxt not in ('/', '*') and _regex_may_start(text, i):
+                # T-1450: a regex literal is neither code nor a string. Before this, the `"` in
+                # T-1089's /<aef:workflowMeta\b[^>]*\sid="/ opened a "string" that hid real code
+                # (catches included) until the next quote, wherever that happened to fall.
+                end = _regex_end(text, i)
+                if end > i:
+                    for k in range(i, end):
+                        mask[k] = False
+                    i = end
+                    continue
             if c == '/' and nxt == '/':
                 state = '//'
             elif c == '/' and nxt == '*':

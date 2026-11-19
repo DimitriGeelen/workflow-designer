@@ -23255,3 +23255,21 @@ scan_id: R-1bd927f4
 task_id: T-1441
 payload:
   task_file: .tasks/active/T-1441-importexport-36-mermaid-and-csv-out-then.md
+---
+kind: scan_emitted
+timestamp: '2026-11-19T15:21:42Z'
+scan_id: R-cd3352ae
+task_id: T-1450
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-19T15:21:42Z'
+scan_id: R-cd3352ae
+task_id: T-1450
+payload:
+  task_file: .tasks/active/T-1450-swallowed-failure-census-misreads-regex-.md

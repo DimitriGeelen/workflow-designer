@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1450: Swallowed-failure census misreads regex literals as strings (a quote in /\\sid=\"/ hid real catches); excuse the T-1109 URL catch it now sees
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-19T15:21:48Z
+# ============================================================================
+
+task_id: T-1450
+task_name: "Swallowed-failure census misreads regex literals as strings (a quote in /\\sid=\"/ hid real catches); excuse the T-1109 URL catch it now sees"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-19T15:19:22Z
+completed: 2026-11-19T15:21:37Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Swallowed-failure census misreads regex literals as strings (a quote in /\sid="/ hid real catches); excuse the T-1109 URL catch it now sees
+
+# Key outcomes
+outcomes:
+  - '`_code_mask()` treats a regex literal (a `/` where an expression may start) as code-not-string, so a quote inside it does not open a string.'
+  - 'Every `catch (` in the designer that is code is counted: only the comment lines that quote `catch` are skipped (listed in the task when done).'
+  - 'The T-1109 URL catch is excused with a real reason (not a fault: a non-URL `?load=` value is a plain file import), or instrumented.'
+  - '`tools/_t821-census-controls.sh` gains a control: a bare catch after a regex holding `"` turns the census red (it would pass silently before).'
+  - '`python3 tools/_t821-swallowed-failure-census.py` and `bash tools/_t821-census-controls.sh` exit 0.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2
+  commits: 1
+  files_changed: 5
+  lines_added: 558
+  lines_removed: 0
+  footprint_refreshed_at: '2026-11-19T15:22:36Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1450-swallowed-failure-census-misreads-regex-.md
+generated_by: context-agent-hybrid
