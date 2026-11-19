@@ -73,3 +73,5 @@ docs/learning-ledger.yaml.lock
 .context/dispatch/
 # T-1288: pre-push core-tier cache and log (per checkout, never tracked)
 .context/working/prepush-core.*
+# T-1451: files the operator drops via the fleet cockpit /drop page (055 T-703); may be sensitive, never tracked
+.context/inbox/files/

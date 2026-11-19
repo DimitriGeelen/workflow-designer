@@ -23273,3 +23273,21 @@ scan_id: R-cd3352ae
 task_id: T-1450
 payload:
   task_file: .tasks/active/T-1450-swallowed-failure-census-misreads-regex-.md
+---
+kind: scan_emitted
+timestamp: '2026-11-19T17:08:12Z'
+scan_id: R-29b21ca9
+task_id: T-1451
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-19T17:08:12Z'
+scan_id: R-29b21ca9
+task_id: T-1451
+payload:
+  task_file: .tasks/active/T-1451-git-ignore-contextinboxfiles-cockpit-dro.md
