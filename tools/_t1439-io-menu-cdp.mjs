@@ -63,7 +63,9 @@ try {
     items: [...document.querySelectorAll('#menu-import .tb-menu-item')].map(i => i.textContent) })`);
   await ev(`document.getElementById('btn-export').click()`);
   const l2b = await ev(`({ imp: !document.getElementById('menu-import').hidden, exp: !document.getElementById('menu-export').hidden })`);
-  leg(l2a.open && l2a.exp === 'true' && l2a.items.length === 1 && /BPMN 2\.0 \/ Camunda/.test(l2a.items[0]) && !l2b.imp && l2b.exp,
+  // BPMN first; how many formats follow is L7's business (the menu == IO_FORMATS). This leg said "exactly one" until
+  // T-1441 added Mermaid and CSV, and went red on a correct menu.
+  leg(l2a.open && l2a.exp === 'true' && l2a.items.length >= 1 && /BPMN 2\.0 \/ Camunda/.test(l2a.items[0]) && !l2b.imp && l2b.exp,
       'L2 Import names BPMN 2.0 / Camunda; opening Export closes Import', JSON.stringify({ l2a, l2b }));
   await ev(`document.getElementById('btn-export').click()`);   // close
 
