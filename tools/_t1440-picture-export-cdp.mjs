@@ -117,9 +117,20 @@ try {
     const flat = txt.replace(/\s+/g, ' ');
     const inPdf = names.filter(n => flat.includes(n.split(/\s+/).slice(0, 2).join(' '))).length;
     const editorWords = ['Clean layout', 'View XML', 'Select / Move', 'Add Lane', 'Settings'].filter(w => flat.includes(w));
+    // D2 (T-1440 review: the first PDFs had NO arrowheads): every url(#…) the printed SVG uses must resolve INSIDE the
+    // print sheet. The live canvas has the same marker ids and comes first in the page, and it is hidden in print.
+    const refs = await ev(`(function(){ const sh = document.getElementById('print-sheet'); let used = 0, inside = 0, flowsWithHead = 0;
+      for (const el of sh.querySelectorAll('[marker-end],[marker-start],[marker-mid]')) {
+        let has = false;
+        for (const a of ['marker-end', 'marker-start', 'marker-mid']) { const v = el.getAttribute(a); const m = v && /url\\(#([^)]+)\\)/.exec(v);
+          if (!m) continue; used++; const t = document.getElementById(m[1]); if (t && sh.contains(t) && t.tagName === 'marker' && t.querySelector('path,circle')) { inside++; has = true; } }
+        if (has) flowsWithHead++; }
+      return { used, inside, flowsWithHead }; })()`);
     await ev(`window.dispatchEvent(new Event('afterprint')); 1`);
     leg(sheet.printed === 1 && sheet.cls && sheet.svg && inPdf >= Math.min(names.length, 5) && editorWords.length === 0,
         `D1 [${tag}] Export → PDF prints the map alone`, `printed ${sheet.printed}, step names in PDF ${inPdf}/${names.length}, editor words ${JSON.stringify(editorWords)}, ${pdfBuf.length} B`);
+    leg(refs.used > 0 && refs.inside === refs.used && refs.flowsWithHead > 0,
+        `D2 [${tag}] the PDF's arrowheads resolve inside the print sheet`, JSON.stringify(refs));
 
     // U1 — screen unchanged
     const u = await ev(`({ paper: document.body.classList.contains('export-paper'), printing: document.body.classList.contains('printing-map'),

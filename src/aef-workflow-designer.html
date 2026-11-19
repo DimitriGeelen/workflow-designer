@@ -13746,6 +13746,18 @@ function buildExportSvg() {
       cAll[i].removeAttribute('class');
     });
     drop.forEach(el => el.remove());
+    // Own ids for the export: the print sheet puts this SVG inside the page, where the live canvas's identical ids
+    // (#arrow, …) come first, so url(#arrow) resolved to the canvas's markers, hidden while printing, and the PDF
+    // had no arrowheads (T-1440 review). Prefixing every id and every url(#…) reference keeps the copy self-sufficient.
+    const PFX = 'x-';
+    const ids = new Set();
+    clone.querySelectorAll('[id]').forEach(el => { ids.add(el.id); el.id = PFX + el.id; });
+    clone.querySelectorAll('*').forEach(el => {
+      for (const a of [...el.attributes]) {
+        if (a.value.includes('url(#')) el.setAttribute(a.name, a.value.replace(/url\(#([^)]+)\)/g, (m, id) => ids.has(id) ? `url(#${PFX}${id})` : m));
+        else if ((a.name === 'href' || a.name === 'xlink:href') && a.value.startsWith('#') && ids.has(a.value.slice(1))) el.setAttribute(a.name, '#' + PFX + a.value.slice(1));
+      }
+    });
     const vb = src.viewBox.baseVal;
     const w = Math.ceil(vb.width), h = Math.ceil(vb.height);
     clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
