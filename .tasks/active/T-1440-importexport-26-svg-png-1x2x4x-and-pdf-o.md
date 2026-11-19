@@ -2,12 +2,16 @@
 id: T-1440
 name: "Import/Export 2/6: SVG, PNG 1x/2x/4x and PDF out"
 description: >
-  T-1093 GO step 2. SVG: #canvas with every element's computed paint inlined, editor chrome left out, no remote references (Sprind), flow-label boxes and faint event names styled (spike findings). PNG via canvas at 1x/2x/4x. PDF through a print stylesheet (today printing shows the whole editor). Spike: docs/reports/T-1093-spikes/picture-spike.mjs.
+  T-1093 GO step 2. SVG: #canvas with every element's computed paint inlined, editor
+  chrome left out, no remote references (Sprind), flow-label boxes and faint event
+  names styled (spike findings). PNG via canvas at 1x/2x/4x. PDF through a print stylesheet
+  (today printing shows the whole editor). Spike: docs/reports/T-1093-spikes/picture-spike.mjs.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: [T-1093]
@@ -38,8 +42,8 @@ related_tasks: [T-1093]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-19T09:14:11Z
-last_update: 2026-11-19T09:14:11Z
-date_finished: null
+last_update: '2026-11-19T10:59:33Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +54,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-19T10:59:33Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=2 (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body
+      — no hypothesis, so this score has no claim to be wrong about,L1:keyword=lane);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=2 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1440: Import/Export 2/6: SVG, PNG 1x/2x/4x and PDF out
@@ -76,17 +100,38 @@ page.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Export → SVG downloads a standalone SVG of the map: every element's paint inlined, editor chrome left out,
+- [x] Export → SVG downloads a standalone SVG of the map: every element's paint inlined, editor chrome left out,
       **zero** remote references (no `url(http…)`, `href="http…"`, `@import`), and it renders as an image on its own.
-- [ ] The spike's three defects are gone in the exported picture: no black flow-label bars, event names readable on
+      Evidence: `_t1440` S1 on two maps (0 remote refs, no chrome classes or "+ Add another lane"); the PNGs are drawn
+      from that SVG as an image, so it renders on its own.
+- [x] The spike's three defects are gone in the exported picture: no black flow-label bars, event names readable on
       white, no "+ Add another lane".
-- [ ] Export → PNG 1x / 2x / 4x downloads PNGs made from that SVG, each at its scale (a test checks the pixel sizes).
-- [ ] Export → PDF opens the browser's print with a print stylesheet that shows the map alone (no toolbar, palette or
+      Evidence: root cause of the "bars" was the dark palette on white; the paper palette (operator ruling a) fixes it.
+      Two further defects found and fixed on the way: labels hidden under their own halo (paint-order now inlined) and
+      black arrowheads (marker var() colours resolved). S2: white background, 0 near-black area fills, 0 pale texts.
+- [x] Export → PNG 1x / 2x / 4x downloads PNGs made from that SVG, each at its scale (a test checks the pixel sizes).
+      Evidence: P1, exact sizes at 1x/2x/4x on both maps (e.g. 2100x534, 4200x1068, 8400x2136).
+- [x] Export → PDF opens the browser's print with a print stylesheet that shows the map alone (no toolbar, palette or
       panel), fitted to the page; a test prints to PDF and finds the map's step names and none of the toolbar's.
-- [ ] A CDP harness covers all of the above on two corpus maps and is a browser-tier leg; it fails on the T-1439 designer.
+      Evidence: D1, 14/14 step names, 0 editor words, one A4 landscape page per map.
+- [x] A CDP harness covers all of the above on two corpus maps and is a browser-tier leg; it fails on the T-1439 designer.
+      Evidence: `tools/_t1440-picture-export-cdp.mjs` 14 legs, leg `test_t1440_picture_export`; on the T-1439 designer it
+      fails at once (no such menu items).
 - [ ] `bash tools/person-sees-gate.sh` exits 0 and the browser tier is green (pool and here).
 
 ### Human
+- [ ] The exported pictures and PDF are a faithful, readable paper version of the map, and the longer Export menu fits.
+  **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1440 --criterion 1`), who may escalate.
+  **Steps:**
+  1. Open `docs/reports/T-1440-shots/exported/{arc-lifecycle,audit-process}@2x.png` and
+     `docs/reports/T-1440-shots/exported/{arc-lifecycle,audit-process}-pdf-page-1.png` (the PDFs' first pages).
+  2. Check: white background, every step box, lane, gateway, flow, arrowhead and flow label present and readable; no
+     editor controls; the PDF page shows the title and the map alone.
+  3. Open `docs/reports/T-1440-shots/menu/{1024,1440,1920}-export-open.png`: the six Export entries readable, inside
+     the window, nothing overlapping.
+  **Expected:** all of it reads cleanly. Note: in audit-process some step IDs under the middle column touch the box
+  below; the designer lays that map out the same way on screen, so it is the map's spacing, not the export.
+  **If not:** name the file and the element; the agent fixes and re-shoots.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -367,3 +412,7 @@ page.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1440-importexport-26-svg-png-1x2x4x-and-pdf-o.md
 - **Context:** Initial task creation
+
+### 2026-11-19T10:59:31Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
