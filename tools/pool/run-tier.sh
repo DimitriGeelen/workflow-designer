@@ -33,7 +33,8 @@ path, tier, commit, rc, line, fails, dur, err = sys.argv[1:]
 json.dump({"tier": tier, "commit": commit, "exit_code": int(rc), "result_line": line,
            "fail_lines": [l.strip() for l in fails.splitlines() if l.strip()], "duration_s": int(dur),
            "node": platform.node(), "arch": platform.machine(), "launcher": "tools/pool/run-tier.sh (832 T-1406)",
-           "error": err or None, "shard": os.environ.get("T1288_SHARD") or None}, open(path, "w"), indent=2)
+           "error": err or None, "shard": os.environ.get("T1288_SHARD") or None,
+           "shard_plan": os.path.basename(os.environ.get("T1288_SHARD_PLAN") or "") or None}, open(path, "w"), indent=2)
 PY
     exit "$rc"
 }
@@ -131,10 +132,13 @@ export T1406_POOL=1
 # T-1452 (lever B, shadow): the shard this job runs (from job.info: shard=i/k), and a per-leg record delivered in out/
 SHARD=$(sed -n 's/^shard=//p' "$JOB/job.info" 2>/dev/null | head -1)
 [ -n "$SHARD" ] && export T1288_SHARD="$SHARD"
+# T-1452 step 4: the time-balanced plan for this tier and shard count, when the repo has one (set after the clone below)
+SHARD_PLAN_REL="tests/shard-plan-$TIER-${SHARD#*/}.tsv"
 export T1288_LEGLOG="$OUT/legs.tsv"
 
 # 3. The tier, with no project pointer inherited from the caller (the T-1398 class: a session's PROJECT_ROOT or
 #    FRAMEWORK_ROOT made the first local proof's budget and audit legs read the REAL repo's .context/, not the clone's).
+[ -n "$SHARD" ] && [ -f "$WORK/repo/$SHARD_PLAN_REL" ] && export T1288_SHARD_PLAN="$WORK/repo/$SHARD_PLAN_REL"
 ( cd "$WORK/repo" && exec env -u PROJECT_ROOT -u FRAMEWORK_ROOT -u CONTEXT_DIR -u TASKS_DIR -u FW_ROUTED_FROM \
     -u FW_CLAUDE_FW_SUPERVISED -u CLAUDE_CODE_SESSION_ID -u CLAUDECODE -u CLAUDE_PID \
     bash tests/run-bridge-tests.sh --tier "$TIER" ) </dev/null >> "$LOG" 2>&1

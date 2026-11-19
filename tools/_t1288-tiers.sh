@@ -137,6 +137,19 @@ PY
 declare -A T1288_PASS=() T1288_FAIL=() T1288_FLAKY=() T1288_QUAR=() T1288_SECS=() T1288_RAN=() _T1288_LEG_TIER=()
 declare -A _T1288_SHARD_N=()   # T-1452: legs seen per tier, for T1288_SHARD
 declare -A _T1288_SHARD_SLOT=()   # T-1452: the shard each leg was given
+# T-1452 (step 4: shards balanced by measured time, not count): T1288_SHARD_PLAN names a TSV "<leg name>\t<shard 1..k>"
+# made from a whole run's legs.tsv (docs/reports/T-1452-spikes/shard-plan.py). A leg it does not name (added since) is
+# placed round robin; a plan made for another k is refused.
+declare -A _T1288_SHARD_PLAN=()
+if [ -n "${T1288_SHARD:-}" ] && [ -n "${T1288_SHARD_PLAN:-}" ]; then
+    [ -r "$T1288_SHARD_PLAN" ] || { echo "T1288_SHARD_PLAN '$T1288_SHARD_PLAN' is not readable (T-1452)" >&2; exit 2; }
+    while IFS=$'\t' read -r _pn _ps; do
+        [ -z "$_pn" ] || [ "${_pn:0:1}" = "#" ] && continue
+        [ "$_ps" -ge 1 ] 2>/dev/null && [ "$_ps" -le "${T1288_SHARD#*/}" ] || { echo "T1288_SHARD_PLAN: shard '$_ps' for '$_pn' is not 1..${T1288_SHARD#*/} (T-1452)" >&2; exit 2; }
+        _T1288_SHARD_PLAN[$_pn]=$_ps
+    done < "$T1288_SHARD_PLAN"
+    echo "T-1452: shard plan $T1288_SHARD_PLAN (${#_T1288_SHARD_PLAN[@]} legs placed by measured time)" >&2
+fi
 # T-1452: legs that use what an earlier leg leaves behind, and that leg (found by scanning every leg body for a variable
 # another leg sets, 2026-11-19: this is the only pair). Sharding keeps each pair in one shard.
 declare -A _T1288_SHARD_WITH=([_t423-di-schema-validate]=_t423-additive-export-cdp)
@@ -194,6 +207,8 @@ leg() {
         local slot partner="${_T1288_SHARD_WITH[$name]:-}"
         if [ -n "$partner" ] && [ -n "${_T1288_SHARD_SLOT[$partner]:-}" ]; then
             slot=${_T1288_SHARD_SLOT[$partner]}
+        elif [ -n "${_T1288_SHARD_PLAN[$name]:-}" ]; then
+            slot=$(( ${_T1288_SHARD_PLAN[$name]} - 1 ))   # T-1452: balanced by measured leg time (T1288_SHARD_PLAN)
         else
             _T1288_SHARD_N[$tier]=$(( ${_T1288_SHARD_N[$tier]:-0} + 1 ))
             slot=$(( (${_T1288_SHARD_N[$tier]} - 1) % ${T1288_SHARD#*/} ))

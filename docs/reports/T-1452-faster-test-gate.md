@@ -71,6 +71,15 @@ only remove the wait for the slower local run and the host contention it causes.
 | 0 | 2026-11-19 20:47 | 558214e5f | core, push (pool AND here) | pool-w2, 744 s | 899 s | 985 s (16.4 min) | first run with the bundle chain (T-1453); before T-1452 changes anything |
 | 0b | 2026-11-19 21:18 | 558214e5f | browser, pool alone (submit.sh) | pool-w1, 1197 s | — | 1222 s (20.4 min) | only ~25 s outside compute: the older chain links were reused, not re-staged (1409 lesson iv) |
 
+### Lever B shadow trials (browser tier, 2 shards on pool-w1 + pool-w2, then the whole tier)
+
+| Trial | Commit | Shard 1 | Shard 2 | Whole tier | Slowest shard / whole | C1-C3 (same legs, none twice, same outcome) | Note |
+|---|---|---|---|---|---|---|---|
+| 1 | d4dbbb17 / 47bfe503 | 793 s, STOPPED after 55 legs | 396 s, 71 legs | 1328 s, 142 legs | — | shard 2: 71/71 same | shard 1 hit a leg that uses another leg's output (`$T423_ADD_EXP`): fixed (3e70420f); shards from two commits (I committed mid-trial): not comparable |
+| 2 | 3e70420f (whole: 01e72ba4, docs/tasks only) | 891 s, 72 legs, 879 leg-s | 409 s, 71 legs, 395 leg-s | 1336 s, 143 legs | **67%** (expected ≤ 13 min = 58%): missed | **pass** 143/143 | cause named: legs split by COUNT, so shard 1 got the slow ones (879 vs 395 leg-s); step 4: balance by measured leg time |
+
+Rule learned (1409 iii, like with like): during a trial, commit nothing; `submit.sh` stages HEAD at submit time.
+
 Before this, the pool had been giving no result since ~18:40Z (T-1453: one-file limit, then unstaged chain links): runs
 in that window are excluded from the baseline as not comparable (1409 rule iii).
 
