@@ -6,7 +6,8 @@
 #
 # Inputs are built from GIT ONLY, never the working tree (build/peer-data holds a client's documents):
 #   code.tar         `git archive HEAD -- tools/pool` (the launcher; small, staged with `pool-client ref-put`)
-#   repo.bundle.NNN  `git bundle` of HEAD + bleeding-edge + tags, split into <= 64 MB parts, written to build/pool/stage/
+#   repo.chain.NNN   T-1453: a chain of `git bundle`s (links ending at release tags, then last tag .. HEAD with every ref),
+#                    each under the worker's one-file limit; links live in build/pool/stage/chain/ and are staged once
 #                    and announced on pool:stage (ring20 copies only from that root); a part already staged (same sha256,
 #                    recorded in build/pool/staged.txt) is not announced again.
 # The hub address is read from the git-ignored build/pool/hub (no LAN address in tracked files, T-1239).
@@ -26,24 +27,76 @@ SHORT=${COMMIT:0:12}
 rm -f "$ROOT/build/pool/last-$TIER.result"   # T-1408: never let an older run's outcome stand in for this one
 
 # --- inputs, from git only ---------------------------------------------------------------------------------------
+# T-1453: where the chain is cut. CHAIN_MAX is the target size of one link, estimated cheaply with `rev-list
+# --disk-usage` (on-disk bytes; a bundle's own pack can be larger, so the target sits well under the hard limit);
+# CHAIN_HARD is the worker's limit for one file (256 MiB, read on the worker 2026-11-19: soft = hard = 262144 KiB).
+CHAIN_MAX=${CHAIN_MAX:-150000000}
+CHAIN_HARD=${CHAIN_HARD:-268435456}
+CHAIN_DIR="$ROOT/build/pool/stage/chain"; mkdir -p "$CHAIN_DIR"   # inside the stage root: ring20 copies only from there
+CHAIN_CUTS="$CHAIN_DIR/cuts.txt"
+du_range() { git rev-list --objects --disk-usage ${1:+"^$1"} "$2" 2>/dev/null || echo 0; }
+chain_cuts() {  # the release tags the chain ends its links at, oldest first; kept stable across jobs (cuts.txt)
+    local kept="" t prev="" last="" cand
+    touch "$CHAIN_CUTS"
+    while read -r t; do   # keep the recorded cuts that still lead to HEAD, in order
+        [ -n "$t" ] && git merge-base --is-ancestor "refs/tags/$t" HEAD 2>/dev/null && { kept="$kept $t"; prev=$t; }
+    done < "$CHAIN_CUTS"
+    # extend: while the tail (last cut .. HEAD) is over CHAIN_MAX, cut at the newest release tag whose own link fits
+    while [ "$(du_range "$prev" HEAD)" -gt "$CHAIN_MAX" ]; do
+        last=""
+        while read -r cand; do
+            git merge-base --is-ancestor "refs/tags/$cand" HEAD 2>/dev/null || continue
+            [ -n "$prev" ] && ! git merge-base --is-ancestor "refs/tags/$prev" "refs/tags/$cand" 2>/dev/null && continue
+            [ "$cand" = "$prev" ] && continue
+            if [ "$(du_range "$prev" "refs/tags/$cand")" -le "$CHAIN_MAX" ]; then last=$cand; else break; fi
+        done < <(git tag -l 'designer-v*' --sort=creatordate)
+        if [ -z "$last" ]; then   # even the next tag alone is over CHAIN_MAX: take it anyway (the size check refuses if it is over the hard limit)
+            last=$(git tag -l 'designer-v*' --sort=creatordate | while read -r cand; do
+                git merge-base --is-ancestor "refs/tags/$cand" HEAD 2>/dev/null || continue
+                [ -n "$prev" ] && { git merge-base --is-ancestor "refs/tags/$prev" "refs/tags/$cand" 2>/dev/null || continue; [ "$cand" = "$prev" ] && continue; }
+                echo "$cand"; break; done)
+            [ -n "$last" ] || break
+        fi
+        kept="$kept $last"; prev=$last
+    done
+    printf '%s\n' $kept > "$CHAIN_CUTS"
+    echo $kept
+}
 build_inputs() {
     local dir="$STAGE/$SHORT"
     if [ -f "$dir/.complete" ]; then echo "$dir"; return; fi
     rm -rf "$dir"; mkdir -p "$dir"
     git archive --format=tar HEAD -- tools/pool > "$dir/code.tar"
+    # T-1453: the repo goes as a CHAIN of bundles, each a valid bundle under CHAIN_MAX, fetched one after another on the
+    # worker. One joined bundle stopped fitting on 2026-11-19 (a worker allows no file over 256 MiB; the repo was 276 MB).
+    # Older links end at release tags and never change, so each is built and staged once and reused by every later job;
+    # only the last link (last cut .. HEAD, with every ref) is new per commit.
     # T-1406: origin/master too. A commit reachable only from it (the T-1383 licence commit) is cited by an episodic,
     # and the T-567 corpus check needs it in the clone (the first local proof failed there without it).
-    git bundle create "$dir/repo.bundle" HEAD bleeding-edge master refs/remotes/origin/master --tags >/dev/null 2>&1
-    git bundle verify "$dir/repo.bundle" >/dev/null 2>&1 || { echo "bundle does not verify" >&2; exit 1; }
-    split -b 64M -d -a 3 "$dir/repo.bundle" "$dir/repo.bundle."
-    rm -f "$dir/repo.bundle"
+    local cuts prev n=0 t f
+    cuts=$(chain_cuts)
+    prev=""
+    for t in $cuts; do
+        f="$CHAIN_DIR/${prev:-root}..$t.bundle"
+        if [ ! -s "$f" ]; then
+            git bundle create "$f.tmp" ${prev:+"^$prev"} "refs/tags/$t" >/dev/null 2>&1 || { echo "chain link ${prev:-root}..$t failed" >&2; exit 1; }
+            mv "$f.tmp" "$f"
+        fi
+        ln -sf "$f" "$dir/repo.chain.$(printf '%03d' $n)"; n=$((n + 1)); prev=$t
+    done
+    git bundle create "$dir/repo.chain.$(printf '%03d' $n)" HEAD bleeding-edge master refs/remotes/origin/master --tags \
+        ${prev:+"^$prev"} >/dev/null 2>&1 || { echo "last chain link failed" >&2; exit 1; }
+    for f in "$dir"/repo.chain.*; do
+        local sz; sz=$(stat -L -c %s "$f")
+        [ "$sz" -le "$CHAIN_HARD" ] || { echo "chain link $(basename "$f") is $sz bytes, over $CHAIN_HARD (T-1453)" >&2; exit 1; }
+    done
     : > "$dir/.complete"
     echo "$dir"
 }
 
 DIR=$(build_inputs)
-PARTS=$(cd "$DIR" && ls repo.bundle.[0-9][0-9][0-9] | sort)
-echo "inputs for $SHORT: code.tar ($(stat -c %s "$DIR/code.tar") B) + $(echo "$PARTS" | wc -l) bundle part(s), $(du -sh "$DIR" | cut -f1)" >&2
+PARTS=$(cd "$DIR" && ls repo.chain.[0-9][0-9][0-9] | sort)
+echo "inputs for $SHORT: code.tar ($(stat -c %s "$DIR/code.tar") B) + $(echo "$PARTS" | wc -l) chain link(s), $(du -shL "$DIR" | cut -f1)" >&2
 
 if [ "$MODE" = local ]; then
     JOBD=$(mktemp -d "${TMPDIR:-/tmp}/832pool-job.XXXXXX")
@@ -63,7 +116,8 @@ case "$HUB" in 127.*|localhost*) echo "build/pool/hub must not be a loopback add
 STAGED="$ROOT/build/pool/staged.txt"; touch "$STAGED"
 
 stage_part() {  # stage_part <file>: announce it on pool:stage once per sha256, wait for pool:stage-out's answer
-    local f=$1 sha size req
+    local f req sha size
+    f=$(readlink -f "$1")   # T-1453: a chain link is a symlink to the shared link under stage/chain; announce the real file
     sha=$(sha256sum "$f" | cut -d' ' -f1); size=$(stat -c %s "$f")
     if grep -qx "$sha" "$STAGED"; then echo "$sha"; return; fi
     req="832-$SHORT-$(basename "$f")-$(date +%s)"

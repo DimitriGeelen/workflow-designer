@@ -47,27 +47,51 @@ WORK="$(mktemp -d "${TMPDIR:-$JOB}/832-pool.XXXXXX" 2>/dev/null || mktemp -d "$J
     echo "== node $(node -v 2>&1), $(python3 --version 2>&1), $(git --version 2>&1)"
 } >> "$LOG"
 
-# T-1453: a worker caps the size of one file (256 MiB seen on 2026-11-19: "File size limit exceeded" joining a 276 MB
-# bundle). Raise this job's soft limit to the hard one when the hard one allows more, and log both, so the cause is
-# measured on the worker and never guessed.
+# T-1453: a worker caps the size of one file (2026-11-19: soft = hard = 262144, i.e. 256 MiB, as bash counts -f in
+# 1024-byte blocks). It is logged on every job, so the cause of a failure here is read, never guessed.
 FSZ_SOFT=$(ulimit -S -f); FSZ_HARD=$(ulimit -H -f)
 [ "$FSZ_SOFT" = "$FSZ_HARD" ] || ulimit -S -f "$FSZ_HARD" 2>/dev/null || true
-echo "== file-size limit (512-byte blocks): soft $FSZ_SOFT, hard $FSZ_HARD, now $(ulimit -S -f)" >> "$LOG"
-# 1. Rebuild the repo from the bundle parts, in order.
-parts=$(ls "$JOB"/repo.bundle.[0-9][0-9][0-9] 2>/dev/null | sort)
-[ -n "$parts" ] || result 2 "no repo.bundle.NNN parts in the job dir"
-# shellcheck disable=SC2086
-BUNDLE_BYTES=$(cat $parts | wc -c)
-if [ "$(ulimit -S -f)" != unlimited ] && [ "$BUNDLE_BYTES" -gt $(( $(ulimit -S -f) * 512 )) ]; then
-    result 2 "the joined bundle ($BUNDLE_BYTES bytes) is larger than this worker allows one file to be ($(( $(ulimit -S -f) * 512 )) bytes, hard limit $FSZ_HARD blocks) — T-1453"
+echo "== file-size limit (1024-byte blocks): soft $FSZ_SOFT, hard $FSZ_HARD, now $(ulimit -S -f)" >> "$LOG"
+fits() { [ "$(ulimit -S -f)" = unlimited ] || [ "$1" -le $(( $(ulimit -S -f) * 1024 )) ]; }
+# 1. Rebuild the repo. Since T-1453 it arrives as a CHAIN of bundles (repo.chain.NNN), each a valid bundle under the
+# limit, fetched in order into one repository, so no file larger than one link is ever written. The joined form
+# (repo.bundle.NNN parts) is still read, for a job staged before the chain.
+chain=$(ls "$JOB"/repo.chain.[0-9][0-9][0-9] 2>/dev/null | sort)
+if [ -n "$chain" ]; then
+    last=$(printf '%s\n' $chain | tail -1)
+    for b in $chain; do fits "$(stat -L -c %s "$b")" || result 2 "chain link $(basename "$b") ($(stat -L -c %s "$b") bytes) is over this worker's file-size limit (T-1453)"; done
+    git init -q "$WORK/repo" >> "$LOG" 2>&1 || result 2 "git init failed"
+    git -C "$WORK/repo" config gc.auto 0   # never repack the links into one pack over the limit
+    git -C "$WORK/repo" remote add origin "$last"
+    for b in $chain; do
+        git -C "$WORK/repo" fetch -q "$b" '+refs/heads/*:refs/remotes/origin/*' '+refs/tags/*:refs/tags/*' >> "$LOG" 2>&1 \
+            || result 2 "fetching chain link $(basename "$b") failed (a missing earlier link, or a corrupt one)"
+    done
+    # the real origin/master (cited commits, T-1406) after the heads, which map onto the same names
+    git -C "$WORK/repo" fetch -q "$last" '+refs/remotes/*:refs/remotes/*' >> "$LOG" 2>&1 || true
+    head=$(git -C "$WORK/repo" bundle list-heads "$last" HEAD 2>/dev/null | awk '{print $1}' | head -1)
+    [ -n "$head" ] || result 2 "the last chain link names no HEAD"
+    # as `git clone` did: the branch HEAD is on, checked out and tracking origin (bleeding-edge first)
+    br=$(git -C "$WORK/repo" bundle list-heads "$last" 2>/dev/null | awk -v h="$head" '$1 == h && $2 ~ /^refs\/heads\// {sub("refs/heads/", "", $2); print $2}' \
+        | awk '$0 == "bleeding-edge" {print; found = 1; exit} {first = first ? first : $0} END {if (!found && first) print first}')
+    if [ -n "$br" ]; then git -C "$WORK/repo" checkout -q -b "$br" "$head" && git -C "$WORK/repo" branch -q -u "origin/$br" "$br" 2>/dev/null || true
+    else git -C "$WORK/repo" checkout -q --detach "$head"; fi
+    [ "$(git -C "$WORK/repo" rev-parse HEAD 2>/dev/null)" = "$head" ] || result 2 "checkout of $head from the chain failed"
+    echo "== repo from $(printf '%s\n' $chain | wc -l) chain link(s), on ${br:-detached HEAD}" >> "$LOG"
+else
+    parts=$(ls "$JOB"/repo.bundle.[0-9][0-9][0-9] 2>/dev/null | sort)
+    [ -n "$parts" ] || result 2 "no repo.chain.NNN links or repo.bundle.NNN parts in the job dir"
+    # shellcheck disable=SC2086
+    BUNDLE_BYTES=$(cat $parts | wc -c)
+    fits "$BUNDLE_BYTES" || result 2 "the joined bundle ($BUNDLE_BYTES bytes) is larger than this worker allows one file to be ($(( $(ulimit -S -f) * 1024 )) bytes) — T-1453"
+    # shellcheck disable=SC2086
+    cat $parts > "$WORK/repo.bundle" || result 2 "could not join the bundle parts"
+    # `git bundle verify` needs a repository, so the clone comes first (it checks the bundle too), then the verify inside it.
+    git clone -q "$WORK/repo.bundle" "$WORK/repo" >> "$LOG" 2>&1 || result 2 "git clone from the bundle failed"
+    git -C "$WORK/repo" bundle verify "$WORK/repo.bundle" >> "$LOG" 2>&1 || result 2 "the joined bundle does not verify"
+    git -C "$WORK/repo" fetch -q "$WORK/repo.bundle" '+refs/tags/*:refs/tags/*' '+refs/remotes/*:refs/remotes/*' >> "$LOG" 2>&1 || true
+    rm -f "$WORK/repo.bundle"
 fi
-# shellcheck disable=SC2086
-cat $parts > "$WORK/repo.bundle" || result 2 "could not join the bundle parts"
-# `git bundle verify` needs a repository, so the clone comes first (it checks the bundle too), then the verify inside it.
-git clone -q "$WORK/repo.bundle" "$WORK/repo" >> "$LOG" 2>&1 || result 2 "git clone from the bundle failed"
-git -C "$WORK/repo" bundle verify "$WORK/repo.bundle" >> "$LOG" 2>&1 || result 2 "the joined bundle does not verify"
-git -C "$WORK/repo" fetch -q "$WORK/repo.bundle" '+refs/tags/*:refs/tags/*' '+refs/remotes/*:refs/remotes/*' >> "$LOG" 2>&1 || true
-rm -f "$WORK/repo.bundle"
 # .git/hooks is not cloned; the framework's hooks go in first (fw git install-hooks), then 832 adds its gates to them
 # (T-1000, T-1161, T-1239), and core checks they are in place. Pointers cleared so both target the clone (T-1398 class).
 ( cd "$WORK/repo" && env -u PROJECT_ROOT -u FRAMEWORK_ROOT -u CONTEXT_DIR -u TASKS_DIR -u FW_ROUTED_FROM \
