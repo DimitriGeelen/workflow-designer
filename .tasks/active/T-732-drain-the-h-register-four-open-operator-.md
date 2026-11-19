@@ -12,7 +12,7 @@ description: >
 
 status: started-work
 workflow_type: build
-owner: human
+owner: agent
 horizon: now
 tags: [arc-002, ewcr, arc-0-exit, h-register]
 components: []
@@ -164,7 +164,7 @@ Sources: `arc-0-exit-clauses.yaml`, `operator-decisions.yaml`, `.tasks/active/T-
   judge H6 against it once the arc-0 register is updated.
 
 ### Human
-- [ ] [REVIEW] Rule H1 — do roadmap Arcs 4–6 supersede the standing DEFERs (T-279/280/281/282) and AEF's T-2669 NO-GO?
+- [x] [REVIEW] Rule H1 — do roadmap Arcs 4–6 supersede the standing DEFERs (T-279/280/281/282) and AEF's T-2669 NO-GO?
   **2026-10-19, ruled again by the operator in session, and REVERSED:** after the reviewer escalated the
   2026-09-21 transcription, the agent laid out the background, options A-D, scoring and steelman/strawman. The
   operator wrote "So definitely want all this stuff that we discussed here, absolutely. If you can build it, that
@@ -178,6 +178,7 @@ Sources: `arc-0-exit-clauses.yaml`, `operator-decisions.yaml`, `.tasks/active/T-
   **Expected:** `operator-decisions.yaml` H1 carries `status: resolved` and a `source_of_truth`
   **If not:** the four tasks named above stay parked at a flat BVP 126 with nothing distinguishing them
   **Reviewer escalation (V-20261019-55e219da, reviewer-judge-t-732-r1-7c9df386bc3a:reviewer, rung rung-1-same-vendor-independent):** The register mechanically meets Expected: H1 is status resolved and has a source_of_truth. But H1 is a sovereignty call, and its only provenance is an agent transcription of a verbal ruling (ruling_channel: 'NOT a Watchtower tick ... the tick wins'). The operator needs to tick H1 on /approvals to confirm the 2026-09-21 ruling (DEFERs T-279/280/281/282 and the T-2669 NO-GO stand), or correct the register if the transcription is wrong. A reviewer cannot sign in the operator's place.
+  **Reviewer verdict:** green V-20261119-e05b3602 — reviewer-judge-t-732-r1-8a86123646e9:reviewer (rung rung-1-same-vendor-independent), digest fed92a31fa54; dispatch judge-t-732-r1-8a86123646e9; evidence: .context/reviews/evidence/T-732/AC1-judge-t-732-r1-8a86123646e9.md; ledger .context/reviews/verdicts.jsonl
 
 
 

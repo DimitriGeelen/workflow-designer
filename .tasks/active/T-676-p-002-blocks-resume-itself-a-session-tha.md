@@ -19,7 +19,7 @@ description: >
 
 status: work-completed
 workflow_type: build
-owner: human
+owner: agent
 horizon: now
 tags: []
 components: []
@@ -255,7 +255,7 @@ ratifiable proposal. AC 4 is the operator's, and nothing here edits the hook bef
       lists benefits is not ratifiable.
 
 ### Human
-- [ ] [REVIEW] **Should P-002 exempt read-only Bash when focus is absent, captured, or
+- [x] [REVIEW] **Should P-002 exempt read-only Bash when focus is absent, captured, or
       completed?**
       **Steps:**
       1. Read the instance register in `## Context` — eight occurrences, with what each
@@ -277,6 +277,7 @@ ratifiable proposal. AC 4 is the operator's, and nothing here edits the hook bef
   **Waiting on AEF (2026-11-18):** `fw task delegate` classes this box act-in-the-world / operator-only only because
   its body names `git push` (a refused command in the list). The operator declined to rubber-stamp it; AEF was asked
   to fix `classify()` (sidecar msg e106c38e). After the fix is vendored: `fw reviewer judge T-676`, then apply.
+  **Reviewer verdict:** green V-20261119-a0071b67 — reviewer-judge-t-676-r3-55f48cf6eddf:reviewer (rung rung-3-termlink-single-reviewer), digest 950d31cffd1e; dispatch judge-t-676-r3-55f48cf6eddf; ruling recorded (RL-87476ffe); evidence: .context/reviews/evidence/T-676/AC1-judge-t-676-r3-55f48cf6eddf.md; ledger .context/reviews/verdicts.jsonl
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
