@@ -173,6 +173,7 @@ We will know that we are successful when we see <measurable signal>.
 ### Human
 <!-- @auto-tick-on-decide -->
 - [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+  **Why you:** direction — the operator chose both levers and asked to adopt them only on measured results (2026-11-19); whether they become the standard gate is theirs
   **Steps:**
   1. Run: `fw task review T-XXX` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
