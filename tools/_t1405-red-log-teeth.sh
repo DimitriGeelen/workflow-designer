@@ -16,7 +16,7 @@ leg() { if [ "$1" = 0 ]; then pass=$((pass + 1)); echo "  PASS  $2"; else fail=$
 cd "$S" || exit 2
 git init -q && mkdir -p tools tests .context/working || exit 2
 cp "${T1405_GATE:-$ROOT/tools/_t1288-prepush-gate.sh}" tools/_t1288-prepush-gate.sh || exit 2   # T1405_GATE: control runs
-mkdir -p tools/pool; cp "$ROOT/tools/pool/tier-gate.sh" "$ROOT/tools/pool/high-risk.re" tools/pool/ 2>/dev/null   # T-1409
+mkdir -p tools/pool; cp "${T1405_TIERGATE:-$ROOT/tools/pool/tier-gate.sh}" tools/pool/tier-gate.sh; cp "$ROOT/tools/pool/high-risk.re" tools/pool/ 2>/dev/null   # T-1409
 export T1408_POOL=0   # T-1409: this tests the LOCAL red run's kept log; never reach for the real pool from a scratch repo
 git -C "$ROOT" show HEAD:.gitignore > .gitignore 2>/dev/null || exit 2   # the committed root rules, nothing local
 printf '#!/bin/bash\necho "tier core    RED: 1 passed, 1 failed"\necho "  [FAIL] stub leg"\nexit 1\n' > tests/run-bridge-tests.sh
@@ -38,5 +38,10 @@ git -c user.name=t -c user.email=t@invalid commit -qam green
 bash tools/_t1288-prepush-gate.sh >/dev/null 2>&1
 n2=$(ls .context/working/prepush-core.red-*.log 2>/dev/null | wc -l)
 [ "$n2" -eq 5 ]; leg $? "a green run leaves the kept red logs alone (kept: $n2)"
+# T-1452 (1409's first question): every run leaves a verdict line in the gate's runs log, a red one too. Before, a red
+# run left only its start line, so the timing report could not tell it from a hung or killed run.
+nref=$(grep -c 'REFUSED — ' .context/working/prepush-core.runs.log 2>/dev/null); nref=${nref:-0}
+[ "$nref" -eq 7 ]; leg $? "each of the seven red runs left a REFUSED verdict in the runs log ($nref)"
+tail -1 .context/working/prepush-core.runs.log 2>/dev/null | grep -qE 'green|GREEN'; leg $? "the green run left its verdict line last"
 echo "=== $pass passed, $fail failed ==="
 [ "$fail" -eq 0 ]

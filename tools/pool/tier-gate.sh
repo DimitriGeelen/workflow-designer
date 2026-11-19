@@ -83,7 +83,13 @@ pool_run() {  # the tier on ring20's pool; 0 green, 1 red, 3 no result for THIS 
     return 1
 }
 
-refuse() { echo "T-1288 $TIER: REFUSED — $1" >&2; exit 1; }
+# T-1452 (1409's first question: can we see what happened?): every run leaves a verdict line in the runs log, a red
+# one too. Before, refuse() wrote only to the screen, so a red run and a killed one both left a start line and nothing
+# else (12 such runs on 2026-11-19 alone), and the timing report could not tell them apart.
+_GATE_ENDED=0
+refuse() { note "REFUSED — $1"; _GATE_ENDED=1; exit 1; }
+trap 'rc=$?; [ "$_GATE_ENDED" = 1 ] || [ "$rc" = 0 ] || note "ENDED without a verdict (exit $rc: interrupted or failed before deciding)"' EXIT
+trap 'exit 130' INT TERM HUP
 gr() { [ "$1" = 0 ] && echo green || echo red; }
 
 upstream=$(cd "$ROOT" && git rev-parse -q --verify '@{u}' 2>/dev/null) || upstream=""
@@ -93,6 +99,7 @@ risky=$(printf '%s\n' "$changed" | grep -E "$HIGH_RISK_RE" | head -3 | tr '\n' '
 if [ "${T1408_POOL:-1}" = 0 ]; then
     note "T1408_POOL=0: $TIER runs locally only (pool skipped on request)"
     local_run || refuse "local $TIER is red, or could not run"
+    note "local only: green"   # T-1452: the verdict line, as every other path writes one
 elif [ -n "$risky" ]; then
     note "high-risk change (${risky% }): $TIER runs on the pool AND here, side by side; both must be green"
     prcf="$WD/$PFX.pool.rc"; rm -f "$prcf"
@@ -119,6 +126,7 @@ else
     if [ "$prc" = 3 ]; then
         note "the pool gave no result: falling back to the local run"
         local_run || refuse "local $TIER is red or could not run (pool unavailable)"
+        note "normal change: local green (pool gave no result)"   # T-1452: a verdict line on every path
     elif [ "$prc" != 0 ]; then
         refuse "pool $TIER is red"
     else
