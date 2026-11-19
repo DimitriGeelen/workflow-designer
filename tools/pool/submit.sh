@@ -77,7 +77,7 @@ build_inputs() {
     cuts=$(chain_cuts)
     prev=""
     for t in $cuts; do
-        f="$CHAIN_DIR/${prev:-root}..$t.bundle"
+        f="$CHAIN_DIR/from-${prev:-root}-to-$t.bundle"   # T-1453: no ".." in a staged path (pool:stage refuses it as not normalised)
         if [ ! -s "$f" ]; then
             git bundle create "$f.tmp" ${prev:+"^$prev"} "refs/tags/$t" >/dev/null 2>&1 || { echo "chain link ${prev:-root}..$t failed" >&2; exit 1; }
             mv "$f.tmp" "$f"
@@ -131,10 +131,12 @@ stage_part() {  # stage_part <file>: announce it on pool:stage once per sha256, 
         # reaches the answer (the first real run waited 900 s for an answer that had come in 5.3 s).
         answer=$(termlink channel subscribe pool:stage-out --hub "$HUB" --tail 300 2>/dev/null || true)
         answer=$(printf '%s\n' "$answer" | grep -F "$req" || true)
-        if [ -n "$answer" ] && printf '%s\n' "$answer" | grep -iE '"ok" *: *true|\bok\b' >/dev/null; then
+        # T-1453: read the answer's "ok" field, nothing else. `\bok\b` also matched the key in "ok": false, so a refused
+        # stage counted as staged (two chain links, 2026-11-19) and was never retried.
+        if [ -n "$answer" ] && printf '%s\n' "$answer" | grep -E '"ok" *: *true' >/dev/null; then
             echo "$sha" >> "$STAGED"; echo "$sha"; return
         fi
-        if [ -n "$answer" ] && printf '%s\n' "$answer" | grep -iE 'error|refus|fail' >/dev/null; then
+        if [ -n "$answer" ] && printf '%s\n' "$answer" | grep -E '"ok" *: *false' >/dev/null; then
             echo "staging $(basename "$f") was refused:" >&2
             printf '%s\n' "$answer" >&2
             exit 1
