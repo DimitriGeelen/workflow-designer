@@ -190,6 +190,10 @@ else
         fi
     else
         bad "teeth: mutant (a) does not reach the Tier 0 block — teeth would be vacuous"
+        # T-1437: this failed once locally under load (2026-11-19, be.60) and passed 17/17 alone and on the pool.
+        # Without the hook's own words the path it took is unknowable (a HOOK DEGRADED block also exits 2), so say it.
+        echo "        got rc=$RC; hook output (first 6 lines):" >&2
+        printf '%s\n' "$OUT" | head -6 | sed 's/^/          | /' >&2
     fi
     HOOK_WT="http://127.0.0.1:9"   # T-1142: with a known Watchtower, or the URL half has no bite
     run_hook "$MUT_B" "$FORCE_PUSH"
