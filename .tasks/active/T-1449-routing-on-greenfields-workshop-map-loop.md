@@ -62,6 +62,10 @@ Their msg 5468c2ba (2026-11-19, on 0.43.0, sha256 confirmed, 5 maps load without
 exactly as before; new in 0.43.0: (8) the '(task)' label above "Open VO" and "Verkooporder compleet" lies over the
 vertical arrow from the task above; (9) the gateway label 'Redesign?' falls half outside the view on the left, against
 the lane boundary. They are waiting for 0.44.0 (the Import button). No reply expected.
+Same family, found by T-1447's reviewer (round 3, V-20261119-59397bd0) on the same map: the id caption
+`sal_6_opportunity` is placed above "Opportunity Closed → Won", over its "⟨task⟩" type tag (the flow leaving its bottom
+pushes the caption up, and the type tag does not win). Identical before T-1447; captions and type tags colliding is
+this task's, with (8).
 
 **Problem / hypothesis:** <what we think is wrong and why>
 
