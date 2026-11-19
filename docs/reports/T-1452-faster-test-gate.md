@@ -69,6 +69,7 @@ only remove the wait for the slower local run and the host contention it causes.
 | # | When (UTC) | Commit | Gate | Pool (node, compute) | Here (compute) | End to end | Note |
 |---|---|---|---|---|---|---|---|
 | 0 | 2026-11-19 20:47 | 558214e5f | core, push (pool AND here) | pool-w2, 744 s | 899 s | 985 s (16.4 min) | first run with the bundle chain (T-1453); before T-1452 changes anything |
+| 0b | 2026-11-19 21:18 | 558214e5f | browser, pool alone (submit.sh) | pool-w1, 1197 s | — | 1222 s (20.4 min) | only ~25 s outside compute: the older chain links were reused, not re-staged (1409 lesson iv) |
 
 Before this, the pool had been giving no result since ~18:40Z (T-1453: one-file limit, then unstaged chain links): runs
 in that window are excluded from the baseline as not comparable (1409 rule iii).
