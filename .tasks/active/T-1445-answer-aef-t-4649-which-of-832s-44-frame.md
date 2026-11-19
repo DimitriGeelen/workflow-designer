@@ -1,13 +1,22 @@
 ---
 id: T-1445
-name: "Answer AEF T-4649: which of 832's 44 framework local fixes the proposed extension points would retire (by 2026-11-24)"
+name: "Answer AEF T-4649: which of 832's 44 framework local fixes the proposed extension
+  points would retire (by 2026-11-24)"
 description: >
-  AEF consultation (msg f475ad73, their operator's request, 2026-11-19): six project extension points so projects stop editing vendored files (project Watchtower blueprints; nav entries; operator-owned CSRF exemption list; post-approval notification scripts; no reviewer-brief text; tighten-only gate patterns). Questions: (a) which of 832's local changes it removes and which remain, (b) what is missing or shaped wrong, (c) would an operator-owned list work for CSRF exemptions. Source: .agentic-framework/.vendor-divergence.yaml (44 paths, each with task and reason; re-applied by hand at every upgrade, 3 conflicts at be.60). Answer on conversation consult-832-Workflow-designer before 2026-11-24.
+  AEF consultation (msg f475ad73, their operator's request, 2026-11-19): six project
+  extension points so projects stop editing vendored files (project Watchtower blueprints;
+  nav entries; operator-owned CSRF exemption list; post-approval notification scripts;
+  no reviewer-brief text; tighten-only gate patterns). Questions: (a) which of 832's
+  local changes it removes and which remain, (b) what is missing or shaped wrong,
+  (c) would an operator-owned list work for CSRF exemptions. Source: .agentic-framework/.vendor-divergence.yaml
+  (44 paths, each with task and reason; re-applied by hand at every upgrade, 3 conflicts
+  at be.60). Answer on conversation consult-832-Workflow-designer before 2026-11-24.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +47,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-19T11:00:11Z
-last_update: 2026-11-19T11:00:11Z
-date_finished: null
+last_update: '2026-11-19T12:11:10Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +59,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-19T12:11:10Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1445: Answer AEF T-4649: which of 832's 44 framework local fixes the proposed extension points would retire (by 2026-11-24)
@@ -57,20 +86,26 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** AEF consultation T-4649 (sidecar msg f475ad73, 2026-11-19, their operator's request):
+six proposed project extension points so projects stop editing vendored framework files. Questions (a) which of our
+local changes it retires, (b) what is missing or wrong-shaped, (c) whether an operator-owned list works for CSRF.
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** 832 re-applies its declared local changes by hand at every upgrade (37 at be.60, 3 hand
+merges). Our guess: most are fixes to AEF's own behaviour, which no extension point can carry; they need adoption
+upstream, and the extension points help only a minority.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** a path-by-path answer from the divergence manifest, sent before 2026-11-24.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** `docs/reports/T-1445-aef-extension-points.md` classifies every manifest entry; the answer to
+(a), (b) and (c) is sent on conversation consult-832-Workflow-designer.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] Every entry of `.agentic-framework/.vendor-divergence.yaml` is classified (fix to AEF behaviour / one of the six
+      points / a missing point) in the report, with its task id and path; the counts add up to the manifest's.
+- [ ] The answer to (a), (b) and (c) is sent to AEF on their thread, citing the report.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -353,3 +388,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1445-answer-aef-t-4649-which-of-832s-44-frame.md
 - **Context:** Initial task creation
+
+### 2026-11-19T12:11:06Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
