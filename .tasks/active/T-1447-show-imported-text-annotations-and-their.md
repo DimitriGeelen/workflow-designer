@@ -1,13 +1,30 @@
 ---
 id: T-1447
-name: "Show imported text annotations (and their associations) on the canvas — Greenfield's workshop maps"
+name: "Show imported text annotations (and their associations) on the canvas — Greenfield's
+  workshop maps"
 description: >
-  Greenfield T-436 (sidecar msg dc28399b, 2026-11-19): a real Camunda workshop map (4 lanes, 23 nodes, 12 textAnnotations, 10 associations) imports cleanly into 0.38.0, but the annotations are 'kept but not shown' (T-1326/T-1327), and for workshop maps the notes ARE the content. Build: draw textAnnotation boxes at their DI position with their text and the association lines to their nodes, read-only first (editing later); keep the byte-identical save-back. Also noted in the same report: original pool/lane outlines are not kept (T-1264 known), and a server-side /api/save makes no thumbnail. Scope added by Greenfield (msg ef63bb29): associations BETWEEN TASKS (associationDirection=One, a dotted status sync, e.g. Opportunity/Solution -> Product, Open Order -> Sales Order) are not drawn either, which leaves the target tasks looking unconnected; draw those too, not only annotation associations. Routing findings on the same map are T-1449. TEST MAP (Greenfield owner consented 2026-11-19, no personal names, company name may stay): sidecar msg 4f533a0a, between '-----BEGIN BPMN-----' and '-----END BPMN-----', exactly 22903 bytes, sha256 c9afe963aad9f4b93ea3ca3cb8bc21e3423de38c606d4b793229a54581f71a0c (verified 2026-11-19). NOT YET SAVED: save it to tests/fixtures/greenfield/nooteboom-offerte-tot-order-with-notes.bpmn via lib/sidecar receiver.read_message (the session hit its budget before the write).
+  Greenfield T-436 (sidecar msg dc28399b, 2026-11-19): a real Camunda workshop map
+  (4 lanes, 23 nodes, 12 textAnnotations, 10 associations) imports cleanly into 0.38.0,
+  but the annotations are 'kept but not shown' (T-1326/T-1327), and for workshop maps
+  the notes ARE the content. Build: draw textAnnotation boxes at their DI position
+  with their text and the association lines to their nodes, read-only first (editing
+  later); keep the byte-identical save-back. Also noted in the same report: original
+  pool/lane outlines are not kept (T-1264 known), and a server-side /api/save makes
+  no thumbnail. Scope added by Greenfield (msg ef63bb29): associations BETWEEN TASKS
+  (associationDirection=One, a dotted status sync, e.g. Opportunity/Solution -> Product,
+  Open Order -> Sales Order) are not drawn either, which leaves the target tasks looking
+  unconnected; draw those too, not only annotation associations. Routing findings
+  on the same map are T-1449. TEST MAP (Greenfield owner consented 2026-11-19, no
+  personal names, company name may stay): sidecar msg 4f533a0a, between '-----BEGIN
+  BPMN-----' and '-----END BPMN-----', exactly 22903 bytes, sha256 c9afe963aad9f4b93ea3ca3cb8bc21e3423de38c606d4b793229a54581f71a0c
+  (verified 2026-11-19). SAVED 2026-11-19 to tests/fixtures/greenfield/nooteboom-offerte-tot-order-with-notes.bpmn
+  (22903 bytes, sha256 matches; 12 textAnnotations, 10 associations, 4 lanes).
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: [T-1326, T-1327]
@@ -38,8 +55,8 @@ related_tasks: [T-1326, T-1327]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-19T13:05:22Z
-last_update: 2026-11-19T13:05:22Z
-date_finished: null
+last_update: '2026-11-19T14:50:19Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +67,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-19T14:50:19Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 2
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=2 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=2 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1447: Show imported text annotations (and their associations) on the canvas — Greenfield's workshop maps
@@ -353,3 +390,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1447-show-imported-text-annotations-and-their.md
 - **Context:** Initial task creation
+
+### 2026-11-19T14:50:18Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

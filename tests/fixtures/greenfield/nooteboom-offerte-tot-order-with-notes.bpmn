@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_Nooteboom" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Claude" exporterVersion="1.0">
+<bpmn:collaboration id="Collaboration_1"><bpmn:participant id="Participant_1" name="Nooteboom · offerte → order" processRef="Process_Nooteboom"/></bpmn:collaboration>
+<bpmn:process id="Process_Nooteboom" name="Offerte tot order" isExecutable="false">
+<bpmn:documentation>Uitgewerkt uit workshop-swimlane 6-11-2026. Open punten: volgorde na Closed/Won afgeleid uit kolommen; rol Novis + 98/97 voor de order (&#x27;Volgende keer: ... → Novis offerte&#x27;) onduidelijk; vijfde lege lane weggelaten. Stap-sjabloon: input, output, rol, trigger, systeem, KPI?, status/aanpassing.</bpmn:documentation>
+<bpmn:laneSet id="LaneSet_1">
+<bpmn:lane id="Lane_Salesforce" name="Salesforce"><bpmn:flowNodeRef>StartEvent_start</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_opp</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_knop</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_prod</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_prop</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_neg</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_won</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_so1</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_so2</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_osend</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_oprod</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_svc</bpmn:flowNodeRef><bpmn:flowNodeRef>EndEvent_end</bpmn:flowNodeRef></bpmn:lane>
+<bpmn:lane id="Lane_Tacton" name="Tacton"><bpmn:flowNodeRef>Activity_sol</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_offer</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_firm</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_send</bpmn:flowNodeRef><bpmn:flowNodeRef>Gateway_rd</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_oo</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_oc</bpmn:flowNodeRef></bpmn:lane>
+<bpmn:lane id="Lane_Novis" name="Novis + 98/97"><bpmn:flowNodeRef>Activity_vo</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_voc</bpmn:flowNodeRef></bpmn:lane>
+<bpmn:lane id="Lane_NAV" name="NAV"><bpmn:flowNodeRef>Activity_po</bpmn:flowNodeRef></bpmn:lane>
+</bpmn:laneSet>
+<bpmn:startEvent id="StartEvent_start" name="Start"><bpmn:documentation>Uitgangspunt: Contact of Account in SF van opportunity gewijzigd → sync naar Tacton → redesign in Tacton.</bpmn:documentation><bpmn:outgoing>Flow_0</bpmn:outgoing></bpmn:startEvent>
+<bpmn:task id="Activity_opp" name="Opportunity aanmaken"><bpmn:documentation>Velden: Account, Contact, Close Date, Amount, Vehicle Type, Opportunity Name, Owner (+ enkele onleesbaar).</bpmn:documentation><bpmn:incoming>Flow_0</bpmn:incoming><bpmn:outgoing>Flow_1</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_knop" name="Knop “Tacton” (status: Needs Analysis)"><bpmn:documentation>Zet status op Needs Analysis. Notitie NAV-lane: &#x27;Naar Tacton knop: alles → sync&#x27;.</bpmn:documentation><bpmn:incoming>Flow_1</bpmn:incoming><bpmn:outgoing>Flow_2</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_sol" name="Opportunity / Solution – Product"><bpmn:documentation>Notities (deels onleesbaar): Tacton-opportunity → werkpakket(?) → revisie; product line items → prijs / korting(?).</bpmn:documentation><bpmn:incoming>Flow_2</bpmn:incoming><bpmn:incoming>Flow_11</bpmn:incoming><bpmn:outgoing>Flow_4</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_prod" name="Product (status: Needs Analysis)"></bpmn:task>
+<bpmn:task id="Activity_offer" name="Create Offer"><bpmn:incoming>Flow_4</bpmn:incoming><bpmn:outgoing>Flow_5</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_firm" name="Firm Ready"><bpmn:incoming>Flow_5</bpmn:incoming><bpmn:outgoing>Flow_6</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_send" name="Send Proposal ? (“onder water”)"><bpmn:documentation>Op het bord met vraagtekens en &#x27;onder water&#x27; - open punt.</bpmn:documentation><bpmn:incoming>Flow_6</bpmn:incoming><bpmn:outgoing>Flow_7</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_prop" name="Opportunity (Proposal + doc. sturen)"><bpmn:incoming>Flow_7</bpmn:incoming><bpmn:outgoing>Flow_8</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_neg" name="Opportunity (status: Negotiation)"><bpmn:incoming>Flow_8</bpmn:incoming><bpmn:outgoing>Flow_9</bpmn:outgoing></bpmn:task>
+<bpmn:exclusiveGateway id="Gateway_rd" name="Redesign?"><bpmn:documentation>Beslispunt tijdens onderhandeling; &#x27;wel&#x27; terug naar configuratie.</bpmn:documentation><bpmn:incoming>Flow_9</bpmn:incoming><bpmn:outgoing>Flow_10</bpmn:outgoing><bpmn:outgoing>Flow_11</bpmn:outgoing></bpmn:exclusiveGateway>
+<bpmn:task id="Activity_won" name="Opportunity Closed → Won"><bpmn:incoming>Flow_10</bpmn:incoming><bpmn:outgoing>Flow_12</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_oo" name="Open Order"><bpmn:documentation>Status Tacton: open order na omzetten naar Closed/Won.</bpmn:documentation><bpmn:incoming>Flow_12</bpmn:incoming><bpmn:outgoing>Flow_14</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_so1" name="Sales Order (status: Open Order)"></bpmn:task>
+<bpmn:task id="Activity_vo" name="Open VO (verkooporder)"><bpmn:incoming>Flow_14</bpmn:incoming><bpmn:outgoing>Flow_15</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_voc" name="Verkooporder compleet"><bpmn:incoming>Flow_15</bpmn:incoming><bpmn:outgoing>Flow_16</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_oc" name="Order compleet"><bpmn:documentation>Notitie met pijlen (verkooporder, ... artikel) - niet goed leesbaar.</bpmn:documentation><bpmn:incoming>Flow_16</bpmn:incoming><bpmn:outgoing>Flow_17</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_so2" name="Sales Order (Complete + Download)"><bpmn:incoming>Flow_17</bpmn:incoming><bpmn:outgoing>Flow_18</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_osend" name="Order send"><bpmn:incoming>Flow_18</bpmn:incoming><bpmn:outgoing>Flow_19</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_oprod" name="Order productie"><bpmn:incoming>Flow_19</bpmn:incoming><bpmn:outgoing>Flow_20</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_po" name="Productieorder"><bpmn:incoming>Flow_20</bpmn:incoming><bpmn:outgoing>Flow_21</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_svc" name="Service artikel"><bpmn:incoming>Flow_21</bpmn:incoming><bpmn:outgoing>Flow_22</bpmn:outgoing></bpmn:task>
+<bpmn:endEvent id="EndEvent_end" name="Afgerond"><bpmn:incoming>Flow_22</bpmn:incoming></bpmn:endEvent>
+<bpmn:sequenceFlow id="Flow_0" sourceRef="StartEvent_start" targetRef="Activity_opp"/>
+<bpmn:sequenceFlow id="Flow_1" sourceRef="Activity_opp" targetRef="Activity_knop"/>
+<bpmn:sequenceFlow id="Flow_2" name="trigger" sourceRef="Activity_knop" targetRef="Activity_sol"/>
+<bpmn:sequenceFlow id="Flow_4" sourceRef="Activity_sol" targetRef="Activity_offer"/>
+<bpmn:sequenceFlow id="Flow_5" sourceRef="Activity_offer" targetRef="Activity_firm"/>
+<bpmn:sequenceFlow id="Flow_6" sourceRef="Activity_firm" targetRef="Activity_send"/>
+<bpmn:sequenceFlow id="Flow_7" sourceRef="Activity_send" targetRef="Activity_prop"/>
+<bpmn:sequenceFlow id="Flow_8" sourceRef="Activity_prop" targetRef="Activity_neg"/>
+<bpmn:sequenceFlow id="Flow_9" sourceRef="Activity_neg" targetRef="Gateway_rd"/>
+<bpmn:sequenceFlow id="Flow_10" name="niet" sourceRef="Gateway_rd" targetRef="Activity_won"/>
+<bpmn:sequenceFlow id="Flow_11" name="wel" sourceRef="Gateway_rd" targetRef="Activity_sol"/>
+<bpmn:sequenceFlow id="Flow_12" sourceRef="Activity_won" targetRef="Activity_oo"/>
+<bpmn:sequenceFlow id="Flow_14" sourceRef="Activity_oo" targetRef="Activity_vo"/>
+<bpmn:sequenceFlow id="Flow_15" sourceRef="Activity_vo" targetRef="Activity_voc"/>
+<bpmn:sequenceFlow id="Flow_16" sourceRef="Activity_voc" targetRef="Activity_oc"/>
+<bpmn:sequenceFlow id="Flow_17" sourceRef="Activity_oc" targetRef="Activity_so2"/>
+<bpmn:sequenceFlow id="Flow_18" sourceRef="Activity_so2" targetRef="Activity_osend"/>
+<bpmn:sequenceFlow id="Flow_19" sourceRef="Activity_osend" targetRef="Activity_oprod"/>
+<bpmn:sequenceFlow id="Flow_20" sourceRef="Activity_oprod" targetRef="Activity_po"/>
+<bpmn:sequenceFlow id="Flow_21" sourceRef="Activity_po" targetRef="Activity_svc"/>
+<bpmn:sequenceFlow id="Flow_22" sourceRef="Activity_svc" targetRef="EndEvent_end"/>
+<bpmn:association id="Association_3" associationDirection="One" sourceRef="Activity_sol" targetRef="Activity_prod"/>
+<bpmn:association id="Association_13" associationDirection="One" sourceRef="Activity_oo" targetRef="Activity_so1"/>
+<bpmn:textAnnotation id="TextAnnotation_3"><bpmn:text>(3) Uitgangspunt: Contact of Account in SF van opportunity gewijzigd → sync naar Tacton → redesign in Tacton.</bpmn:text></bpmn:textAnnotation>
+<bpmn:association id="Assoc_TextAnnotation_3" associationDirection="None" sourceRef="TextAnnotation_3" targetRef="StartEvent_start"/>
+<bpmn:textAnnotation id="TextAnnotation_1"><bpmn:text>(1) Opportunity – Velden: Account, Contact, Close Date, Amount, Vehicle Type, Opportunity Name, Owner (+ enkele onleesbaar).</bpmn:text></bpmn:textAnnotation>
+<bpmn:association id="Assoc_TextAnnotation_1" associationDirection="None" sourceRef="TextAnnotation_1" targetRef="Activity_opp"/>
+<bpmn:textAnnotation id="TextAnnotation_2"><bpmn:text>(2) Knop Tacton – Zet status op Needs Analysis. Notitie NAV-lane: &#x27;Naar Tacton knop: alles → sync&#x27;.</bpmn:text></bpmn:textAnnotation>
+<bpmn:association id="Assoc_TextAnnotation_2" associationDirection="None" sourceRef="TextAnnotation_2" targetRef="Activity_knop"/>
+<bpmn:textAnnotation id="TextAnnotation_4"><bpmn:text>(4) Solution – Product: Notities (deels onleesbaar): Tacton-opportunity → werkpakket(?) → revisie; product line items → prijs / korting(?).</bpmn:text></bpmn:textAnnotation>
+<bpmn:association id="Assoc_TextAnnotation_4" associationDirection="None" sourceRef="TextAnnotation_4" targetRef="Activity_sol"/>
+<bpmn:textAnnotation id="TextAnnotation_5"><bpmn:text>(5) Send Proposal ?? Op het bord met vraagtekens en &#x27;onder water&#x27; - open punt.</bpmn:text></bpmn:textAnnotation>
+<bpmn:association id="Assoc_TextAnnotation_5" associationDirection="None" sourceRef="TextAnnotation_5" targetRef="Activity_send"/>
+<bpmn:textAnnotation id="TextAnnotation_6"><bpmn:text>(6) Redesign wel/niet – Beslispunt tijdens onderhandeling; &#x27;wel&#x27; terug naar configuratie.</bpmn:text></bpmn:textAnnotation>
+<bpmn:association id="Assoc_TextAnnotation_6" associationDirection="None" sourceRef="TextAnnotation_6" targetRef="Gateway_rd"/>
+<bpmn:textAnnotation id="TextAnnotation_7"><bpmn:text>(7) Status Tacton: open order na omzetten naar Closed/Won.</bpmn:text></bpmn:textAnnotation>
+<bpmn:association id="Assoc_TextAnnotation_7" associationDirection="None" sourceRef="TextAnnotation_7" targetRef="Activity_oo"/>
+<bpmn:textAnnotation id="TextAnnotation_8"><bpmn:text>(8) Order compleet – Notitie met pijlen (verkooporder, ... artikel) - niet goed leesbaar.</bpmn:text></bpmn:textAnnotation>
+<bpmn:association id="Assoc_TextAnnotation_8" associationDirection="None" sourceRef="TextAnnotation_8" targetRef="Activity_oc"/>
+<bpmn:textAnnotation id="TextAnnotation_Open1"><bpmn:text>Open punt: volgorde van de stappen na Closed/Won (Tacton ↔ Novis ↔ Salesforce) is afgeleid uit de kolommen op het bord, niet expliciet getekend.</bpmn:text></bpmn:textAnnotation>
+<bpmn:textAnnotation id="TextAnnotation_Open2"><bpmn:text>Open punt: rol Novis + 98/97 vóór de order – notitie &#x27;Volgende keer: … → Novis offerte&#x27; (deels onleesbaar).</bpmn:text></bpmn:textAnnotation>
+<bpmn:textAnnotation id="TextAnnotation_Open3"><bpmn:text>Opmerking: vijfde (lege) lane en lege kaarten op het bord zijn niet overgenomen.</bpmn:text></bpmn:textAnnotation>
+<bpmn:textAnnotation id="TextAnnotation_Open4"><bpmn:text>Stap-sjabloon voor volgende sessie: input, output, rol, trigger, systeem, KPI?, status/aanpassing.</bpmn:text></bpmn:textAnnotation>
+</bpmn:process>
+<bpmndi:BPMNDiagram id="BPMNDiagram_1"><bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1">
+<bpmndi:BPMNShape id="Participant_1_di" bpmnElement="Participant_1" isHorizontal="true"><dc:Bounds x="20" y="60" width="2662" height="680"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Lane_Salesforce_di" bpmnElement="Lane_Salesforce" isHorizontal="true"><dc:Bounds x="50" y="60" width="2632" height="170"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Lane_Tacton_di" bpmnElement="Lane_Tacton" isHorizontal="true"><dc:Bounds x="50" y="230" width="2632" height="170"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Lane_Novis_di" bpmnElement="Lane_Novis" isHorizontal="true"><dc:Bounds x="50" y="400" width="2632" height="170"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Lane_NAV_di" bpmnElement="Lane_NAV" isHorizontal="true"><dc:Bounds x="50" y="570" width="2632" height="170"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="StartEvent_start_di" bpmnElement="StartEvent_start"><dc:Bounds x="162" y="127" width="36" height="36"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_opp_di" bpmnElement="Activity_opp"><dc:Bounds x="267" y="112" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_knop_di" bpmnElement="Activity_knop"><dc:Bounds x="419" y="112" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_sol_di" bpmnElement="Activity_sol"><dc:Bounds x="571" y="282" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_prod_di" bpmnElement="Activity_prod"><dc:Bounds x="571" y="112" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_offer_di" bpmnElement="Activity_offer"><dc:Bounds x="723" y="282" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_firm_di" bpmnElement="Activity_firm"><dc:Bounds x="875" y="282" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_send_di" bpmnElement="Activity_send"><dc:Bounds x="1027" y="282" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_prop_di" bpmnElement="Activity_prop"><dc:Bounds x="1179" y="112" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_neg_di" bpmnElement="Activity_neg"><dc:Bounds x="1331" y="112" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Gateway_rd_di" bpmnElement="Gateway_rd" isMarkerVisible="true"><dc:Bounds x="1522" y="289" width="52" height="52"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_won_di" bpmnElement="Activity_won"><dc:Bounds x="1635" y="112" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_oo_di" bpmnElement="Activity_oo"><dc:Bounds x="1787" y="282" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_so1_di" bpmnElement="Activity_so1"><dc:Bounds x="1787" y="112" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_vo_di" bpmnElement="Activity_vo"><dc:Bounds x="1787" y="452" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_voc_di" bpmnElement="Activity_voc"><dc:Bounds x="1939" y="452" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_oc_di" bpmnElement="Activity_oc"><dc:Bounds x="1939" y="282" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_so2_di" bpmnElement="Activity_so2"><dc:Bounds x="1939" y="112" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_osend_di" bpmnElement="Activity_osend"><dc:Bounds x="2091" y="112" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_oprod_di" bpmnElement="Activity_oprod"><dc:Bounds x="2243" y="112" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_po_di" bpmnElement="Activity_po"><dc:Bounds x="2243" y="622" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_svc_di" bpmnElement="Activity_svc"><dc:Bounds x="2395" y="112" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="EndEvent_end_di" bpmnElement="EndEvent_end"><dc:Bounds x="2594" y="127" width="36" height="36"/></bpmndi:BPMNShape>
+<bpmndi:BPMNEdge id="Flow_0_di" bpmnElement="Flow_0"><di:waypoint x="198" y="145"/><di:waypoint x="267" y="145"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1"><di:waypoint x="397" y="145"/><di:waypoint x="419" y="145"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2"><di:waypoint x="484" y="178"/><di:waypoint x="484" y="315"/><di:waypoint x="571" y="315"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Association_3_di" bpmnElement="Association_3"><di:waypoint x="636" y="282"/><di:waypoint x="636" y="178"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4"><di:waypoint x="701" y="315"/><di:waypoint x="723" y="315"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5"><di:waypoint x="853" y="315"/><di:waypoint x="875" y="315"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6"><di:waypoint x="1005" y="315"/><di:waypoint x="1027" y="315"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_7_di" bpmnElement="Flow_7"><di:waypoint x="1157" y="315"/><di:waypoint x="1244" y="315"/><di:waypoint x="1244" y="178"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_8_di" bpmnElement="Flow_8"><di:waypoint x="1309" y="145"/><di:waypoint x="1331" y="145"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_9_di" bpmnElement="Flow_9"><di:waypoint x="1461" y="145"/><di:waypoint x="1548" y="145"/><di:waypoint x="1548" y="289"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_10_di" bpmnElement="Flow_10"><di:waypoint x="1574" y="315"/><di:waypoint x="1618" y="315"/><di:waypoint x="1618" y="145"/><di:waypoint x="1635" y="145"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_11_di" bpmnElement="Flow_11"><di:waypoint x="1548" y="341"/><di:waypoint x="1548" y="378"/><di:waypoint x="636" y="378"/><di:waypoint x="636" y="348"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_12_di" bpmnElement="Flow_12"><di:waypoint x="1700" y="178"/><di:waypoint x="1700" y="260"/><di:waypoint x="1763" y="260"/><di:waypoint x="1763" y="315"/><di:waypoint x="1787" y="315"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Association_13_di" bpmnElement="Association_13"><di:waypoint x="1852" y="282"/><di:waypoint x="1852" y="178"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_14_di" bpmnElement="Flow_14"><di:waypoint x="1852" y="348"/><di:waypoint x="1852" y="452"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_15_di" bpmnElement="Flow_15"><di:waypoint x="1917" y="485"/><di:waypoint x="1939" y="485"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_16_di" bpmnElement="Flow_16"><di:waypoint x="2004" y="452"/><di:waypoint x="2004" y="348"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_17_di" bpmnElement="Flow_17"><di:waypoint x="2004" y="282"/><di:waypoint x="2004" y="178"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_18_di" bpmnElement="Flow_18"><di:waypoint x="2069" y="145"/><di:waypoint x="2091" y="145"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_19_di" bpmnElement="Flow_19"><di:waypoint x="2221" y="145"/><di:waypoint x="2243" y="145"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_20_di" bpmnElement="Flow_20"><di:waypoint x="2308" y="178"/><di:waypoint x="2308" y="622"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_21_di" bpmnElement="Flow_21"><di:waypoint x="2373" y="655"/><di:waypoint x="2460" y="655"/><di:waypoint x="2460" y="178"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_22_di" bpmnElement="Flow_22"><di:waypoint x="2525" y="145"/><di:waypoint x="2594" y="145"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNShape id="TextAnnotation_3_di" bpmnElement="TextAnnotation_3"><dc:Bounds x="30" y="-120" width="200" height="80"/></bpmndi:BPMNShape>
+<bpmndi:BPMNEdge id="Assoc_TextAnnotation_3_di" bpmnElement="Assoc_TextAnnotation_3"><di:waypoint x="180" y="-40"/><di:waypoint x="180" y="127"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNShape id="TextAnnotation_1_di" bpmnElement="TextAnnotation_1"><dc:Bounds x="250" y="-120" width="220" height="80"/></bpmndi:BPMNShape>
+<bpmndi:BPMNEdge id="Assoc_TextAnnotation_1_di" bpmnElement="Assoc_TextAnnotation_1"><di:waypoint x="332" y="-40"/><di:waypoint x="332" y="112"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNShape id="TextAnnotation_2_di" bpmnElement="TextAnnotation_2"><dc:Bounds x="490" y="-120" width="240" height="65"/></bpmndi:BPMNShape>
+<bpmndi:BPMNEdge id="Assoc_TextAnnotation_2_di" bpmnElement="Assoc_TextAnnotation_2"><di:waypoint x="500" y="-55"/><di:waypoint x="484" y="112"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNShape id="TextAnnotation_4_di" bpmnElement="TextAnnotation_4"><dc:Bounds x="520" y="425" width="240" height="80"/></bpmndi:BPMNShape>
+<bpmndi:BPMNEdge id="Assoc_TextAnnotation_4_di" bpmnElement="Assoc_TextAnnotation_4"><di:waypoint x="636" y="425"/><di:waypoint x="636" y="348"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNShape id="TextAnnotation_5_di" bpmnElement="TextAnnotation_5"><dc:Bounds x="990" y="425" width="210" height="65"/></bpmndi:BPMNShape>
+<bpmndi:BPMNEdge id="Assoc_TextAnnotation_5_di" bpmnElement="Assoc_TextAnnotation_5"><di:waypoint x="1092" y="425"/><di:waypoint x="1092" y="348"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNShape id="TextAnnotation_6_di" bpmnElement="TextAnnotation_6"><dc:Bounds x="1390" y="425" width="190" height="80"/></bpmndi:BPMNShape>
+<bpmndi:BPMNEdge id="Assoc_TextAnnotation_6_di" bpmnElement="Assoc_TextAnnotation_6"><di:waypoint x="1548" y="425"/><di:waypoint x="1548" y="341"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNShape id="TextAnnotation_7_di" bpmnElement="TextAnnotation_7"><dc:Bounds x="1600" y="425" width="165" height="65"/></bpmndi:BPMNShape>
+<bpmndi:BPMNEdge id="Assoc_TextAnnotation_7_di" bpmnElement="Assoc_TextAnnotation_7"><di:waypoint x="1755" y="425"/><di:waypoint x="1797" y="348"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNShape id="TextAnnotation_8_di" bpmnElement="TextAnnotation_8"><dc:Bounds x="2095" y="250" width="200" height="65"/></bpmndi:BPMNShape>
+<bpmndi:BPMNEdge id="Assoc_TextAnnotation_8_di" bpmnElement="Assoc_TextAnnotation_8"><di:waypoint x="2105" y="315"/><di:waypoint x="2069" y="315"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNShape id="TextAnnotation_Open1_di" bpmnElement="TextAnnotation_Open1"><dc:Bounds x="90" y="760" width="520" height="50"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="TextAnnotation_Open2_di" bpmnElement="TextAnnotation_Open2"><dc:Bounds x="650" y="760" width="520" height="50"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="TextAnnotation_Open3_di" bpmnElement="TextAnnotation_Open3"><dc:Bounds x="1210" y="760" width="520" height="50"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="TextAnnotation_Open4_di" bpmnElement="TextAnnotation_Open4"><dc:Bounds x="1770" y="760" width="520" height="50"/></bpmndi:BPMNShape>
+</bpmndi:BPMNPlane></bpmndi:BPMNDiagram>
+</bpmn:definitions>
