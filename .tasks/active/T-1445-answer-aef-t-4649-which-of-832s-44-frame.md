@@ -103,9 +103,12 @@ upstream, and the extension points help only a minority.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Every entry of `.agentic-framework/.vendor-divergence.yaml` is classified (fix to AEF behaviour / one of the six
+- [x] Every entry of `.agentic-framework/.vendor-divergence.yaml` is classified (fix to AEF behaviour / one of the six
       points / a missing point) in the report, with its task id and path; the counts add up to the manifest's.
-- [ ] The answer to (a), (b) and (c) is sent to AEF on their thread, citing the report.
+      Evidence: `docs/reports/T-1445-aef-extension-points.md` (f67bb2ad6), 60 of 60 entries over 44 paths: 7 retired
+      by the proposed points, 44 fixes for upstream, 8 needing missing points, 1 the manifest.
+- [x] The answer to (a), (b) and (c) is sent to AEF on their thread, citing the report.
+      Evidence: sidecar msg d231f270, conversation consult-832-Workflow-designer, in reply to f475ad73.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -291,6 +294,8 @@ upstream, and the extension points help only a minority.
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+python3 docs/reports/T-1445-spikes/classify.py > /tmp/.t1445-classify.md
+grep -q "^Entries classified: 60 of 60" docs/reports/T-1445-aef-extension-points.md
 
 ## RCA
 
