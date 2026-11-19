@@ -4,12 +4,13 @@ name: "Release designer 0.44.0 (import/export menus, SVG/PNG/PDF, Mermaid/CSV, i
 description: >
   Release designer 0.44.0 (import/export menus, SVG/PNG/PDF, Mermaid/CSV, instance overlay v2)
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tools/_t821-census-controls.sh, tools/_t821-swallowed-failure-census.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-19T13:35:29Z
-last_update: 2026-11-19T13:35:29Z
-date_finished: null
+last_update: 2026-11-19T17:10:13Z
+date_finished: 2026-11-19T17:10:13Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -84,14 +85,19 @@ on origin, release notes carrying the six changes, the endpoint table and the sh
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `docs/releases/RELEASE-NOTES-0.44.0.md` carries the six changes, the five endpoints with AEF's serving status,
+- [x] `docs/releases/RELEASE-NOTES-0.44.0.md` carries the six changes, the five endpoints with AEF's serving status,
       and the shared-contracts table that `tools/_t1425-shared-contracts.py --version 0.44.0 --check` accepts; the
       pending list is emptied into it.
-- [ ] The release job (calibrate the kit with two outside models, gate, cut, commit, tag, browser tier, core tier,
+- [x] The release job (calibrate the kit with two outside models, gate, cut, commit, tag, browser tier, core tier,
       push) is rehearsed and handed over; it completes.
-- [ ] Tag `designer-v0.44.0` is on origin and `dist/MANIFEST.yaml` names 0.44.0 with the artifact's sha256.
-- [ ] AEF is sent the release (version, tag, sha256, bytes, what it brings, nothing changes in stored maps), and its
+      Job 170 done rc=0 2026-11-19T17:06:30Z: codex and GLM-5.3 calibration PASS, browser 146/0, core green, pushed.
+      Before it, the push was refused once (core red on pool and here): census blind spot, fixed by T-1450.
+- [x] Tag `designer-v0.44.0` is on origin and `dist/MANIFEST.yaml` names 0.44.0 with the artifact's sha256.
+      sha256 6ab54f346566244644891e71560b0949b40e74a63373cdf0839c8169c72ad9e5, 1391042 bytes.
+- [x] AEF is sent the release (version, tag, sha256, bytes, what it brings, nothing changes in stored maps), and its
       pin is tracked.
+      Sent 2026-11-19 (msg d1184a3c, RECEIVED); Greenfield too (msg 3a6d81ec, via hub). Pin: `_t1187-aef-pin-lag.sh`
+      reads BEHIND (0.43.0) and the session-start alerts print it every session until AEF serves 0.44.0.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -277,6 +283,10 @@ on origin, release notes carrying the six changes, the endpoint table and the sh
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+python3 tools/_t1425-shared-contracts.py --version 0.44.0 --check
+grep -q '^latest: "0.44.0"' dist/MANIFEST.yaml && grep -q 6ab54f346566244644891e71560b0949b40e74a63373cdf0839c8169c72ad9e5 dist/MANIFEST.yaml
+test -f .context/runme/170-release-designer-0.44.0/done
+git ls-remote --exit-code --tags origin designer-v0.44.0
 
 ## RCA
 
@@ -374,3 +384,16 @@ on origin, release notes carrying the six changes, the endpoint table and the sh
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1448-release-designer-0440-importexport-menus.md
 - **Context:** Initial task creation
+
+### 2026-11-19T17:10:13Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-b165f057
+- **Timestamp:** 2026-11-19T17:10:20Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

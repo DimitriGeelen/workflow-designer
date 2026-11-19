@@ -1,0 +1,123 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1448: Release designer 0.44.0 (import/export menus, SVG/PNG/PDF, Mermaid/CSV, instance overlay v2)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-19T17:10:54Z
+# ============================================================================
+
+task_id: T-1448
+task_name: "Release designer 0.44.0 (import/export menus, SVG/PNG/PDF, Mermaid/CSV, instance overlay v2)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-19T13:35:29Z
+completed: 2026-11-19T17:10:13Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-11-19T14:38:52+01:00
+last_commit: 2026-11-19T17:05:14+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  real acceptance criteria (release 0.44.0). release notes 0.44.0 (six changes, endpoints, shared-contracts table checked); pending list emptied into them. session-end state recorded (release 0.44.0 next steps); job 170 drafted (not yet rehearsed); T-1447 test map location and checksum recorded. job 170 (release 0.44.0) rehearsed — 18 checks ok, step 1 in a clone; job.sh sha 943e0afc1662. unblock the push — census fix from T-1450: the swallowed-failure census reads regex literals (a quote in /\sid="/ had hidden real catches since T-1089); T-1109 URL catch excused with its reason; control 5 proves a quote in a regex no longer hides a bare catch (old census: unseen). 0.44.0 — VERSION and APP_VERSION bumped by the release job (parity ok). release designer 0.44.0 — Import/Export menus (BPMN, SVG, PNG, PDF, Mermaid, CSV), instance overlay recorded route, validator header text; kit calibrated on its bytes
+
+# Key outcomes
+outcomes:
+  - '`docs/releases/RELEASE-NOTES-0.44.0.md` carries the six changes, the five endpoints with AEF''s serving status,'
+  - 'The release job (calibrate the kit with two outside models, gate, cut, commit, tag, browser tier, core tier,'
+  - 'Tag `designer-v0.44.0` is on origin and `dist/MANIFEST.yaml` names 0.44.0 with the artifact''s sha256.'
+  - 'AEF is sent the release (version, tag, sha256, bytes, what it brings, nothing changes in stored maps), and its'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'unblock the push — census fix from T-1450: the swallowed-failure census reads regex literals (a quote in /\sid="/ had hidden real catches since T-1089); T-1109 URL catch excused with its reason; control 5 proves a quote in a regex no longer hides a bare catch (old census: unseen)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/episodic/T-1450.yaml'
+  - '.context/runme/170-release-designer-0.44.0/dryrun.ok'
+  - '.context/runme/170-release-designer-0.44.0/job.sh'
+  - '.context/working/feedback-stream.yaml'
+  - '.tasks/active/T-1447-show-imported-text-annotations-and-their.md'
+  - '.tasks/active/T-1448-release-designer-0440-importexport-menus.md'
+  - '.tasks/completed/T-1450-swallowed-failure-census-misreads-regex-.md'
+  - 'VERSION'
+  - 'dist/MANIFEST.yaml'
+  - 'dist/aef-authoring-kit-0.44.0/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.44.0/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.44.0/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.44.0/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.44.0/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.44.0/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.44.0/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.44.0/SKILL.md'
+  - 'dist/aef-authoring-kit-0.44.0/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.44.0/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.44.0/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.44.0/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.44.0/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.44.0/loop.sh'
+  - 'dist/aef-authoring-kit-0.44.0/validate-workflow.py'
+  - 'dist/aef-authoring-kit-0.44.0/verify-findings.py'
+  - 'dist/aef-workflow-designer-0.44.0.html'
+  - 'docs/authoring-kit/calibration-records/0.44.0.yaml'
+  - 'docs/releases/PENDING-next-release.md'
+  - 'docs/releases/RELEASE-NOTES-0.44.0.md'
+  - 'src/aef-workflow-designer.html'
+  - 'tools/_t821-census-controls.sh'
+  - 'tools/_t821-swallowed-failure-census.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-19T14:38:52'
+    action: 'T-1448: real acceptance criteria (release 0.44.0)'
+  - time: '2026-11-19T14:41:34'
+    action: 'T-1448: release notes 0.44.0 (six changes, endpoints, shared-contracts table checked); pending list emptied into them'
+  - time: '2026-11-19T15:25:59'
+    action: 'T-1448: session-end state recorded (release 0.44.0 next steps); job 170 drafted (not yet rehearsed); T-1447 test map location and checksum recorded'
+  - time: '2026-11-19T16:02:29'
+    action: 'T-1448: job 170 (release 0.44.0) rehearsed — 18 checks ok, step 1 in a clone; job.sh sha 943e0afc1662'
+  - time: '2026-11-19T16:22:35'
+    action: 'T-1448: unblock the push — census fix from T-1450: the swallowed-failure census reads regex literals (a quote in /\sid="/ had hidden real catches since T-1089); T-1109 URL catch excused with its reason; control 5 proves a quote in a regex no longer hides a bare catch (old census: unseen)'
+  - time: '2026-11-19T16:51:13'
+    action: 'T-1448: 0.44.0 — VERSION and APP_VERSION bumped by the release job (parity ok)'
+  - time: '2026-11-19T17:05:14'
+    action: 'T-1448: release designer 0.44.0 — Import/Export menus (BPMN, SVG, PNG, PDF, Mermaid, CSV), instance overlay recorded route, validator header text; kit calibrated on its bytes'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 7 commit(s), 214 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 214
+  commits: 8
+  files_changed: 34
+  lines_added: 23044
+  lines_removed: 42
+  footprint_refreshed_at: '2026-11-19T17:11:11Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1448-release-designer-0440-importexport-menus.md
+generated_by: context-agent-hybrid
