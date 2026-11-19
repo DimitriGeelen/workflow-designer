@@ -2,12 +2,16 @@
 id: T-1441
 name: "Import/Export 3/6: Mermaid and CSV out, then in (BPMN without layout + Clean)"
 description: >
-  T-1093 GO step 3. Export Mermaid flowchart (shapes by type, labelled edges) and CSV (id, name, type, lane, next). Import both by building BPMN without the diagram part and reusing the BPMN import and Clean layout (IW-5 spike: VALID, no findings). Loss stated on import.
+  T-1093 GO step 3. Export Mermaid flowchart (shapes by type, labelled edges) and
+  CSV (id, name, type, lane, next). Import both by building BPMN without the diagram
+  part and reusing the BPMN import and Clean layout (IW-5 spike: VALID, no findings).
+  Loss stated on import.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: [T-1093]
@@ -38,8 +42,8 @@ related_tasks: [T-1093]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-19T09:14:12Z
-last_update: 2026-11-19T09:14:12Z
-date_finished: null
+last_update: '2026-11-19T13:08:37Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +54,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-19T13:08:37Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 2
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=2 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=2 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1441: Import/Export 3/6: Mermaid and CSV out, then in (BPMN without layout + Clean)
@@ -74,30 +98,49 @@ both, builds BPMN without a diagram, reuses the existing import, runs Clean, and
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Export → Mermaid writes a `flowchart LR` with one subgraph per lane, BPMN shapes mapped to Mermaid shapes
+- [x] Export → Mermaid writes a `flowchart LR` with one subgraph per lane, BPMN shapes mapped to Mermaid shapes
       (event `(( ))`, task `[ ]`, gateway `{ }`), every flow with its label, using only a fixed syntax subset the test
       checks line by line.
       **Amended 2026-11-19:** "Mermaid's own parser accepts it" cannot be checked on this host (no Mermaid parser, and
       fetching one is an outside download). The test holds every line to the subset instead; Mermaid's own parse is
       left to the reviewer step / a later check where a renderer exists.
-- [ ] Export → CSV writes one row per step, RFC 4180 quoting; Python's csv module reads it back to the same rows.
+      Evidence: `_t1441` M1 on two maps (every lane a subgraph, empty lanes too; 13/13 and 17/17 edges, all labels).
+- [x] Export → CSV writes one row per step, RFC 4180 quoting; Python's csv module reads it back to the same rows.
+      Evidence: C1 on two maps, 14/14 rows read back by Python's csv module.
       **Amended:** columns id, name, type, lane, next, next_labels, lane_code, lane_authority, uid. The last three
       exist because a step's visible id is built from its lane's short code (lane_code) and its permanent identity is
       aef:uid (uid); without them a round trip renamed every step (agt_1_create came back as age_1_create).
-- [ ] Import → Mermaid and Import → CSV each rebuild the steps, flows, labels and lanes of an exported corpus map:
+- [x] Import → Mermaid and Import → CSV each rebuild the steps, flows, labels and lanes of an exported corpus map:
       round trip map → file → map keeps the same steps and flows (a test compares them), the result is laid out by
       Clean, and the validator finds no ERROR.
       **Amended:** "the same steps" is by permanent identity (aef:uid), name, type and lane; lane codes are kept. The
       number in a visible id counts steps left to right in the lane, so it follows Clean's new layout (4 of 14 move
       on both corpus maps); that is the stated loss of positions, reported by the test, not failed.
-- [ ] On import, what the format cannot carry is named in a notice to the user, never dropped silently: positions
+      Evidence: R1/R2 on two maps: same map id (or the documented _vN when the original is open), same lanes (Mermaid:
+      all, empty ones too; CSV: those holding a step), 14/14 steps and all flows by permanent identity; V1/V2: the
+      re-saved BPMN has no ERROR (only W-XML-GW-AMBIGUOUS, the stated loss of conditions).
+- [x] On import, what the format cannot carry is named in a notice to the user, never dropped silently: positions
       (so the visible numbers follow the new layout), the conditions on flows out of a gateway (found by the validator
       on the round trip: W-XML-GW-AMBIGUOUS appears where the original had conditions), and each step's details.
-- [ ] A CDP harness covers export and the round trip on two corpus maps, is a browser-tier leg, and fails on the
+      Evidence: N1/N2; for CSV also "lanes that hold no step". Shots: `docs/reports/T-1441-shots/*-after-*-import.png`.
+- [x] A CDP harness covers export and the round trip on two corpus maps, is a browser-tier leg, and fails on the
       T-1440 designer.
+      Evidence: `tools/_t1441-text-bridges-cdp.mjs` (16 legs), leg `test_t1441_text_bridges`; on the T-1440 designer
+      it fails at once (no such menu items).
 - [ ] `bash tools/person-sees-gate.sh` exits 0 and the browser tier is green (pool and here).
 
 ### Human
+- [ ] The longer Import and Export menus fit, and the import notice reads well, at three widths.
+  **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1441 --criterion 1`), who may escalate.
+  **Steps:**
+  1. `docs/reports/T-1441-shots/menu/{1024,1440,1920}-{import-open,export-open}.png`: Import lists 3 formats, Export 8;
+     every entry readable, the menu inside the window and on top, nothing overlapping.
+  2. `docs/reports/T-1441-shots/{1024,1440,1920}-after-{mermaid,csv}-import.png`: the imported map is laid out and
+     readable; the notice names what the format did not carry and is fully visible, not covering the map's first steps.
+  3. Optional: `docs/reports/T-1441-shots/exported/*.mmd` and `*.csv` read as a person would expect.
+  **Expected:** all of it reads cleanly. Note: the map id shows `_v2` in the after-import shots because the original
+  map is open in the same session; the designer never overwrites an open map on import.
+  **If not:** name the file and the element; the agent fixes and re-shoots.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -378,3 +421,7 @@ both, builds BPMN without a diagram, reuses the existing import, runs Clean, and
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1441-importexport-36-mermaid-and-csv-out-then.md
 - **Context:** Initial task creation
+
+### 2026-11-19T13:08:35Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
