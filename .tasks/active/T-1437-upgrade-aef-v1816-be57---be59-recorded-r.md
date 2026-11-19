@@ -6,6 +6,7 @@ description: >
 
 status: started-work
 workflow_type: build
+current_node: frw_3_run
 owner: agent
 horizon: now
 tags: []
@@ -275,6 +276,10 @@ closed through the recorded-ruling route.
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+test "$(sed -n 's/^version_sha: *//p' .framework.yaml)" = 6956275849f2041c5d419296ad3f140ab3c94fb0
+python3 tools/_t517-vendor-divergence.py
+.agentic-framework/bin/fw reviewer ruling record --help
+test ! -e .tasks/templates/inception.md.upstream
 
 ## RCA
 
