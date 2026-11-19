@@ -1,0 +1,53 @@
+flowchart LR
+%% arc-lifecycle — exported by AEF Workflow Designer (T-1441)
+%% aef-map arc-lifecycle arc-lifecycle
+  subgraph lane_hum["Human · Sovereignty"]
+    %% aef-lane hum sovereignty
+    n_approve_driver["Approve value drivers (human-only)"]
+    n_close_decide["Close or abandon? (human-only)"]
+    n_route{"Close or abandon?"}
+  end
+  subgraph lane_frw["Framework · Authority"]
+    %% aef-lane frw authority
+    n_end_closed(("Arc closed (immutable)"))
+    n_end_abandoned(("Arc abandoned (immutable)"))
+    n_close["Close arc (in-progress → closed) + record demo_evidence"]
+    n_abandon["Abandon arc (reason ≥30 chars)"]
+  end
+  subgraph lane_agt["Agent · Initiative"]
+    %% aef-lane agt initiative
+    n_req(("Arc proposed (headline mechanic identified)"))
+    n_tag["Tag member tasks (arc_id / arc: tag)"]
+    n_bvp["BVP rescore (writes PROPOSED scores only)"]
+    n_work["Work member tasks (each = own task-lifecycle + Evolution log)"]
+    n_create["Create arc (status draft, immutable arc-NNN)"]
+    n_start["Start arc (draft → in-progress)"]
+    n_review["Emit close review surface (Watchtower URL + QR)"]
+  end
+  n_req --> n_create
+  n_create --> n_start
+  n_start --> n_tag
+  n_tag --> n_bvp
+  n_bvp --> n_approve_driver
+  n_approve_driver --> n_work
+  n_work --> n_review
+  n_review --> n_close_decide
+  n_close_decide --> n_route
+  n_route -->|"close (demo evidence)"| n_close
+  n_route -->|"abandon"| n_abandon
+  n_close --> n_end_closed
+  n_abandon --> n_end_abandoned
+  %% aef-step n_req startEvent n_req agt_start_arc
+  %% aef-step n_end_closed endEvent n_end_closed frw_end_arc_2
+  %% aef-step n_end_abandoned endEvent n_end_abandoned frw_end_arc
+  %% aef-step n_tag serviceTask n_tag agt_3_tag
+  %% aef-step n_bvp serviceTask n_bvp agt_4_bvp
+  %% aef-step n_work serviceTask n_work agt_5_work
+  %% aef-step n_approve_driver userTask n_approve_driver hum_1_approve
+  %% aef-step n_close_decide userTask n_close_decide hum_2_close
+  %% aef-step n_create scriptTask n_create agt_1_create
+  %% aef-step n_start scriptTask n_start agt_2_start
+  %% aef-step n_review scriptTask n_review agt_6_emit
+  %% aef-step n_close scriptTask n_close frw_2_close
+  %% aef-step n_abandon scriptTask n_abandon frw_1_abandon
+  %% aef-step n_route exclusiveGateway n_route hum_gw_close

@@ -48,7 +48,9 @@ let cl;
 const MODEL = `(function(){ const ln = id => { const l = (state.lanes || []).find(x => x.id === id); return l ? l.name : ''; };
   return { steps: state.nodes.map(n => [n.uid, n.name || '', n.type, ln(n.lane)].join(' | ')).sort(),
            flows: (state.edges || []).map(e => e.source + ' -> ' + e.target + ' : ' + (e.name || '')).sort(),
-           ids: Object.fromEntries(state.nodes.map(n => [n.uid, displayIdOf(n)])) }; })()`;
+           ids: Object.fromEntries(state.nodes.map(n => [n.uid, displayIdOf(n)])),
+           wid: state.workflowMeta.id, lanes: (state.lanes || []).map(l => l.name),
+           usedLanes: (state.lanes || []).filter(l => state.nodes.some(n => n.lane === l.id)).map(l => l.name) }; })()`;
 try {
   let dp; for (let i = 0; i < 150 && !dp; i++) { try { dp = parseInt(readFileSync(join(udd, 'DevToolsActivePort'), 'utf8').split('\n')[0], 10); } catch (_) { await sleep(100); } }
   cl = cdp(await pageWsUrl(dp), { cmdMs: 60000, onEvent: m => events.push(m) }); await cl.ready; const { cmd } = cl;
@@ -81,7 +83,7 @@ try {
     for (let i = 0; i < 150; i++) { if (await ev(`typeof _appReady!=='undefined'&&_appReady===true&&state.nodes.length>0`).catch(() => false)) break; await sleep(150); }
     await sleep(400);
     const orig = await ev(MODEL);
-    const laneCount = await ev(`new Set(state.nodes.map(n => n.lane).filter(Boolean)).size`);
+    const laneCount = await ev(`(state.lanes || []).length`);   // empty lanes are exported too
 
     // M1 Mermaid
     const mm = await exportVia('mermaid');
@@ -118,8 +120,13 @@ try {
       const diff = sameSteps && sameFlows ? '' : ` first step diff: ${JSON.stringify(orig.steps.find(x => !back.steps.includes(x)) || back.steps.find(x => !orig.steps.includes(x)) || '')}; BACK: ${JSON.stringify(back.steps.find(x => x.includes((orig.steps.find(y => !back.steps.includes(y)) || "").split(" | ")[1] || "@@")))}; first flow diff: ${JSON.stringify(orig.flows.find(x => !back.flows.includes(x)) || back.flows.find(x => !orig.flows.includes(x)) || '')}`;
       const renum = Object.keys(orig.ids).filter(u => back.ids[u] !== undefined && back.ids[u] !== orig.ids[u]);
       const prefixKept = Object.keys(orig.ids).every(u => back.ids[u] === undefined || back.ids[u].split('_')[0] === orig.ids[u].split('_')[0]);
-      leg(imp.chooser && !imp.alert && sameSteps && sameFlows && prefixKept, `R${n} [${tag}] Import → ${k} of that file gives back the same steps (permanent id, name, type, lane) and flows; lane codes kept`,
-          `steps ${back.steps.length}/${orig.steps.length}, flows ${back.flows.length}/${orig.flows.length}; visible ids renumbered by the new layout: ${renum.length}${renum.length ? ' (e.g. ' + orig.ids[renum[0]] + ' -> ' + back.ids[renum[0]] + ')' : ''}${imp.alert ? ', alert: ' + imp.alert : ''}${diff}`);
+      // the map keeps its own id; Mermaid brings back every lane (empty ones too), CSV every lane that holds a step
+      const wantLanes = k === 'mermaid' ? orig.lanes : orig.usedLanes;
+      const lanesOk = JSON.stringify(back.lanes) === JSON.stringify(wantLanes);
+      // a map id already open gets _v2, _v3 … (adoptImportedXml's collision rule, as for a second BPMN import)
+      const idOk = back.wid === orig.wid || new RegExp('^' + orig.wid.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '_v\\d+$').test(back.wid);
+      leg(imp.chooser && !imp.alert && sameSteps && sameFlows && prefixKept && lanesOk && idOk, `R${n} [${tag}] Import → ${k} of that file gives back the same map id, lanes, steps (permanent id, name, type, lane) and flows; lane codes kept`,
+          `map id ${back.wid}${idOk ? '' : ' (want ' + orig.wid + ')'}, lanes ${JSON.stringify(back.lanes)}${lanesOk ? '' : ' want ' + JSON.stringify(wantLanes)}, steps ${back.steps.length}/${orig.steps.length}, flows ${back.flows.length}/${orig.flows.length}; visible ids renumbered by the new layout: ${renum.length}${renum.length ? ' (e.g. ' + orig.ids[renum[0]] + ' -> ' + back.ids[renum[0]] + ')' : ''}${imp.alert ? ', alert: ' + imp.alert : ''}${diff}`);
       const xml = await ev(`buildBpmnXml(state)`);
       const xp = join(dl, `${tag}-from-${k}.bpmn`); writeFileSync(xp, xml);
       if (OUT) writeFileSync(join(OUT, `${tag}-from-${k}.bpmn`), xml);

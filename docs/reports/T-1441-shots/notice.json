@@ -1,0 +1,74 @@
+[
+ {
+  "width": 1024,
+  "kind": "mermaid",
+  "notice": "⚠ imported from Mermaid: 14 steps and 17 flows; not in this format: positions (laid out by Clean, so the step numbers in the visible ids follow the new layout), the conditions on flows out of a gateway, and each step's details such as inputs, outputs and roles",
+  "rect": [
+   232,
+   87,
+   692,
+   171
+  ],
+  "inWindow": true
+ },
+ {
+  "width": 1024,
+  "kind": "csv",
+  "notice": "⚠ imported from CSV: 14 steps and 17 flows; not in this format: positions (laid out by Clean, so the step numbers in the visible ids follow the new layout), the conditions on flows out of a gateway, and each step's details such as inputs, outputs and roles, and lanes that hold no step",
+  "rect": [
+   232,
+   87,
+   692,
+   171
+  ],
+  "inWindow": true
+ },
+ {
+  "width": 1440,
+  "kind": "mermaid",
+  "notice": "⚠ imported from Mermaid: 14 steps and 17 flows; not in this format: positions (laid out by Clean, so the step numbers in the visible ids follow the new layout), the conditions on flows out of a gateway, and each step's details such as inputs, outputs and roles",
+  "rect": [
+   232,
+   87,
+   1108,
+   136
+  ],
+  "inWindow": true
+ },
+ {
+  "width": 1440,
+  "kind": "csv",
+  "notice": "⚠ imported from CSV: 14 steps and 17 flows; not in this format: positions (laid out by Clean, so the step numbers in the visible ids follow the new layout), the conditions on flows out of a gateway, and each step's details such as inputs, outputs and roles, and lanes that hold no step",
+  "rect": [
+   232,
+   87,
+   1108,
+   136
+  ],
+  "inWindow": true
+ },
+ {
+  "width": 1920,
+  "kind": "mermaid",
+  "notice": "⚠ imported from Mermaid: 14 steps and 17 flows; not in this format: positions (laid out by Clean, so the step numbers in the visible ids follow the new layout), the conditions on flows out of a gateway, and each step's details such as inputs, outputs and roles",
+  "rect": [
+   232,
+   60,
+   1588,
+   109
+  ],
+  "inWindow": true
+ },
+ {
+  "width": 1920,
+  "kind": "csv",
+  "notice": "⚠ imported from CSV: 14 steps and 17 flows; not in this format: positions (laid out by Clean, so the step numbers in the visible ids follow the new layout), the conditions on flows out of a gateway, and each step's details such as inputs, outputs and roles, and lanes that hold no step",
+  "rect": [
+   232,
+   60,
+   1588,
+   109
+  ],
+  "inWindow": true
+ }
+]

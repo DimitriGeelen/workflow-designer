@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_audit-process_v2"
+                  exporter="aef-workflow-designer"
+                  targetNamespace="http://bpmn.io/schema/bpmn">
+
+  <bpmn:collaboration id="Collaboration_audit-process_v2">
+    <bpmn:participant id="Pool_audit-process" name="audit-process" processRef="Process_audit-process_v2"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_audit-process_v2" isExecutable="false">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="audit-process_v2" uuid="2fda711c-664c-45f7-af47-1ee26dcddc7c" version="1" schemaVersion="2" title="audit-process" tier_default="2"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="Lane_1" name="Human · Sovereignty">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="hum" authority="sovereignty" height="80"/>
+        </bpmn:extensionElements>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_2" name="Framework · Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="108"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>frw_end_audit_3</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_end_audit</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_end_audit_2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_1_compliance</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_2_traceability</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_3_enforcement</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_4_learning</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_5_discovery</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_6_aggregate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_7_push</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_gw_worst</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_gw_fan</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_gw_join</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_3" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="96"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>agt_start_audit</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:endEvent id="frw_end_audit_3" name="Audit FAIL (exit 2)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_end_fail"/>
+        <aef:position x="2200.0" y="178.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_17</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="frw_end_audit" name="Audit WARN (exit 1)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_end_warn"/>
+        <aef:position x="1720.0" y="178.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_15</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="frw_end_audit_2" name="Audit PASS (exit 0)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_end_pass"/>
+        <aef:position x="1880.0" y="178.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_16</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:scriptTask id="frw_1_compliance" name="Compliance checks (task refs, gates, structure)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_compliance"/>
+        <aef:position x="440.0" y="164.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_2</bpmn:incoming>
+      <bpmn:outgoing>flow_7</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_2_traceability" name="Traceability checks (commit ↔ task P-002)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_traceability"/>
+        <aef:position x="600.0" y="164.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_3</bpmn:incoming>
+      <bpmn:outgoing>flow_8</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_3_enforcement" name="Enforcement checks (hooks, baseline, bypass log)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_enforcement"/>
+        <aef:position x="760.0" y="164.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_4</bpmn:incoming>
+      <bpmn:outgoing>flow_9</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_4_learning" name="Learning / episodic completeness checks">
+      <bpmn:extensionElements>
+        <aef:uid value="n_learning"/>
+        <aef:position x="920.0" y="164.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_5</bpmn:incoming>
+      <bpmn:outgoing>flow_10</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_5_discovery" name="Discovery checks (D1–D9 trend scans)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_discovery"/>
+        <aef:position x="1080.0" y="164.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_6</bpmn:incoming>
+      <bpmn:outgoing>flow_11</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_6_aggregate" name="Aggregate findings → tally + audit record">
+      <bpmn:extensionElements>
+        <aef:uid value="n_aggregate"/>
+        <aef:position x="1400.0" y="164.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_12</bpmn:incoming>
+      <bpmn:outgoing>flow_13</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_7_push" name="Push failure notification (T-709)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_notify"/>
+        <aef:position x="2040.0" y="164.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_14</bpmn:incoming>
+      <bpmn:outgoing>flow_17</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:exclusiveGateway id="frw_gw_worst" name="Worst finding level?">
+      <bpmn:extensionElements>
+        <aef:uid value="n_verdict"/>
+        <aef:position x="1560.0" y="172.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_13</bpmn:incoming>
+      <bpmn:outgoing>flow_14</bpmn:outgoing>
+      <bpmn:outgoing>flow_15</bpmn:outgoing>
+      <bpmn:outgoing>flow_16</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:parallelGateway id="frw_gw_fan" name="Fan out to check sections">
+      <bpmn:extensionElements>
+        <aef:uid value="n_fork"/>
+        <aef:position x="280.0" y="172.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_1</bpmn:incoming>
+      <bpmn:outgoing>flow_2</bpmn:outgoing>
+      <bpmn:outgoing>flow_3</bpmn:outgoing>
+      <bpmn:outgoing>flow_4</bpmn:outgoing>
+      <bpmn:outgoing>flow_5</bpmn:outgoing>
+      <bpmn:outgoing>flow_6</bpmn:outgoing>
+    </bpmn:parallelGateway>
+
+    <bpmn:parallelGateway id="frw_gw_join" name="Join — all sections complete">
+      <bpmn:extensionElements>
+        <aef:uid value="n_join"/>
+        <aef:position x="1240.0" y="172.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_7</bpmn:incoming>
+      <bpmn:incoming>flow_8</bpmn:incoming>
+      <bpmn:incoming>flow_9</bpmn:incoming>
+      <bpmn:incoming>flow_10</bpmn:incoming>
+      <bpmn:incoming>flow_11</bpmn:incoming>
+      <bpmn:outgoing>flow_12</bpmn:outgoing>
+    </bpmn:parallelGateway>
+
+    <bpmn:startEvent id="agt_start_audit" name="Audit requested">
+      <bpmn:extensionElements>
+        <aef:uid value="n_trigger"/>
+        <aef:position x="120.0" y="280.0"/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_start_audit" targetRef="frw_gw_fan">
+      <bpmn:extensionElements>
+        <aef:uid value="e_733430bd"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_1"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_2" sourceRef="frw_gw_fan" targetRef="frw_1_compliance">
+      <bpmn:extensionElements>
+        <aef:uid value="e_70342c04"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_2"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_3" sourceRef="frw_gw_fan" targetRef="frw_2_traceability">
+      <bpmn:extensionElements>
+        <aef:uid value="e_71342d97"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_3"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_4" sourceRef="frw_gw_fan" targetRef="frw_3_enforcement">
+      <bpmn:extensionElements>
+        <aef:uid value="e_6e3428de"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_4"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_5" sourceRef="frw_gw_fan" targetRef="frw_4_learning">
+      <bpmn:extensionElements>
+        <aef:uid value="e_6f342a71"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_5"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_6" sourceRef="frw_gw_fan" targetRef="frw_5_discovery">
+      <bpmn:extensionElements>
+        <aef:uid value="e_6c3425b8"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_6"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_7" sourceRef="frw_1_compliance" targetRef="frw_gw_join">
+      <bpmn:extensionElements>
+        <aef:uid value="e_6d34274b"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_7"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_8" sourceRef="frw_2_traceability" targetRef="frw_gw_join">
+      <bpmn:extensionElements>
+        <aef:uid value="e_6a342292"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_8"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_9" sourceRef="frw_3_enforcement" targetRef="frw_gw_join">
+      <bpmn:extensionElements>
+        <aef:uid value="e_6b342425"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_9"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_10" sourceRef="frw_4_learning" targetRef="frw_gw_join">
+      <bpmn:extensionElements>
+        <aef:uid value="e_e8286df7"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_10"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_11" sourceRef="frw_5_discovery" targetRef="frw_gw_join">
+      <bpmn:extensionElements>
+        <aef:uid value="e_e7286c64"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_11"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_12" sourceRef="frw_gw_join" targetRef="frw_6_aggregate">
+      <bpmn:extensionElements>
+        <aef:uid value="e_ea28711d"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_12"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_13" sourceRef="frw_6_aggregate" targetRef="frw_gw_worst">
+      <bpmn:extensionElements>
+        <aef:uid value="e_e9286f8a"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_13"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_14" name="any FAIL" sourceRef="frw_gw_worst" targetRef="frw_7_push">
+      <bpmn:extensionElements>
+        <aef:uid value="e_e42867ab"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_14"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_15" name="any WARN (no FAIL)" sourceRef="frw_gw_worst" targetRef="frw_end_audit">
+      <bpmn:extensionElements>
+        <aef:uid value="e_e3286618"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_15"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_16" name="clean" sourceRef="frw_gw_worst" targetRef="frw_end_audit_2">
+      <bpmn:extensionElements>
+        <aef:uid value="e_e6286ad1"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_16"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_17" sourceRef="frw_7_push" targetRef="frw_end_audit_3">
+      <bpmn:extensionElements>
+        <aef:uid value="e_e528693e"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_17"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_audit-process_v2">
+    <bpmndi:BPMNPlane id="BPMNPlane_audit-process_v2" bpmnElement="Process_audit-process_v2">
+      <bpmndi:BPMNShape id="BPMNShape_frw_end_audit_3" bpmnElement="frw_end_audit_3">
+        <dc:Bounds x="2200.0" y="178.0" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_end_audit" bpmnElement="frw_end_audit">
+        <dc:Bounds x="1720.0" y="178.0" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_end_audit_2" bpmnElement="frw_end_audit_2">
+        <dc:Bounds x="1880.0" y="178.0" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_1_compliance" bpmnElement="frw_1_compliance">
+        <dc:Bounds x="440.0" y="164.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_2_traceability" bpmnElement="frw_2_traceability">
+        <dc:Bounds x="600.0" y="164.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_3_enforcement" bpmnElement="frw_3_enforcement">
+        <dc:Bounds x="760.0" y="164.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_4_learning" bpmnElement="frw_4_learning">
+        <dc:Bounds x="920.0" y="164.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_5_discovery" bpmnElement="frw_5_discovery">
+        <dc:Bounds x="1080.0" y="164.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_6_aggregate" bpmnElement="frw_6_aggregate">
+        <dc:Bounds x="1400.0" y="164.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_7_push" bpmnElement="frw_7_push">
+        <dc:Bounds x="2040.0" y="164.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_gw_worst" bpmnElement="frw_gw_worst">
+        <dc:Bounds x="1560.0" y="172.0" width="48" height="48"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_gw_fan" bpmnElement="frw_gw_fan">
+        <dc:Bounds x="280.0" y="172.0" width="48" height="48"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_gw_join" bpmnElement="frw_gw_join">
+        <dc:Bounds x="1240.0" y="172.0" width="48" height="48"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_agt_start_audit" bpmnElement="agt_start_audit">
+        <dc:Bounds x="120.0" y="280.0" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_1" bpmnElement="flow_1">
+        <di:waypoint x="138.0" y="280.0"/>
+        <di:waypoint x="138.0" y="196.0"/>
+        <di:waypoint x="280.0" y="196.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_2" bpmnElement="flow_2">
+        <di:waypoint x="328.0" y="184.2"/>
+        <di:waypoint x="382.0" y="184.2"/>
+        <di:waypoint x="382.0" y="196.0"/>
+        <di:waypoint x="440.0" y="196.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_3" bpmnElement="flow_3">
+        <di:waypoint x="328.0" y="207.8"/>
+        <di:waypoint x="374.0" y="207.8"/>
+        <di:waypoint x="374.0" y="264.0"/>
+        <di:waypoint x="578.0" y="264.0"/>
+        <di:waypoint x="578.0" y="196.0"/>
+        <di:waypoint x="600.0" y="196.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_4" bpmnElement="flow_4">
+        <di:waypoint x="328.0" y="196.0"/>
+        <di:waypoint x="358.0" y="196.0"/>
+        <di:waypoint x="358.0" y="264.0"/>
+        <di:waypoint x="738.0" y="264.0"/>
+        <di:waypoint x="738.0" y="196.0"/>
+        <di:waypoint x="760.0" y="196.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_5" bpmnElement="flow_5">
+        <di:waypoint x="328.0" y="201.9"/>
+        <di:waypoint x="366.0" y="201.9"/>
+        <di:waypoint x="366.0" y="264.0"/>
+        <di:waypoint x="898.0" y="264.0"/>
+        <di:waypoint x="898.0" y="196.0"/>
+        <di:waypoint x="920.0" y="196.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_6" bpmnElement="flow_6">
+        <di:waypoint x="328.0" y="190.1"/>
+        <di:waypoint x="350.0" y="190.1"/>
+        <di:waypoint x="350.0" y="264.0"/>
+        <di:waypoint x="1058.0" y="264.0"/>
+        <di:waypoint x="1058.0" y="196.0"/>
+        <di:waypoint x="1080.0" y="196.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_7" bpmnElement="flow_7">
+        <di:waypoint x="550.0" y="196.0"/>
+        <di:waypoint x="572.0" y="196.0"/>
+        <di:waypoint x="572.0" y="264.0"/>
+        <di:waypoint x="1202.0" y="264.0"/>
+        <di:waypoint x="1202.0" y="201.9"/>
+        <di:waypoint x="1240.0" y="201.9"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_8" bpmnElement="flow_8">
+        <di:waypoint x="710.0" y="196.0"/>
+        <di:waypoint x="732.0" y="196.0"/>
+        <di:waypoint x="732.0" y="264.0"/>
+        <di:waypoint x="1218.0" y="264.0"/>
+        <di:waypoint x="1218.0" y="190.1"/>
+        <di:waypoint x="1240.0" y="190.1"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_9" bpmnElement="flow_9">
+        <di:waypoint x="870.0" y="196.0"/>
+        <di:waypoint x="892.0" y="196.0"/>
+        <di:waypoint x="892.0" y="264.0"/>
+        <di:waypoint x="1210.0" y="264.0"/>
+        <di:waypoint x="1210.0" y="196.0"/>
+        <di:waypoint x="1240.0" y="196.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_10" bpmnElement="flow_10">
+        <di:waypoint x="975.0" y="164.0"/>
+        <di:waypoint x="975.0" y="142.0"/>
+        <di:waypoint x="1264.0" y="142.0"/>
+        <di:waypoint x="1264.0" y="172.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_11" bpmnElement="flow_11">
+        <di:waypoint x="1190.0" y="196.0"/>
+        <di:waypoint x="1215.0" y="196.0"/>
+        <di:waypoint x="1215.0" y="184.2"/>
+        <di:waypoint x="1240.0" y="184.2"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_12" bpmnElement="flow_12">
+        <di:waypoint x="1288.0" y="196.0"/>
+        <di:waypoint x="1400.0" y="196.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_13" bpmnElement="flow_13">
+        <di:waypoint x="1510.0" y="196.0"/>
+        <di:waypoint x="1560.0" y="196.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_14" bpmnElement="flow_14">
+        <di:waypoint x="1608.0" y="196.0"/>
+        <di:waypoint x="1630.0" y="196.0"/>
+        <di:waypoint x="1630.0" y="264.0"/>
+        <di:waypoint x="2018.0" y="264.0"/>
+        <di:waypoint x="2018.0" y="196.0"/>
+        <di:waypoint x="2040.0" y="196.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_15" bpmnElement="flow_15">
+        <di:waypoint x="1608.0" y="196.0"/>
+        <di:waypoint x="1720.0" y="196.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_16" bpmnElement="flow_16">
+        <di:waypoint x="1608.0" y="204.0"/>
+        <di:waypoint x="1638.0" y="204.0"/>
+        <di:waypoint x="1638.0" y="264.0"/>
+        <di:waypoint x="1858.0" y="264.0"/>
+        <di:waypoint x="1858.0" y="196.0"/>
+        <di:waypoint x="1880.0" y="196.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_17" bpmnElement="flow_17">
+        <di:waypoint x="2150.0" y="196.0"/>
+        <di:waypoint x="2200.0" y="196.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

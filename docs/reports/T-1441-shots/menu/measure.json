@@ -1,0 +1,203 @@
+[
+ {
+  "width": 1024,
+  "state": "closed",
+  "imp": [
+   184,
+   39,
+   255,
+   68
+  ],
+  "exp": [
+   259,
+   39,
+   329,
+   68
+  ],
+  "headerBottom": 75
+ },
+ {
+  "width": 1024,
+  "state": "import-open",
+  "imp": [
+   184,
+   39,
+   255,
+   68
+  ],
+  "exp": [
+   259,
+   39,
+   329,
+   68
+  ],
+  "headerBottom": 75,
+  "menu": [
+   184,
+   72,
+   415,
+   175
+  ],
+  "menuOnTop": true,
+  "inWindow": true
+ },
+ {
+  "width": 1024,
+  "state": "export-open",
+  "imp": [
+   184,
+   39,
+   255,
+   68
+  ],
+  "exp": [
+   259,
+   39,
+   329,
+   68
+  ],
+  "headerBottom": 75,
+  "menu": [
+   259,
+   72,
+   489,
+   330
+  ],
+  "menuOnTop": true,
+  "inWindow": true
+ },
+ {
+  "width": 1440,
+  "state": "closed",
+  "imp": [
+   1224,
+   9,
+   1295,
+   38
+  ],
+  "exp": [
+   1299,
+   9,
+   1370,
+   38
+  ],
+  "headerBottom": 48
+ },
+ {
+  "width": 1440,
+  "state": "import-open",
+  "imp": [
+   1224,
+   9,
+   1295,
+   38
+  ],
+  "exp": [
+   1299,
+   9,
+   1370,
+   38
+  ],
+  "headerBottom": 48,
+  "menu": [
+   1064,
+   42,
+   1295,
+   145
+  ],
+  "menuOnTop": true,
+  "inWindow": true
+ },
+ {
+  "width": 1440,
+  "state": "export-open",
+  "imp": [
+   1224,
+   9,
+   1295,
+   38
+  ],
+  "exp": [
+   1299,
+   9,
+   1370,
+   38
+  ],
+  "headerBottom": 48,
+  "menu": [
+   1140,
+   42,
+   1370,
+   300
+  ],
+  "menuOnTop": true,
+  "inWindow": true
+ },
+ {
+  "width": 1920,
+  "state": "closed",
+  "imp": [
+   1704,
+   9,
+   1775,
+   38
+  ],
+  "exp": [
+   1779,
+   9,
+   1850,
+   38
+  ],
+  "headerBottom": 48
+ },
+ {
+  "width": 1920,
+  "state": "import-open",
+  "imp": [
+   1704,
+   9,
+   1775,
+   38
+  ],
+  "exp": [
+   1779,
+   9,
+   1850,
+   38
+  ],
+  "headerBottom": 48,
+  "menu": [
+   1544,
+   42,
+   1775,
+   145
+  ],
+  "menuOnTop": true,
+  "inWindow": true
+ },
+ {
+  "width": 1920,
+  "state": "export-open",
+  "imp": [
+   1704,
+   9,
+   1775,
+   38
+  ],
+  "exp": [
+   1779,
+   9,
+   1850,
+   38
+  ],
+  "headerBottom": 48,
+  "menu": [
+   1620,
+   42,
+   1850,
+   300
+  ],
+  "menuOnTop": true,
+  "inWindow": true
+ }
+]

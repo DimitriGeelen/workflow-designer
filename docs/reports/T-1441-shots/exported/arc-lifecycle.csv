@@ -1,0 +1,15 @@
+id,name,type,lane,next,next_labels,lane_code,lane_authority,uid
+hum_1_approve,Approve value drivers (human-only),userTask,Human · Sovereignty,agt_5_work,,hum,sovereignty,n_approve_driver
+hum_2_close,Close or abandon? (human-only),userTask,Human · Sovereignty,hum_gw_close,,hum,sovereignty,n_close_decide
+hum_gw_close,Close or abandon?,exclusiveGateway,Human · Sovereignty,frw_2_close;frw_1_abandon,close (demo evidence);abandon,hum,sovereignty,n_route
+frw_end_arc_2,Arc closed (immutable),endEvent,Framework · Authority,,,frw,authority,n_end_closed
+frw_end_arc,Arc abandoned (immutable),endEvent,Framework · Authority,,,frw,authority,n_end_abandoned
+frw_2_close,Close arc (in-progress → closed) + record demo_evidence,scriptTask,Framework · Authority,frw_end_arc_2,,frw,authority,n_close
+frw_1_abandon,Abandon arc (reason ≥30 chars),scriptTask,Framework · Authority,frw_end_arc,,frw,authority,n_abandon
+agt_start_arc,Arc proposed (headline mechanic identified),startEvent,Agent · Initiative,agt_1_create,,agt,initiative,n_req
+agt_3_tag,Tag member tasks (arc_id / arc: tag),serviceTask,Agent · Initiative,agt_4_bvp,,agt,initiative,n_tag
+agt_4_bvp,BVP rescore (writes PROPOSED scores only),serviceTask,Agent · Initiative,hum_1_approve,,agt,initiative,n_bvp
+agt_5_work,Work member tasks (each = own task-lifecycle + Evolution log),serviceTask,Agent · Initiative,agt_6_emit,,agt,initiative,n_work
+agt_1_create,"Create arc (status draft, immutable arc-NNN)",scriptTask,Agent · Initiative,agt_2_start,,agt,initiative,n_create
+agt_2_start,Start arc (draft → in-progress),scriptTask,Agent · Initiative,agt_3_tag,,agt,initiative,n_start
+agt_6_emit,Emit close review surface (Watchtower URL + QR),scriptTask,Agent · Initiative,hum_2_close,,agt,initiative,n_review

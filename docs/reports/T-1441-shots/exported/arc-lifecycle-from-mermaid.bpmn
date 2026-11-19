@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_arc-lifecycle_v2"
+                  exporter="aef-workflow-designer"
+                  targetNamespace="http://bpmn.io/schema/bpmn">
+
+  <bpmn:collaboration id="Collaboration_arc-lifecycle_v2">
+    <bpmn:participant id="Pool_arc-lifecycle" name="arc-lifecycle" processRef="Process_arc-lifecycle_v2"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_arc-lifecycle_v2" isExecutable="false">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="arc-lifecycle_v2" uuid="8e06c0b1-05d6-455c-8b58-eadcfa7f2daf" version="1" schemaVersion="2" title="arc-lifecycle" tier_default="2"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="Lane_1" name="Human · Sovereignty">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="hum" authority="sovereignty" height="108"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>hum_1_approve</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hum_2_close</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hum_gw_close</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_2" name="Framework · Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="96"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>frw_end_arc</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_end_arc_2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_1_close</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_2_abandon</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_3" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="96"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>agt_start_arc</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_3_tag</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_4_bvp</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_5_work</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_1_create</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_2_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_6_emit</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:userTask id="hum_1_approve" name="Approve value drivers (human-only)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_approve_driver"/>
+        <aef:position x="920.0" y="84.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_5</bpmn:incoming>
+      <bpmn:outgoing>flow_6</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="hum_2_close" name="Close or abandon? (human-only)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_close_decide"/>
+        <aef:position x="1400.0" y="84.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_8</bpmn:incoming>
+      <bpmn:outgoing>flow_9</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="hum_gw_close" name="Close or abandon?">
+      <bpmn:extensionElements>
+        <aef:uid value="n_route"/>
+        <aef:position x="1560.0" y="92.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_9</bpmn:incoming>
+      <bpmn:outgoing>flow_10</bpmn:outgoing>
+      <bpmn:outgoing>flow_11</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="frw_end_arc" name="Arc closed (immutable)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_end_closed"/>
+        <aef:position x="2040.0" y="200.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_12</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="frw_end_arc_2" name="Arc abandoned (immutable)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_end_abandoned"/>
+        <aef:position x="2200.0" y="200.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_13</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:scriptTask id="frw_1_close" name="Close arc (in-progress → closed) + record demo_evidence">
+      <bpmn:extensionElements>
+        <aef:uid value="n_close"/>
+        <aef:position x="1720.0" y="186.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_10</bpmn:incoming>
+      <bpmn:outgoing>flow_12</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_2_abandon" name="Abandon arc (reason ≥30 chars)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_abandon"/>
+        <aef:position x="1880.0" y="186.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_11</bpmn:incoming>
+      <bpmn:outgoing>flow_13</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:startEvent id="agt_start_arc" name="Arc proposed (headline mechanic identified)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_req"/>
+        <aef:position x="120.0" y="296.0"/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:serviceTask id="agt_3_tag" name="Tag member tasks (arc_id / arc: tag)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_tag"/>
+        <aef:position x="600.0" y="282.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_3</bpmn:incoming>
+      <bpmn:outgoing>flow_4</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:serviceTask id="agt_4_bvp" name="BVP rescore (writes PROPOSED scores only)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_bvp"/>
+        <aef:position x="760.0" y="282.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_4</bpmn:incoming>
+      <bpmn:outgoing>flow_5</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:serviceTask id="agt_5_work" name="Work member tasks (each = own task-lifecycle + Evolution log)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_work"/>
+        <aef:position x="1080.0" y="282.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_6</bpmn:incoming>
+      <bpmn:outgoing>flow_7</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:scriptTask id="agt_1_create" name="Create arc (status draft, immutable arc-NNN)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_create"/>
+        <aef:position x="280.0" y="282.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_1</bpmn:incoming>
+      <bpmn:outgoing>flow_2</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="agt_2_start" name="Start arc (draft → in-progress)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_start"/>
+        <aef:position x="440.0" y="282.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_2</bpmn:incoming>
+      <bpmn:outgoing>flow_3</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="agt_6_emit" name="Emit close review surface (Watchtower URL + QR)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_review"/>
+        <aef:position x="1240.0" y="282.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_7</bpmn:incoming>
+      <bpmn:outgoing>flow_8</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_start_arc" targetRef="agt_1_create">
+      <bpmn:extensionElements>
+        <aef:uid value="e_733430bd"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_1"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_2" sourceRef="agt_1_create" targetRef="agt_2_start">
+      <bpmn:extensionElements>
+        <aef:uid value="e_70342c04"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_2"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_3" sourceRef="agt_2_start" targetRef="agt_3_tag">
+      <bpmn:extensionElements>
+        <aef:uid value="e_71342d97"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_3"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_4" sourceRef="agt_3_tag" targetRef="agt_4_bvp">
+      <bpmn:extensionElements>
+        <aef:uid value="e_6e3428de"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_4"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_5" sourceRef="agt_4_bvp" targetRef="hum_1_approve">
+      <bpmn:extensionElements>
+        <aef:uid value="e_6f342a71"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_5"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_6" sourceRef="hum_1_approve" targetRef="agt_5_work">
+      <bpmn:extensionElements>
+        <aef:uid value="e_6c3425b8"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_6"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_7" sourceRef="agt_5_work" targetRef="agt_6_emit">
+      <bpmn:extensionElements>
+        <aef:uid value="e_6d34274b"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_7"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_8" sourceRef="agt_6_emit" targetRef="hum_2_close">
+      <bpmn:extensionElements>
+        <aef:uid value="e_6a342292"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_8"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_9" sourceRef="hum_2_close" targetRef="hum_gw_close">
+      <bpmn:extensionElements>
+        <aef:uid value="e_6b342425"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_9"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_10" name="close (demo evidence)" sourceRef="hum_gw_close" targetRef="frw_1_close">
+      <bpmn:extensionElements>
+        <aef:uid value="e_e8286df7"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_10"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_11" name="abandon" sourceRef="hum_gw_close" targetRef="frw_2_abandon">
+      <bpmn:extensionElements>
+        <aef:uid value="e_e7286c64"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_11"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_12" sourceRef="frw_1_close" targetRef="frw_end_arc">
+      <bpmn:extensionElements>
+        <aef:uid value="e_ea28711d"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_12"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_13" sourceRef="frw_2_abandon" targetRef="frw_end_arc_2">
+      <bpmn:extensionElements>
+        <aef:uid value="e_e9286f8a"/>
+        <x832:origin xmlns:x832="urn:832-workflow-designer:origin:1" originalId="Flow_13"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_arc-lifecycle_v2">
+    <bpmndi:BPMNPlane id="BPMNPlane_arc-lifecycle_v2" bpmnElement="Process_arc-lifecycle_v2">
+      <bpmndi:BPMNShape id="BPMNShape_hum_1_approve" bpmnElement="hum_1_approve">
+        <dc:Bounds x="920.0" y="84.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_hum_2_close" bpmnElement="hum_2_close">
+        <dc:Bounds x="1400.0" y="84.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_hum_gw_close" bpmnElement="hum_gw_close">
+        <dc:Bounds x="1560.0" y="92.0" width="48" height="48"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_end_arc" bpmnElement="frw_end_arc">
+        <dc:Bounds x="2040.0" y="200.0" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_end_arc_2" bpmnElement="frw_end_arc_2">
+        <dc:Bounds x="2200.0" y="200.0" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_1_close" bpmnElement="frw_1_close">
+        <dc:Bounds x="1720.0" y="186.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_frw_2_abandon" bpmnElement="frw_2_abandon">
+        <dc:Bounds x="1880.0" y="186.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_agt_start_arc" bpmnElement="agt_start_arc">
+        <dc:Bounds x="120.0" y="296.0" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_agt_3_tag" bpmnElement="agt_3_tag">
+        <dc:Bounds x="600.0" y="282.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_agt_4_bvp" bpmnElement="agt_4_bvp">
+        <dc:Bounds x="760.0" y="282.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_agt_5_work" bpmnElement="agt_5_work">
+        <dc:Bounds x="1080.0" y="282.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_agt_1_create" bpmnElement="agt_1_create">
+        <dc:Bounds x="280.0" y="282.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_agt_2_start" bpmnElement="agt_2_start">
+        <dc:Bounds x="440.0" y="282.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_agt_6_emit" bpmnElement="agt_6_emit">
+        <dc:Bounds x="1240.0" y="282.0" width="110" height="64"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_1" bpmnElement="flow_1">
+        <di:waypoint x="156.0" y="314.0"/>
+        <di:waypoint x="280.0" y="314.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_2" bpmnElement="flow_2">
+        <di:waypoint x="390.0" y="314.0"/>
+        <di:waypoint x="440.0" y="314.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_3" bpmnElement="flow_3">
+        <di:waypoint x="550.0" y="314.0"/>
+        <di:waypoint x="600.0" y="314.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_4" bpmnElement="flow_4">
+        <di:waypoint x="710.0" y="314.0"/>
+        <di:waypoint x="760.0" y="314.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_5" bpmnElement="flow_5">
+        <di:waypoint x="815.0" y="282.0"/>
+        <di:waypoint x="815.0" y="116.0"/>
+        <di:waypoint x="920.0" y="116.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_6" bpmnElement="flow_6">
+        <di:waypoint x="975.0" y="148.0"/>
+        <di:waypoint x="975.0" y="314.0"/>
+        <di:waypoint x="1080.0" y="314.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_7" bpmnElement="flow_7">
+        <di:waypoint x="1190.0" y="314.0"/>
+        <di:waypoint x="1240.0" y="314.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_8" bpmnElement="flow_8">
+        <di:waypoint x="1295.0" y="282.0"/>
+        <di:waypoint x="1295.0" y="116.0"/>
+        <di:waypoint x="1400.0" y="116.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_9" bpmnElement="flow_9">
+        <di:waypoint x="1510.0" y="116.0"/>
+        <di:waypoint x="1560.0" y="116.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_10" bpmnElement="flow_10">
+        <di:waypoint x="1584.0" y="140.0"/>
+        <di:waypoint x="1584.0" y="218.0"/>
+        <di:waypoint x="1720.0" y="218.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_11" bpmnElement="flow_11">
+        <di:waypoint x="1608.0" y="116.0"/>
+        <di:waypoint x="1935.0" y="116.0"/>
+        <di:waypoint x="1935.0" y="186.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_12" bpmnElement="flow_12">
+        <di:waypoint x="1830.0" y="218.0"/>
+        <di:waypoint x="1852.0" y="218.0"/>
+        <di:waypoint x="1852.0" y="280.0"/>
+        <di:waypoint x="2018.0" y="280.0"/>
+        <di:waypoint x="2018.0" y="218.0"/>
+        <di:waypoint x="2040.0" y="218.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_flow_13" bpmnElement="flow_13">
+        <di:waypoint x="1990.0" y="218.0"/>
+        <di:waypoint x="2012.0" y="218.0"/>
+        <di:waypoint x="2012.0" y="280.0"/>
+        <di:waypoint x="2178.0" y="280.0"/>
+        <di:waypoint x="2178.0" y="218.0"/>
+        <di:waypoint x="2200.0" y="218.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

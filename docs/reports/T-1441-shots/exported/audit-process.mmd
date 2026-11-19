@@ -1,0 +1,57 @@
+flowchart LR
+%% audit-process — exported by AEF Workflow Designer (T-1441)
+%% aef-map audit-process audit-process
+  subgraph lane_hum["Human · Sovereignty"]
+    %% aef-lane hum sovereignty
+  end
+  subgraph lane_frw["Framework · Authority"]
+    %% aef-lane frw authority
+    n_end_fail(("Audit FAIL (exit 2)"))
+    n_end_warn(("Audit WARN (exit 1)"))
+    n_end_pass(("Audit PASS (exit 0)"))
+    n_compliance["Compliance checks (task refs, gates, structure)"]
+    n_traceability["Traceability checks (commit ↔ task P-002)"]
+    n_enforcement["Enforcement checks (hooks, baseline, bypass log)"]
+    n_learning["Learning / episodic completeness checks"]
+    n_discovery["Discovery checks (D1–D9 trend scans)"]
+    n_aggregate["Aggregate findings → tally + audit record"]
+    n_notify["Push failure notification (T-709)"]
+    n_verdict{"Worst finding level?"}
+    n_fork{"Fan out to check sections"}
+    n_join{"Join — all sections complete"}
+  end
+  subgraph lane_agt["Agent · Initiative"]
+    %% aef-lane agt initiative
+    n_trigger(("Audit requested"))
+  end
+  n_trigger --> n_fork
+  n_fork --> n_compliance
+  n_fork --> n_traceability
+  n_fork --> n_enforcement
+  n_fork --> n_learning
+  n_fork --> n_discovery
+  n_compliance --> n_join
+  n_traceability --> n_join
+  n_enforcement --> n_join
+  n_learning --> n_join
+  n_discovery --> n_join
+  n_join --> n_aggregate
+  n_aggregate --> n_verdict
+  n_verdict -->|"any FAIL"| n_notify
+  n_verdict -->|"any WARN (no FAIL)"| n_end_warn
+  n_verdict -->|"clean"| n_end_pass
+  n_notify --> n_end_fail
+  %% aef-step n_trigger startEvent n_trigger agt_start_audit
+  %% aef-step n_end_fail endEvent n_end_fail frw_end_audit_3
+  %% aef-step n_end_warn endEvent n_end_warn frw_end_audit_2
+  %% aef-step n_end_pass endEvent n_end_pass frw_end_audit
+  %% aef-step n_compliance scriptTask n_compliance frw_1_compliance
+  %% aef-step n_traceability scriptTask n_traceability frw_5_traceability
+  %% aef-step n_enforcement scriptTask n_enforcement frw_3_enforcement
+  %% aef-step n_learning scriptTask n_learning frw_4_learning
+  %% aef-step n_discovery scriptTask n_discovery frw_2_discovery
+  %% aef-step n_aggregate scriptTask n_aggregate frw_6_aggregate
+  %% aef-step n_notify scriptTask n_notify frw_7_push
+  %% aef-step n_verdict exclusiveGateway n_verdict frw_gw_worst
+  %% aef-step n_fork parallelGateway n_fork frw_gw_fan
+  %% aef-step n_join parallelGateway n_join frw_gw_join

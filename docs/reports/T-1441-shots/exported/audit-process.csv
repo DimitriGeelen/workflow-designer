@@ -1,0 +1,15 @@
+id,name,type,lane,next,next_labels,lane_code,lane_authority,uid
+frw_end_audit_3,Audit FAIL (exit 2),endEvent,Framework · Authority,,,frw,authority,n_end_fail
+frw_end_audit_2,Audit WARN (exit 1),endEvent,Framework · Authority,,,frw,authority,n_end_warn
+frw_end_audit,Audit PASS (exit 0),endEvent,Framework · Authority,,,frw,authority,n_end_pass
+frw_1_compliance,"Compliance checks (task refs, gates, structure)",scriptTask,Framework · Authority,frw_gw_join,,frw,authority,n_compliance
+frw_5_traceability,Traceability checks (commit ↔ task P-002),scriptTask,Framework · Authority,frw_gw_join,,frw,authority,n_traceability
+frw_3_enforcement,"Enforcement checks (hooks, baseline, bypass log)",scriptTask,Framework · Authority,frw_gw_join,,frw,authority,n_enforcement
+frw_4_learning,Learning / episodic completeness checks,scriptTask,Framework · Authority,frw_gw_join,,frw,authority,n_learning
+frw_2_discovery,Discovery checks (D1–D9 trend scans),scriptTask,Framework · Authority,frw_gw_join,,frw,authority,n_discovery
+frw_6_aggregate,Aggregate findings → tally + audit record,scriptTask,Framework · Authority,frw_gw_worst,,frw,authority,n_aggregate
+frw_7_push,Push failure notification (T-709),scriptTask,Framework · Authority,frw_end_audit_3,,frw,authority,n_notify
+frw_gw_worst,Worst finding level?,exclusiveGateway,Framework · Authority,frw_7_push;frw_end_audit_2;frw_end_audit,any FAIL;any WARN (no FAIL);clean,frw,authority,n_verdict
+frw_gw_fan,Fan out to check sections,parallelGateway,Framework · Authority,frw_1_compliance;frw_5_traceability;frw_3_enforcement;frw_4_learning;frw_2_discovery,;;;;,frw,authority,n_fork
+frw_gw_join,Join — all sections complete,parallelGateway,Framework · Authority,frw_6_aggregate,,frw,authority,n_join
+agt_start_audit,Audit requested,startEvent,Agent · Initiative,frw_gw_fan,,agt,initiative,n_trigger

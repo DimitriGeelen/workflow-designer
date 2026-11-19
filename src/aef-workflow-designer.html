@@ -13864,10 +13864,10 @@ function buildMermaid() {
   const m = bridgeModel();
   const shape = st => /Gateway$/.test(st.type) ? `{"${mermaidText(st.name || st.id)}"}`
     : /Event$/.test(st.type) ? `(("${mermaidText(st.name || st.id)}"))` : `["${mermaidText(st.name || st.id)}"]`;
-  const out = ['flowchart LR', `%% ${mermaidText(m.title)} — exported by AEF Workflow Designer (T-1441)`];
+  const out = ['flowchart LR', `%% ${mermaidText(m.title)} — exported by AEF Workflow Designer (T-1441)`,
+    `%% aef-map ${String(state.workflowMeta.id || 'map').replace(/\s+/g, '_')} ${mermaidText(m.title)}`];   // the map id as is: ids never hold spaces
   m.lanes.forEach((ln, i) => {
-    const inLane = m.steps.filter(st => st.lane === ln);
-    if (!inLane.length) return;
+    const inLane = m.steps.filter(st => st.lane === ln);   // an empty lane is written too, so it comes back
     const lm = m.laneMeta[ln] || {};
     out.push(`  subgraph ${lm.abbr && /^\w+$/.test(lm.abbr) ? 'lane_' + lm.abbr : 'lane_' + (i + 1)}["${mermaidText(ln)}"]`);
     if (lm.abbr || lm.authority) out.push(`    %% aef-lane ${lm.abbr || '-'} ${lm.authority || '-'}`);
@@ -13880,8 +13880,8 @@ function buildMermaid() {
   return out.join('\n') + '\n';
 }
 function parseMermaid(text) {
-  const steps = new Map(), flows = [], meta = {}, laneMeta = {};
-  let lane = '';
+  const steps = new Map(), flows = [], meta = {}, laneMeta = {}, lanes = [];
+  let lane = '', mapId = '', mapTitle = '';
   const unq = s => s.replace(/^"|"$/g, '').replace(/#quot;/g, '"');
   const node = (mid, raw) => {
     let st = steps.get(mid);
@@ -13898,9 +13898,10 @@ function parseMermaid(text) {
     let m;
     if (!line || /^(flowchart|graph)\b/.test(line)) continue;
     if ((m = /^%%\s*aef-step\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)/.exec(line))) { meta[m[1]] = { type: m[2], uid: m[3], id: m[4] }; continue; }
+    if ((m = /^%%\s*aef-map\s+(\S+)\s*(.*)$/.exec(line))) { mapId = m[1]; mapTitle = unq(m[2].trim()); continue; }
     if ((m = /^%%\s*aef-lane\s+(\S+)\s+(\S+)/.exec(line)) && lane) { laneMeta[lane] = { abbr: m[1] === '-' ? '' : m[1], authority: m[2] === '-' ? '' : m[2] }; continue; }
     if (line.startsWith('%%') || /^(classDef|class|style|linkStyle|click|direction)\b/.test(line)) continue;
-    if ((m = /^subgraph\s+[\w-]+\s*\[(.*)\]\s*$/.exec(line)) || (m = /^subgraph\s+(.*)$/.exec(line))) { lane = unq(m[1].trim()); continue; }
+    if ((m = /^subgraph\s+[\w-]+\s*\[(.*)\]\s*$/.exec(line)) || (m = /^subgraph\s+(.*)$/.exec(line))) { lane = unq(m[1].trim()); if (!lanes.includes(lane)) lanes.push(lane); continue; }
     if (line === 'end') { lane = ''; continue; }
     m = new RegExp(`^${NODE}\\s*-->\\s*(?:\\|(.*?)\\|\\s*)?${NODE}\\s*;?$`).exec(line);
     if (m) { const a = node(m[1], m[2]), b = node(m[4], m[5]); flows.push({ from: a.mid, to: b.mid, label: m[3] ? unq(m[3].trim()) : '' }); continue; }
@@ -13915,7 +13916,7 @@ function parseMermaid(text) {
     return { uid: mt.uid || st.mid, id: mt.id || st.mid, name: st.name, type, lane: st.lane };
   });
   const uidOf = mid => (meta[mid] && meta[mid].uid) || mid;
-  return { laneMeta, steps: out, flows: flows.map(f => ({ ...f, from: uidOf(f.from), to: uidOf(f.to) })) };
+  return { mapId, mapTitle, lanes, laneMeta, steps: out, flows: flows.map(f => ({ ...f, from: uidOf(f.from), to: uidOf(f.to) })) };
 }
 
 // CSV: one row per step (RFC 4180 quoting). `next` names the next steps by their visible id, `next_labels` the flows'
@@ -13926,7 +13927,9 @@ function buildCsv() {
   const m = bridgeModel();
   const idOfUid = new Map(m.steps.map(st => [st.uid, st.id]));
   const rows = [CSV_HEAD];
-  for (const st of m.steps) {
+  // Rows lane by lane: a CSV keeps no lane order but the order its rows appear in.
+  const laneRank = ln => { const i = m.lanes.indexOf(ln); return i < 0 ? m.lanes.length : i; };
+  for (const st of m.steps.slice().sort((a, b) => laneRank(a.lane) - laneRank(b.lane))) {
     const out = m.flows.filter(f => f.from === st.uid);
     const lm = m.laneMeta[st.lane] || {};
     rows.push([st.id, st.name, st.type, st.lane, out.map(f => idOfUid.get(f.to) || f.to).join(';'),
@@ -13978,12 +13981,14 @@ function bridgeToBpmn(model, workflowId, title) {
     const st = { uid: end, id: end, name: end, type: 'task', lane: '' }; model.steps.push(st); byUid.set(end, st); }
   const used = new Set(), elId = new Map();
   for (const st of model.steps) { let e = xid(st.id || st.uid), k = 2; while (used.has(e)) e = xid(st.id || st.uid) + '_' + k++; used.add(e); elId.set(st.uid, e); }
-  const lanes = [...new Set(model.steps.map(st => st.lane).filter(Boolean))];
+  const lanes = [...new Set([...(model.lanes || []), ...model.steps.map(st => st.lane)].filter(Boolean))];
   const W = esc(xid(workflowId));
   const L = [`<?xml version="1.0" encoding="UTF-8"?>`,
     `<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:aef="http://anchorpoint.framework/aef/extensions" id="Definitions_${W}" targetNamespace="http://bpmn.io/schema/bpmn">`,
     `  <bpmn:collaboration id="Collaboration_${W}"><bpmn:participant id="Pool_${W}" name="${esc(title)}" processRef="Process_${W}"/></bpmn:collaboration>`,
-    `  <bpmn:process id="Process_${W}" isExecutable="false">`];
+    `  <bpmn:process id="Process_${W}" isExecutable="false">`,
+    // the map's own identity (else the importer guesses it from the process id: "process_x")
+    `    <bpmn:extensionElements><aef:workflowMeta id="${esc(workflowId)}" title="${esc(title)}"/></bpmn:extensionElements>`];
   if (lanes.length) {
     L.push(`    <bpmn:laneSet id="LaneSet_${W}">`);
     lanes.forEach((ln, i) => {
@@ -14008,9 +14013,11 @@ function importBridgeText(kind, text, fileName) {
   const model = kind === 'mermaid' ? parseMermaid(text) : parseCsv(text);
   if (!model.steps.length) throw new Error(`no steps found in this ${kind === 'mermaid' ? 'Mermaid' : 'CSV'} file`);
   const base = String(fileName || 'imported').replace(/\.[^.]+$/, '').replace(/\.v\d+$/, '') || 'imported';
+  const id = (model.mapId && /^[\w.-]+$/.test(model.mapId) ? model.mapId : base).toLowerCase();
+  const title = model.mapTitle || id;
   _bridgeImportNote = `imported from ${kind === 'mermaid' ? 'Mermaid' : 'CSV'}: ${model.steps.length} steps and ` +
-    `${model.flows.length} flows; not in this format: ${BRIDGE_LOSS}`;
-  adoptImportedXml(bridgeToBpmn(model, base, base), { userImport: true });
+    `${model.flows.length} flows; not in this format: ${BRIDGE_LOSS}${kind === 'csv' ? ', and lanes that hold no step' : ''}`;
+  adoptImportedXml(bridgeToBpmn(model, id, title), { userImport: true });
   if (typeof cleanLayoutAll === 'function') cleanLayoutAll(); else $('btn-clean').click();
   openingZoom();
 }
