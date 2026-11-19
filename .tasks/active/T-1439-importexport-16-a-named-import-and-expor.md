@@ -110,10 +110,18 @@ its current behaviour. Nothing is lost at 1024/1440/1920.
       an outside click; at most one is open.
 - [ ] The menus are built from one list of formats, so a later task adds a format with one entry (T-1440..T-1444).
 - [ ] `bash tools/person-sees-gate.sh` exits 0, and the browser tier is green (pool and here).
-- [ ] [REVIEW] Screenshots of the toolbar and each open menu at 1024, 1440 and 1920 are judged by an independent
-      reviewer: both entries visible and reachable, the menus readable and unclipped, nothing overlapping.
 
 ### Human
+- [ ] [REVIEW] The toolbar's Import and Export menus read and fit at three widths, judged on the screenshots.
+  **Why you:** render surface: a person must see both entries and be able to read each open menu; the reviewer judges
+  the images, and may escalate.
+  **Steps:**
+  1. Open the nine screenshots in `docs/reports/T-1439-shots/`: `{1024,1440,1920}-{closed,import-open,export-open}.png`
+     (measurements of every rect in `docs/reports/T-1439-shots/measure.json`).
+  2. In each: "Import ▾" and "Export ▾" are visible and not cut off; in the `-open` shots the menu shows
+     "BPMN 2.0 / Camunda" with its file types, fully inside the window, on top of the canvas, nothing overlapping it.
+  **Expected:** all nine read cleanly at 1024, 1440 and 1920.
+  **If not:** name the file and the element; the agent fixes it and re-shoots.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -158,6 +166,22 @@ its current behaviour. Nothing is lost at 1024/1440/1920.
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+
+## Visual Verification
+
+Shots: `docs/reports/T-1439-shots/{1024,1440,1920}-{closed,import-open,export-open}.png` (generator `shots.mjs`,
+measurements `measure.json`). Gate first: `tools/person-sees-gate.sh` exit 0 (label-clearance, name-fit, sweep,
+note-box, toolbar-reach 21/21, project-browser; 305 s). Read by the agent shot by shot:
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| closed | Import ▾ | ok | ok | ok | 1024: second toolbar row (as before); 1440/1920: first row |
+| closed | Export ▾ | ok | ok | ok | Save still visible at 1920 on one row |
+| import-open | menu "BPMN 2.0 / Camunda .bpmn, .xml" | ok | ok | ok | opens leftwards at 1440/1920 (near the right edge), inside the window, on top |
+| export-open | menu "BPMN 2.0 / Camunda .bpmn" | ok | ok | ok | same |
+
+Advisory sweep (T-1278 practice) not run: no advisory reviewer CLI on this host and the surface is nine small shots
+of one control; the official review is the first independent read.
 
 ## Verification
 
