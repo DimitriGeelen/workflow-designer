@@ -117,7 +117,10 @@ page.
 - [x] A CDP harness covers all of the above on two corpus maps and is a browser-tier leg; it fails on the T-1439 designer.
       Evidence: `tools/_t1440-picture-export-cdp.mjs` 14 legs, leg `test_t1440_picture_export`; on the T-1439 designer it
       fails at once (no such menu items).
-- [ ] `bash tools/person-sees-gate.sh` exits 0 and the browser tier is green (pool and here).
+- [x] `bash tools/person-sees-gate.sh` exits 0 and the browser tier is green (pool and here).
+      Evidence: gate exit 0 (toolbar-reach 21/21). Browser tier: first run pool GREEN 145/0, local RED 143/2 under host
+      load 65 (_edge-straighten undo timing, _t263 CDP timeout; both pass alone, logged in build/tiergate/rerun-notes.log);
+      re-run GREEN 145/0 on both.
 
 ### Human
 - [ ] The exported pictures and PDF are a faithful, readable paper version of the map, and the longer Export menu fits.
@@ -315,6 +318,10 @@ page.
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+grep -q "function buildExportSvg" src/aef-workflow-designer.html
+grep -q "body.export-paper" src/aef-workflow-designer.html
+grep -q '_leg_t1440' tests/run-bridge-tests.sh
+test -f docs/reports/T-1440-shots/exported/audit-process-pdf-page-1.png
 
 ## RCA
 
