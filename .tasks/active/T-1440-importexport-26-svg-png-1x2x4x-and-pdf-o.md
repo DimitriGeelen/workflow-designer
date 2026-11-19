@@ -57,20 +57,34 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** T-1093 GO step 2 (operator ruling "a", 49ba6e34c). All three consumer projects asked for
+SVG (Greenfield, Sprind, AEF); Greenfield and Sprind put PDF first; the operator wants PDF to hand to people. The spike
+(`docs/reports/T-1093-spikes/picture-spike.mjs`, report §Step 2 "Pictures and print") measured the path.
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** the designer has no picture or PDF export. The spike showed the traps: serialising `#canvas`
+as is gives solid black shapes (paint comes from the stylesheet); editor chrome ("+ Add another lane") rides along;
+flow-label boxes render as black bars and event names too faint on white; printing prints the whole editor (no
+`@media print`).
 
-**Goal:** <what we are trying to achieve>
+**Goal:** Export → SVG, PNG (1x, 2x, 4x) and PDF, each a faithful picture of the map alone.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** three new IO_FORMATS export entries (T-1439's list); an SVG with no remote reference and no
+editor chrome; PNGs at three scales from that SVG; a PDF of the map alone through the browser's print, fitted to the
+page.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] Export → SVG downloads a standalone SVG of the map: every element's paint inlined, editor chrome left out,
+      **zero** remote references (no `url(http…)`, `href="http…"`, `@import`), and it renders as an image on its own.
+- [ ] The spike's three defects are gone in the exported picture: no black flow-label bars, event names readable on
+      white, no "+ Add another lane".
+- [ ] Export → PNG 1x / 2x / 4x downloads PNGs made from that SVG, each at its scale (a test checks the pixel sizes).
+- [ ] Export → PDF opens the browser's print with a print stylesheet that shows the map alone (no toolbar, palette or
+      panel), fitted to the page; a test prints to PDF and finds the map's step names and none of the toolbar's.
+- [ ] A CDP harness covers all of the above on two corpus maps and is a browser-tier leg; it fails on the T-1439 designer.
+- [ ] `bash tools/person-sees-gate.sh` exits 0 and the browser tier is green (pool and here).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
