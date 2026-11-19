@@ -35,6 +35,21 @@ try {
     for (let i = 0; i < 150; i++) { if (await ev(`typeof _appReady!=='undefined'&&_appReady===true`).catch(() => false)) break; await sleep(150); }
     await ev(`(async()=>{ const t = await (await fetch('m/gf.bpmn')).text(); await adoptImportedXml(t, { userImport: true }); await new Promise(r=>setTimeout(r,500)); })()`);
     await shot(`${w}-greenfield.png`);
+    if (w !== 1920) {
+      // T-1447 review: readable close-ups at this width — 100% zoom, both side panels hidden, the whole map in tiles
+      // (dismiss the import notices first, so they cover nothing)
+      await ev(`(function(){ for (const b of [...document.querySelectorAll('button')].filter(b => /^\\s*[×✕]\\s*$/.test(b.textContent) && b.offsetParent && b.getBoundingClientRect().top < 260)) { try { b.click(); } catch (_) {} }
+        document.getElementById('btn-toggle-palette').click(); document.getElementById('btn-toggle-props').click(); })()`);
+      await sleep(300);
+      await ev(`setZoom(1)`); await sleep(300);
+      const ext = await ev(`(function(){ const b = svg.getBBox(); const w = canvasWrap; return { sw: w.scrollWidth, sh: w.scrollHeight, cw: w.clientWidth, ch: w.clientHeight }; })()`);
+      let k = 0;
+      for (let y = 0; y < ext.sh; y += ext.ch - 40) for (let x = 0; x < ext.sw; x += ext.cw - 40) {
+        await ev(`(function(){ canvasWrap.scrollLeft = ${x}; canvasWrap.scrollTop = ${y}; })()`); await sleep(250);
+        const r = await ev(`(function(){ const b = canvasWrap.getBoundingClientRect(); return { x: b.left, y: b.top, width: canvasWrap.clientWidth, height: canvasWrap.clientHeight }; })()`);
+        await shot(`${w}-notes-${String(++k).padStart(2, '0')}.png`, r);
+      }
+    }
     if (w === 1920) {
       // a close-up: zoom so the notes read at full size, centred on the first note
       await ev(`(function(){ if (typeof setZoom === 'function') setZoom(1); else if (typeof applyCanvasZoom === 'function') { canvasZoom = 1; applyCanvasZoom(); } })()`);

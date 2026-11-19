@@ -5150,7 +5150,8 @@ function clearLabelsOfFlows() {
     const pl = polylineFromPath(p.getAttribute('d'));
     for (let i = 0; i < pl.length - 1; i++) segs.push([pl[i], pl[i + 1]]);
   }
-  if (!segs.length) return;
+  const notesOb = noteObstacles();   // T-1447
+  if (!segs.length && !notesOb.segs.length && !notesOb.boxes.length) return;
   // T-1277: a flow is not only its line. Its arrowheads (#arrow at the end, #arrow-source at the start, sized in
   // stroke widths) are 12 and 7.5 units wide, so a caption 6 units beside a vertical flow sat on the head of the flow
   // that ends on its node (agt_3_start, agt_6_completion on aef-task-lifecycle). Each head counts as an obstacle by its
@@ -5238,6 +5239,9 @@ function clearLabelsOfFlows() {
         for (const h of heads) if (inter(r, h)) { c += 10; hard++; }
         for (const o of others) if (inter(r, o)) { c += 10; hard++; }
         for (const s of shapes) if (inter(r, s)) c += 30;
+        // T-1447: a note's line, text or bracket is crossed like a flow or another label
+        for (const [a, b] of notesOb.segs) if (segHits(a, b, r)) { c += 10; hard++; }
+        for (const o of notesOb.boxes) if (inter(r, o)) { c += 10; hard++; }
         if (hasPool) {
           if (r.x1 < PX || r.x2 > PX + pw || r.y1 < bandTop || r.y2 > POOL_Y + ph) c += 1;
           if (r.x1 < PX + LANE_HEADER) c += 2;
@@ -5333,6 +5337,9 @@ function clearFlowLabels() {
   const allSegs = [];
   for (const [id, list] of segsOf) for (const s of list) allSegs.push([id, s[0], s[1]]);
   if (!allSegs.length) return;
+  // T-1447: a note's line is crossed like another flow, its text and bracket like a step's caption
+  const notesOb = noteObstacles();
+  notesOb.segs.forEach((s, i) => allSegs.push([`note-line:${i}`, s[0], s[1]]));
   const segHits = (a, b, r) => {
     let t0 = 0, t1 = 1;
     const dx = b.x - a.x, dy = b.y - a.y;
@@ -5351,7 +5358,7 @@ function clearFlowLabels() {
   const shapes = state.nodes.map(n => { const d = dims(n); return { x1: n.x - 2, y1: n.y - 2, x2: n.x + d.w + 2, y2: n.y + d.h + 2 }; });
   const nodeTextEls = Array.from(gNodes.querySelectorAll('text.node-label, text.node-id-badge, text.node-io-badge'))
     .filter(t => !t.closest('#g-sticky-lanes'));
-  const nodeBoxes = nodeTextEls.map(boxOf).filter(Boolean);
+  const nodeBoxes = nodeTextEls.map(boxOf).filter(Boolean).concat(notesOb.boxes);
   // Names and id captions as drawn (no pad), with their font size, for nearness.
   const nearRows = nodeTextEls.filter(t => !t.classList.contains('node-io-badge')).map(t => {
     const b = t.getBBox(); return b.width ? { x1: b.x, y1: b.y, x2: b.x + b.width, y2: b.y + b.height, em: parseFloat(getComputedStyle(t).fontSize) || 11 } : null;
@@ -15944,6 +15951,31 @@ function notesLayout(s) {
     return null;   // a flow, or something not on this map: only the file's own waypoints can draw it
   };
   const near = (r, p) => p.x >= r.x - 3 && p.x <= r.x + r.w + 3 && p.y >= r.y - 3 && p.y <= r.y + r.h + 3;
+  const stepRects = s.nodes.map(n => { const d = dims(n); return { uid: n.uid, x: n.x, y: n.y, w: d.w, h: d.h }; });
+  // An end that touches ANOTHER step reads as attached to that one (Greenfield's note 7: its line ends on Open Order's
+  // corner, against the step drawn just below it, so it seems to point at Open VO).
+  const ambiguousAt = (p, end) => stepRects.some(r => r.uid !== (end && end.node) && p.x >= r.x - 8 && p.x <= r.x + r.w + 8 && p.y >= r.y - 8 && p.y <= r.y + r.h + 8);
+  const segHitsRect = (a, b, r) => {
+    let t0 = 0, t1 = 1; const dx = b.x - a.x, dy = b.y - a.y;
+    const P = [-dx, dx, -dy, dy], Q = [a.x - r.x, r.x + r.w - a.x, a.y - r.y, r.y + r.h - a.y];
+    for (let i = 0; i < 4; i++) {
+      if (P[i] === 0) { if (Q[i] < 0) return false; continue; }
+      const t = Q[i] / P[i];
+      if (P[i] < 0) { if (t > t1) return false; if (t > t0) t0 = t; } else { if (t < t0) return false; if (t < t1) t1 = t; }
+    }
+    return t0 < t1;
+  };
+  // A straight line from A to the middle of one of Z's sides, the nearest whose line passes no other step; else null.
+  const sideRoute = (A, Z, zEnd, aEnd) => {
+    const mids = [{ x: Z.x, y: Z.y + Z.h / 2 }, { x: Z.x + Z.w, y: Z.y + Z.h / 2 }, { x: Z.x + Z.w / 2, y: Z.y }, { x: Z.x + Z.w / 2, y: Z.y + Z.h }];
+    const cands = mids.map(m => ({ m, a: rectExit(A, m.x, m.y) })).sort((p, q) => Math.hypot(p.m.x - p.a.x, p.m.y - p.a.y) - Math.hypot(q.m.x - q.a.x, q.m.y - q.a.y));
+    const skip = new Set([zEnd && zEnd.node, aEnd && aEnd.node]);
+    for (const c of cands) {
+      if (stepRects.some(r => !skip.has(r.uid) && segHitsRect(c.a, c.m, { x: r.x - 4, y: r.y - 4, w: r.w + 8, h: r.h + 8 }))) continue;
+      return [c.a, c.m];
+    }
+    return null;
+  };
   const drawn = [], undrawn = [];
   for (const l of links) {
     const A = rectOf(l.ends.sourceRef), Z = rectOf(l.ends.targetRef);
@@ -15951,9 +15983,30 @@ function notesLayout(s) {
     if (l.wps && (!A || near(A, l.wps[0])) && (!Z || near(Z, l.wps[l.wps.length - 1]))
         && (A || Z || (l.ends.sourceRef && l.ends.sourceRef.flow) || (l.ends.targetRef && l.ends.targetRef.flow))) pts = l.wps;
     else if (A && Z) pts = [rectExit(A, Z.x + Z.w / 2, Z.y + Z.h / 2), rectExit(Z, A.x + A.w / 2, A.y + A.h / 2)];
+    if (pts && A && Z) {
+      // T-1447 review (note 7): an end that reads as attached to the wrong step is re-attached to a clear side
+      if (l.ends.targetRef && l.ends.targetRef.node && ambiguousAt(pts[pts.length - 1], l.ends.targetRef)) pts = sideRoute(A, Z, l.ends.targetRef, l.ends.sourceRef) || pts;
+      else if (l.ends.sourceRef && l.ends.sourceRef.node && ambiguousAt(pts[0], l.ends.sourceRef)) { const r = sideRoute(Z, A, l.ends.sourceRef, l.ends.targetRef); if (r) pts = r.slice().reverse(); }
+    }
     (pts ? drawn : undrawn).push({ ...l, pts });
   }
   return { notes, links: drawn, undrawn };
+}
+// T-1447 review: the drawn notes as obstacles for the label passes (clearLabelsOfFlows, clearFlowLabels), so an id
+// caption or a flow label is not left on a note's text, bracket or line (Greenfield notes 5 and 8). Read off the DOM, as
+// those passes read the flows; empty when the map has no notes, so their placements are unchanged for every other map.
+function noteObstacles() {
+  const g = $('g-notes'), out = { segs: [], boxes: [] };
+  if (!g) return out;
+  for (const p of g.querySelectorAll('path[data-note-assoc]')) {
+    const pl = [...String(p.getAttribute('d')).matchAll(/(-?[\d.]+),(-?[\d.]+)/g)].map(m => ({ x: +m[1], y: +m[2] }));   // "x,y" pairs
+    for (let i = 0; i < pl.length - 1; i++) out.segs.push([pl[i], pl[i + 1]]);
+  }
+  for (const n of g.querySelectorAll('g[data-note]')) {
+    const b = n.getBBox();
+    if (b.width) out.boxes.push({ x1: b.x - 1, y1: b.y - 1, x2: b.x + b.width + 1, y2: b.y + b.height + 1 });
+  }
+  return out;
 }
 function renderNotes() {
   const g = $('g-notes'); if (!g) return;

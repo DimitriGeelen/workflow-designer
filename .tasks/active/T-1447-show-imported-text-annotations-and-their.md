@@ -130,9 +130,15 @@ bounds; associations draw as dotted lines (an arrowhead when associationDirectio
 - [ ] The workshop map's notes and links read well and look like BPMN text annotations, at three widths.
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1447 --criterion 1`), who may escalate.
   **Steps:**
-  1. `docs/reports/T-1447-shots/{1024,1440,1920}-greenfield.png`: every note readable, beside the step it belongs to,
-     its dotted line reaching that step; dotted task-to-task links visible with their arrowheads.
-  2. `docs/reports/T-1447-shots/greenfield-export.png`: the same on paper.
+  1. `docs/reports/T-1447-shots/{1024,1440,1920}-greenfield.png`: the opening view (fit) at each width.
+  2. `docs/reports/T-1447-shots/1024-notes-*.png` and `1440-notes-*.png`: the whole map at 100% in tiles, side panels
+     hidden, notices dismissed; `1920-closeup.png`. Every note readable, beside the step it belongs to, its dotted line
+     reaching that step; dotted task-to-task links visible with their arrowheads.
+  3. `docs/reports/T-1447-shots/greenfield-export.png`: the same on paper.
+  Round 1 (amber, V on 2026-11-19) asked for: readable close-ups at 1024/1440; note 7 visibly reaching Open Order; note
+  8's line visible and its bracket clear of `tac_6_order`; note 5's line clear of the flow label "wel". All four are
+  addressed (re-attach to a clear side when a line's end touches another step; notes are obstacles for id captions and
+  flow labels).
   **Expected:** the notes read as the map's content, nothing covers a step's name or a flow label it should not.
   **If not:** name the file and the note; the agent fixes and re-shoots.
 
