@@ -1,11 +1,17 @@
 ---
 id: T-1439
-name: "Import/Export 1/6: a named Import and Export menu, BPMN/Camunda listed (today hidden as Load…/Save)"
+name: "Import/Export 1/6: a named Import and Export menu, BPMN/Camunda listed (today
+  hidden as Load…/Save)"
 description: >
-  T-1093 GO (operator ruling a, 49ba6e34c), step 1. The operator could not find BPMN import/export: it exists as the unlabelled toolbar buttons Load… and Save. Build one clearly named Import and Export entry listing every format (BPMN/Camunda now; later steps add theirs), keeping today's behaviour. UI change: person-sees gate, screenshots at 1024/1440/1920, independent visual review.
+  T-1093 GO (operator ruling a, 49ba6e34c), step 1. The operator could not find BPMN
+  import/export: it exists as the unlabelled toolbar buttons Load… and Save. Build
+  one clearly named Import and Export entry listing every format (BPMN/Camunda now;
+  later steps add theirs), keeping today's behaviour. UI change: person-sees gate,
+  screenshots at 1024/1440/1920, independent visual review.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
 horizon: now
 tags: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-19T09:14:11Z
-last_update: 2026-11-19T09:14:11Z
-date_finished: null
+last_update: '2026-11-19T09:19:57Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +56,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-19T09:19:57Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=2 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1439: Import/Export 1/6: a named Import and Export menu, BPMN/Camunda listed (today hidden as Load…/Save)
@@ -57,20 +83,35 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** T-1093 GO (operator ruling "a", 49ba6e34c), step 1 of 6. On 2026-11-18 the operator said
+of BPMN import/export: "If it already works I don't see it, there is no interface for it." It exists: the toolbar's
+**Load…** (file picker, `.bpmn/.xml`, `adoptImportedXml`) and **Save** (also downloads `<id>.v<n>.bpmn`). Neither says
+import, export or BPMN.
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** the capability is invisible because it is named for a different act (load/save), and the
+later formats (T-1440..T-1444) have nowhere to go.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** one clearly named Import and one Export entry in the toolbar, each listing formats by name, so the five later
+formats each add one line.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** the toolbar shows "Import ▾" (where "Load…" was) and "Export ▾"; each opens a short menu naming
+"BPMN 2.0 / Camunda". Import does exactly what Load… did; Export downloads exactly the bytes Save downloads. Save keeps
+its current behaviour. Nothing is lost at 1024/1440/1920.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] The toolbar has an **Import** menu (in place of Load…) and an **Export** menu, each listing "BPMN 2.0 / Camunda"
+      by name; Import opens the same file picker and import path as Load… did; Export downloads the same bytes as
+      Save's download (a CDP harness asserts both: the imported map's node count, and byte equality of the two
+      downloads).
+- [ ] The menus work from the keyboard (Enter/Space opens, arrows move, Escape closes and returns focus) and close on
+      an outside click; at most one is open.
+- [ ] The menus are built from one list of formats, so a later task adds a format with one entry (T-1440..T-1444).
+- [ ] `bash tools/person-sees-gate.sh` exits 0, and the browser tier is green (pool and here).
+- [ ] [REVIEW] Screenshots of the toolbar and each open menu at 1024, 1440 and 1920 are judged by an independent
+      reviewer: both entries visible and reachable, the menus readable and unclipped, nothing overlapping.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -353,3 +394,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1439-importexport-16-a-named-import-and-expor.md
 - **Context:** Initial task creation
+
+### 2026-11-19T09:19:56Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
