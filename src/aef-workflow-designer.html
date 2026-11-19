@@ -332,6 +332,19 @@ font-family: 'Outfit';
   .btn-primary { color: var(--accent); border-color: rgba(196,238,84,0.3); background: var(--accent-soft); }
   .btn-primary:hover { background: rgba(196,238,84,0.2); }
   .btn.active { background: var(--accent); color: #0d0f13; border-color: var(--accent); }
+  /* T-1439: Import / Export menus (toolbar). One list of formats, one item per format and direction. */
+  .tb-menu { position: relative; display: inline-flex; }
+  .tb-menu-list { position: absolute; top: calc(100% + 4px); left: 0; z-index: 60; min-width: 230px;
+    background: var(--surface-2); border: 1px solid var(--border-strong); border-radius: 6px; padding: 4px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.45); }
+  .tb-menu-list.align-right { left: auto; right: 0; }
+  .tb-menu-list[hidden] { display: none; }
+  .tb-menu-item { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; width: 100%;
+    font-family: var(--sans); font-size: 12px; font-weight: 500; color: var(--text); text-align: left;
+    background: transparent; border: 0; border-radius: 4px; padding: 8px 10px; cursor: pointer; white-space: nowrap; }
+  .tb-menu-item:hover, .tb-menu-item:focus { background: var(--surface-3); outline: none; }
+  .tb-menu-item:focus-visible { box-shadow: 0 0 0 1px var(--accent) inset; }
+  .tb-menu-hint { font-family: var(--mono); font-size: 11px; color: var(--text-dim); }
 
   /* ============ Main layout ============ */
   main {
@@ -1564,7 +1577,11 @@ font-family: 'Outfit';
            alignColumnsMoves(). Functions kept for Clean/nudge/import/bake/verifiers. -->
       <button class="btn" id="btn-xml">View XML</button>
       <button class="btn" id="btn-settings" title="Editor settings — routing, snapping, grid">⚙ Settings</button>
-      <button class="btn" id="btn-load">Load…</button>
+      <!-- T-1439 (T-1093 GO, step 1): named Import and Export menus. "Load…" did BPMN import and Save's download did
+           BPMN export, but nothing said import, export or BPMN, so the operator could not find either. The items come
+           from one list (IO_FORMATS), so each later format (T-1440..T-1444) adds one entry. -->
+      <span class="tb-menu"><button class="btn" id="btn-import" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-import" title="Import a map from a file">Import ▾</button><div class="tb-menu-list" id="menu-import" role="menu" aria-labelledby="btn-import" hidden></div></span>
+      <span class="tb-menu"><button class="btn" id="btn-export" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-export" title="Export this map to a file">Export ▾</button><div class="tb-menu-list" id="menu-export" role="menu" aria-labelledby="btn-export" hidden></div></span>
       <!-- T-154: "📂 Open project…" moved to the brand area (replacing the workflow-picker
            <select>); a single, duplicate-free entry point. -->
       <!-- T-962: hidden until detectSaveApi() confirms a server, like its neighbours — the
@@ -12176,8 +12193,9 @@ $('btn-copy-xml').onclick = async () => {
   // failure an operator is most likely to blame themselves for.
   try { await navigator.clipboard.writeText(raw); } catch (e) { aefRecordFault('clipboard-write', e); }
 };
-$('btn-save').onclick = () => {
-  saveActiveToLibrary();
+// T-1439: the BPMN download is one function, used by Save (as before) and by Export → BPMN 2.0 / Camunda, so the two
+// can never write different bytes.
+function downloadBpmnFile() {
   const raw = buildBpmnXml(state);
   const blob = new Blob([raw], { type: 'application/xml' });
   const url = URL.createObjectURL(blob);
@@ -12189,6 +12207,10 @@ $('btn-save').onclick = () => {
   a.download = `${id}.v${v}.bpmn`;
   a.click();
   URL.revokeObjectURL(url);
+}
+$('btn-save').onclick = () => {
+  saveActiveToLibrary();
+  downloadBpmnFile();
 };
 
 // ── Save to project (B3 / T-130) — durable versioned save via the B2 sidecar ──
@@ -13638,7 +13660,8 @@ function flashCleanFeedback(moved) {
   btn.textContent = `✨ Cleaned ${moved} node${moved === 1 ? '' : 's'} — Ctrl+Z reverts`;
   setTimeout(() => { btn.textContent = '✨ Clean layout'; }, 2500);
 }
-$('btn-load').onclick = () => {
+// T-1439: what the toolbar's "Load…" did, unchanged, now reached from Import → BPMN 2.0 / Camunda.
+function importBpmnFile() {
   // File picker — accepts .bpmn / .xml
   const input = document.createElement('input');
   input.type = 'file';
@@ -13657,7 +13680,78 @@ $('btn-load').onclick = () => {
     }
   };
   input.click();
+}
+
+// ── T-1439: Import / Export menus ──
+// One list of formats per direction. A later format (T-1440..T-1444) adds one entry here; the menus are built from it.
+const IO_FORMATS = {
+  import: [
+    { id: 'bpmn', label: 'BPMN 2.0 / Camunda', hint: '.bpmn, .xml', run: importBpmnFile },
+  ],
+  export: [
+    { id: 'bpmn', label: 'BPMN 2.0 / Camunda', hint: '.bpmn', run: downloadBpmnFile },
+  ],
 };
+
+function ioMenuClose(dir, refocus) {
+  const btn = $('btn-' + dir), list = $('menu-' + dir);
+  if (!list || list.hidden) return;
+  list.hidden = true;
+  btn.setAttribute('aria-expanded', 'false');
+  if (refocus) btn.focus();
+}
+
+function ioMenuOpen(dir) {
+  ioMenuClose(dir === 'import' ? 'export' : 'import', false);   // at most one open
+  const btn = $('btn-' + dir), list = $('menu-' + dir);
+  list.textContent = '';
+  for (const f of IO_FORMATS[dir]) {
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'tb-menu-item';
+    item.setAttribute('role', 'menuitem');
+    item.dataset.format = f.id;
+    const label = document.createElement('span');
+    label.textContent = f.label;
+    const hint = document.createElement('span');
+    hint.className = 'tb-menu-hint';
+    hint.textContent = f.hint;
+    item.append(label, hint);
+    item.onclick = () => { ioMenuClose(dir, true); f.run(); };
+    list.appendChild(item);
+  }
+  list.classList.remove('align-right');
+  list.hidden = false;
+  btn.setAttribute('aria-expanded', 'true');
+  // Near the window's right edge the menu opens leftwards instead of running off-screen.
+  if (list.getBoundingClientRect().right > window.innerWidth - 8) list.classList.add('align-right');
+  const first = list.querySelector('.tb-menu-item');
+  if (first) first.focus();
+}
+
+for (const dir of ['import', 'export']) {
+  const btn = $('btn-' + dir), list = $('menu-' + dir);
+  btn.addEventListener('click', () => (list.hidden ? ioMenuOpen(dir) : ioMenuClose(dir, false)));
+  btn.addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); ioMenuOpen(dir); }
+  });
+  list.addEventListener('keydown', e => {
+    const items = [...list.querySelectorAll('.tb-menu-item')];
+    const i = items.indexOf(document.activeElement);
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); ioMenuClose(dir, true); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); items[(i + 1) % items.length].focus(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
+    else if (e.key === 'Home') { e.preventDefault(); items[0].focus(); }
+    else if (e.key === 'End') { e.preventDefault(); items[items.length - 1].focus(); }
+    else if (e.key === 'Tab') { ioMenuClose(dir, false); }
+  });
+}
+document.addEventListener('mousedown', e => {
+  for (const dir of ['import', 'export']) {
+    const wrap = $('btn-' + dir).parentElement;
+    if (!wrap.contains(e.target)) ioMenuClose(dir, false);
+  }
+}, true);
 // ?load=<same-origin path> — gallery deep-link: fetch a rendered .bpmn and open it.
 // Only useful when served over HTTP (fetch of file:// paths is blocked by browsers).
 // T-1061: one honest signal that the deep link has SETTLED, set on every exit of the handler below:

@@ -2145,6 +2145,20 @@ else
 fi
 }
 leg browser "test_t1212_gw_warning" _leg_t1212
+_leg_t1439() {
+
+# ── T-1439 (T-1093 GO step 1): the toolbar's named Import and Export menus ──
+# Import → BPMN 2.0 / Camunda imports through the real file chooser; Export → BPMN downloads exactly Save's bytes;
+# keyboard, outside click, one menu at a time; menus built from IO_FORMATS. About 6 s.
+if node "$ROOT/tools/_t1439-io-menu-cdp.mjs" > "$TMP/leg-_t1439.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the toolbar's Import/Export menus regressed: a leg of _t1439-io-menu-cdp.mjs failed (run 'node tools/_t1439-io-menu-cdp.mjs'; T-1439)"
+  show_output "$TMP/leg-_t1439.out" "_t1439-io-menu-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1439_io_menus" _leg_t1439
 _leg_075() {
 
 # ── T-1273: an in-place mutation script cannot survive INT/TERM with its mutant ──
