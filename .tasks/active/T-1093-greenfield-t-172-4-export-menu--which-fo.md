@@ -116,27 +116,43 @@ round-trip or render test) or recorded as NO-GO with its reason, and no import t
     proven on 12 third-party fixtures. Nothing else exists: no PDF, SVG/PNG download, Word, Visio, Mermaid, Excel or CSV.
 - **IW-2: For each requested format, can it be produced/read in the browser, offline, inside one HTML file — and at
   what size cost?** (PDF, Word .docx, Visio .vsdx, Excel .xlsx, CSV, Mermaid, Camunda BPMN)
-  confidence: 0
-  disposition: (open)
-  rationale: (spike per format: library or hand-written, bytes added)
+  confidence: 3
+  disposition: answered
+  rationale: yes for every format, no library. Spikes (docs/reports/T-1093-spikes/, report §Step 2): Excel/Word/Visio
+    are ZIP packages; a ~60-line ZIP writer/reader on the browser's CompressionStream('deflate-raw') writes files that
+    openpyxl, python-docx and LibreOffice open (Excel round-trips exactly; Word needs w:tblGrid; Visio boxes and text
+    render, connectors need begin/end geometry). SVG: the canvas plus each element's computed paint is self-contained
+    (0 remote refs, 82 KB for a 14-step map); PNG 1x/2x/4x from it via canvas (114/304/823 KB). PDF: the browser's
+    print path works but prints the whole editor today (no @media print), so it needs a print stylesheet.
+    Estimated cost to the single file: ZIP core 3-5 KB; each exporter a few KB.
 - **IW-3: What is each format's fidelity promise: lossless (BPMN), view (PDF/Word/PNG/SVG/Mermaid), or lossy bridge
   (Visio/Excel/CSV), and what exactly is lost?**
-  confidence: 0
-  disposition: (open)
-  rationale: (a loss table per format)
+  confidence: 2
+  disposition: answered
+  rationale: BPMN/Camunda lossless (exists). Views (no way back, nothing to lose but layout fidelity): SVG/PNG/PDF keep
+    the picture (spike: flow-label boxes and faint event names still to style); Word keeps picture + steps table.
+    Bridges, both ways, loss stated: Excel/CSV keep id, name, type, lane, next steps (+ labels); they drop geometry and
+    everything else on a step (io, roles, aef: fields), so import re-lays out. Mermaid keeps steps, types (shape),
+    flows and labels; drops lanes' geometry and aef: fields. Visio keeps boxes, text, connectors; on import BPMN meaning
+    depends on how the file was drawn (BPMN stencil vs plain shapes): needs a real operator file to settle.
+    Report §Step 2 holds the table; each build task restates it as its fidelity test.
 - **IW-4: Who needs which format first?** Greenfield asked for PDF/PNG/SVG/Camunda/CSV; the operator added Word,
   Visio, Mermaid, Excel and imports. AEF consumes BPMN only.
-  confidence: 0.8
-  disposition: answered (which formats and which direction); the ORDER is still to propose
+  confidence: 2
+  disposition: answered (formats and directions by the operator; the order is proposed in ## Recommendation)
   rationale: operator 2026-11-18: import AND export for BPMN/Camunda, Excel, Visio, Mermaid; export only for Word and
     PDF (documents to hand someone). Agent adds CSV both ways and SVG/PNG out (asked for by Greenfield, Sprind, AEF).
     Also found: BPMN import/export exist but are invisible ("Load…"/"Save", unlabelled); the menu must name them.
     Detail and quotes: docs/reports/T-1093-import-export-formats.md, dialogue log 2026-11-18.
 - **IW-5: For imports, how is a map with no layout or no BPMN semantics (Excel/CSV/Visio) turned into a valid,
   readable map?** (auto-layout through Clean; mapping table shape-to-element; validator run after import)
-  confidence: 0
-  disposition: (open)
-  rationale: (spike on one Visio file and one spreadsheet)
+  confidence: 2
+  disposition: answered
+  rationale: one route for every position-less format: convert to BPMN WITHOUT the diagram part, then reuse the
+    designer's existing BPMN import and Clean layout. Spike (nolayout-spike.mjs): arc-lifecycle with its BPMNDiagram and
+    every aef:position removed loads as 14 steps, 13 flows, 3 lanes, 0 stacked; Clean tidies 11; the re-exported map is
+    VALID with no findings; screenshot readable. Visio import additionally needs a shape-to-element table (open until
+    a real Visio file is tested).
 
 ## Exploration Plan
 
@@ -213,7 +229,28 @@ Research artifact: `docs/reports/T-1093-import-export-formats.md`. About two ses
 
 **Recommendation:** GO
 
-**Rationale:** Owner request with a concrete list (T-172 README item 4). The designer already renders the map as SVG in the browser, so SVG and PNG (rasterised SVG at 1x/2x/4x) are cheap first slices; Camunda-compatible BPMN builds on the existing BPMN export plus standard bpmndi; PDF (fit/multi-page) is the costliest and goes last. GO is to scope and order formats into one build task each, not to build in this inception.
+**Rationale:** Every format the operator asked for (2026-11-18: import and export for BPMN/Camunda, Excel, Visio,
+Mermaid; export for Word and PDF) meets the GO criteria above: each was produced in the browser with no library and
+no server, each has a stated fidelity promise, and a named user wants it. The spikes found the work, not the risk:
+the designer's existing BPMN import/export is invisible (unlabelled "Load…"/"Save"); the SVG needs computed paint
+inlined; PDF needs a print stylesheet; Visio connectors need geometry; Visio import needs a real file. Position-less
+imports (Excel, CSV, Mermaid) reuse the existing BPMN import and Clean layout (spike: VALID, no findings).
+GO means: one build task per step below, in this order, each with its round-trip or render test and its loss stated.
+Nothing is built under this inception.
+
+**Order (one build task each):**
+1. A named Import and Export menu; BPMN/Camunda listed (today hidden as Load…/Save).
+2. SVG and PNG 1x/2x/4x out; PDF out through a print stylesheet.
+3. Mermaid and CSV out, then in (through BPMN-without-layout + Clean).
+4. Excel out and in (brings the shared ZIP core).
+5. Word out (picture + steps table).
+6. Visio out (connector geometry), then Visio in, tested on a real Visio file from the operator.
+
+**Evidence:**
+- docs/reports/T-1093-import-export-formats.md: inventory (IW-1), feasibility (§Step 2), users' and operator's
+  answers (§Step 4, dialogue log), order (§Step 5).
+- docs/reports/T-1093-spikes/office-spike.mjs (Excel/Word/Visio/Mermaid/CSV; checked by openpyxl, python-docx,
+  LibreOffice), picture-spike.mjs (SVG self-contained, PNG 1x/2x/4x, PDF via print), nolayout-spike.mjs (IW-5).
 
 ## Decisions
 
