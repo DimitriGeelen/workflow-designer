@@ -94,22 +94,49 @@ bvp_scores_proposed:
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** Greenfield T-436 (msg dc28399b, 2026-11-19): their Camunda workshop map imports cleanly, but
+its 12 text annotations and 10 associations are "kept but not shown" (T-1326/T-1327). For workshop maps the notes are
+the content. Msg ef63bb29 adds: task-to-task associations (associationDirection=One, a dotted status sync) are not
+drawn either, so target tasks look unconnected. Test map: `tests/fixtures/greenfield/nooteboom-offerte-tot-order-with-notes.bpmn`.
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** the importer keeps annotations and associations as raw XML with their DI in
+`state.procKept.artifacts` (`captureProcessLevelKept`), with association ends mapped to node uids; nothing draws them.
+Drawing them read-only from that record touches no save path, so byte-identical save-back holds by construction.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** a person opening a workshop map sees its notes where the author put them, connected to their steps, and
+sees which tasks are linked to which.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** annotations draw as BPMN text-annotation boxes (open bracket, text wrapped inside) at their DI
+bounds; associations draw as dotted lines (an arrowhead when associationDirection is One or Both); save is unchanged.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] On the Greenfield fixture all 12 annotations draw at their DI bounds with their full text, and all 10 associations
+      draw as dotted lines between the right ends (annotation-to-node and node-to-node); a one-way association has an
+      arrowhead at its target. Measured in a CDP harness against the file's own DI and ids.
+- [ ] An association whose end node the person moves follows the node (its line is redrawn to the node's new place);
+      an unmoved one keeps the file's waypoints.
+- [ ] The drawing is read-only: annotations and associations are not selectable, draggable or deletable, and draw
+      under nodes and flows (never covering a step's name).
+- [ ] Save writes the same bytes as before this task for the fixture and for every corpus/third-party golden
+      (byte-identity goldens unchanged); the import notice stops saying "not shown yet" for what is now drawn.
+- [ ] SVG/PNG/PDF export include the annotations and associations (paper palette).
+- [ ] The harness is wired as a browser leg; with the drawing removed it fails (bites).
+- [ ] `bash tools/person-sees-gate.sh` exits 0 and the browser tier is green (pool and here).
 
 ### Human
+- [ ] The workshop map's notes and links read well and look like BPMN text annotations, at three widths.
+  **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1447 --criterion 1`), who may escalate.
+  **Steps:**
+  1. `docs/reports/T-1447-shots/{1024,1440,1920}-greenfield.png`: every note readable, beside the step it belongs to,
+     its dotted line reaching that step; dotted task-to-task links visible with their arrowheads.
+  2. `docs/reports/T-1447-shots/greenfield-export.png`: the same on paper.
+  **Expected:** the notes read as the map's content, nothing covers a step's name or a flow label it should not.
+  **If not:** name the file and the note; the agent fixes and re-shoots.
+
+### Human (template guidance)
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
