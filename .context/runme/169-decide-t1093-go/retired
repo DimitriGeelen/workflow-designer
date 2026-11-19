@@ -1,0 +1,1 @@
+Superseded: the operator recorded the T-1093 GO in Watchtower (49ba6e34c, 438c925ac) while this job waited; its one step then found T-1093 already decided and closed, and stopped (rc=1). Nothing is left for it to do.
