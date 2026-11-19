@@ -1,0 +1,1 @@
+{"ac": 1, "ac_digest": "950d31cffd1e", "by": "root", "criterion": "[REVIEW] **Should P-002 exempt read-only Bash when focus is absent, captured, or", "id": "RL-87476ffe", "ref": "operator in session 2026-11-18, recorded under the criterion (commit b826295ef)", "ruling": "a", "task": "T-676", "ts": "2026-11-19T07:41:00Z"}
