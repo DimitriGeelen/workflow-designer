@@ -105,6 +105,23 @@ reads the Excel file back with its own reader. Every file was then opened by an 
   layout has to place them (IW-5), then the validator runs.
 - PDF needs no file writer at all: a print stylesheet and the browser's own "Save as PDF" (not spiked yet).
 
+### Pictures and print, and imports without positions (2026-11-19)
+
+`picture-spike.mjs` runs the real designer headless on `arc-lifecycle`:
+- **SVG:** serialising `#canvas` as is gives solid black shapes, because the designer colours shapes through its
+  stylesheet. Inlining each element's computed paint (fill, stroke, widths, opacity, font) fixes it: lanes, colours,
+  arrows and boxes come through; **0 remote references** (Sprind's requirement), 82 KB. Still to style in the build:
+  flow-label boxes render as black bars, event names too faint on white. Editor chrome ("+ Add another lane") must be
+  left out.
+- **PNG** from that SVG through a canvas: 1x 2100x534 (114 KB), 2x (304 KB), 4x 8400x2136 (823 KB). No library.
+- **PDF** through the browser's print path (Chrome's "Save as PDF"): works, but prints the **whole editor** (toolbar,
+  palette, properties) with the map cut off: the designer has no `@media print`. A print stylesheet is the build.
+
+`nolayout-spike.mjs` answers IW-5: `arc-lifecycle` with its `<bpmndi:BPMNDiagram>` and every `aef:position` removed
+loads in the real designer as 14 steps, 13 flows, 3 lanes, 0 stacked; Clean tidies 11; the re-exported map is
+**VALID, no findings**; the screenshot is readable. So Excel, CSV and Mermaid imports become BPMN without the diagram
+part and reuse what exists. Visio import is the one that also needs a shape-to-element table.
+
 ## Step 5: proposed order (agent's proposal, 2026-11-18)
 
 1. **Make what exists visible:** one Import and one Export entry in the toolbar, BPMN/Camunda listed by name
