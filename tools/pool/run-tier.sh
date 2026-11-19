@@ -47,9 +47,20 @@ WORK="$(mktemp -d "${TMPDIR:-$JOB}/832-pool.XXXXXX" 2>/dev/null || mktemp -d "$J
     echo "== node $(node -v 2>&1), $(python3 --version 2>&1), $(git --version 2>&1)"
 } >> "$LOG"
 
+# T-1453: a worker caps the size of one file (256 MiB seen on 2026-11-19: "File size limit exceeded" joining a 276 MB
+# bundle). Raise this job's soft limit to the hard one when the hard one allows more, and log both, so the cause is
+# measured on the worker and never guessed.
+FSZ_SOFT=$(ulimit -S -f); FSZ_HARD=$(ulimit -H -f)
+[ "$FSZ_SOFT" = "$FSZ_HARD" ] || ulimit -S -f "$FSZ_HARD" 2>/dev/null || true
+echo "== file-size limit (512-byte blocks): soft $FSZ_SOFT, hard $FSZ_HARD, now $(ulimit -S -f)" >> "$LOG"
 # 1. Rebuild the repo from the bundle parts, in order.
 parts=$(ls "$JOB"/repo.bundle.[0-9][0-9][0-9] 2>/dev/null | sort)
 [ -n "$parts" ] || result 2 "no repo.bundle.NNN parts in the job dir"
+# shellcheck disable=SC2086
+BUNDLE_BYTES=$(cat $parts | wc -c)
+if [ "$(ulimit -S -f)" != unlimited ] && [ "$BUNDLE_BYTES" -gt $(( $(ulimit -S -f) * 512 )) ]; then
+    result 2 "the joined bundle ($BUNDLE_BYTES bytes) is larger than this worker allows one file to be ($(( $(ulimit -S -f) * 512 )) bytes, hard limit $FSZ_HARD blocks) — T-1453"
+fi
 # shellcheck disable=SC2086
 cat $parts > "$WORK/repo.bundle" || result 2 "could not join the bundle parts"
 # `git bundle verify` needs a repository, so the clone comes first (it checks the bundle too), then the verify inside it.

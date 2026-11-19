@@ -68,6 +68,9 @@ pool_run() {  # the tier on ring20's pool; 0 green, 1 red, 3 no result for THIS 
     [ -f "$last" ] || { echo "T-1288 $TIER: the pool gave no result (see ${WD#"$ROOT"/}/$PFX.pool.out)" >&2; return 3; }
     commit=$(sed -n 's/^commit=//p' "$last"); code=$(sed -n 's/^exit_code=//p' "$last")
     line=$(sed -n 's/^result_line=//p' "$last"); node=$(sed -n 's/^node=//p' "$last"); log=$(sed -n 's/^tier_log=//p' "$last")
+    if [ -z "$commit" ]; then   # T-1453: the job failed before it tested anything; say why, by the job's own words
+        echo "T-1288 $TIER: the pool job failed before testing (exit $code on $node): $(sed -n 's/^error=//p' "$last") — not counted" >&2; return 3
+    fi
     [ "$commit" = "$HEAD_SHA" ] || { echo "T-1288 $TIER: the pool's result is for ${commit:0:12}, not HEAD ${HEAD_SHA:0:12} — not counted" >&2; return 3; }
     echo "$line   [pool: $node]" >&2
     if [ "$code" = 0 ]; then return 0; fi

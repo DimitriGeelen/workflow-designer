@@ -123,8 +123,9 @@ import json, sys
 res, name, dest = sys.argv[1:]
 d = json.load(open(res))
 with open(dest, "w") as f:
-    f.write("name=%s\ncommit=%s\nexit_code=%s\nnode=%s\nresult_line=%s\ntier_log=%s\n" % (
+    f.write("name=%s\ncommit=%s\nexit_code=%s\nnode=%s\nresult_line=%s\ntier_log=%s\nerror=%s\n" % (
         name, d.get("commit", ""), d.get("exit_code", ""), d.get("node", ""),
-        (d.get("result_line") or "").replace("\n", " "), res.replace("result.json", "tier.log")))
+        (d.get("result_line") or "").replace("\n", " "), res.replace("result.json", "tier.log"),
+        (d.get("error") or "").replace("\n", " ")))   # T-1453: why a job failed before testing
 PY
 fi
