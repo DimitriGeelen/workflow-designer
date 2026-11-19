@@ -75,12 +75,21 @@ closed through the recorded-ruling route.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `.framework.yaml` version_sha is `6956275849f2041c5d419296ad3f140ab3c94fb0` (be.60; AEF released it on top of
+- [x] `.framework.yaml` version_sha is `6956275849f2041c5d419296ad3f140ab3c94fb0` (be.60; AEF released it on top of
       be.59 before job 166 ran, msg b22fecff, adding the inception lifecycle map; job 167 replaces job 166).
-- [ ] Every declared local fix the upgrade overwrote is resolved via `tools/_t1000-revendor-worklist.py`, and
+      Evidence: operator job 167, 11/11 rc=0; VERSION `1.8.15+1953.g695627584`; pristine f3b189557, baseline 0934391e1.
+- [x] Every declared local fix the upgrade overwrote is resolved via `tools/_t1000-revendor-worklist.py`, and
       `tools/_t517-vendor-divergence.py` reports no STALE entry.
-- [ ] `fw reviewer ruling record --help` works in the vendored framework.
-- [ ] Core and browser tiers green (pool and here, high-risk), and the push passes the T-1288 gate.
+      Evidence: 37 patches, 34 clean, 3 merged by hand (a36051acb: inception.sh and inception-readiness.sh keep both
+      AEF's EXPLORING gate and 832's hypothesis gate; create-task.sh takes AEF's render_task.py, whose set_key covers
+      T-774/T-776, and re-applies T-767 Human-AC seeding after it, tested); _t517 OK 44/44. Inception template merged
+      with AEF's EXPLORING text, `.upstream` removed (4b5efc07d).
+- [x] `fw reviewer ruling record --help` works in the vendored framework.
+      Evidence: used for real by operator job 168 (RL-87476ffe); T-676 closed on it.
+- [x] Core and browser tiers green (pool and here, high-risk), and the push passes the T-1288 gate.
+      Evidence: browser 143/0 pool and here (08:20); core 232/0 pool, then a local 231/1 (_t631, load; investigated,
+      logged in build/tiergate/rerun-notes.log, tooth now prints the hook output); the push's own core run green on
+      both (08:34), pushed bd69816f7.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
