@@ -23363,3 +23363,21 @@ scan_id: R-fd95ea60
 task_id: T-1438
 payload:
   task_file: .tasks/active/T-1438-instance-overlay-per-step-instance-count.md
+---
+kind: scan_emitted
+timestamp: '2026-11-19T22:57:30Z'
+scan_id: R-73491bfe
+task_id: T-1449
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-19T22:57:30Z'
+scan_id: R-73491bfe
+task_id: T-1449
+payload:
+  task_file: .tasks/active/T-1449-routing-on-greenfields-workshop-map-loop.md

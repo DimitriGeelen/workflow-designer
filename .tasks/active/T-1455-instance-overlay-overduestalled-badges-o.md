@@ -1,16 +1,16 @@
 ---
-id: T-1449
-name: "Routing on Greenfield's workshop map: loop-back sharing a side with an outgoing arrow, loop through a foreign lane, in/out lines side by side"
+id: T-1455
+name: "Instance overlay: overdue/stalled badges on the steps (needs AEF's waiting_on/revisit_at, their T-5228)"
 description: >
-  Greenfield T-436 follow-up (sidecar msg ef63bb29, 2026-11-19), seen on 0.38.0 with their Camunda workshop map: (6) the 'wel' loop-back from gateway Redesign arrives on the same side as the outgoing arrow of Opportunity/Solution, so two arrowheads overlap, and the loop runs through the Novis lane; (7) at Productieorder (NAV) the incoming and outgoing lines enter side by side on the top. First reproduce on the current designer with their file (asked for under T-1447); 0.39-0.43 changed routing, so each item may already be gone. The small arrowheads at source ends are the deliberate T-598 source-direction cue (asked whether it confuses).
+  Split from T-1438 (2026-11-19). Overdue/stalled needs per-instance fields AEF does not send yet: waiting_on / revisit_at on their inceptions (AEF T-5228); AEF promised a sample /api/instances response with an overdue instance after 2026-11-25. Then: a badge beside the '● N' count naming how many are overdue, and which, with the contract (T-1300 doc) extended first.
 
 status: captured
 workflow_type: build
 owner: agent
-horizon: next
+horizon: later
 tags: []
 components: []
-related_tasks: [T-1447]
+related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
 #                                 # at CAPTURE, unlike components: which the framework
@@ -37,8 +37,8 @@ related_tasks: [T-1447]
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-11-19T13:46:59Z
-last_update: 2026-11-19T13:46:59Z
+created: 2026-11-19T22:00:42Z
+last_update: 2026-11-19T22:00:42Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -52,20 +52,12 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-1449: Routing on Greenfield's workshop map: loop-back sharing a side with an outgoing arrow, loop through a foreign lane, in/out lines side by side
+# T-1455: Instance overlay: overdue/stalled badges on the steps (needs AEF's waiting_on/revisit_at, their T-5228)
 
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** Greenfield's routing findings on their workshop map (msg ef63bb29, items 6-7 on 0.38.0).
-Their msg 5468c2ba (2026-11-19, on 0.43.0, sha256 confirmed, 5 maps load without overlaps): items (5)-(7) are still
-exactly as before; new in 0.43.0: (8) the '(task)' label above "Open VO" and "Verkooporder compleet" lies over the
-vertical arrow from the task above; (9) the gateway label 'Redesign?' falls half outside the view on the left, against
-the lane boundary. They are waiting for 0.44.0 (the Import button). No reply expected.
-Same family, found by T-1447's reviewer (round 3, V-20261119-59397bd0) on the same map: the id caption
-`sal_6_opportunity` is placed above "Opportunity Closed → Won", over its "⟨task⟩" type tag (the flow leaving its bottom
-pushes the caption up, and the type tag does not win). Identical before T-1447; captions and type tags colliding is
-this task's, with (8).
+**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
 
 **Problem / hypothesis:** <what we think is wrong and why>
 
@@ -357,7 +349,7 @@ this task's, with (8).
 
 ## Updates
 
-### 2026-11-19T13:46:59Z — task-created [task-create-agent]
+### 2026-11-19T22:00:42Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1449-routing-on-greenfields-workshop-map-loop.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1455-instance-overlay-overduestalled-badges-o.md
 - **Context:** Initial task creation

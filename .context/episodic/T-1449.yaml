@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1449: Routing on Greenfield's workshop map: loop-back sharing a side with an outgoing arrow, loop through a foreign lane, in/out lines side by side
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-19T22:57:51Z
+# ============================================================================
+
+task_id: T-1449
+task_name: "Routing on Greenfield's workshop map: loop-back sharing a side with an outgoing arrow, loop through a foreign lane, in/out lines side by side"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-19T13:46:59Z
+completed: 2026-11-19T22:57:24Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-19T15:47:10+01:00
+last_commit: 2026-11-19T19:29:13+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Greenfield msg 5468c2ba — items 5-7 unchanged on 0.43.0; new (8) task label over arrow, (9) gateway label clipped at lane edge. caption-over-type-tag on Greenfield's map (sal_6_opportunity over its task tag), found by T-1447's reviewer round 3; pre-existing
+
+# Key outcomes
+outcomes:
+  - 'Each finding (5)-(9) and the sal_6 caption case is checked on the current designer with the Greenfield fixture:'
+  - 'Every finding that still reproduces has its own build task (one bug = one task), linked here: (6) T-1456,'
+  - 'Greenfield is told, per finding, which reproduce (with our task ids) and which are already gone. (2026-11-19,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1449-routing-on-greenfields-workshop-map-loop.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-19T15:47:10'
+    action: 'T-1449: Greenfield msg 5468c2ba — items 5-7 unchanged on 0.43.0; new (8) task label over arrow, (9) gateway label clipped at lane edge'
+  - time: '2026-11-19T19:29:13'
+    action: 'T-1449: caption-over-type-tag on Greenfield''s map (sal_6_opportunity over its task tag), found by T-1447''s reviewer round 3; pre-existing'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 550 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 550
+  commits: 3
+  files_changed: 10
+  lines_added: 1974
+  lines_removed: 13
+  footprint_refreshed_at: '2026-11-19T22:58:10Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1449-routing-on-greenfields-workshop-map-loop.md
+generated_by: context-agent-hybrid
