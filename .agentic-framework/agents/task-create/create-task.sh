@@ -11,6 +11,8 @@ source "$FRAMEWORK_ROOT/lib/paths.sh"
 # Source enumerations (single source of truth)
 # Note: lib/errors.sh already sourced via lib/paths.sh (die, warn, error, info, success)
 source "$FRAMEWORK_ROOT/lib/enums.sh"
+# T-5221: the rules a new task must pass, shared with fw task create-batch.
+source "$FRAMEWORK_ROOT/lib/task-create-rules.sh"
 
 # T-1279/T-1424: serialize ID allocation to prevent concurrent invocations from
 # colliding on the same T-NNNN. Without this, 4+ parallel `fw work-on`
@@ -42,6 +44,9 @@ RECOMMENDATION=""
 RATIONALE=""
 I_AM_HUMAN=false
 ORIGIN=""
+# T-5227: inception lifecycle fields — who holds the next step, and when it comes back.
+WAITING_ON=""
+REVISIT_AT=""
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -49,13 +54,14 @@ while [[ $# -gt 0 ]]; do
         --description) DESCRIPTION="$2"; shift 2 ;;
         --type) WORKFLOW_TYPE="$2"; shift 2 ;;
         --owner) OWNER="$2"; shift 2 ;;
-        --human-ac) HUMAN_AC="$2"; shift 2 ;;   # T-767: seeds a real Human AC; required by --owner human
         --tags) TAGS="$2"; shift 2 ;;
         --related) RELATED="$2"; shift 2 ;;
         --horizon) HORIZON="$2"; shift 2 ;;
         --start) START_WORK=true; shift ;;
         --recommendation) RECOMMENDATION="$2"; shift 2 ;;
         --rationale) RATIONALE="$2"; shift 2 ;;
+        --waiting-on) WAITING_ON="$2"; shift 2 ;;
+        --revisit-at) REVISIT_AT="$2"; shift 2 ;;
         --i-am-human) I_AM_HUMAN=true; shift ;;
         # T-3897: where this task came from (operator | agent | peer | pickup |
         # proposal)[:source[:ref]] — shown as a badge on the approvals queue.
@@ -79,8 +85,10 @@ while [[ $# -gt 0 ]]; do
             echo "  --related          Comma-separated related task IDs (e.g. \"T-084,T-085\")"
             echo "  --horizon          Priority horizon: now (default), next, later"
             echo "  --start            Set status to started-work instead of captured"
-            echo "  --recommendation   GO|NO-GO|DEFER — required for inception under \$CLAUDECODE=1 (T-1716, T-2207)"
+            echo "  --recommendation   EXPLORING|GO|NO-GO|DEFER — inception; agent filings default to EXPLORING (T-5226)"
             echo "  --rationale        Evidence-cited reason — required for inception under \$CLAUDECODE=1"
+            echo "  --waiting-on       agent|peer|operator — inception only; who holds the next step (default agent, T-5227)"
+            echo "  --revisit-at       YYYY-MM-DD — inception only; when it comes back (default filing date + 7)"
             echo "  --i-am-human       Bypass agent gate (scripts/tests/Watchtower) — logged Tier-2"
             echo "  --origin           Where the task came from: operator|agent|peer|pickup|proposal[:source[:ref]]"
             echo "                     (T-3897; e.g. peer:ring20-dashboard:7881482d — shown on /approvals)"
@@ -94,12 +102,22 @@ done
 # T-2207: validate --recommendation value if provided (parity with do_inception_start)
 if [ -n "$RECOMMENDATION" ]; then
     case "$RECOMMENDATION" in
-        GO|NO-GO|DEFER) ;;
+        EXPLORING|GO|NO-GO|DEFER) ;;
         *)
-            echo -e "${RED}Invalid --recommendation: '$RECOMMENDATION' (must be GO, NO-GO, or DEFER)${NC}" >&2
+            echo -e "${RED}Invalid --recommendation: '$RECOMMENDATION' (must be EXPLORING, GO, NO-GO, or DEFER)${NC}" >&2
             exit 1
             ;;
     esac
+fi
+
+# T-5227: waiting_on / revisit_at belong to inceptions only, and take fixed shapes.
+# One rule, lib/inception_lifecycle.py validate_fields (also the Write/Edit hook's).
+if [ -n "$WAITING_ON" ] || [ -n "$REVISIT_AT" ]; then
+    if ! python3 "$FRAMEWORK_ROOT/lib/inception_lifecycle.py" --validate \
+            "${WORKFLOW_TYPE:--}" "${WAITING_ON:--}" "${REVISIT_AT:--}"; then
+        echo -e "${RED}Refused: --waiting-on/--revisit-at (T-5227, see above)${NC}" >&2
+        exit 1
+    fi
 fi
 
 # T-2543: gate-level enforcement for promote-origin creates (Dimitri sovereignty bar,
@@ -128,37 +146,6 @@ case "${FW_TASK_ORIGIN:-}" in
     ;;
 esac
 
-# T-767 (SQ-2, operator ruling 2026-09-21): ownership must follow the presence of a real
-# Human acceptance criterion. A task born `owner: human` with no Human AC is one the
-# creating agent is structurally forbidden to finish AND the human has nothing to verify
-# on, so it parks forever. Measured on this project 2026-09-21: 34 of 107 active
-# owner:human tasks carry zero Human AC checkboxes; 2 of them (T-708, T-723) have every
-# criterion ticked and are simply waiting on a human with no stated act to perform.
-#
-# The gate REFUSES; it does not silently rewrite OWNER to agent. An auto-flip would decide
-# ownership on the caller's behalf, and ownership is the operator's call — a refusal makes
-# the caller state the human's job, which is the thing that was missing.
-#
-# Gated writers are exempt BY POLICY, not by oversight: T-2543 (bpmn-promote) and T-2577
-# (designer-ghost) make those creates human-owned regardless of ACs. That bar is the
-# operator's sovereignty bar and this gate does not get to lower it.
-case "${FW_TASK_ORIGIN:-}" in
-  bpmn-promote|designer-ghost) ;;
-  *)
-    # `inception` is exempt: .tasks/templates/inception.md ships a real go/no-go Human AC
-    # with Steps/Expected/If-not, so an inception task cannot be born without one.
-    if [ "$OWNER" = "human" ] && [ -z "$HUMAN_AC" ] && [ "$WORKFLOW_TYPE" != "inception" ]; then
-        echo -e "${RED}BLOCKED: --owner human requires --human-ac \"<criterion>\".${NC}" >&2
-        echo "  A human-owned task must name what the human verifies. Without it the task" >&2
-        echo "  cannot be finished by the agent and has nothing for the human to check." >&2
-        echo "  Either pass --human-ac \"<what the human must verify>\", or create the task" >&2
-        echo "  with --owner agent." >&2
-        echo "  Policy: T-767, operator ruling on SQ-2 (2026-09-21)." >&2
-        exit 1
-    fi
-    ;;
-esac
-
 # Interactive mode if required fields missing.
 # T-100160 (OBS-086): prompt ONLY when stdin is a tty. In no-tty contexts
 # (background dispatch, cron, TermLink workers) stdin is a socket/pipe that
@@ -180,32 +167,8 @@ if [ -z "$NAME" ]; then
     read -r NAME
 fi
 
-# T-555: Reject template placeholder names
-_name_lower=$(echo "$NAME" | tr '[:upper:]' '[:lower:]' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-case "$_name_lower" in
-    "task name"|"name"|"description"|"first criterion"|"second criterion"|\
-    "task"|"my task"|"new task"|"test task"|"todo"|"fix bug"|"implement feature"|\
-    "criterion"|"placeholder"|"example task"|"untitled")
-        echo "ERROR: '$NAME' looks like a template placeholder, not a real task name." >&2
-        echo "" >&2
-        echo "  Provide a specific, descriptive name. Examples:" >&2
-        echo "    --name \"Fix login timeout on slow connections\"" >&2
-        echo "    --name \"Add retry logic to API client\"" >&2
-        echo "    --name \"Inception: Evaluate caching strategy\"" >&2
-        echo "" >&2
-        exit 1
-        ;;
-esac
-
-# 832 T-775 (re-applied on 1.7.740 by T-1005): a name becomes a YAML scalar, an H1 and a filename
-# slug; a line break makes it none of those, and the injected line can capture a substitution.
-case "$NAME" in
-    *$'\n'*|*$'\r'*)
-        echo "ERROR: Task name contains a line break — refused (T-775, OBS-364)." >&2
-        echo "  Put the detail in --description, which is a folded block and may span lines." >&2
-        exit 1
-        ;;
-esac
+# T-555: Reject template placeholder names (rule lives in lib/task-create-rules.sh, T-5221)
+task_rule_name "$NAME" || exit 1
 
 if [ -z "$DESCRIPTION" ]; then
     echo -e "${YELLOW}Task description:${NC}"
@@ -236,44 +199,9 @@ if [ -n "$ORIGIN" ]; then
     esac
 fi
 
-# Validate workflow type
-if ! is_valid_type "$WORKFLOW_TYPE"; then
-    error "Invalid workflow type '$WORKFLOW_TYPE'"
-    die "Valid types: $VALID_TYPES"
-fi
-
-# Validate horizon
-# T-2160 (arc-009 Slice 1): explicit guard against --horizon past at creation too.
-if [ "$HORIZON" = "past" ]; then
-    error "'--horizon past' rejected — past is a derived render-time value, not settable"
-    error "  Past is computed from file location: .tasks/completed/ → renders as past."
-    die "  Storage enum is now/next/later. Per T-2159 Q1=(b); arc-009."
-fi
-if ! is_valid_horizon "$HORIZON"; then
-    error "Invalid horizon '$HORIZON'"
-    die "Valid horizons: $VALID_HORIZONS"
-fi
-
-# Validate owner (T-2674, closes the residual G-040 creation-side hole: the
-# predicate existed since T-1180 but was never called here — any --owner string
-# was written verbatim while Watchtower's dropdowns whitelist the enum).
-if ! is_valid_owner "$OWNER"; then
-    error "Invalid owner '$OWNER'"
-    die "Valid owners: $VALID_OWNERS (enum source: status-transitions.yaml)"
-fi
-
-# T-100202 AC4 (recursion guard): refuse names carrying the self-feeding
-# audit-emitter signature — a WARN task named after another WARN task, e.g.
-# "Audit WARN — Task T-2488-audit-warn--task-t-2462-…". The emitter itself is
-# removed from HEAD (audit emits observations via `fw note`, hash-deduped),
-# but this gate makes the recursion class structurally impossible for ANY
-# future emitter path, not just the removed one.
-if printf '%s' "$NAME" | grep -qiE 'audit[ -]?warn.*audit[ -]?warn'; then
-    error "Recursive audit-warn task name refused (T-100202)"
-    error "  A task about an audit-warn task re-audits its own emission and inflates"
-    error "  the ID space unboundedly (origin: T-99971 seed, 2026-07-03)."
-    die   "  Capture the finding as an observation instead: fw note \"<finding>\" (hash-deduped, no ID minted)"
-fi
+# Validate workflow type, horizon (T-2160), owner (T-2674) and recursive audit-warn names
+# (T-100202). T-5221: the rules live in lib/task-create-rules.sh, shared with create-batch.
+task_rule_fields "$NAME" "$WORKFLOW_TYPE" "$HORIZON" "$OWNER" || exit 1
 
 # Generate next task ID.
 #
@@ -305,60 +233,18 @@ fi
 # the ID allocator and the audit duplicate-ID check share ONE definition of the
 # corpus view set. Read the contract and the L-506-leg-2 rationale there.
 
+#
+# T-5217 (slice 1 of T-5212): the rules above now live in lib/idalloc.sh, the one
+# task-id allocator. fw_id_allocate keeps one authoritative counter at
+# <main worktree>/.tasks/.id-highwater (the T-4189 mark, made authoritative), an
+# append-only reservation ledger beside it, and runs the union scan described
+# above as a once-per-reservation check (FW_ID_CHECK, default on). One allocator
+# per repository is a hard rule: a second "max + 1" next to a block allocator
+# reissues ids from an aborted reservation (1409, T-5212). fw doctor warns.
+source "$FRAMEWORK_ROOT/lib/idalloc.sh"
+
 generate_id() {
-    local gap_threshold="${FW_ID_QUARANTINE_GAP:-1000}"
-    local ids=() f d
-    shopt -s nullglob
-    while IFS= read -r d; do
-        for f in "$d"/active/T-*.md "$d"/completed/T-*.md; do
-            [ -f "$f" ] || continue
-            # T-4797: parse in bash, no subprocess per file (3 forks x every file x every
-            # corpus view took minutes per create on 1409). Only a leading T-<digits> counts;
-            # 10# forces base 10 (avoids octal issues with 008, 009).
-            f="${f##*/}"
-            [[ "$f" =~ ^T-([0-9]+) ]] && ids+=("$((10#${BASH_REMATCH[1]}))")
-        done
-    done < <(fw_task_view_dirs)
-    shopt -u nullglob
-
-    # Ascending unique; walk up from the bottom and stop at the first gap larger
-    # than the threshold — everything above that cliff is a quarantined band.
-    # No task files at all leaves main_max=0 (next T-001, unless a mark says more).
-    local n prev="" main_max=0
-    [ "${#ids[@]}" -gt 0 ] && while IFS= read -r n; do
-        if [ -z "$prev" ]; then
-            main_max=$n
-        elif [ $((n - prev)) -gt "$gap_threshold" ]; then
-            break
-        else
-            main_max=$n
-        fi
-        prev=$n
-    done < <(printf '%s\n' "${ids[@]}" | sort -n -u)
-
-    # T-4189: max over the files that exist now is pulled DOWN by deletion —
-    # remove the top task file and its id is reissued (832 OBS-426; T-2966 was
-    # the same defect in the OBS allocator). Take the max with the high-water
-    # mark of every view; a mark past the quarantine cliff is ignored like the
-    # band it would point into. Persisted at generation time, inside the
-    # allocation keylock: a crash before the write skips an id, never reuses one.
-    local mark
-    while IFS= read -r d; do
-        mark=$(head -n1 "$d/.id-highwater" 2>/dev/null) || continue
-        [[ "$mark" =~ ^[0-9]+$ ]] || continue
-        mark=$((10#$mark))
-        if [ "$mark" -gt "$main_max" ] && [ $((mark - main_max)) -le "$gap_threshold" ]; then
-            main_max=$mark
-        fi
-    done < <(fw_task_view_dirs)
-    printf '%s\n' $((main_max + 1)) > "$TASKS_DIR/.id-highwater" 2>/dev/null || true
-
-    printf "T-%03d" $((main_max + 1))
-}
-
-# Generate slug from name
-generate_slug() {
-    echo "$1" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd 'a-z0-9-' | cut -c1-40
+    fw_id_allocate 1 "create-task"
 }
 
 # Generate timestamp
@@ -419,6 +305,11 @@ if [ "$WORKFLOW_TYPE" = "inception" ] \
    && [ "${CLAUDECODE:-}" = "1" ] \
    && [ "$I_AM_HUMAN" != "true" ] \
    && [ "${FW_INCEPTION_PRE_GATED:-}" != "1" ]; then
+    # T-5226: the recommendation defaults to EXPLORING (not ready for decision);
+    # the rationale is still required.
+    if [ -z "$RECOMMENDATION" ] && [ -n "$RATIONALE" ]; then
+        RECOMMENDATION="EXPLORING"
+    fi
     if [ -z "$RECOMMENDATION" ] || [ -z "$RATIONALE" ]; then
         if [ "${FW_ALLOW_EMPTY_RECOMMENDATION:-}" = "1" ]; then
             _log_recommendation_bypass "FW_ALLOW_EMPTY_RECOMMENDATION" \
@@ -431,7 +322,7 @@ if [ "$WORKFLOW_TYPE" = "inception" ] \
             echo "" >&2
             echo -e "  ${RED}══════════════════════════════════════════${NC}" >&2
             echo -e "  ${RED}BLOCKED: filing inception under \$CLAUDECODE=1 requires${NC}" >&2
-            echo -e "  ${RED}         --recommendation GO|NO-GO|DEFER + --rationale${NC}" >&2
+            echo -e "  ${RED}         --rationale (recommendation defaults to EXPLORING)${NC}" >&2
             echo -e "  ${RED}══════════════════════════════════════════${NC}" >&2
             echo "" >&2
             echo -e "  Origin: T-679 (governance rule — agent advisory at filing time)," >&2
@@ -442,9 +333,10 @@ if [ "$WORKFLOW_TYPE" = "inception" ] \
             echo "" >&2
             echo -e "    1. Refile with the recommendation flags:" >&2
             echo -e "         fw task create --type inception --name '$NAME' \\" >&2
-            echo -e "           --recommendation GO|NO-GO|DEFER \\" >&2
             echo -e "           --rationale '<one-paragraph reason citing evidence>'" >&2
-            echo -e "       (or use the canonical: fw inception start '$NAME' --recommendation ... --rationale ...)" >&2
+            echo -e "       (or use the canonical: fw inception start '$NAME' --rationale ...)" >&2
+            echo -e "       The recommendation starts as EXPLORING (not ready for decision);" >&2
+            echo -e "       write GO, NO-GO or DEFER once every IW question is disposed (T-5226)." >&2
             echo "" >&2
             echo -e "    2. Override for scripts/tests/Watchtower:" >&2
             echo -e "         --i-am-human   (logged Tier 2)" >&2
@@ -472,12 +364,9 @@ fi
 # timeout left children blocking every later create). Children run in
 # subshells that close the fd first (keylock_subshell_close_cmd, T-1493); the
 # EXIT trap covers an early exit, the explicit release below the normal path.
-SLUG=$(generate_slug "$NAME")
 keylock_acquire "task-id-allocation"
 trap 'keylock_release "task-id-allocation" 2>/dev/null' EXIT
 TASK_ID=$(eval "$(keylock_subshell_close_cmd)"; generate_id)
-FILENAME="$TASK_ID-$SLUG.md"
-FILEPATH="$TASKS_DIR/active/$FILENAME"
 
 # Determine initial status
 if [ "$START_WORK" = true ]; then
@@ -497,253 +386,25 @@ if ! is_valid_status "$STATUS"; then
     die "Valid statuses: $VALID_STATUSES (enum source: status-transitions.yaml)"
 fi
 
-# Format tags and related_tasks as YAML arrays
-format_yaml_array() {
-    local input="$1"
-    if [ -z "$input" ]; then
-        echo "[]"
-        return
-    fi
-    local result="["
-    local first=true
-    IFS=',' read -ra items <<< "$input"
-    for item in "${items[@]}"; do
-        item=$(echo "$item" | xargs)  # trim whitespace
-        [ -z "$item" ] && continue
-        if [ "$first" = true ]; then
-            result="${result}${item}"
-            first=false
-        else
-            result="${result}, ${item}"
-        fi
-    done
-    echo "${result}]"
-}
-
-TAGS_YAML=$(format_yaml_array "$TAGS")
-RELATED_YAML=$(format_yaml_array "$RELATED")
-
-# T-4597: a project without .tasks/templates/ (one fw init never seeded, or a test
-# fixture) uses the framework's own copy. Without this an inception fell through to
-# the inline fallback below, which has no ## Recommendation / ## Decision, and the
-# T-1263 check refused every `fw inception start` in such a project.
-_template_path() {
-    if [ -f "$TASKS_DIR/templates/$1" ]; then
-        echo "$TASKS_DIR/templates/$1"
-    elif [ -f "$FRAMEWORK_ROOT/.tasks/templates/$1" ]; then
-        echo "$FRAMEWORK_ROOT/.tasks/templates/$1"
-    fi
-}
-INCEPTION_TEMPLATE=$(_template_path inception.md)
-DEFAULT_TEMPLATE=$(_template_path default.md)
-
-# Select template content based on workflow type
-# All vars passed via env to avoid shell interpolation into Python source (T-595)
-# T-4841: subshell with the lock fd closed, so the writers never inherit it.
-(
-eval "$(keylock_subshell_close_cmd)"
-if [ "$WORKFLOW_TYPE" = "inception" ] && [ -n "$INCEPTION_TEMPLATE" ]; then
-    TC_TEMPLATE="$INCEPTION_TEMPLATE" \
-    TC_TASK_ID="$TASK_ID" TC_STATUS="$STATUS" TC_HORIZON="$HORIZON" \
-    TC_HUMAN_AC="$HUMAN_AC" TC_OWNER="$OWNER" TC_TAGS_YAML="$TAGS_YAML" TC_RELATED_YAML="$RELATED_YAML" \
-    TC_TIMESTAMP="$TIMESTAMP" TC_FILEPATH="$FILEPATH" \
-    python3 -c "
-import sys, os, re, json  # T-4787: json.dumps is a valid YAML double-quoted scalar (escapes \ as well as \")
-e = os.environ
-with open(e['TC_TEMPLATE']) as f:
-    t = f.read()
-# 832 T-774/T-776 (re-applied on 1.7.740 by T-1005): substitute each frontmatter key ON ITS
-# OWN LINE inside the frontmatter only. A first-match str.replace let a task NAME that contains
-# 'owner:' / 'status:' / 'workflow_type:' capture the later substitution and corrupt the file.
-def _fm(t, key, line):
-    L = t.split('\n')
-    end = len(L)
-    for i in range(1, len(L)):
-        if L[i].rstrip() == '---':
-            end = i
-            break
-    for i in range(1, end):
-        if L[i].startswith(key):
-            L[i] = line
-            return '\n'.join(L)
-    return t
-# T-776: the id placeholder is substituted BEFORE any operator text is inserted, so a
-# name or description that itself contains 'T-XXX' is never rewritten.
-t = t.replace('T-XXX', e['TC_TASK_ID'])
-name, desc = sys.argv[1], sys.argv[2]
-def indent_block(s):
-    # T-2778: 'description: >' is a folded scalar, so EVERY line of the value must be
-    # indented, not just the first. Indenting only the first line ends the scalar at the
-    # first newline; YAML then reads the next paragraph as frontmatter. That fails two
-    # different ways, and the loud one is the lucky one: a paragraph containing 'word: word'
-    # parses as a junk top-level key and SILENTLY truncates description to its first line
-    # (no error, audit sees valid YAML), while a paragraph without a colon raises
-    # ScannerError and is caught. Found 5 corpus instances -- 1 loud, 4 silent.
-    # Blank lines are emitted bare: whitespace-only lines inside a block scalar are
-    # separators, and padding them to the indent width leaves trailing spaces.
-    return '\n'.join(('  ' + ln) if ln.strip() else '' for ln in s.split('\n'))
-def set_key(fm, key, value):
-    # T-4863: replace the key's own line, anchored at line start, once. A plain
-    # str.replace hit 'owner:' inside the name, and with no count rewrote every
-    # 'status: captured' / 'horizon: now' in the description. A key the template
-    # lacks is left alone, as the old replace did.
-    return re.sub('^' + re.escape(key) + ':.*\$', lambda m: key + ': ' + value, fm, count=1, flags=re.M)
-m = re.match(r'(---\n)(.*?\n)(---\n.*)', t, re.S)
-pre, fm, body = m.groups() if m else ('', '', t)
-fm = set_key(fm, 'id', e['TC_TASK_ID'])
-fm = set_key(fm, 'status', e['TC_STATUS'])
-fm = set_key(fm, 'horizon', e['TC_HORIZON'])
-fm = set_key(fm, 'owner', e['TC_OWNER'])
-fm = set_key(fm, 'tags', e['TC_TAGS_YAML'])
-fm = set_key(fm, 'related_tasks', e['TC_RELATED_YAML'])
-fm = set_key(fm, 'created', e['TC_TIMESTAMP'])
-fm = set_key(fm, 'last_update', e['TC_TIMESTAMP'])
-fm = set_key(fm, 'name', json.dumps(name, ensure_ascii=False))
-fm = set_key(fm, 'description', '>\n' + indent_block(desc))
-body = body.replace('# ' + e['TC_TASK_ID'] + ': [Inception Name]', '# ' + e['TC_TASK_ID'] + ': ' + name)
-body = body.replace('[Chronological log', '### ' + e['TC_TIMESTAMP'] + ' — task-created [task-create-agent]\n- **Action:** Created inception task\n- **Output:** ' + e['TC_FILEPATH'] + '\n- **Context:** Initial task creation\n\n[Chronological log')
-# T-767 (832): seed the Human AC the gate just required. Anchored on the heading AND its
-# comment opener so a name or description containing '### Human' cannot capture the
-# substitution — that first-match capture is OBS-363, filed separately.
-if e.get('TC_HUMAN_AC'):
-    _anchor = '### Human\n<!--'
-    if _anchor in body:
-        body = body.replace(_anchor, '### Human\n\n- [ ] ' + e['TC_HUMAN_AC'] + '\n\n<!--', 1)
-    else:
-        sys.stderr.write('create-task.sh: WARNING --human-ac given but template has no anchored ### Human section; criterion NOT seeded\n')
-        sys.exit(3)
-t = pre + fm + body
-with open(e['TC_FILEPATH'], 'w') as f:
-    f.write(t)
-" "$NAME" "$DESCRIPTION"
-elif [ -n "$DEFAULT_TEMPLATE" ]; then
-    TC_TEMPLATE="$DEFAULT_TEMPLATE" \
-    TC_TASK_ID="$TASK_ID" TC_STATUS="$STATUS" TC_WORKFLOW_TYPE="$WORKFLOW_TYPE" \
-    TC_HUMAN_AC="$HUMAN_AC" TC_HORIZON="$HORIZON" TC_OWNER="$OWNER" TC_TAGS_YAML="$TAGS_YAML" \
-    TC_RELATED_YAML="$RELATED_YAML" TC_TIMESTAMP="$TIMESTAMP" TC_FILEPATH="$FILEPATH" \
-    python3 -c "
-import sys, os, re, json  # T-4787: json.dumps is a valid YAML double-quoted scalar (escapes \ as well as \")
-e = os.environ
-with open(e['TC_TEMPLATE']) as f:
-    t = f.read()
-# 832 T-774/T-776 (re-applied on 1.7.740 by T-1005): substitute each frontmatter key ON ITS
-# OWN LINE inside the frontmatter only. A first-match str.replace let a task NAME that contains
-# 'owner:' / 'status:' / 'workflow_type:' capture the later substitution and corrupt the file.
-def _fm(t, key, line):
-    L = t.split('\n')
-    end = len(L)
-    for i in range(1, len(L)):
-        if L[i].rstrip() == '---':
-            end = i
-            break
-    for i in range(1, end):
-        if L[i].startswith(key):
-            L[i] = line
-            return '\n'.join(L)
-    return t
-# T-776: the id placeholder is substituted BEFORE any operator text is inserted, so a
-# name or description that itself contains 'T-XXX' is never rewritten.
-t = t.replace('T-XXX', e['TC_TASK_ID'])
-name, desc = sys.argv[1], sys.argv[2]
-def indent_block(s):
-    # T-2778: 'description: >' is a folded scalar, so EVERY line of the value must be
-    # indented, not just the first. Indenting only the first line ends the scalar at the
-    # first newline; YAML then reads the next paragraph as frontmatter. That fails two
-    # different ways, and the loud one is the lucky one: a paragraph containing 'word: word'
-    # parses as a junk top-level key and SILENTLY truncates description to its first line
-    # (no error, audit sees valid YAML), while a paragraph without a colon raises
-    # ScannerError and is caught. Found 5 corpus instances -- 1 loud, 4 silent.
-    # Blank lines are emitted bare: whitespace-only lines inside a block scalar are
-    # separators, and padding them to the indent width leaves trailing spaces.
-    return '\n'.join(('  ' + ln) if ln.strip() else '' for ln in s.split('\n'))
-def set_key(fm, key, value):
-    # T-4863: replace the key's own line, anchored at line start, once. A plain
-    # str.replace hit 'owner:' inside the name, and with no count rewrote every
-    # 'status: captured' / 'horizon: now' in the description. A key the template
-    # lacks is left alone, as the old replace did.
-    return re.sub('^' + re.escape(key) + ':.*\$', lambda m: key + ': ' + value, fm, count=1, flags=re.M)
-m = re.match(r'(---\n)(.*?\n)(---\n.*)', t, re.S)
-pre, fm, body = m.groups() if m else ('', '', t)
-fm = set_key(fm, 'id', e['TC_TASK_ID'])
-fm = set_key(fm, 'status', e['TC_STATUS'])
-fm = set_key(fm, 'workflow_type', e['TC_WORKFLOW_TYPE'])
-fm = set_key(fm, 'owner', e['TC_OWNER'])
-fm = set_key(fm, 'horizon', e['TC_HORIZON'])
-fm = set_key(fm, 'tags', e['TC_TAGS_YAML'])
-fm = set_key(fm, 'related_tasks', e['TC_RELATED_YAML'])
-fm = set_key(fm, 'created', e['TC_TIMESTAMP'])
-fm = set_key(fm, 'last_update', e['TC_TIMESTAMP'])
-fm = set_key(fm, 'name', json.dumps(name, ensure_ascii=False))
-fm = set_key(fm, 'description', '>\n' + indent_block(desc))
-body = body.replace('# ' + e['TC_TASK_ID'] + ': [Task Name]', '# ' + e['TC_TASK_ID'] + ': ' + name)
-body = body.replace('<!-- Auto-populated by git mining at task completion.\\n     Manual entries optional during execution. -->', '### ' + e['TC_TIMESTAMP'] + ' — task-created [task-create-agent]\n- **Action:** Created task via task-create agent\n- **Output:** ' + e['TC_FILEPATH'] + '\n- **Context:** Initial task creation')
-# T-767 (832): seed the Human AC the gate just required. Anchored on the heading AND its
-# comment opener so a name or description containing '### Human' cannot capture the
-# substitution — that first-match capture is OBS-363, filed separately.
-if e.get('TC_HUMAN_AC'):
-    _anchor = '### Human\n<!--'
-    if _anchor in body:
-        body = body.replace(_anchor, '### Human\n\n- [ ] ' + e['TC_HUMAN_AC'] + '\n\n<!--', 1)
-    else:
-        sys.stderr.write('create-task.sh: WARNING --human-ac given but template has no anchored ### Human section; criterion NOT seeded\n')
-        sys.exit(3)
-t = pre + fm + body
-with open(e['TC_FILEPATH'], 'w') as f:
-    f.write(t)
-" "$NAME" "$DESCRIPTION"
-else
-    # Fallback: minimal inline template (only if default.md missing)
-    # T-2778: indent every line of the description, not just the first — see indent_block()
-    # above for why the single-indent form corrupts multi-paragraph descriptions.
-    DESCRIPTION_INDENTED=$(printf '%s\n' "$DESCRIPTION" | awk '{ if (length($0)) print "  " $0; else print "" }')
-    # T-4787: quote the name as JSON (a valid YAML double-quoted scalar), not raw.
-    NAME_YAML=$(python3 -c 'import json, sys; print(json.dumps(sys.argv[1], ensure_ascii=False))' "$NAME")
-    cat > "$FILEPATH" << EOF
----
-id: $TASK_ID
-name: $NAME_YAML
-description: >
-$DESCRIPTION_INDENTED
-status: $STATUS
-workflow_type: $WORKFLOW_TYPE
-horizon: $HORIZON
-owner: $OWNER
-tags: $TAGS_YAML
-related_tasks: $RELATED_YAML
-created: $TIMESTAMP
-last_update: $TIMESTAMP
-date_finished: null
----
-
-# $TASK_ID: $NAME
-
-## Context
-
-**Background / trigger:** <what happened, who reported it, evidence>
-
-**Problem / hypothesis:** <what we think is wrong and why>
-
-**Goal:** <what we are trying to achieve>
-
-**Expected outcome:** <what will be different when this is done>
-
-## Acceptance Criteria
-
-- [ ] [Criterion]
-
-## Verification
-
-## Updates
-
-### $TIMESTAMP — task-created [task-create-agent]
-- **Action:** Created task via task-create agent
-- **Output:** $FILEPATH
-- **Context:** Initial task creation
-EOF
-fi
-)
+# Render and write the task file (T-5221): lib/render_task.py is the one task-file writer,
+# shared with fw task create-batch. It picks the template (project templates/, then the
+# framework's copy, T-4597; an inline fallback when neither exists), renders it exactly as
+# the three inline writers here did (T-2778, T-4787, T-4863), and links the file into place
+# exclusively. Values pass as argv, never interpolated into source (T-595).
+# T-4841: subshell with the lock fd closed, so the writer never inherits it.
+FILEPATH=$(
+    eval "$(keylock_subshell_close_cmd)"
+    python3 "$FRAMEWORK_ROOT/lib/render_task.py" write-one \
+        --tasks-dir "$TASKS_DIR" --framework-root "$FRAMEWORK_ROOT" \
+        --id="$TASK_ID" --name="$NAME" --description="$DESCRIPTION" \
+        --type="$WORKFLOW_TYPE" --owner="$OWNER" --horizon="$HORIZON" --status="$STATUS" \
+        --tags="$TAGS" --related="$RELATED" --timestamp="$TIMESTAMP" \
+        --waiting-on="$WAITING_ON" --revisit-at="$REVISIT_AT"
+) || { echo -e "${RED}ERROR: Task file could not be written for $TASK_ID${NC}" >&2; exit 1; }
 # T-4841: id persisted (.id-highwater) and the file written — release now, so
 # nothing after this point (origin, recommendation, --start focus) holds it.
+# T-5217: the ledger's created row first, still under the lock.
+[ -f "$FILEPATH" ] && fw_id_ledger_created "$TASK_ID"
 keylock_release "task-id-allocation"
 
 # Validate the created file

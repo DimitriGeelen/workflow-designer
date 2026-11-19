@@ -32,6 +32,13 @@ do_inception() {
         retrofit-rec|retrofit-recommendations)
             do_inception_retrofit_recommendations "$@"
             ;;
+        lifecycle)
+            # T-5227: per step count, median days in step, overdue; --overdue = the routing
+            PROJECT_ROOT="$PROJECT_ROOT" python3 "$FRAMEWORK_ROOT/lib/inception_lifecycle.py" "$@"
+            ;;
+        wait)
+            do_inception_wait "$@"
+            ;;
         ""|-h|--help)
             show_inception_help
             ;;
@@ -54,24 +61,58 @@ show_inception_help() {
     echo "                                    Re-record a mistaken decision, also on a"
     echo "                                    completed inception (operator-only, logged, T-4324);"
     echo "                                    defer reopens it, parked in active/ (T-4918)"
+    echo "  lifecycle [--json] [--overdue]    Inception lifecycle map (T-5227): per step the"
+    echo "                                    count, median days in step and overdue count;"
+    echo "                                    --overdue lists overdue inceptions by owner"
+    echo "  wait <T-XXX> agent|peer|operator [--revisit YYYY-MM-DD]"
+    echo "                                    Record who holds the next step (default revisit"
+    echo "                                    today + 7); stamps step_entered_at (T-5227)"
     echo "  sweep [--dry-run]                 Retroactively finalize inceptions with"
     echo "                                    recorded decisions but unchecked Human ACs"
     echo "  retrofit-rec [--apply]            T-1716 retrofit: scan active inceptions"
     echo "                                    with template-only Recommendation blocks"
-    echo "                                    and inject DEFER stubs (read-only by default)"
+    echo "                                    and inject EXPLORING stubs (read-only by default)"
     echo ""
     echo -e "${BOLD}Options:${NC}"
     echo "  start --owner <owner>             Set task owner (default: human)"
-    echo "  start --recommendation GO|NO-GO|DEFER   Required under \$CLAUDECODE=1 (T-1715)"
+    echo "  start --recommendation EXPLORING|GO|NO-GO|DEFER"
+    echo "                                    Agent filings default to EXPLORING (not ready"
+    echo "                                    for decision) until every IW question is disposed (T-5226)"
     echo "  start --rationale '<reason>'      Required under \$CLAUDECODE=1 (T-1715)"
     echo "  start --i-am-human                Bypass filing-time gate (logged)"
+    echo "  start --waiting-on agent|peer|operator  Who holds the next step (default agent, T-5227)"
+    echo "  start --revisit-at YYYY-MM-DD     When it comes back (default filing date + 7)"
     echo "  decide --rationale '<reason>'     Required: explain the decision"
     echo ""
     echo -e "${BOLD}Examples:${NC}"
     echo "  fw inception start 'Evaluate notification system' \\"
-    echo "    --recommendation DEFER --rationale 'Captured for later, no exploration done'"
+    echo "    --rationale 'Why this is worth exploring (evidence)'"
     echo "  fw inception status"
     echo "  fw inception decide T-085 go --rationale 'All assumptions validated'"
+}
+
+do_inception_wait() {
+    # T-5227: set waiting_on / revisit_at / step_entered_at on an open inception.
+    local task_id="${1:-}" on="${2:-}" revisit=""
+    shift 2 2>/dev/null || true
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --revisit|--revisit-at) revisit="$2"; shift 2 ;;
+            *) echo -e "${RED}Unknown option: $1${NC}" >&2; return 1 ;;
+        esac
+    done
+    if [ -z "$task_id" ] || [ -z "$on" ]; then
+        echo "Usage: fw inception wait T-XXX agent|peer|operator [--revisit YYYY-MM-DD]" >&2
+        return 1
+    fi
+    local task_file
+    task_file=$(find_task_file "$task_id" active)
+    if [ -z "$task_file" ] || [ ! -f "$task_file" ]; then
+        echo -e "${RED}No active task $task_id${NC}" >&2
+        return 1
+    fi
+    python3 "$FRAMEWORK_ROOT/lib/inception_lifecycle.py" --set-wait "$task_file" "$on" \
+        ${revisit:+--revisit "$revisit"}
 }
 
 do_inception_start() {
@@ -80,7 +121,7 @@ do_inception_start() {
 
     if [ -z "$name" ]; then
         echo -e "${RED}Usage: fw inception start '<name>' [--owner <owner>] \\${NC}"
-        echo -e "${RED}         --recommendation GO|NO-GO|DEFER --rationale '<reason>'${NC}"
+        echo -e "${RED}         [--recommendation EXPLORING|GO|NO-GO|DEFER] --rationale '<reason>'${NC}"
         exit 1
     fi
 
@@ -90,9 +131,12 @@ do_inception_start() {
     local rationale=""
     local i_am_human=false
     local origin=""   # T-3897
+    local waiting_on="" revisit_at=""   # T-5227
     while [[ $# -gt 0 ]]; do
         case $1 in
             --owner) owner="$2"; shift 2 ;;
+            --waiting-on) waiting_on="$2"; shift 2 ;;
+            --revisit-at) revisit_at="$2"; shift 2 ;;
             --recommendation) recommendation="$2"; shift 2 ;;
             --rationale) rationale="$2"; shift 2 ;;
             --i-am-human) i_am_human=true; shift ;;
@@ -104,34 +148,35 @@ do_inception_start() {
     # Validate --recommendation value if provided
     if [ -n "$recommendation" ]; then
         case "$recommendation" in
-            GO|NO-GO|DEFER) ;;
+            EXPLORING|GO|NO-GO|DEFER) ;;
             *)
-                echo -e "${RED}Invalid --recommendation: '$recommendation' (must be GO, NO-GO, or DEFER)${NC}" >&2
+                echo -e "${RED}Invalid --recommendation: '$recommendation' (must be EXPLORING, GO, NO-GO, or DEFER)${NC}" >&2
                 exit 1
                 ;;
         esac
     fi
 
-    # Filing-time recommendation gate (T-1715/T-1716): under $CLAUDECODE=1,
-    # require --recommendation + --rationale so the agent's advisory is captured
-    # at filing time rather than recurring "blank decision for human" pattern.
-    # Override: --i-am-human (scripts/tests/Watchtower) — logged.
+    # Filing-time recommendation gate (T-1715/T-1716, T-5226): under
+    # $CLAUDECODE=1 the agent files with a rationale, and the recommendation
+    # defaults to EXPLORING ("not ready for decision"). The agent writes GO,
+    # NO-GO or DEFER only once every IW question is disposed.
+    # Override: --i-am-human (operator, scripts/tests/Watchtower) — logged; the
+    # operator may still file with a verdict.
     if [ "${CLAUDECODE:-}" = "1" ] && [ "$i_am_human" = false ]; then
-        if [ -z "$recommendation" ] || [ -z "$rationale" ]; then
-            echo -e "${RED}ERROR: --recommendation and --rationale required when filing under \$CLAUDECODE=1 (T-1715, T-679)${NC}" >&2
+        if [ -z "$rationale" ]; then
+            echo -e "${RED}ERROR: --rationale required when filing under \$CLAUDECODE=1 (T-1715, T-5226)${NC}" >&2
             echo "" >&2
-            echo -e "Filing an inception under an agent session must include the agent's recommendation." >&2
-            echo -e "The human is the decision-maker; the agent is the advisory." >&2
+            echo -e "Say why this is worth exploring. The recommendation defaults to EXPLORING" >&2
+            echo -e "(not ready for decision) until every IW question is disposed." >&2
             echo "" >&2
             echo -e "Correct invocation:" >&2
             echo -e "  fw inception start '$name' \\" >&2
-            echo -e "    --recommendation GO|NO-GO|DEFER \\" >&2
             echo -e "    --rationale '<one-paragraph reason citing evidence>'" >&2
             echo "" >&2
-            echo -e "Acceptable values: GO, NO-GO, DEFER. Use DEFER if you don't yet have evidence." >&2
-            echo -e "See CLAUDE.md §Presenting Work for Human Review (T-679)." >&2
+            echo -e "See CLAUDE.md §Inception Discipline (T-5226)." >&2
             exit 1
         fi
+        [ -n "$recommendation" ] || recommendation="EXPLORING"
     fi
 
     # Log bypass if --i-am-human used (T-1716)
@@ -169,7 +214,8 @@ do_inception_start() {
         --name "$name" \
         --description "Inception: $name" \
         --type inception \
-        --owner "$owner" ${origin:+--origin "$origin"} 2>&1) || rc=$?
+        --owner "$owner" ${origin:+--origin "$origin"} \
+        ${waiting_on:+--waiting-on "$waiting_on"} ${revisit_at:+--revisit-at "$revisit_at"} 2>&1) || rc=$?
 
     echo "$output"
     if [ "$rc" -ne 0 ]; then
@@ -610,27 +656,6 @@ do_inception_decide() {
     # and an operator runme of 8 decisions was refused 8/8 (2026-10-08). The person
     # deciding is the review; refusing them only ever blocked a human.
     local review_marker="$PROJECT_ROOT/.context/working/.reviewed-$task_id"
-    # 832 T-996: the marker is a side effect of the AGENT-side `fw task review`, and nothing
-    # makes the agent run it before handing the decision over, so the refusal landed on the
-    # HUMAN at the moment of deciding ("run another command, then re-run") — 15 hits in one
-    # project's transcripts. The gate's purpose (T-973) is that the human SEES the review
-    # before deciding. When the caller is a human at a terminal, satisfy that purpose here:
-    # render the same review (emit_review writes the marker) and ask for confirmation.
-    # Agents ($CLAUDECODE=1) never reach this line (T-1259 gate above); non-interactive
-    # callers keep the refusal.
-    if [ ! -f "$review_marker" ] && [ -r /dev/tty ] && [ -t 1 -o -t 0 ] && [ "${CLAUDECODE:-}" != "1" ] \
-       && [ -f "$FW_LIB_DIR/review.sh" ]; then
-        echo -e "${YELLOW}No review was emitted for $task_id yet — showing it now (T-973 requires you to see it).${NC}" >&2
-        source "$FW_LIB_DIR/review.sh"
-        if emit_review "$task_id" "$task_file" >&2 && [ -f "$review_marker" ]; then
-            local _seen=""
-            read -r -p "You have read the review above. Continue with the decision? [y/N] " _seen </dev/tty || _seen=""
-            if [ "$_seen" != "y" ] && [ "$_seen" != "Y" ]; then
-                echo -e "${YELLOW}Stopped before deciding. The review stays emitted; re-run the decide command when ready.${NC}" >&2
-                exit 1
-            fi
-        fi
-    fi
     if [ ! -f "$review_marker" ]; then
         echo -e "${YELLOW}NOTE:${NC} $task_id decided without a prior 'fw task review' — the decider is the reviewer (T-3991)." >&2
     fi
@@ -654,35 +679,21 @@ do_inception_decide() {
         exit 1
     fi
 
-    # Gate: require a ## Hypothesis in the three-part form, with a success clause
-    # naming something checkable (T-866, arc-004). Fires on GO only — a NO-GO or
-    # DEFER takes on no claim, so demanding a measurable signal there is
-    # bureaucracy. Placed AFTER the Recommendation gate deliberately: the
-    # recommendation is what the human reads, the hypothesis is what the project
-    # will later be measured against, and failing the cheaper/closer one first
-    # keeps the refusals in the order an author can act on them.
-    # Fail CLOSED if the audit lib never loaded. Its sourcing above is inside an
-    # `if [ -f ... ]`, so a missing lib would otherwise reach this line as a bare
-    # "command not found" and — depending on shell settings — let the decision
-    # through. A gate whose absence is indistinguishable from a pass is the exact
-    # defect this arc is built around.
-    if ! command -v audit_inception_hypothesis >/dev/null 2>&1; then
-        echo -e "${RED}ERROR: hypothesis gate unavailable (lib/task-audit.sh did not load)${NC}" >&2
-        echo -e "Refusing the decision rather than recording one the gate never checked." >&2
-        exit 1
+    # T-5226: EXPLORING means "not ready for decision". Refuse before any write.
+    # The remedy is a real recommendation (GO, NO-GO or DEFER), not a bypass.
+    local _ex_line=""
+    if source "$FRAMEWORK_ROOT/lib/inception-readiness.sh" 2>/dev/null \
+       && command -v inception_handoff_blockers >/dev/null 2>&1; then
+        _ex_line=$(inception_handoff_blockers "$task_file" \
+            | awk -F'\t' '$1 == "exploring" || $1 == "ready-for-recommendation"' | head -1)
     fi
-    if ! audit_inception_hypothesis "$task_file" "$decision"; then
+    if [ -n "$_ex_line" ]; then
+        echo -e "${RED}ERROR: $task_id is EXPLORING — not ready for decision (T-5226)${NC}" >&2
+        echo "  $(printf '%s' "$_ex_line" | cut -f2)" >&2
+        echo "  Next: $(printf '%s' "$_ex_line" | cut -f3)" >&2
         echo "" >&2
-        echo -e "${RED}ERROR: ## Hypothesis required before a GO decision${NC}" >&2
-        echo "" >&2
-        echo -e "A GO is the moment this project takes on a claim. Every support score in" >&2
-        echo -e "this task's value-driver table is an argument about that claim — without it," >&2
-        echo -e "the scores can rank but cannot be wrong, because there is nothing for them" >&2
-        echo -e "to be wrong about." >&2
-        echo "" >&2
-        echo -e "The estimator can draft one from this task's own text; correct it and set" >&2
-        echo -e "  hypothesis_source: human" >&2
-        echo -e "in the frontmatter to make your wording permanent." >&2
+        echo "Nothing was written. A decision can be recorded once the ## Recommendation" >&2
+        echo "reads GO, NO-GO or DEFER." >&2
         exit 1
     fi
 
@@ -1402,7 +1413,7 @@ do_inception_sweep() {
 
 # T-1716 Stream C: retrofit retroactive sweep
 # Scans active inceptions for template-only Recommendation blocks and
-# injects a DEFER stub with rationale 'captured pre-T-1716 gate'. Read-only
+# injects an EXPLORING stub (T-5226: "not ready for decision"). Read-only
 # by default (shows diff); --apply mutates files.
 do_inception_retrofit_recommendations() {
     local apply=false
@@ -1448,15 +1459,15 @@ do_inception_retrofit_recommendations() {
 
         echo -e "${YELLOW}[$task_id]${NC} $task_name"
         echo "  File: $task_file"
-        echo "  Action: inject DEFER stub Recommendation"
+        echo "  Action: inject EXPLORING stub Recommendation"
 
         if [ "$apply" = true ]; then
-            REC=DEFER \
-                RAT="Filed pre-T-1716 gate without Recommendation. Promotion criterion: re-surface when concrete spike data or human-graded evidence emerges. Auto-retrofitted by 'fw inception retrofit-rec --apply'." \
+            REC=EXPLORING \
+                RAT="Filed without a Recommendation. EXPLORING means not ready for decision: dispose every IW question, then replace EXPLORING with GO, NO-GO or DEFER (T-5226). Auto-retrofitted by 'fw inception retrofit-rec --apply' (T-1716 sweep)." \
                 python3 - "$task_file" <<'PYRETROFIT'
 import os, re, sys
 fp = sys.argv[1]
-rec = os.environ.get('REC', 'DEFER')
+rec = os.environ.get('REC', 'EXPLORING')
 rat = os.environ.get('RAT', '')
 with open(fp) as f:
     content = f.read()
@@ -1491,7 +1502,7 @@ else:
     action = "APPENDED missing section"
 with open(fp, 'w') as f:
     f.write(new_content)
-print(f"  WROTE: DEFER stub ({action})")
+print(f"  WROTE: {rec} stub ({action})")
 PYRETROFIT
         else
             echo "  (read-only — pass --apply to mutate)"
@@ -1502,7 +1513,7 @@ PYRETROFIT
     echo "---"
     if [ "$apply" = true ]; then
         echo -e "${GREEN}Retrofit applied: $count task(s)${NC}"
-        echo "Review changes and edit each Recommendation to match the actual decision (DEFER → GO/NO-GO if applicable)."
+        echo "Each retrofitted inception reads EXPLORING until its questions are disposed and the agent writes GO, NO-GO or DEFER."
     else
         echo -e "${CYAN}Read-only: $count task(s) would be retrofitted${NC}"
         echo "Run with --apply to mutate."

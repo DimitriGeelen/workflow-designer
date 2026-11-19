@@ -308,9 +308,11 @@ def _widenings(task_id: str, text: str, rows) -> dict[int, tuple[dict | None, st
     root = _project_root()
     for c, cl in rows:
         if (cl.delegation_class != OPERATOR_ONLY
-                or cl.cls not in delegation_widening.WIDENABLE_CLASSES):
+                or cl.cls not in delegation_widening.LIFTABLE_CLASSES):
             continue
         w, why = delegation_widening.active_widening(root, task_id, text, c)
+        if w is None and cl.cls not in delegation_widening.WIDENABLE_CLASSES:
+            continue   # T-5235: an unlifted operator-marked criterion reports as before
         if w is not None or why:
             out[c.index] = (w, why)
     return out
@@ -328,6 +330,9 @@ def _refused_entry(c, cl, widening) -> dict:
         entry["delegation_class"] = REVIEWER_JUDGES
         entry["widened_by"] = w["id"]
         entry["widening_ruling"] = w.get("ruling")
+        if w.get("kind") == "ruling":   # T-5235
+            entry["ruling_recorded"] = w["id"]
+            entry["reason"] = delegation_widening.widened_note(w)
     else:
         entry["widening"] = why
     return entry
@@ -379,7 +384,9 @@ def cmd_delegate(args) -> int:
                 mark = f"{CYAN}reviewer-judged (fw reviewer judge){NC}"
             w, why = widened.get(c.index, (None, ""))
             if w is not None:
-                mark = (f"{CYAN}reviewer-judged under {w['id']} (ruling {w.get('ruling')}){NC}")
+                mark = (f"{CYAN}reviewer-judged, {delegation_widening.widened_note(w)}{NC}"
+                        if w.get("kind") == "ruling" else
+                        f"{CYAN}reviewer-judged under {w['id']} (ruling {w.get('ruling')}){NC}")
             print(f"  AC#{c.index:<3} {cl.cls:<18} {mark}  {c.title[:72]}")
             print(f"        {cl.reason}")
             if why:
@@ -395,13 +402,7 @@ def cmd_delegate(args) -> int:
     remaining_human = len(refused)
     owner = str(meta.get("owner") or "")
     new_owner = owner
-    # 832 T-931 (operator ruling 2026-09-29; re-applied by T-1009 after the 1.7.740 re-vendor lost
-    # it silently): `owner: human` is a sovereignty claim only while a Human criterion is open.
-    # The old `if converted and remaining_human == 0` flipped only when THIS run converted
-    # something, so a task with no open Human criterion kept `owner: human` forever (832: 45 of
-    # 112 human-owned tasks). Refused criteria still count as open, so anything genuinely human
-    # keeps its owner. Regression test: tools/_t931-delegate-owner-follows-criteria.py.
-    if owner == "human" and remaining_human == 0:
+    if converted and remaining_human == 0:
         new_owner = "agent"
 
     record = {

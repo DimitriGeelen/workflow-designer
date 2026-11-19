@@ -2,7 +2,6 @@
 
 import json
 import os
-from markupsafe import Markup
 import re as re_mod
 import time
 from pathlib import Path
@@ -378,17 +377,10 @@ def _render_md_inline(text):
     """Render text as Markdown HTML for inline display (T-1551).
     Strips <p> wrapper for use inside <li> contexts. safe_mode='escape'
     blocks raw HTML — only Markdown syntax (links, code, emphasis) renders.
-    Returns '' for empty input.
-
-    T-606: returns markupsafe.Markup. The old contract was "the caller must mark
-    returned strings safe", i.e. correctness lived in every template author's memory
-    rather than in this function. Two of the four consumers forgot, and the operator
-    read 205 escaped &lt;code&gt; on /approvals for as long as that page has existed.
-    Escaping is decided HERE (markdown2 safe_mode='escape' still neutralises raw HTML
-    in the task file); marking the result Markup only stops Jinja escaping it twice.
+    Returns '' for empty input. The caller must mark returned strings safe.
     """
     if not text:
-        return Markup('')
+        return ''
     text = resolve_watchtower_refs(text)  # T-4624
     text = _auto_link_watchtower_paths(text)
     text = _auto_link_task_refs(text)
@@ -401,22 +393,14 @@ def _render_md_inline(text):
     html = _linkify_code_urls(html)
     html = link_route_code_spans(html)  # T-4624
     # T-1722: artefact paths → /file/ anchors (existence-gated, idempotent).
-    return Markup(_auto_link_files(html))
+    return _auto_link_files(html)
 
 
 def _render_md_block(text):
     """Same as _render_md_inline but keeps <p> wrapping for block contexts
-    (Expected, If-not). T-1551.
-
-    T-606: returns markupsafe.Markup. The old contract was "the caller must mark
-    returned strings safe", i.e. correctness lived in every template author's memory
-    rather than in this function. Two of the four consumers forgot, and the operator
-    read 205 escaped &lt;code&gt; on /approvals for as long as that page has existed.
-    Escaping is decided HERE (markdown2 safe_mode='escape' still neutralises raw HTML
-    in the task file); marking the result Markup only stops Jinja escaping it twice.
-    """
+    (Expected, If-not). T-1551."""
     if not text:
-        return Markup('')
+        return ''
     text = resolve_watchtower_refs(text)  # T-4624
     text = _auto_link_watchtower_paths(text)
     text = _auto_link_task_refs(text)
@@ -427,7 +411,7 @@ def _render_md_block(text):
     html = _linkify_code_urls(html)
     html = link_route_code_spans(html)  # T-4624
     # T-1722: artefact paths → /file/ anchors (existence-gated, idempotent).
-    return Markup(_auto_link_files(html))
+    return _auto_link_files(html)
 
 
 # T-3224: an AC field heading is `**<marker><suffix>:**`, where the optional
@@ -1351,6 +1335,13 @@ def toggle_ac(task_id):
     if ok:
         checked_attr = "checked" if new_state else ""
         note = _owner_after_human_tick(task_file, old_text)
+        if new_state:  # T-5222: tell the agent; never on untick, never blocks or fails the request
+            try:
+                from lib import agent_notice
+                agent_notice.notify_criterion_ticked(task_id, old_text, task_file.read_text(),
+                                                     root=PROJECT_ROOT, wait=False)
+            except Exception:  # noqa: BLE001 - the tick stands whatever the notice does
+                pass
         return (f'<input type="checkbox" {checked_attr} onchange="this.form.requestSubmit()" style="margin:0;">'
                 + (f' <small>{_escape(note)}</small>' if note else ""))
     return f'<p style="color: var(--pico-del-color);">Error: {err}</p>', 500

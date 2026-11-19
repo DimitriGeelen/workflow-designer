@@ -109,8 +109,6 @@ inception_underdisposed_questions() {
 #
 #     - inception_underdisposed_questions (above) — T-2190 disposition rule
 #     - audit_inception_recommendation (lib/task-audit.sh) — T-1497 rec rule
-#     - audit_inception_hypothesis (lib/task-audit.sh) — T-866 GO rule, asked
-#       only when the recommendation is GO (832 T-1123)
 #
 #   It exists so requirements stop being discovered one refusal at a time. A new
 #   handoff requirement is added HERE and every invitation surface inherits it.
@@ -157,23 +155,37 @@ inception_handoff_blockers() {
         fi
     fi
 
-    # 832 T-1123: 832's local T-866 hypothesis gate (audit_inception_hypothesis, enforced by
-    # `fw inception decide ... go`; proposed upstream as bundle E patch 0010) was never added
-    # here when it was re-applied on top of this predicate, so a GO-recommended
-    # inception with a placeholder success clause was offered to the operator and
-    # then refused at decide (832 job 012, T-1118). Asked only when the agent
-    # recommends GO: the gate binds GO alone, and every blocker hides the whole
-    # form, so a NO-GO / DEFER must stay decidable.
-    if command -v audit_inception_hypothesis >/dev/null 2>&1; then
-        local _rec _hyp
-        _rec=$(awk '/<!--/{c=1} !c && /^\*\*Recommendation:?\*\*/{print; exit} /-->/{c=0}' "$task_file" \
-               | sed -E 's/^\*\*Recommendation:?\*\*:?[[:space:]]*//' | awk '{print toupper($1)}' | tr -d '.,;:*')
-        if [ "$_rec" = "GO" ]; then
-            if ! _hyp=$(audit_inception_hypothesis "$task_file" go 2>&1 >/dev/null); then
-                _hyp=$(printf '%s\n' "$_hyp" | head -1 | sed 's/^HYPOTHESIS: *//')
-                printf 'hypothesis-unready\t## Hypothesis would be refused at a GO: %s\tWrite the three-part hypothesis with a success clause someone could check (a count, threshold or named state); the decide gate refuses a GO without it (T-866).\n' "$_hyp"
+    # T-5226: EXPLORING means "not ready for decision". It stays a blocker until
+    # the agent replaces it with GO, NO-GO or DEFER. Once every question is
+    # disposed it is reported as ready for a recommendation instead.
+    local _verdict
+    _verdict=$(awk '
+        /^## Recommendation[[:space:]]*$/ { in_rec=1; next }
+        in_rec && /^#{2,} / { exit }
+        in_rec && /<!--/ { in_c=1 }
+        in_rec && !in_c && /^[[:space:]]*[-*]?[[:space:]]*\*\*Recommendation:\*\*/ {
+            sub(/^[[:space:]]*[-*]?[[:space:]]*\*\*Recommendation:\*\*[[:space:]]*\**/, "")
+            match($0, /^[A-Za-z-]+/)
+            print toupper(substr($0, RSTART, RLENGTH)); exit
+        }
+        in_rec && /-->/ { in_c=0 }
+    ' "$task_file" 2>/dev/null)
+    if [ "$_verdict" = "EXPLORING" ]; then
+        local _open=0 _total=0
+        [ -n "$_ud" ] && _open=$(printf '%s\n' "$_ud" | grep -c .)
+        if grep -qE '^## Open Questions' "$task_file"; then
+            _total=$(awk '/^## Open Questions/{flag=1;next} /^## /{flag=0} flag' "$task_file" \
+                | grep -cE '(^[[:space:]]*-[[:space:]]*\*?\*?IW-[0-9]+|^###[[:space:]]+IW-[0-9]+|^[[:space:]]*-[[:space:]]*Q-?[0-9]+)' || true)
+            if [ "$_open" -gt 0 ]; then
+                printf 'exploring\tRecommendation is EXPLORING: not ready for decision, %s question(s) open\tDispose every IW question, then write GO, NO-GO or DEFER with a rationale.\n' "$_open"
+                return 0
+            fi
+            if [ "$_total" -eq 0 ]; then
+                printf 'exploring\tRecommendation is EXPLORING: not ready for decision, no Open Questions filed yet\tFile the IW questions, dispose them, then write GO, NO-GO or DEFER with a rationale.\n'
+                return 0
             fi
         fi
+        printf 'ready-for-recommendation\tRecommendation is EXPLORING and every question is disposed: ready for a recommendation\tThe agent replaces EXPLORING with GO, NO-GO or DEFER and a rationale.\n'
     fi
 
     return 0

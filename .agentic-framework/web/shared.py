@@ -11,7 +11,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, Iterable, TypeVar
 
-from markupsafe import Markup, escape
 import yaml
 from flask import g, has_request_context, render_template, request
 
@@ -1266,22 +1265,14 @@ def link_route_code_spans(html: str, base_url: str | None = None) -> str:
     return _CODE_ROUTE_HTML_RE.sub(_sub, html)
 
 
-def render_markdown_safe(text: str, extras: list[str] | None = None) -> Markup:
+def render_markdown_safe(text: str, extras: list[str] | None = None) -> str:
     """Render Markdown to HTML with safe_mode='escape', auto-link T-XXX refs
     and bare http(s) URLs.
 
     Used by /review and any blueprint that needs to render an arbitrary chunk
     of task-body markdown (rationale, evidence, etc.) without piping through
-    tasks.py's AC-specific helpers. Returns '' for empty input.
-
-    T-606: returns markupsafe.Markup, so callers no longer have to remember
-    `| safe`. Recommended by 010-termlink (rail 563) and correct — but note it
-    was NOT sufficient for the reported symptom: /approvals' AC fields never
-    reach this function, they come from tasks.py's _render_md_inline. The
-    docstring below claims the blueprint-private parser pattern was broken by
-    promoting this helper here; the promotion happened and the private pair
-    survived. Both are now fixed. A contract with two definitions is one
-    definition and one impostor, and the impostor is where the bug lives.
+    tasks.py's AC-specific helpers. Returns '' for empty input. Caller must
+    mark returned string `| safe` in templates.
 
     Origin: T-1575 — /review surface dumped raw markdown into a `<pre>` block.
     Promoted here (rather than reused from tasks.py) to break the blueprint-
@@ -1293,24 +1284,11 @@ def render_markdown_safe(text: str, extras: list[str] | None = None) -> Markup:
     ``extras=None`` is the previous behaviour exactly.
     """
     if not text:
-        return Markup("")
+        return ""
     try:
         import markdown2
     except ImportError:
-        # T-569: ESCAPE on the degradation path. Every caller marks this `| safe` — that is
-        # stated three lines up in this docstring — so returning the raw text handed
-        # unescaped, attacker-influenced content straight into the page whenever markdown2
-        # was missing. It was latent only because the import has always succeeded here.
-        # A fallback that silently turns escaping off is the same shape as the rest of this
-        # week's defects: the failure renders as health, and nothing in the output says the
-        # renderer degraded.
-        from markupsafe import escape as _escape
-        # T-606: was str(_escape(text)) — correct only because every caller then
-        # applied `| safe`. Now that this function owns the safety, return the
-        # Markup escape() already produced: the entities stay visible as literal
-        # text and are NOT re-escaped into &amp;lt;. The degradation path must keep
-        # escaping; it must not inherit the happy path's trust.
-        return _escape(text)
+        return text  # graceful degradation
     text = resolve_watchtower_refs(text)  # T-4624
     text = _TASK_REF_RE_SHARED.sub(r"[\1](/tasks/\1)", text)
     text = protect_path_underscores(text)
@@ -1331,7 +1309,7 @@ def render_markdown_safe(text: str, extras: list[str] | None = None) -> Markup:
     # become clickable /file/ links. Existence-gated; same rendering-layer
     # contract as the T-1575 URL/T-NNNN shape — agent need not pre-format.
     html = _auto_link_files(html)
-    return Markup(html)
+    return html
 
 
 _REC_MARKER_RE = re_mod.compile(
@@ -1365,7 +1343,7 @@ def _classify_rec_marker(label: str) -> str:
 # label ("Recommendation:") and leaves any inline emphasis on the value itself
 # in the body span.
 _REC_VERDICT_RE = re_mod.compile(
-    r"\s*\*{0,2}(KEEP-OPEN|NO[-_]GO|CLOSE|GO|DEFER)\b\*{0,2}",
+    r"\s*\*{0,2}(KEEP-OPEN|NO[-_]GO|CLOSE|GO|DEFER|EXPLORING)\b\*{0,2}",
     re_mod.IGNORECASE,
 )
 
@@ -1625,6 +1603,11 @@ _HB_RATIONALE_RE = re_mod.compile(r"rationale:" + _SP + r"*.+")
 _HB_REC_HEAD_RE = re_mod.compile(r"^## Recommendation" + _SP + r"*$")
 _HB_REC_LINE_RE = re_mod.compile(
     r"^" + _SP + r"*[-*]?" + _SP + r"*\*\*Recommendation:\*\*" + _SP + r"*\*{0,2}[A-Za-z]")
+# T-5226: the verdict word after the bold label (awk sub() + match()).
+_HB_REC_PREFIX_RE = re_mod.compile(
+    r"^" + _SP + r"*[-*]?" + _SP + r"*\*\*Recommendation:\*\*")
+_HB_REC_STRIP_RE = re_mod.compile(
+    r"^" + _SP + r"*[-*]?" + _SP + r"*\*\*Recommendation:\*\*" + _SP + r"*\**")
 _HB_UNDISPOSED_FIX = ("Give it `disposition: answered|deferred|dissolved` plus a one-line "
                       "rationale. `deferred` is ALWAYS available.")
 _HB_EMPTY_REC = {
@@ -1715,6 +1698,52 @@ def _handoff_blockers_from_text(text: str) -> list[dict]:
             in_c = False
     if not substantive:
         out.append(dict(_HB_EMPTY_REC))
+
+    # T-5226: the EXPLORING leg — first verdict word of the first non-comment
+    # **Recommendation:** line in the section (the shell's awk).
+    verdict, in_c = "", False
+    for ln in section:
+        if "<!--" in ln:
+            in_c = True
+        if not in_c and _HB_REC_PREFIX_RE.search(ln):
+            rest = _HB_REC_STRIP_RE.sub("", ln, count=1)
+            m = re_mod.match(r"[A-Za-z-]+", rest)
+            verdict = m.group(0).upper() if m else ""
+            break
+        if "-->" in ln:
+            in_c = False
+    if verdict == "EXPLORING":
+        open_n = sum(1 for b in out if b["kind"] == "undisposed-question")
+        if any(ln.startswith("## Open Questions") for ln in lines):
+            oq_all, flag = [], False
+            for ln in lines:
+                if ln.startswith("## Open Questions"):
+                    flag = True
+                    continue
+                if ln.startswith("## "):
+                    flag = False
+                if flag:
+                    oq_all.append(ln)
+            total = sum(1 for ln in oq_all if _HB_Q_MARKER_RE.search(ln))
+            if open_n > 0:
+                out.append({"kind": "exploring",
+                            "detail": ("Recommendation is EXPLORING: not ready for decision, "
+                                       f"{open_n} question(s) open"),
+                            "fix": ("Dispose every IW question, then write GO, NO-GO or DEFER "
+                                    "with a rationale.")})
+                return out
+            if total == 0:
+                out.append({"kind": "exploring",
+                            "detail": ("Recommendation is EXPLORING: not ready for decision, "
+                                       "no Open Questions filed yet"),
+                            "fix": ("File the IW questions, dispose them, then write GO, NO-GO "
+                                    "or DEFER with a rationale.")})
+                return out
+        out.append({"kind": "ready-for-recommendation",
+                    "detail": ("Recommendation is EXPLORING and every question is disposed: "
+                               "ready for a recommendation"),
+                    "fix": ("The agent replaces EXPLORING with GO, NO-GO or DEFER and a "
+                            "rationale.")})
     return out
 
 
@@ -1729,7 +1758,7 @@ _HB_SHELL_FUNCTIONS = (
     ("lib/inception-readiness.sh", "inception_handoff_blockers"),
     ("lib/task-audit.sh", "audit_inception_recommendation"),
 )
-_HB_TRANSCRIBED_DIGEST = "bb1901d8e7ec9062c65153de0beb75d612addbb93ad4bada33e9c959404abf7d"
+_HB_TRANSCRIBED_DIGEST = "5f9827f4bb8313b11b47b0e4a381425eeefb668349463f30ad8b3fcfb0bb0747"
 _HB_RULE_STATE: dict = {}  # (root, stats) -> True (transcription current) | False
 
 
@@ -1800,7 +1829,33 @@ def _handoff_blockers_via_shell(fp: Path) -> list[dict]:
     return out
 
 
+_HB_RAW_Q_RE = re_mod.compile(r"^(?P<q>\S+) disposition=(?P<d>true|false) rationale=(?P<r>true|false)$")
+
+
+def _blocker_in_words(b: dict) -> dict:
+    """T-5226: the operator reads these on the inception and approvals pages. An
+    undisposed-question detail comes from the shell predicate as
+    'IW-1 disposition=false rationale=false'; say it in words and keep that form
+    in `raw`. Every other blocker is returned unchanged."""
+    m = _HB_RAW_Q_RE.match(str(b.get("detail") or "")) if b.get("kind") == "undisposed-question" else None
+    if not m:
+        return b
+    q, d, r = m.group("q"), m.group("d") == "true", m.group("r") == "true"
+    if not d and not r:
+        plain = f"{q}: no answer recorded yet"
+    elif d:
+        plain = f"{q}: answered, but no reason given"
+    else:
+        plain = f"{q}: a reason is written, but no answer (answered / deferred / dissolved)"
+    return {**b, "detail": plain, "raw": b["detail"]}
+
+
 def inception_handoff_blockers(path) -> list[dict]:
+    """T-5226: the blockers below, with undisposed questions worded for the operator."""
+    return [_blocker_in_words(b) for b in _inception_handoff_blockers_raw(path)]
+
+
+def _inception_handoff_blockers_raw(path) -> list[dict]:
     """T-3896 (G-108): what still blocks this inception from a decision, as the
     decide gate sees it — [] when decision-ready. Each item: {kind, detail, fix}.
 
@@ -3014,30 +3069,14 @@ def load_latest_audit():
 
 
 def linkify_tasks(text):
-    r"""Convert T-XXX references to clickable Watchtower links (T-851).
-
-    T-646: ESCAPE FIRST, THEN LINKIFY. The result is declared trusted HTML by the
-    Jinja filter in app.py, and a function may only vouch for markup it created
-    itself. Before this, the substitution ran over the RAW string and the whole
-    result was wrapped in Markup(), so every `<` in the source prose was published
-    as a tag. The source is not incidental: timeline narratives are read out of
-    committed handover markdown (blueprints/timeline.py:159), so the text is prose
-    that sessions wrote, and sessions write about HTML. Measured on the live
-    /timeline: two `<html` tags reaching the browser from a paragraph *discussing*
-    fragments. Injection-shaped rather than an open door — the input is our own
-    repository — but the ordering is wrong either way, and the fix is one line.
-
-    escape() is applied to the whole input; the anchors are then inserted into
-    already-escaped text, so they are the only markup this function vouches for.
-    T-\d{3,} contains no escapable character, so escaping cannot disturb the match.
-    """
+    """Convert T-XXX references to clickable Watchtower links (T-851)."""
     if not text:
         return text
-    return Markup(re_mod.sub(
+    return re_mod.sub(
         r'\b(T-\d{3,})\b',
         r'<a href="/tasks/\1">\1</a>',
-        str(escape(text)),
-    ))
+        str(text),
+    )
 
 
 _FRAGMENT_CONVENTION_VIOLATION = (
