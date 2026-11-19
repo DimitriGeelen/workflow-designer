@@ -165,6 +165,14 @@ rm -rf "$FOLDER"
 echo "submitted $NAME; waiting (up to 75 min) ..." >&2
 pool-client --hub "$HUB" wait "$NAME" --timeout 4500 --dir "$ROOT/build/pool/wait" || true
 echo "wait result: $ROOT/build/pool/wait/$NAME/ ; out/: $ROOT/build/pool/results/$NAME/" >&2
+# T-1453 (1409's lesson v): a refused job is read at once and named, never left as "no result"
+python3 - "$ROOT/build/pool/wait/$NAME/pool-result.json" <<'PY' >&2 || true
+import json, sys
+try: d = json.load(open(sys.argv[1]))
+except Exception: sys.exit(0)
+if d.get("outcome") not in (None, "ok", "done", "completed", "succeeded"):
+    print("POOL %s on %s: %s" % (str(d.get("outcome")).upper(), d.get("node") or "?", d.get("reason") or "(no reason given)"))
+PY
 cat "$ROOT/build/pool/wait/$NAME/exit_code" 2>/dev/null || true
 
 # T-1408: the outcome for the pre-push gate, one key=value per line, in build/pool/last-<tier>.result (git-ignored).

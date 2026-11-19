@@ -65,7 +65,11 @@ pool_run() {  # the tier on ring20's pool; 0 green, 1 red, 3 no result for THIS 
     echo "T-1288 $TIER: running the $TIER tier on ring20's POOL (tools/pool/submit.sh $TIER) ..." >&2
     local last="$ROOT/build/pool/last-$TIER.result" commit code line node log
     ( cd "$ROOT" && ${T1408_POOL_SUBMIT:-bash tools/pool/submit.sh} "$TIER" ) </dev/null > "$WD/$PFX.pool.out" 2>&1 8<&-
-    [ -f "$last" ] || { echo "T-1288 $TIER: the pool gave no result (see ${WD#"$ROOT"/}/$PFX.pool.out)" >&2; return 3; }
+    if [ ! -f "$last" ]; then   # T-1453: say why, when the pool said why (a refusal names its reason)
+        echo "T-1288 $TIER: the pool gave no result (see ${WD#"$ROOT"/}/$PFX.pool.out)" >&2
+        grep -E '^POOL [A-Z]+ on ' "$WD/$PFX.pool.out" 2>/dev/null | tail -1 | sed "s/^/T-1288 $TIER: /" >&2
+        return 3
+    fi
     commit=$(sed -n 's/^commit=//p' "$last"); code=$(sed -n 's/^exit_code=//p' "$last")
     line=$(sed -n 's/^result_line=//p' "$last"); node=$(sed -n 's/^node=//p' "$last"); log=$(sed -n 's/^tier_log=//p' "$last")
     if [ -z "$commit" ]; then   # T-1453: the job failed before it tested anything; say why, by the job's own words
