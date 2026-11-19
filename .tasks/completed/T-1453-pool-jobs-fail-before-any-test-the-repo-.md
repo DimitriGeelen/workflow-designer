@@ -4,12 +4,13 @@ name: "Pool jobs fail before any test: the repo bundle exceeds the worker's file
 description: >
   Pool jobs fail before any test: the repo bundle exceeds the worker's file-size limit when its parts are joined
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/pool/run-tier.sh, tools/pool/submit.sh, tools/pool/tier-gate.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-19T20:07:56Z
-last_update: 2026-11-19T20:07:56Z
-date_finished: null
+last_update: 2026-11-19T21:20:24Z
+date_finished: 2026-11-19T21:20:24Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -75,13 +76,22 @@ before testing is reported by name by the gate (not only "no result").
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The cause is measured, not assumed: the worker's soft and hard file-size limits are logged by run-tier.sh, and
+- [x] The cause is measured, not assumed: the worker's soft and hard file-size limits are logged by run-tier.sh, and
       the bundle's size history shows when it crossed the limit.
-- [ ] A pool job for HEAD rebuilds the repo without writing any file larger than the worker allows (the limit read on
+      Worker log: "soft 262144, hard 262144" (1024-byte blocks = 256 MiB; ring20 confirmed: the job sandbox's LimitFSIZE,
+      deliberate). Bundle history: 267.7 MB (687428f5c, last good) -> 270.1 / 272.6 / 276.0 MB (failed).
+- [x] A pool job for HEAD rebuilds the repo without writing any file larger than the worker allows (the limit read on
       the worker, not hard-coded), and completes core and browser with a real result.
-- [ ] When a pool job fails before testing, the gate prints the job's own reason (its stderr tail), not only "the pool
-      gave no result".
-- [ ] `bash tools/pool/submit.sh local core` (the proof run on the same inputs) still passes.
+      Chain of 3 bundles (cut at designer-v0.25.0, designer-v0.42.0). Core on pool-w2 (d2d0b9169: 231/1, the 1 a real
+      T-1452 why-you finding, fixed; 558214e5f push: 232/0); browser on pool-w1 (558214e5f: 147/0). The worker checks
+      each link against its own `ulimit -f` before fetching.
+- [x] When a pool job fails before testing, the gate prints the job's own reason (its stderr tail), not only "the pool
+      gave no result". The job's `error` reaches last-<tier>.result and the gate prints it; a REFUSED job prints
+      "POOL REFUSED on <node>: <reason>" (seen live: node1 "unknown entry 832.bridge-core").
+- [x] `bash tools/pool/submit.sh local core` (the proof run on the same inputs) still passes. (232/0, 1004 s)
+
+Also found and fixed on the way (ring20 T-2644 diagnosis): chain links named with ".." were refused by pool:stage, and
+our stage check counted '"ok": false' as success (`\bok\b` matched the key), so they were never retried.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -267,6 +277,13 @@ before testing is reported by name by the gate (not only "no result").
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+bash -n tools/pool/submit.sh && bash -n tools/pool/run-tier.sh && bash -n tools/pool/tier-gate.sh
+grep -q 'repo.chain' tools/pool/submit.sh && grep -q 'repo.chain' tools/pool/run-tier.sh
+git show d2d0b9169^:tools/pool/submit.sh > /tmp/t1453-old-submit.sh
+grep -qF "grep -iE '\"ok\"" /tmp/t1453-old-submit.sh
+! grep -qF "grep -iE '\"ok\"" tools/pool/submit.sh
+grep -q '"ok" \*: \*true' tools/pool/submit.sh
+grep -q 'POOL \[A-Z\]+ on ' tools/pool/tier-gate.sh
 
 ## RCA
 
@@ -283,6 +300,22 @@ before testing is reported by name by the gate (not only "no result").
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+**Symptom:** from ~18:40Z on 2026-11-19 every pool job (core and browser) failed before testing; the gate reported
+"the pool's result is for , not HEAD" and let the local run decide alone, so the two-machine rule quietly became one.
+
+**Root cause:** the repo was sent as ONE bundle (split only for transport, joined on the worker), and the job sandbox
+caps one written file at 256 MiB (LimitFSIZE, deliberate). The repo grew past it (screenshots: 216 MB of PNG history).
+Two latent defects then surfaced in the fix: chain link names containing ".." (refused by pool:stage), and a stage
+check that counted '"ok": false' as success (`\bok\b`), so refused links were never retried and the relay could not
+route the job.
+
+**Why structurally allowed:** nothing watched the input size against the worker's limit, and the gate turned a
+failed-before-testing job into a silent "no result" (it had no field for the job's own reason). The stage check
+matched a word, not the answer's field.
+
+**Prevention:** the worker logs its file-size limit on every job and refuses an oversized link with a plain reason;
+each chain link is checked against CHAIN_HARD at build time; the gate prints a failed job's error and a refused job's
+reason (`POOL REFUSED on <node>: …`); the stage answer is read by its "ok" field only. Learning recorded below.
 
 ## Evolution
 
@@ -364,3 +397,16 @@ before testing is reported by name by the gate (not only "no result").
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1453-pool-jobs-fail-before-any-test-the-repo-.md
 - **Context:** Initial task creation
+
+### 2026-11-19T21:20:24Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-8bb6e9b4
+- **Timestamp:** 2026-11-19T21:20:27Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

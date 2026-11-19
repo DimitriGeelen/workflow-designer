@@ -1,0 +1,89 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1453: Pool jobs fail before any test: the repo bundle exceeds the worker's file-size limit when its parts are joined
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-19T21:20:38Z
+# ============================================================================
+
+task_id: T-1453
+task_name: "Pool jobs fail before any test: the repo bundle exceeds the worker's file-size limit when its parts are joined"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-19T20:07:56Z
+completed: 2026-11-19T21:20:24Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-11-19T21:10:10+01:00
+last_commit: 2026-11-19T21:24:58+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  pool jobs failed before any test once the repo bundle passed 256 MiB (276 MB on 258abb19; last good 267.7 MB): run-tier.sh raises its soft file-size limit to the hard one and logs both, refuses a too-large join with a plain reason instead of a core dump; the job's error reaches the gate, which names it instead of 'result is for , not HEAD'. the repo goes to the pool as a CHAIN of bundles cut at release tags (each link under the worker's 256 MiB one-file limit, sized by rev-list --disk-usage; old links built and staged once, reused by later jobs); the worker fetches them in order into one repo (gc.auto 0), checks out the branch as clone did; joined-parts path kept for older jobs; ulimit unit corrected (1024-byte blocks). a refused pool job is named, not left as 'no result' (1409 lesson v): submit.sh prints POOL <OUTCOME> on <node>: <reason> from pool-result.json, and the gate repeats it. First case: node1 refused 832.bridge-core as an unknown entry (reported to ring20). chain links named without '..' (pool:stage refused them as not normalised), and the stage answer is read by its "ok" field only — '\bok\b' matched the key in "ok": false, so two refused links counted as staged and the relay could not route the job (ring20 T-2644 diagnosis, msg f57b1633)
+
+# Key outcomes
+outcomes:
+  - 'The cause is measured, not assumed: the worker''s soft and hard file-size limits are logged by run-tier.sh, and'
+  - 'A pool job for HEAD rebuilds the repo without writing any file larger than the worker allows (the limit read on'
+  - 'When a pool job fails before testing, the gate prints the job''s own reason (its stderr tail), not only "the pool'
+  - '`bash tools/pool/submit.sh local core` (the proof run on the same inputs) still passes. (232/0, 1004 s)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'pool jobs failed before any test once the repo bundle passed 256 MiB (276 MB on 258abb19; last good 267.7 MB): run-tier.sh raises its soft file-size limit to the hard one and logs both, refuses a too-large join with a plain reason instead of a core dump; the job''s error reaches the gate, which names it instead of ''result is for , not HEAD'''
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1453-pool-jobs-fail-before-any-test-the-repo-.md'
+  - 'tools/pool/run-tier.sh'
+  - 'tools/pool/submit.sh'
+  - 'tools/pool/tier-gate.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-19T21:10:10'
+    action: 'T-1453: pool jobs failed before any test once the repo bundle passed 256 MiB (276 MB on 258abb19; last good 267.7 MB): run-tier.sh raises its soft file-size limit to the hard one and logs both, refuses a too-large join with a plain reason instead of a core dump; the job''s error reaches the gate, which names it instead of ''result is for , not HEAD'''
+  - time: '2026-11-19T21:14:28'
+    action: 'T-1453: the repo goes to the pool as a CHAIN of bundles cut at release tags (each link under the worker''s 256 MiB one-file limit, sized by rev-list --disk-usage; old links built and staged once, reused by later jobs); the worker fetches them in order into one repo (gc.auto 0), checks out the branch as clone did; joined-parts path kept for older jobs; ulimit unit corrected (1024-byte blocks)'
+  - time: '2026-11-19T21:19:20'
+    action: 'T-1453: a refused pool job is named, not left as ''no result'' (1409 lesson v): submit.sh prints POOL <OUTCOME> on <node>: <reason> from pool-result.json, and the gate repeats it. First case: node1 refused 832.bridge-core as an unknown entry (reported to ring20)'
+  - time: '2026-11-19T21:24:58'
+    action: 'T-1453: chain links named without ''..'' (pool:stage refused them as not normalised), and the stage answer is read by its "ok" field only — ''\bok\b'' matched the key in "ok": false, so two refused links counted as staged and the relay could not route the job (ring20 T-2644 diagnosis, msg f57b1633)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 72 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 72
+  commits: 5
+  files_changed: 8
+  lines_added: 674
+  lines_removed: 42
+  footprint_refreshed_at: '2026-11-19T21:20:48Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1453-pool-jobs-fail-before-any-test-the-repo-.md
+generated_by: context-agent-hybrid

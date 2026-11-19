@@ -3056,3 +3056,9 @@ learnings:
   task: T-1063
   date: 2026-11-18
   context: Added via context agent
+- id: PL-445
+  learning: "A pool job that fails or is refused before testing must be read and named at once (1409 lesson v): a gate that turns it into 'no result' silently degrades a two-machine rule to one machine. Read status fields by their key, never by a word match ('\\bok\\b' matched '\"ok\": false')."
+  source: unknown
+  task: T-1453
+  date: 2026-11-19
+  context: Added via context agent
