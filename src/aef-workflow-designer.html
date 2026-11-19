@@ -345,6 +345,30 @@ font-family: 'Outfit';
   .tb-menu-item:hover, .tb-menu-item:focus { background: var(--surface-3); outline: none; }
   .tb-menu-item:focus-visible { box-shadow: 0 0 0 1px var(--accent) inset; }
   .tb-menu-hint { font-family: var(--mono); font-size: 11px; color: var(--text-dim); }
+  /* T-1440 (operator ruling a, 2026-11-19): exported pictures and PDFs are a PAPER version — white background, dark
+     text — because they go to other people, into documents and onto printers. The screen stays dark. The class is set
+     only for the instant the export reads computed styles (no paint happens in between), then removed. */
+  body.export-paper {
+    --bg: #ffffff; --surface: #f5f7fa; --surface-2: #ffffff; --surface-3: #eef1f5;
+    --border: #c3cad6; --border-strong: #8f99aa;
+    --text: #1a1e26; --text-dim: #464d5c; --text-faint: #5f6675; --text-hint: #555c6b;
+    --accent: #557a00; --accent-soft: rgba(85,122,0,0.10);
+    --blue: #1f5fc9; --blue-soft: rgba(31,95,201,0.08);
+    --green: #1d7f45; --green-soft: rgba(29,127,69,0.08);
+    --orange: #a85a06; --orange-soft: rgba(168,90,6,0.08);
+    --red: #c02626; --red-soft: rgba(192,38,38,0.08);
+    --purple: #7136b8; --purple-soft: rgba(113,54,184,0.08);
+  }
+  /* T-1440: Export → PDF prints a sheet holding the paper picture of the map, and nothing else of the editor. */
+  #print-sheet { display: none; }
+  @media print {
+    @page { size: A4 landscape; margin: 10mm; }
+    html, body { height: auto; overflow: visible; background: #fff; }
+    body.printing-map > *:not(#print-sheet) { display: none !important; }
+    body.printing-map #print-sheet { display: block; }
+    #print-sheet h1 { font: 600 13pt var(--sans); color: #1a1e26; margin: 0 0 4mm; }
+    #print-sheet svg { display: block; width: 100%; height: auto; max-height: 175mm; }
+  }
 
   /* ============ Main layout ============ */
   main {
@@ -13682,6 +13706,120 @@ function importBpmnFile() {
   input.click();
 }
 
+// ── T-1440: pictures (SVG, PNG) and PDF of the map, in the paper palette ──
+// Editor controls drawn on the canvas that are not part of the map (measured on the corpus, T-1440): invisible click
+// targets, resize grips and the "+ Add another lane" strip.
+const EXPORT_CHROME = '.edge-hit, .lane-resize-hit, .lane-resize-grip, .lane-resize-handle, .pool-resize-handle, .pool-add-lane-strip';
+// The paint a standalone SVG needs: the designer colours the canvas through its stylesheet, which an exported file
+// does not carry (the T-1093 spike's first SVG came out solid black without this).
+const EXPORT_PAINT = ['fill', 'fill-opacity', 'stroke', 'stroke-width', 'stroke-opacity', 'stroke-dasharray',
+  'stroke-linecap', 'stroke-linejoin', 'opacity', 'font-family', 'font-size', 'font-weight', 'font-style',
+  'text-anchor', 'dominant-baseline', 'letter-spacing',
+  'paint-order'];   // edge labels draw their halo UNDER the letters (paint-order: stroke); without it the halo hides the text
+
+// A standalone SVG of the map: every element's computed paint inlined in the paper palette, editor chrome left out,
+// the current selection not shown, no external reference. Returns { svg, width, height }.
+function buildExportSvg() {
+  const src = $('canvas');
+  const keepSel = (typeof selection !== 'undefined') ? selection : null;
+  const hadSel = !!keepSel;
+  if (hadSel) { selection = null; renderAll(); }
+  document.body.classList.add('export-paper');
+  try {
+    const clone = src.cloneNode(true);
+    const srcAll = [src, ...src.querySelectorAll('*')], cAll = [clone, ...clone.querySelectorAll('*')];
+    const drop = [];
+    // Arrowheads live in <marker> definitions, which the browser does not style until it draws them: their computed
+    // fill reads black. Their colour is written as fill="var(--text-dim)", so such attributes are resolved directly
+    // against the (paper) tokens instead.
+    const tokens = getComputedStyle(document.body);
+    const resolveVar = v => { const m = /^var\((--[\w-]+)\)$/.exec((v || '').trim()); return m ? tokens.getPropertyValue(m[1]).trim() : null; };
+    srcAll.forEach((el, i) => {
+      const cs = getComputedStyle(el);
+      if (cs.display === 'none' || cs.visibility === 'hidden' || el.matches(EXPORT_CHROME)) { drop.push(cAll[i]); return; }
+      const paint = EXPORT_PAINT.map(p => [p, cs.getPropertyValue(p)]);
+      for (const a of ['fill', 'stroke']) {
+        const r = resolveVar(el.getAttribute(a));
+        if (r) paint.find(p => p[0] === a)[1] = r;
+      }
+      cAll[i].setAttribute('style', paint.map(([p, v]) => p + ':' + v).join(';'));
+      cAll[i].removeAttribute('class');
+    });
+    drop.forEach(el => el.remove());
+    const vb = src.viewBox.baseVal;
+    const w = Math.ceil(vb.width), h = Math.ceil(vb.height);
+    clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    clone.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.width} ${vb.height}`);
+    clone.setAttribute('width', w); clone.setAttribute('height', h);
+    clone.removeAttribute('style'); clone.removeAttribute('id'); clone.removeAttribute('class');
+    const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    bg.setAttribute('x', vb.x); bg.setAttribute('y', vb.y); bg.setAttribute('width', vb.width); bg.setAttribute('height', vb.height);
+    bg.setAttribute('fill', getComputedStyle(document.body).getPropertyValue('--bg').trim() || '#ffffff');
+    clone.insertBefore(bg, clone.firstChild);
+    const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    title.textContent = state.workflowMeta.title || state.workflowMeta.id;
+    clone.insertBefore(title, clone.firstChild);
+    return { svg: new XMLSerializer().serializeToString(clone), width: w, height: h };
+  } finally {
+    document.body.classList.remove('export-paper');
+    if (hadSel) { selection = keepSel; renderAll(); }
+  }
+}
+
+function exportBaseName() {
+  return `${state.workflowMeta.id}.v${state.workflowMeta.version || '1'}`;
+}
+
+function downloadBlob(blob, name) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function downloadSvgFile() {
+  const { svg } = buildExportSvg();
+  downloadBlob(new Blob(['<?xml version="1.0" encoding="UTF-8"?>\n' + svg], { type: 'image/svg+xml' }), exportBaseName() + '.svg');
+}
+
+// PNG from the exported SVG through a canvas, at 1x, 2x or 4x of the map's own size.
+function renderPng(scale) {
+  const { svg, width, height } = buildExportSvg();
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = Math.round(width * scale); c.height = Math.round(height * scale);
+      const g = c.getContext('2d');
+      g.drawImage(img, 0, 0, c.width, c.height);
+      c.toBlob(b => (b ? resolve(b) : reject(new Error('the picture could not be encoded as PNG'))), 'image/png');
+    };
+    img.onerror = () => reject(new Error('the exported SVG could not be drawn'));
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  });
+}
+function downloadPngFile(scale) {
+  return renderPng(scale)
+    .then(b => downloadBlob(b, `${exportBaseName()}@${scale}x.png`))
+    .catch(e => { aefRecordFault('export-png', e); alert('PNG export failed:\n' + e.message); });
+}
+
+// PDF through the browser's own print ("Save as PDF"): a sheet with the title and the paper picture, and nothing else.
+function printMapSheet() {
+  const { svg } = buildExportSvg();
+  let sheet = $('print-sheet');
+  if (!sheet) { sheet = document.createElement('div'); sheet.id = 'print-sheet'; document.body.appendChild(sheet); }
+  sheet.textContent = '';
+  const h = document.createElement('h1');
+  h.textContent = (state.workflowMeta.title || state.workflowMeta.id) + '  ·  v' + (state.workflowMeta.version || '1');
+  sheet.appendChild(h);
+  sheet.insertAdjacentHTML('beforeend', svg);
+  document.body.classList.add('printing-map');
+  const done = () => { document.body.classList.remove('printing-map'); window.removeEventListener('afterprint', done); };
+  window.addEventListener('afterprint', done);
+  window.print();
+}
+
 // ── T-1439: Import / Export menus ──
 // One list of formats per direction. A later format (T-1440..T-1444) adds one entry here; the menus are built from it.
 const IO_FORMATS = {
@@ -13690,6 +13828,11 @@ const IO_FORMATS = {
   ],
   export: [
     { id: 'bpmn', label: 'BPMN 2.0 / Camunda', hint: '.bpmn', run: downloadBpmnFile },
+    { id: 'pdf', label: 'PDF (print)', hint: '.pdf', run: printMapSheet },              // T-1440
+    { id: 'svg', label: 'SVG picture', hint: '.svg', run: downloadSvgFile },
+    { id: 'png1', label: 'PNG picture', hint: '1x', run: () => downloadPngFile(1) },
+    { id: 'png2', label: 'PNG picture', hint: '2x', run: () => downloadPngFile(2) },
+    { id: 'png4', label: 'PNG picture', hint: '4x', run: () => downloadPngFile(4) },
   ],
 };
 

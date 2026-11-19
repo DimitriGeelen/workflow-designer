@@ -2159,6 +2159,20 @@ else
 fi
 }
 leg browser "test_t1439_io_menus" _leg_t1439
+_leg_t1440() {
+
+# ── T-1440 (T-1093 GO step 2): Export → SVG, PNG 1x/2x/4x and PDF, in the paper palette, on two corpus maps ──
+# SVG standalone (0 remote refs, no editor chrome, white background, no near-black fill, no pale text); PNG pixel
+# sizes exact; the printed PDF holds the step names and none of the editor's; the screen is unchanged after. ~25 s.
+if node "$ROOT/tools/_t1440-picture-export-cdp.mjs" > "$TMP/leg-_t1440.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "picture/PDF export regressed: a leg of _t1440-picture-export-cdp.mjs failed (run 'node tools/_t1440-picture-export-cdp.mjs /tmp/x' to keep the files; T-1440)"
+  show_output "$TMP/leg-_t1440.out" "_t1440-picture-export-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1440_picture_export" _leg_t1440
 _leg_075() {
 
 # ── T-1273: an in-place mutation script cannot survive INT/TERM with its mutant ──
