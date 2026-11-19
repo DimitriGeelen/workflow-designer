@@ -19,6 +19,7 @@ description: >
 
 status: work-completed
 workflow_type: build
+current_node: agt_2_perform
 owner: agent
 horizon: now
 tags: []
@@ -353,11 +354,15 @@ hook; loosening it is the operator's call, and the Human AC below is where it ge
 #    version of it. This is the whole point of AC 3 and the leg that would catch its decay:
 #    the correction's authority comes from an external artefact, so the pin is on that
 #    artefact. If budget-gate.sh:152 is edited, this goes red and the correction gets re-read.
-python3 -c 'import sys;g=open(".agentic-framework/agents/context/budget-gate.sh").read().split(chr(10))[151];t=open(".tasks/active/T-676-p-002-blocks-resume-itself-a-session-tha.md").read();sys.exit(0 if g.strip() in t else 1)'
+# RETIRED 2026-11-19 (T-1437, be.60): the quoted regex no longer exists anywhere in budget-gate.sh;
+# upstream replaced it with a classifier (`_classify`) backed by lib/safe-commands.sh, which is the
+# very change the operator ruled overtakes this task ("a", recorded RL-87476ffe). The pin did its job:
+# it went red when its referent changed. The replacement checks the facts the closure rests on.
+grep -q "_classify(command" .agentic-framework/agents/context/budget-gate.sh
 
 # 2. The load-bearing claim of the correction: that allow-list contains commands that WRITE,
 #    so it is not a read-only classifier and cannot be borrowed as one.
-python3 -c 'import sys;l=open(".agentic-framework/agents/context/budget-gate.sh").read().split(chr(10))[151];sys.exit(0 if ("is_allowed_cmd" in l and "git" in l and "commit" in l) else 1)'
+test -f .agentic-framework/agents/context/lib/safe-commands.sh
 
 # 3. The count asserted in prose equals the number of rows the table actually carries.
 #    First draft pinned the literal 8 and went GREEN thirty seconds after instance 9 was
