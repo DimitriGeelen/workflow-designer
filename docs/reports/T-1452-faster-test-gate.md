@@ -64,6 +64,15 @@ only remove the wait for the slower local run and the host contention it causes.
 5. **What happens then?** Expectation met → standard (CLAUDE.md rule updated); missed → revert as written above;
    undecided → 10 more runs. Each outcome is checked by the next 10 runs keeping the measured value.
 
+## Measurements (raw; evaluated only at 10 runs per lever, step 3)
+
+| # | When (UTC) | Commit | Gate | Pool (node, compute) | Here (compute) | End to end | Note |
+|---|---|---|---|---|---|---|---|
+| 0 | 2026-11-19 20:47 | 558214e5f | core, push (pool AND here) | pool-w2, 744 s | 899 s | 985 s (16.4 min) | first run with the bundle chain (T-1453); before T-1452 changes anything |
+
+Before this, the pool had been giving no result since ~18:40Z (T-1453: one-file limit, then unstaged chain links): runs
+in that window are excluded from the baseline as not comparable (1409 rule iii).
+
 ## Dialogue Log
 
 - 2026-11-19 operator: "Why the review rounds taking so incredibly long …" → explanation: ~1 h of discarded test
