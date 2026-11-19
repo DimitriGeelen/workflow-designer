@@ -54,6 +54,7 @@ while [[ $# -gt 0 ]]; do
         --description) DESCRIPTION="$2"; shift 2 ;;
         --type) WORKFLOW_TYPE="$2"; shift 2 ;;
         --owner) OWNER="$2"; shift 2 ;;
+        --human-ac) HUMAN_AC="$2"; shift 2 ;;   # T-767: seeds a real Human AC; required by --owner human
         --tags) TAGS="$2"; shift 2 ;;
         --related) RELATED="$2"; shift 2 ;;
         --horizon) HORIZON="$2"; shift 2 ;;
@@ -146,6 +147,37 @@ case "${FW_TASK_ORIGIN:-}" in
     ;;
 esac
 
+# T-767 (SQ-2, operator ruling 2026-09-21): ownership must follow the presence of a real
+# Human acceptance criterion. A task born `owner: human` with no Human AC is one the
+# creating agent is structurally forbidden to finish AND the human has nothing to verify
+# on, so it parks forever. Measured on this project 2026-09-21: 34 of 107 active
+# owner:human tasks carry zero Human AC checkboxes; 2 of them (T-708, T-723) have every
+# criterion ticked and are simply waiting on a human with no stated act to perform.
+#
+# The gate REFUSES; it does not silently rewrite OWNER to agent. An auto-flip would decide
+# ownership on the caller's behalf, and ownership is the operator's call — a refusal makes
+# the caller state the human's job, which is the thing that was missing.
+#
+# Gated writers are exempt BY POLICY, not by oversight: T-2543 (bpmn-promote) and T-2577
+# (designer-ghost) make those creates human-owned regardless of ACs. That bar is the
+# operator's sovereignty bar and this gate does not get to lower it.
+case "${FW_TASK_ORIGIN:-}" in
+  bpmn-promote|designer-ghost) ;;
+  *)
+    # `inception` is exempt: .tasks/templates/inception.md ships a real go/no-go Human AC
+    # with Steps/Expected/If-not, so an inception task cannot be born without one.
+    if [ "$OWNER" = "human" ] && [ -z "$HUMAN_AC" ] && [ "$WORKFLOW_TYPE" != "inception" ]; then
+        echo -e "${RED}BLOCKED: --owner human requires --human-ac \"<criterion>\".${NC}" >&2
+        echo "  A human-owned task must name what the human verifies. Without it the task" >&2
+        echo "  cannot be finished by the agent and has nothing for the human to check." >&2
+        echo "  Either pass --human-ac \"<what the human must verify>\", or create the task" >&2
+        echo "  with --owner agent." >&2
+        echo "  Policy: T-767, operator ruling on SQ-2 (2026-09-21)." >&2
+        exit 1
+    fi
+    ;;
+esac
+
 # Interactive mode if required fields missing.
 # T-100160 (OBS-086): prompt ONLY when stdin is a tty. In no-tty contexts
 # (background dispatch, cron, TermLink workers) stdin is a socket/pipe that
@@ -169,6 +201,16 @@ fi
 
 # T-555: Reject template placeholder names (rule lives in lib/task-create-rules.sh, T-5221)
 task_rule_name "$NAME" || exit 1
+
+# 832 T-775 (re-applied on 1.7.740 by T-1005): a name becomes a YAML scalar, an H1 and a filename
+# slug; a line break makes it none of those, and the injected line can capture a substitution.
+case "$NAME" in
+    *$'\n'*|*$'\r'*)
+        echo "ERROR: Task name contains a line break — refused (T-775, OBS-364)." >&2
+        echo "  Put the detail in --description, which is a folded block and may span lines." >&2
+        exit 1
+        ;;
+esac
 
 if [ -z "$DESCRIPTION" ]; then
     echo -e "${YELLOW}Task description:${NC}"
@@ -401,6 +443,24 @@ FILEPATH=$(
         --tags="$TAGS" --related="$RELATED" --timestamp="$TIMESTAMP" \
         --waiting-on="$WAITING_ON" --revisit-at="$REVISIT_AT"
 ) || { echo -e "${RED}ERROR: Task file could not be written for $TASK_ID${NC}" >&2; exit 1; }
+
+# 832 T-767 (re-applied on be.60 by T-1437): seed the Human AC the owner:human gate above required.
+# be.60 moved the task-file writer into lib/render_task.py (AEF T-5221), which does not know 832's
+# --human-ac, so the criterion is inserted after the file is written. Anchored on the heading AND its
+# comment opener so a name or description containing '### Human' cannot capture it (OBS-363).
+if [ -n "${HUMAN_AC:-}" ]; then
+    TC_HUMAN_AC="$HUMAN_AC" python3 - "$FILEPATH" <<'SEEDPY' || { echo -e "${RED}ERROR: --human-ac given but the criterion could not be seeded into $FILEPATH${NC}" >&2; exit 3; }
+import os, sys
+path = sys.argv[1]
+text = open(path, encoding='utf-8').read()
+anchor = '### Human\n<!--'
+if anchor not in text:
+    sys.stderr.write('create-task.sh: --human-ac given but the template has no anchored ### Human section\n')
+    sys.exit(3)
+text = text.replace(anchor, '### Human\n\n- [ ] ' + os.environ['TC_HUMAN_AC'] + '\n\n<!--', 1)
+open(path, 'w', encoding='utf-8').write(text)
+SEEDPY
+fi
 # T-4841: id persisted (.id-highwater) and the file written — release now, so
 # nothing after this point (origin, recommendation, --start focus) holds it.
 # T-5217: the ledger's created row first, still under the lock.
