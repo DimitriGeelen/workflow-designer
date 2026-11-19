@@ -2173,6 +2173,20 @@ else
 fi
 }
 leg browser "test_t1440_picture_export" _leg_t1440
+_leg_t1441() {
+
+# ── T-1441 (T-1093 GO step 3): Mermaid and CSV, export and import, on two corpus maps ──
+# Export shape (lane subgraphs, shapes, labels; CSV read back by Python), the round trip by permanent identity
+# (aef:uid, name, type, lane, flows; lane codes kept), no validator ERROR, and the import notice naming the loss. ~40 s.
+if node "$ROOT/tools/_t1441-text-bridges-cdp.mjs" > "$TMP/leg-_t1441.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "Mermaid/CSV export or import regressed: a leg of _t1441-text-bridges-cdp.mjs failed (run 'node tools/_t1441-text-bridges-cdp.mjs /tmp/x' to keep the files; T-1441)"
+  show_output "$TMP/leg-_t1441.out" "_t1441-text-bridges-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1441_text_bridges" _leg_t1441
 _leg_075() {
 
 # ── T-1273: an in-place mutation script cannot survive INT/TERM with its mutant ──

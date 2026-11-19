@@ -11177,6 +11177,8 @@ function maybeShowLaneFixNotice() {
   // T-1264: unmoved shapes and lines keep the file's own geometry (a node moved back into its lane, or by the person,
   // is redrawn); pool and lane outlines are still not written back
   if (nk.diRedrawn) parts.push(`on save, shapes that neither you nor this import moved keep this file's sizes and labels, and lines between them keep their bends; the file's original pool and lane outlines are NOT kept`);
+  // T-1441: what a Mermaid or CSV import could not carry, named (a lossy bridge states its loss, never silently)
+  if (_bridgeImportNote) { parts.unshift(_bridgeImportNote); _bridgeImportNote = ''; }
   if (docsLine) parts.push(docsLine);   // T-1372: last, so the leading warning sign belongs to a warning
   const show = parts.length > 0;
   // T-1327: one part per line. Run together with semicolons, seven parts made a 300px-tall paragraph at 1024 that
@@ -13832,11 +13834,207 @@ function printMapSheet() {
   window.print();
 }
 
+// ── T-1441: Mermaid and CSV, both ways ──
+// Both are lossy bridges: they carry steps (id, name, type, lane) and flows (with labels), nothing else. Import builds
+// BPMN WITHOUT the diagram part and hands it to the ordinary BPMN import, then Clean lays it out (T-1093 IW-5 spike:
+// VALID, no findings), and the import notice names what was not in the file.
+let _bridgeImportNote = '';
+const BRIDGE_LOSS = 'positions (laid out by Clean, so the step numbers in the visible ids follow the new layout), the conditions on flows out of a gateway, and each step\'s details such as inputs, outputs and roles';
+
+// The model every bridge reads. A step has TWO ids: `uid`, its permanent identity (aef:uid, what AEF keys on), and
+// `id`, the visible one under its box (computeDisplayId: the lane's short code + its number in the lane, counted left
+// to right + a word of its name). The visible number follows the layout, which these formats do not carry, so the
+// permanent uid travels too and the visible id is re-derived after Clean (named in the import notice).
+function bridgeModel() {
+  const laneName = id => { const l = (state.lanes || []).find(x => x.id === id); return l ? l.name : ''; };
+  const steps = state.nodes.map(n => ({ uid: n.uid, id: displayIdOf(n), name: n.name || '', type: n.type || 'task', lane: laneName(n.lane) }));
+  const flows = (state.edges || []).map(e => ({ from: e.source, to: e.target, label: e.name || '' }));
+  const laneMeta = {};
+  for (const l of state.lanes || []) laneMeta[l.name] = { abbr: l.abbr || '', authority: l.authority || '' };
+  return { title: state.workflowMeta.title || state.workflowMeta.id, lanes: (state.lanes || []).map(l => l.name), laneMeta, steps, flows };
+}
+
+// Mermaid: one subgraph per lane (its id carries the lane's short code), BPMN shapes mapped to Mermaid shapes,
+// labelled edges. Node ids are the steps' uids. `%% aef-step` / `%% aef-lane` comments keep the exact BPMN type, the
+// visible id and the lane's authority (renderers ignore comments), so a file we wrote comes back as it went out; a
+// foreign Mermaid file falls back to the shapes.
+function mermaidId(id) { return /^[A-Za-z_][\w]*$/.test(id) ? id : 'n_' + String(id).replace(/[^\w]/g, '_'); }
+function mermaidText(s) { return String(s).replace(/"/g, '#quot;').replace(/\n/g, ' '); }
+function buildMermaid() {
+  const m = bridgeModel();
+  const shape = st => /Gateway$/.test(st.type) ? `{"${mermaidText(st.name || st.id)}"}`
+    : /Event$/.test(st.type) ? `(("${mermaidText(st.name || st.id)}"))` : `["${mermaidText(st.name || st.id)}"]`;
+  const out = ['flowchart LR', `%% ${mermaidText(m.title)} — exported by AEF Workflow Designer (T-1441)`];
+  m.lanes.forEach((ln, i) => {
+    const inLane = m.steps.filter(st => st.lane === ln);
+    if (!inLane.length) return;
+    const lm = m.laneMeta[ln] || {};
+    out.push(`  subgraph ${lm.abbr && /^\w+$/.test(lm.abbr) ? 'lane_' + lm.abbr : 'lane_' + (i + 1)}["${mermaidText(ln)}"]`);
+    if (lm.abbr || lm.authority) out.push(`    %% aef-lane ${lm.abbr || '-'} ${lm.authority || '-'}`);
+    for (const st of inLane) out.push(`    ${mermaidId(st.uid)}${shape(st)}`);
+    out.push('  end');
+  });
+  for (const st of m.steps.filter(st => !st.lane || !m.lanes.includes(st.lane))) out.push(`  ${mermaidId(st.uid)}${shape(st)}`);
+  for (const f of m.flows) out.push(`  ${mermaidId(f.from)} -->${f.label ? `|"${mermaidText(f.label)}"|` : ''} ${mermaidId(f.to)}`);
+  for (const st of m.steps) out.push(`  %% aef-step ${mermaidId(st.uid)} ${st.type} ${st.uid} ${st.id}`);
+  return out.join('\n') + '\n';
+}
+function parseMermaid(text) {
+  const steps = new Map(), flows = [], meta = {}, laneMeta = {};
+  let lane = '';
+  const unq = s => s.replace(/^"|"$/g, '').replace(/#quot;/g, '"');
+  const node = (mid, raw) => {
+    let st = steps.get(mid);
+    if (!st) { st = { mid, name: '', lane }; steps.set(mid, st); }
+    if (raw) {
+      const m = /^\(\((.*)\)\)$/.exec(raw) || /^\{(.*)\}$/.exec(raw) || /^\[(.*)\]$/.exec(raw) || /^\((.*)\)$/.exec(raw);
+      if (m) { st.name = unq(m[1]); st.shape = raw.startsWith('((') ? 'circle' : raw[0] === '{' ? 'diamond' : 'box'; }
+    }
+    return st;
+  };
+  const NODE = '([A-Za-z_][\\w]*)(\\(\\(.*?\\)\\)|\\{.*?\\}|\\[.*?\\]|\\(.*?\\))?';
+  for (const raw of text.split(/\r?\n/)) {
+    const line = raw.trim();
+    let m;
+    if (!line || /^(flowchart|graph)\b/.test(line)) continue;
+    if ((m = /^%%\s*aef-step\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)/.exec(line))) { meta[m[1]] = { type: m[2], uid: m[3], id: m[4] }; continue; }
+    if ((m = /^%%\s*aef-lane\s+(\S+)\s+(\S+)/.exec(line)) && lane) { laneMeta[lane] = { abbr: m[1] === '-' ? '' : m[1], authority: m[2] === '-' ? '' : m[2] }; continue; }
+    if (line.startsWith('%%') || /^(classDef|class|style|linkStyle|click|direction)\b/.test(line)) continue;
+    if ((m = /^subgraph\s+[\w-]+\s*\[(.*)\]\s*$/.exec(line)) || (m = /^subgraph\s+(.*)$/.exec(line))) { lane = unq(m[1].trim()); continue; }
+    if (line === 'end') { lane = ''; continue; }
+    m = new RegExp(`^${NODE}\\s*-->\\s*(?:\\|(.*?)\\|\\s*)?${NODE}\\s*;?$`).exec(line);
+    if (m) { const a = node(m[1], m[2]), b = node(m[4], m[5]); flows.push({ from: a.mid, to: b.mid, label: m[3] ? unq(m[3].trim()) : '' }); continue; }
+    m = new RegExp(`^${NODE}\\s*;?$`).exec(line);
+    if (m) node(m[1], m[2]);
+  }
+  const incoming = new Set(flows.map(f => f.to)), outgoing = new Set(flows.map(f => f.from));
+  const out = [...steps.values()].map(st => {
+    const mt = meta[st.mid] || {};
+    const type = mt.type || (st.shape === 'diamond' ? 'exclusiveGateway'
+      : st.shape === 'circle' ? (!incoming.has(st.mid) ? 'startEvent' : !outgoing.has(st.mid) ? 'endEvent' : 'intermediateThrowEvent') : 'task');
+    return { uid: mt.uid || st.mid, id: mt.id || st.mid, name: st.name, type, lane: st.lane };
+  });
+  const uidOf = mid => (meta[mid] && meta[mid].uid) || mid;
+  return { laneMeta, steps: out, flows: flows.map(f => ({ ...f, from: uidOf(f.from), to: uidOf(f.to) })) };
+}
+
+// CSV: one row per step (RFC 4180 quoting). `next` names the next steps by their visible id, `next_labels` the flows'
+// labels, both ";"-separated and aligned. lane_code, lane_authority and uid keep what Mermaid keeps in its comments.
+const CSV_HEAD = ['id', 'name', 'type', 'lane', 'next', 'next_labels', 'lane_code', 'lane_authority', 'uid'];
+function csvCell(v) { v = String(v == null ? '' : v); return /[",\r\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+function buildCsv() {
+  const m = bridgeModel();
+  const idOfUid = new Map(m.steps.map(st => [st.uid, st.id]));
+  const rows = [CSV_HEAD];
+  for (const st of m.steps) {
+    const out = m.flows.filter(f => f.from === st.uid);
+    const lm = m.laneMeta[st.lane] || {};
+    rows.push([st.id, st.name, st.type, st.lane, out.map(f => idOfUid.get(f.to) || f.to).join(';'),
+      out.map(f => f.label.replace(/;/g, ',')).join(';'), lm.abbr || '', lm.authority || '', st.uid]);
+  }
+  return rows.map(r => r.map(csvCell).join(',')).join('\r\n') + '\r\n';
+}
+function parseCsvRows(text) {
+  const rows = []; let row = [], cell = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) { if (c === '"' && text[i + 1] === '"') { cell += '"'; i++; } else if (c === '"') q = false; else cell += c; }
+    else if (c === '"') q = true;
+    else if (c === ',') { row.push(cell); cell = ''; }
+    else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(cell); rows.push(row); row = []; cell = ''; }
+    else cell += c;
+  }
+  if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+  return rows.filter(r => r.some(x => x.trim() !== ''));
+}
+function parseCsv(text) {
+  const rows = parseCsvRows(text.replace(/^﻿/, ''));
+  const head = (rows.shift() || []).map(h => h.trim().toLowerCase());
+  const col = k => head.indexOf(k);
+  if (col('id') < 0) throw new Error('the first row must name the columns, including "id"');
+  const steps = [], pending = [], laneMeta = {};
+  for (const r of rows) {
+    const g = k => (col(k) >= 0 ? (r[col(k)] || '').trim() : '');
+    if (!g('id')) continue;
+    steps.push({ uid: g('uid') || g('id'), id: g('id'), name: g('name'), type: g('type') || 'task', lane: g('lane') });
+    if (g('lane') && (g('lane_code') || g('lane_authority')) && !laneMeta[g('lane')]) laneMeta[g('lane')] = { abbr: g('lane_code'), authority: g('lane_authority') };
+    const nx = g('next') ? g('next').split(';').map(x => x.trim()) : [], lb = g('next_labels') ? g('next_labels').split(';') : [];
+    nx.forEach((to, i) => { if (to) pending.push({ from: g('uid') || g('id'), toId: to, label: (lb[i] || '').trim() }); });
+  }
+  const uidOfId = new Map(steps.map(st => [st.id, st.uid]));
+  return { laneMeta, steps, flows: pending.map(p => ({ from: p.from, to: uidOfId.get(p.toId) || p.toId, label: p.label })) };
+}
+
+// Steps and flows -> BPMN 2.0 WITHOUT a diagram part; the ordinary import and Clean do the rest. Element ids are the
+// visible ids; aef:uid carries the permanent identity.
+const BRIDGE_TYPES = new Set(['startEvent', 'endEvent', 'task', 'userTask', 'serviceTask', 'scriptTask', 'manualTask',
+  'businessRuleTask', 'sendTask', 'receiveTask', 'exclusiveGateway', 'parallelGateway', 'inclusiveGateway',
+  'eventBasedGateway', 'intermediateThrowEvent', 'intermediateCatchEvent', 'subProcess', 'callActivity']);
+function bridgeToBpmn(model, workflowId, title) {
+  const esc = v => String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const xid = v => /^[A-Za-z_][\w.-]*$/.test(v) ? v : 'n_' + String(v).replace(/[^\w.-]/g, '_');
+  const byUid = new Map(model.steps.map(st => [st.uid, st]));
+  for (const f of model.flows) for (const end of [f.from, f.to]) if (!byUid.has(end)) {
+    const st = { uid: end, id: end, name: end, type: 'task', lane: '' }; model.steps.push(st); byUid.set(end, st); }
+  const used = new Set(), elId = new Map();
+  for (const st of model.steps) { let e = xid(st.id || st.uid), k = 2; while (used.has(e)) e = xid(st.id || st.uid) + '_' + k++; used.add(e); elId.set(st.uid, e); }
+  const lanes = [...new Set(model.steps.map(st => st.lane).filter(Boolean))];
+  const W = esc(xid(workflowId));
+  const L = [`<?xml version="1.0" encoding="UTF-8"?>`,
+    `<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:aef="http://anchorpoint.framework/aef/extensions" id="Definitions_${W}" targetNamespace="http://bpmn.io/schema/bpmn">`,
+    `  <bpmn:collaboration id="Collaboration_${W}"><bpmn:participant id="Pool_${W}" name="${esc(title)}" processRef="Process_${W}"/></bpmn:collaboration>`,
+    `  <bpmn:process id="Process_${W}" isExecutable="false">`];
+  if (lanes.length) {
+    L.push(`    <bpmn:laneSet id="LaneSet_${W}">`);
+    lanes.forEach((ln, i) => {
+      L.push(`      <bpmn:lane id="Lane_${i + 1}" name="${esc(ln)}">`);
+      const lm = (model.laneMeta || {})[ln];
+      if (lm && (lm.abbr || lm.authority)) L.push(`        <bpmn:extensionElements><aef:laneMeta${lm.abbr ? ` abbr="${esc(lm.abbr)}"` : ''}${lm.authority ? ` authority="${esc(lm.authority)}"` : ''}/></bpmn:extensionElements>`);
+      for (const st of model.steps.filter(x => x.lane === ln)) L.push(`        <bpmn:flowNodeRef>${esc(elId.get(st.uid))}</bpmn:flowNodeRef>`);
+      L.push(`      </bpmn:lane>`);
+    });
+    L.push(`    </bpmn:laneSet>`);
+  }
+  for (const st of model.steps) {
+    const t = BRIDGE_TYPES.has(st.type) ? st.type : 'task';
+    L.push(`    <bpmn:${t} id="${esc(elId.get(st.uid))}"${st.name ? ` name="${esc(st.name)}"` : ''}><bpmn:extensionElements><aef:uid value="${esc(st.uid)}"/></bpmn:extensionElements></bpmn:${t}>`);
+  }
+  model.flows.forEach((f, i) => L.push(`    <bpmn:sequenceFlow id="Flow_${i + 1}"${f.label ? ` name="${esc(f.label)}"` : ''} sourceRef="${esc(elId.get(f.from))}" targetRef="${esc(elId.get(f.to))}"/>`));
+  L.push(`  </bpmn:process>`, `</bpmn:definitions>`);
+  return L.join('\n') + '\n';
+}
+
+function importBridgeText(kind, text, fileName) {
+  const model = kind === 'mermaid' ? parseMermaid(text) : parseCsv(text);
+  if (!model.steps.length) throw new Error(`no steps found in this ${kind === 'mermaid' ? 'Mermaid' : 'CSV'} file`);
+  const base = String(fileName || 'imported').replace(/\.[^.]+$/, '').replace(/\.v\d+$/, '') || 'imported';
+  _bridgeImportNote = `imported from ${kind === 'mermaid' ? 'Mermaid' : 'CSV'}: ${model.steps.length} steps and ` +
+    `${model.flows.length} flows; not in this format: ${BRIDGE_LOSS}`;
+  adoptImportedXml(bridgeToBpmn(model, base, base), { userImport: true });
+  if (typeof cleanLayoutAll === 'function') cleanLayoutAll(); else $('btn-clean').click();
+  openingZoom();
+}
+function importBridgeFile(kind) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = kind === 'mermaid' ? '.mmd,.mermaid,.md,.txt,text/plain' : '.csv,text/csv,text/plain';
+  input.onchange = async ev => {
+    const file = ev.target.files[0];
+    if (!file) return;
+    try { importBridgeText(kind, await file.text(), file.name); }
+    catch (e) { _bridgeImportNote = ''; aefRecordFault('import-' + kind, e); alert(`Failed to import ${kind === 'mermaid' ? 'Mermaid' : 'CSV'}:\n` + e.message); }
+  };
+  input.click();
+}
+function downloadTextFile(text, ext, type) { downloadBlob(new Blob([text], { type }), `${exportBaseName()}.${ext}`); }
+
 // ── T-1439: Import / Export menus ──
 // One list of formats per direction. A later format (T-1440..T-1444) adds one entry here; the menus are built from it.
 const IO_FORMATS = {
   import: [
     { id: 'bpmn', label: 'BPMN 2.0 / Camunda', hint: '.bpmn, .xml', run: importBpmnFile },
+    { id: 'mermaid', label: 'Mermaid', hint: '.mmd', run: () => importBridgeFile('mermaid') },     // T-1441
+    { id: 'csv', label: 'CSV (step list)', hint: '.csv', run: () => importBridgeFile('csv') },
   ],
   export: [
     { id: 'bpmn', label: 'BPMN 2.0 / Camunda', hint: '.bpmn', run: downloadBpmnFile },
@@ -13845,6 +14043,8 @@ const IO_FORMATS = {
     { id: 'png1', label: 'PNG picture', hint: '1x', run: () => downloadPngFile(1) },
     { id: 'png2', label: 'PNG picture', hint: '2x', run: () => downloadPngFile(2) },
     { id: 'png4', label: 'PNG picture', hint: '4x', run: () => downloadPngFile(4) },
+    { id: 'mermaid', label: 'Mermaid', hint: '.mmd', run: () => downloadTextFile(buildMermaid(), 'mmd', 'text/plain') },   // T-1441
+    { id: 'csv', label: 'CSV (step list)', hint: '.csv', run: () => downloadTextFile(buildCsv(), 'csv', 'text/csv') },
   ],
 };
 
