@@ -4704,6 +4704,7 @@ function renderNodes() {
   placeInstanceMarks();          // T-1428: instance pills (×N, ✓, ●) off the settled flow labels and other flows
   addIdBadgeHalos();
   layerIdBadges();
+  fitNoteEnds();       // T-1447: a note's line clear of the captions just placed
   fitPoolToLabels();   // T-1154: last, after every label and badge is placed; most renderNodes() calls bypass renderAll
 }
 
@@ -16031,7 +16032,9 @@ function renderNotes() {
     if (l.dir === 'One' || l.dir === 'Both') l = { ...l, pts: clearBadge(l.pts, l.pts.length - 1, l.ends.targetRef) };
     if (l.dir === 'Both') l = { ...l, pts: clearBadge(l.pts, 0, l.ends.sourceRef) };
     const attrs = { d: 'M' + l.pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L'), fill: 'none',
-      stroke: 'var(--text-dim)', 'stroke-width': '1.2', 'stroke-dasharray': '2 3', 'data-note-assoc': l.id, 'data-dir': l.dir };
+      stroke: 'var(--text-dim)', 'stroke-width': '1.2', 'stroke-dasharray': '2 3', 'data-note-assoc': l.id, 'data-dir': l.dir,
+      ...(l.ends.sourceRef && l.ends.sourceRef.node ? { 'data-src-node': l.ends.sourceRef.node } : {}),
+      ...(l.ends.targetRef && l.ends.targetRef.node ? { 'data-tgt-node': l.ends.targetRef.node } : {}) };
     if (l.dir === 'One' || l.dir === 'Both') attrs['marker-end'] = 'url(#assoc-end)';
     if (l.dir === 'Both') attrs['marker-start'] = 'url(#assoc-end)';
     g.appendChild(el('path', attrs));
@@ -16045,6 +16048,44 @@ function renderNotes() {
     noteLines(n).forEach((t, i) => grp.appendChild(el('text', { x: n.x + NOTE_PAD, y: n.y + NOTE_PAD + 10 + i * NOTE_LINE,
       class: 'note-text', 'data-note-text': n.id }, [text(t)])));
     g.appendChild(grp);
+  }
+  fitNoteEnds();   // against the captions as last placed (renderNodes runs it again once they are final)
+}
+// T-1447 review round 3: a step's caption (id caption, type tag, name) is placed after the notes, and may sit where a
+// note's line meets the step (Greenfield note 2: sal_2_knop on the top edge of Knop "Tacton", hiding the line's end).
+// Slide that end along the step's edge until it is clear of every caption, staying 8px inside the corners; render-only.
+function fitNoteEnds() {
+  const g = $('g-notes'); if (!g || !gNodes) return;
+  const caps = Array.from(svg.querySelectorAll('text.node-id-badge, text.node-foreign-tag, text.node-label'))
+    .filter(t => !t.closest('#g-sticky-lanes')).map(t => { const b = t.getBBox(); return b.width ? { x1: b.x - 3, y1: b.y - 2, x2: b.x + b.width + 3, y2: b.y + b.height + 2 } : null; })
+    .filter(Boolean);
+  if (!caps.length) return;
+  const byUid = new Map(state.nodes.map(n => [n.uid, n]));
+  const inCap = p => caps.find(c => p.x >= c.x1 && p.x <= c.x2 && p.y >= c.y1 && p.y <= c.y2);
+  for (const p of g.querySelectorAll('path[data-note-assoc]')) {
+    const pts = [...String(p.getAttribute('d')).matchAll(/(-?[\d.]+),(-?[\d.]+)/g)].map(m => ({ x: +m[1], y: +m[2] }));
+    if (pts.length < 2) continue;
+    let moved = false;
+    for (const [at, attr] of [[0, 'data-src-node'], [pts.length - 1, 'data-tgt-node']]) {
+      const n = byUid.get(p.getAttribute(attr)); if (!n) continue;
+      const prev = pts[at === 0 ? 1 : pts.length - 2];
+      // the line's last 30px before it meets the step (sampled every 2px): a caption there hides where it lands
+      const capNearEnd = (end) => {
+        const dx = prev.x - end.x, dy = prev.y - end.y, L = Math.hypot(dx, dy) || 1, k = Math.min(30, L);
+        for (let s = 0; s <= k; s += 2) { const c = inCap({ x: end.x + dx / L * s, y: end.y + dy / L * s }); if (c) return c; }
+        return null;
+      };
+      const d = dims(n), q = pts[at], c = capNearEnd(q); if (!c) continue;
+      const onH = Math.abs(q.y - n.y) <= 3 || Math.abs(q.y - (n.y + d.h)) <= 3;   // top or bottom edge, else a side
+      const lo = (onH ? n.x : n.y) + 8, hi = (onH ? n.x + d.w : n.y + d.h) - 8;
+      const v = onH ? q.x : q.y, before = (onH ? c.x1 : c.y1) - 2, after = (onH ? c.x2 : c.y2) + 2;
+      const opts = [before, after].filter(t => t >= lo && t <= hi).sort((a, b) => Math.abs(a - v) - Math.abs(b - v));
+      for (const t of opts) {
+        const cand = onH ? { x: t, y: q.y } : { x: q.x, y: t };
+        if (!capNearEnd(cand)) { pts[at] = cand; moved = true; break; }
+      }
+    }
+    if (moved) p.setAttribute('d', 'M' + pts.map(q => `${q.x.toFixed(1)},${q.y.toFixed(1)}`).join(' L'));
   }
 }
 // T-1120: the DI the export writes for the kept pools — computed by collabLayout, so it equals the canvas.

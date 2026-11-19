@@ -46,7 +46,7 @@ try {
       await ev(`setZoom(1)`); await sleep(300);
       const ext = await ev(`(function(){ const b = svg.getBBox(); const w = canvasWrap; return { sw: w.scrollWidth, sh: w.scrollHeight, cw: w.clientWidth, ch: w.clientHeight }; })()`);
       let k = 0;
-      for (let y = 0; y < ext.sh; y += ext.ch - 40) for (let x = 0; x < ext.sw; x += ext.cw - 40) {
+      for (let y = 0; y < ext.sh; y += ext.ch - 120) for (let x = 0; x < ext.sw; x += ext.cw - 200) {
         await ev(`(function(){ canvasWrap.scrollLeft = ${x}; canvasWrap.scrollTop = ${y}; })()`); await sleep(250);
         const r = await ev(`(function(){ const b = canvasWrap.getBoundingClientRect(); return { x: b.left, y: b.top, width: canvasWrap.clientWidth, height: canvasWrap.clientHeight }; })()`);
         await shot(`${w}-notes-${String(++k).padStart(2, '0')}.png`, r);

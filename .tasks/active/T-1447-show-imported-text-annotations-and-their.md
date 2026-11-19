@@ -142,6 +142,13 @@ bounds; associations draw as dotted lines (an arrowhead when associationDirectio
   Round 2 (amber, V-20261119-8ed2891f) confirmed those four and asked: the "Restored your unsaved work" notice off the
   1440 tiles (each width now starts with fresh browser storage), and the bottom row of notes clear of the "Mode" chip
   at full scroll (zoomed views now scroll 48px past the lowest content; the fit view is unchanged).
+  Round 3 (amber, V-20261119-59397bd0) confirmed all of that and asked: (1) note 2's line visibly reaching Knop "Tacton"
+  past the id caption sal_2_knop — fixed: a note line's end that runs through a caption in its last 30px slides along
+  the step's edge clear of it (fitNoteEnds, after the captions are placed); (3) tiles overlapping by more than the
+  pinned lane-name column — now 200px across, 120px down. (2) sal_6_opportunity over the "(task)" tag is NOT a note
+  matter: the same caption placement predates T-1447 (identical in the pre-T-1447 export) and is Greenfield's own
+  finding (8); it is routed to T-1449 (caption-over-type-tag), not widened into this task. Note: the caption positions
+  are the same at every width in the fit view (measured 1024 vs 1920); the 1024 tiles differ because zooming re-renders.
   **Expected:** the notes read as the map's content, nothing covers a step's name or a flow label it should not.
   **If not:** name the file and the note; the agent fixes and re-shoots.
 
