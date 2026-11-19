@@ -1,0 +1,141 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1440: Import/Export 2/6: SVG, PNG 1x/2x/4x and PDF out
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-19T14:48:41Z
+# ============================================================================
+
+task_id: T-1440
+task_name: "Import/Export 2/6: SVG, PNG 1x/2x/4x and PDF out"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-19T09:14:11Z
+completed: 2026-11-19T14:48:26Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-19T10:59:37+01:00
+last_commit: 2026-11-19T13:42:41+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  real acceptance criteria from the T-1093 picture spike. Export → SVG, PNG 1x/2x/4x and PDF in a paper palette (operator ruling a): computed paint and paint-order inlined, var() colours on markers resolved, editor chrome left out, selection hidden; PDF via a print sheet of the map alone (A4 landscape); browser leg _t1440 (14 legs on two maps; fails on the T-1439 designer). evidence — Export menu at 1024/1440/1920, exported SVG/PNG/PDF of two maps; five criteria met; render criterion for the reviewer. reviewer verdict. PDF arrowheads (reviewer amber) — the exported SVG gets its own ids, so url(#arrow) in the print sheet no longer resolves to the live canvas's markers (hidden in print); new leg D2 checks every marker reference resolves inside the sheet (0/26 before, 26/26 after); PDFs and pages re-shot. browser tier green on both (145/0 after the load re-run); verification commands
+
+# Key outcomes
+outcomes:
+  - 'Export → SVG downloads a standalone SVG of the map: every element''s paint inlined, editor chrome left out,'
+  - 'The spike''s three defects are gone in the exported picture: no black flow-label bars, event names readable on'
+  - 'Export → PNG 1x / 2x / 4x downloads PNGs made from that SVG, each at its scale (a test checks the pixel sizes).'
+  - 'Export → PDF opens the browser''s print with a print stylesheet that shows the map alone (no toolbar, palette or'
+  - 'A CDP harness covers all of the above on two corpus maps and is a browser-tier leg; it fails on the T-1439 designer.'
+  - '`bash tools/person-sees-gate.sh` exits 0 and the browser tier is green (pool and here).'
+  - 'The exported pictures and PDF are a faithful, readable paper version of the map, and the longer Export menu fits.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/evidence/T-1440/AC1-judge-t-1440-r3-00fa77ca9477.md'
+  - '.context/reviews/evidence/T-1440/AC1-judge-t-1440-r3-a21e53a15cca.md'
+  - '.context/reviews/evidence/T-1440/arc-lifecycle-2x-judge-t-1440-r3-00fa77ca9477.png'
+  - '.context/reviews/evidence/T-1440/arc-lifecycle-2x-judge-t-1440-r3-a21e53a15cca.png'
+  - '.context/reviews/evidence/T-1440/arc-lifecycle-pdf-200dpi-judge-t-1440-r3-00fa77ca9477.png'
+  - '.context/reviews/evidence/T-1440/arc-lifecycle-pdf-page-1-judge-t-1440-r3-00fa77ca9477.png'
+  - '.context/reviews/evidence/T-1440/arc-lifecycle-pdf-page-1-judge-t-1440-r3-a21e53a15cca.png'
+  - '.context/reviews/evidence/T-1440/arc-lifecycle-pdf-page-1-zoom-judge-t-1440-r3-a21e53a15cca.png'
+  - '.context/reviews/evidence/T-1440/audit-process-2x-judge-t-1440-r3-00fa77ca9477.png'
+  - '.context/reviews/evidence/T-1440/audit-process-2x-judge-t-1440-r3-a21e53a15cca.png'
+  - '.context/reviews/evidence/T-1440/audit-process-pdf-200dpi-judge-t-1440-r3-00fa77ca9477.png'
+  - '.context/reviews/evidence/T-1440/audit-process-pdf-page-1-judge-t-1440-r3-00fa77ca9477.png'
+  - '.context/reviews/evidence/T-1440/audit-process-pdf-page-1-judge-t-1440-r3-a21e53a15cca.png'
+  - '.context/reviews/evidence/T-1440/audit-process-pdf-page-1-zoom-judge-t-1440-r3-a21e53a15cca.png'
+  - '.context/reviews/evidence/T-1440/menu-1024-export-open-judge-t-1440-r3-00fa77ca9477.png'
+  - '.context/reviews/evidence/T-1440/menu-1024-export-open-judge-t-1440-r3-a21e53a15cca.png'
+  - '.context/reviews/evidence/T-1440/menu-1440-export-open-judge-t-1440-r3-00fa77ca9477.png'
+  - '.context/reviews/evidence/T-1440/menu-1440-export-open-judge-t-1440-r3-a21e53a15cca.png'
+  - '.context/reviews/evidence/T-1440/menu-1920-export-open-judge-t-1440-r3-00fa77ca9477.png'
+  - '.context/reviews/evidence/T-1440/menu-1920-export-open-judge-t-1440-r3-a21e53a15cca.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1440-importexport-26-svg-png-1x2x4x-and-pdf-o.md'
+  - 'docs/reports/T-1440-shots/exported/arc-lifecycle-pdf-page-1.png'
+  - 'docs/reports/T-1440-shots/exported/arc-lifecycle.pdf'
+  - 'docs/reports/T-1440-shots/exported/arc-lifecycle.svg'
+  - 'docs/reports/T-1440-shots/exported/arc-lifecycle@2x.png'
+  - 'docs/reports/T-1440-shots/exported/audit-process-pdf-page-1.png'
+  - 'docs/reports/T-1440-shots/exported/audit-process.pdf'
+  - 'docs/reports/T-1440-shots/exported/audit-process.svg'
+  - 'docs/reports/T-1440-shots/exported/audit-process@2x.png'
+  - 'docs/reports/T-1440-shots/menu/1024-closed.png'
+  - 'docs/reports/T-1440-shots/menu/1024-export-open.png'
+  - 'docs/reports/T-1440-shots/menu/1024-import-open.png'
+  - 'docs/reports/T-1440-shots/menu/1440-closed.png'
+  - 'docs/reports/T-1440-shots/menu/1440-export-open.png'
+  - 'docs/reports/T-1440-shots/menu/1440-import-open.png'
+  - 'docs/reports/T-1440-shots/menu/1920-closed.png'
+  - 'docs/reports/T-1440-shots/menu/1920-export-open.png'
+  - 'docs/reports/T-1440-shots/menu/1920-import-open.png'
+  - 'docs/reports/T-1440-shots/menu/measure.json'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1440-picture-export-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-19T10:59:37'
+    action: 'T-1440: real acceptance criteria from the T-1093 picture spike'
+  - time: '2026-11-19T12:11:00'
+    action: 'T-1440: Export → SVG, PNG 1x/2x/4x and PDF in a paper palette (operator ruling a): computed paint and paint-order inlined, var() colours on markers resolved, editor chrome left out, selection hidden; PDF via a print sheet of the map alone (A4 landscape); browser leg _t1440 (14 legs on two maps; fails on the T-1439 designer)'
+  - time: '2026-11-19T12:20:47'
+    action: 'T-1440: evidence — Export menu at 1024/1440/1920, exported SVG/PNG/PDF of two maps; five criteria met; render criterion for the reviewer'
+  - time: '2026-11-19T12:22:41'
+    action: 'T-1440: reviewer verdict'
+  - time: '2026-11-19T12:24:27'
+    action: 'T-1440: PDF arrowheads (reviewer amber) — the exported SVG gets its own ids, so url(#arrow) in the print sheet no longer resolves to the live canvas''s markers (hidden in print); new leg D2 checks every marker reference resolves inside the sheet (0/26 before, 26/26 after); PDFs and pages re-shot'
+  - time: '2026-11-19T12:26:09'
+    action: 'T-1440: reviewer verdict'
+  - time: '2026-11-19T13:42:41'
+    action: 'T-1440: browser tier green on both (145/0 after the load re-run); verification commands'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 7 commit(s), 334 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 334
+  commits: 8
+  files_changed: 51
+  lines_added: 1056
+  lines_removed: 58
+  footprint_refreshed_at: '2026-11-19T14:48:48Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1440-importexport-26-svg-png-1x2x4x-and-pdf-o.md
+generated_by: context-agent-hybrid

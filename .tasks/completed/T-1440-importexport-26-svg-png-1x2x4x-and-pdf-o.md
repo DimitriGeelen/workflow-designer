@@ -7,13 +7,13 @@ description: >
   names styled (spike findings). PNG via canvas at 1x/2x/4x. PDF through a print stylesheet
   (today printing shows the whole editor). Spike: docs/reports/T-1093-spikes/picture-spike.mjs.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: [T-1093]
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -42,8 +42,8 @@ related_tasks: [T-1093]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-19T09:14:11Z
-last_update: '2026-11-19T10:59:33Z'
-date_finished:
+last_update: 2026-11-19T14:48:26Z
+date_finished: 2026-11-19T14:48:26Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -123,7 +123,7 @@ page.
       re-run GREEN 145/0 on both.
 
 ### Human
-- [ ] The exported pictures and PDF are a faithful, readable paper version of the map, and the longer Export menu fits.
+- [x] The exported pictures and PDF are a faithful, readable paper version of the map, and the longer Export menu fits.
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1440 --criterion 1`), who may escalate.
   **Steps:**
   1. Open `docs/reports/T-1440-shots/exported/{arc-lifecycle,audit-process}@2x.png` and
@@ -179,6 +179,7 @@ page.
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261119-0a064daf — reviewer-judge-t-1440-r3-00fa77ca9477:reviewer (rung rung-3-termlink-single-reviewer), digest a2e29d7f9ab4; dispatch judge-t-1440-r3-00fa77ca9477; evidence: .context/reviews/evidence/T-1440/AC1-judge-t-1440-r3-00fa77ca9477.md, .context/reviews/evidence/T-1440/arc-lifecycle-2x-judge-t-1440-r3-00fa77ca9477.png, .context/reviews/evidence/T-1440/audit-process-2x-judge-t-1440-r3-00fa77ca9477.png, .context/reviews/evidence/T-1440/arc-lifecycle-pdf-page-1-judge-t-1440-r3-00fa77ca9477.png, .context/reviews/evidence/T-1440/audit-process-pdf-page-1-judge-t-1440-r3-00fa77ca9477.png, .context/reviews/evidence/T-1440/arc-lifecycle-pdf-200dpi-judge-t-1440-r3-00fa77ca9477.png, .context/reviews/evidence/T-1440/audit-process-pdf-200dpi-judge-t-1440-r3-00fa77ca9477.png, .context/reviews/evidence/T-1440/menu-1024-export-open-judge-t-1440-r3-00fa77ca9477.png, .context/reviews/evidence/T-1440/menu-1440-export-open-judge-t-1440-r3-00fa77ca9477.png, .context/reviews/evidence/T-1440/menu-1920-export-open-judge-t-1440-r3-00fa77ca9477.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -423,3 +424,21 @@ test -f docs/reports/T-1440-shots/exported/audit-process-pdf-page-1.png
 ### 2026-11-19T10:59:31Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-19T14:48:26Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-c9c33575
+- **Timestamp:** 2026-11-19T14:48:33Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#6 (Agent)** — `bash tools/person-sees-gate.sh` exits 0 and the browser tier is green (pool and here).
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/person-sees-gate.sh in: `bash tools/person-sees-gate.sh` exits 0 and the browser tier is green (pool and here).`
