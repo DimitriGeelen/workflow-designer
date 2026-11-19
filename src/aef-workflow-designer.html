@@ -4666,6 +4666,19 @@ function renderNodes() {
           else if (istate === 'refused-target') pill('node-instance-refused-badge', '✗ refused target', by, 'refused-target');
           if (isRefused) pill('node-instance-refused-badge', '⛔ ' + ov.refused.rule, istate === 'current' ? by - 13 : by, 'refused');
         }
+      } else if (instanceView.available === true && !instanceView.selected) {
+        // T-1438: the overview, with no instance selected: "● N" on each step holding N >= 1 live instances (state NODE),
+        // the task ids on hover. A step holding none shows nothing (a step that can never hold one, il_closed, must not
+        // read "0 stuck here"). Its own attribute, data-instance-count: [data-instance] stays the single-instance overlay's.
+        const here = instanceCountsByNode().get(displayIdOf(n));
+        if (here && here.length) {
+          const txt = '● ' + here.length, w = Math.round(txt.length * 5.1 + 8), bx = n.x + def.w + 2, by = n.y - 6;
+          const pr = el('rect', { x: bx - w, y: by - 8.5, width: w, height: 11.5, rx: 3, class: 'node-instance-pill', 'data-instance-count': here.length });
+          const tt = el('text', { x: bx - 4, y: by, class: 'node-instance-badge', 'text-anchor': 'end', 'data-instance-count-text': here.length }, [text(txt)]);
+          const tip = `${here.length} live instance${here.length === 1 ? '' : 's'} here: ${here.join(', ')}`;
+          pr.appendChild(el('title', {}, [text(tip)])); tt.appendChild(el('title', {}, [text(tip)]));
+          g.appendChild(pr); g.appendChild(tt);
+        }
       }
     }
     // T-962: validator finding marker. BOTTOM-RIGHT — the one free corner: top-left is
@@ -12355,6 +12368,22 @@ function selectInstance(task) {
   // T-1428: edges too, in renderAll's order: a recorded route marks the edges the instance took.
   if (state) { renderEdges(); renderNodes(); }
 }
+// T-1438: node display id -> the task ids of the live instances on it (state NODE only), sorted; cached per snapshot
+// (a render pass asks once per node).
+let _instanceCountsCache = { src: null, map: new Map() };
+function instanceCountsByNode() {
+  const src = instanceView.instances;
+  if (_instanceCountsCache.src === src) return _instanceCountsCache.map;
+  const m = new Map();
+  for (const i of src || []) {
+    if (i.state !== 'NODE' || !i.node) continue;
+    if (!m.has(i.node)) m.set(i.node, []);
+    m.get(i.node).push(i.task);
+  }
+  for (const v of m.values()) v.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+  _instanceCountsCache = { src, map: m };
+  return m;
+}
 function computeInstanceOverlay() {
   const inst = instanceView.selected ? instanceView.instances.find(i => i.task === instanceView.selected) : null;
   if (!inst || !state) { instanceView.overlay = null; return; }
@@ -12399,7 +12428,11 @@ function renderInstancePicker() {
   if (v.available === false) opt('', 'instances: n/a', !v.selected);
   else if (v.available === null) opt('', 'instances: loading…', !v.selected);
   else if (!v.instances.length) opt('', 'instances: none for ' + (v.template || 'this map'), !v.selected);
-  else opt('', 'instance: none (' + v.instances.length + ' on ' + (v.template || 'this map') + ')', !v.selected);
+  else {
+    // T-1438: how many of them stand on a step (and so carry a "● N" on the map); STALE / NO-POSITION ones do not
+    const placed = v.instances.filter(i => i.state === 'NODE' && i.node).length;
+    opt('', 'instance: none (' + v.instances.length + ' on ' + (v.template || 'this map') + ')' + (placed ? ' · ' + placed + ' on steps' : ''), !v.selected);
+  }
   // Positioned instances first (they are what the overlay can draw), then STALE, then the
   // NO-POSITION majority — the corpus predates the mechanism, so most entities have no node.
   const rank = { NODE: 0, STALE: 1 };

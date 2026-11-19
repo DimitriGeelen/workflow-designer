@@ -1,13 +1,21 @@
 ---
 id: T-1438
-name: "Instance overlay: per-step instance counts and overdue/stalled badges (AEF aef-inception-lifecycle map; O-3/O-4)"
+name: "Instance overlay: per-step instance counts and overdue/stalled badges (AEF
+  aef-inception-lifecycle map; O-3/O-4)"
 description: >
-  AEF (msg c4b02491, conversation 832-ewcr-progress, their T-5227) adds a second instance map, aef-inception-lifecycle, and notes that per-step count and overdue badges on it need overlay rendering the designer does not do yet. This is the operator's 2026-11-18 ask (track inception 001 against its template and its status) and objectives O-3/O-4 (instance on which step; stalled past deadline). Build: render, on each node of a template map, how many live instances sit on it and which are overdue/stalled, from /api/instances; screenshot-reviewed at three widths.
+  AEF (msg c4b02491, conversation 832-ewcr-progress, their T-5227) adds a second instance
+  map, aef-inception-lifecycle, and notes that per-step count and overdue badges on
+  it need overlay rendering the designer does not do yet. This is the operator's 2026-11-18
+  ask (track inception 001 against its template and its status) and objectives O-3/O-4
+  (instance on which step; stalled past deadline). Build: render, on each node of
+  a template map, how many live instances sit on it and which are overdue/stalled,
+  from /api/instances; screenshot-reviewed at three widths.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-18T21:37:38Z
-last_update: 2026-11-18T21:37:38Z
-date_finished: null
+last_update: '2026-11-19T21:54:46Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +58,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-19T21:54:46Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1438: Instance overlay: per-step instance counts and overdue/stalled badges (AEF aef-inception-lifecycle map; O-3/O-4)
@@ -57,7 +85,10 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** AEF msg c4b02491 (their T-5227, 2026-11-18): a second instance map, `aef-inception-lifecycle`,
+whose per-step counts and overdue badges need overlay rendering the designer does not have. The operator asked the same
+day to track live inceptions (e.g. inception 001) against their template (objectives O-3, O-4). Next in the order the
+operator agreed on 2026-11-19 after the 0.44.0 release and T-1447.
 
 **Facts from AEF (msgs c4b02491, f6bd5371, 2026-11-18):** the `aef-inception-lifecycle` map carries 8 state uids;
 `/api/instances` can produce 7 of them (`il_wait_agent`, `il_wait_peer`, `il_wait_operator`, `il_ready`,
@@ -66,18 +97,34 @@ only), as `tl_archive` is for the task map: a node that can never hold a count m
 No instance is overdue yet: overdue needs `waiting_on`/`revisit_at` on AEF's inceptions (their T-5228); a sample
 response with an overdue instance follows from AEF. The projection schema is not frozen; its sha256 comes at freeze.
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** the overlay draws ONE selected instance (● current, ✓ path). With no instance selected the map
+shows nothing, though `/api/instances` already says where every live instance sits (`state: NODE`, `node`). The
+operator's ask (2026-11-18: track inception 001 against its template) and O-3 ("instance on which step") need the
+overview.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** with instances available and none selected, each step shows how many live instances sit on it, and which.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** a "● N" pill on every step holding N ≥ 1 instances (NODE state), its task ids on hover; nothing on
+a step holding none (so `il_closed`, which can never hold one, never reads "0 stuck here"); STALE and NO-POSITION
+counted in the picker, not on the map. Selecting an instance shows its route as before. **Scope split:** overdue and
+stalled badges need fields AEF does not send yet (`waiting_on`/`revisit_at`, their T-5228; sample promised after
+2026-11-25): their own task, not this one.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] With a served snapshot of instances on several steps and none selected, each step with N ≥ 1 NODE instances shows
+      "● N" (its title lists the task ids), and no other step shows a count. Measured in a CDP harness against the
+      snapshot's own counts.
+- [ ] STALE and NO-POSITION instances never put a count on the map; the picker's first line says how many are on steps.
+- [ ] Selecting an instance hides the counts and draws its route exactly as before (T-884/T-1428 harnesses unchanged and
+      green); clearing the selection brings the counts back.
+- [ ] Save is unchanged (the overlay is view state): byte-identity goldens green; buildBpmnXml identical with counts.
+      A picture export shows what the screen shows, counts included, as the single-instance overlay always has
+      (Decision below).
+- [ ] The harness is wired as a browser leg and bites (counts removed → it fails).
+- [ ] The overdue/stalled badge is captured as its own task, waiting on AEF T-5228.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -344,6 +391,20 @@ response with an overdue instance follows from AEF. The projection schema is not
      - **Rejected:** [alternatives and why not]
 -->
 
+### 2026-11-19 — counts in a picture export
+- **Chose:** a picture export (SVG/PNG/PDF) shows the counts when they are on screen, as it already shows the
+  single-instance overlay (T-1440 exports the canvas as seen); the saved map never carries them.
+- **Why:** one rule for both overlays; a person exporting "where our inceptions stand" gets what they see. Measured:
+  0.44.0 exports the single-instance halo and pills today.
+- **Rejected:** hiding the counts only in exports (two overlays, two rules); hiding every overlay in exports (changes
+  0.44.0's behaviour, outside this task; can be its own question).
+
+### 2026-11-19 — where counts show
+- **Chose:** only with no instance selected, only on steps holding ≥ 1 (state NODE), "● N" at the top-right corner the
+  single-instance badge uses.
+- **Why:** a selected instance's route and a crowd of counts compete for the same corner; a "0" on a step that can never
+  hold one (il_closed) reads as "nothing stuck here" when it means "not applicable" (AEF msg f6bd5371).
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -360,3 +421,7 @@ response with an overdue instance follows from AEF. The projection schema is not
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1438-instance-overlay-per-step-instance-count.md
 - **Context:** Initial task creation
+
+### 2026-11-19T21:54:44Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

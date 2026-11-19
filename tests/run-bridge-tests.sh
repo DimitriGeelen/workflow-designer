@@ -2202,6 +2202,20 @@ else
 fi
 }
 leg browser "test_t1447_notes" _leg_t1447
+_leg_t1438() {
+
+# ── T-1438: the instance overlay's overview — "● N" on each step holding N live instances, none selected ──
+# Counts from a snapshot written from the map's own step ids; STALE / NO-POSITION put nothing on the map; selecting an
+# instance hides the counts; save unchanged. ~15 s.
+if node "$ROOT/tools/_t1438-instance-counts-cdp.mjs" > "$TMP/leg-_t1438.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "instance counts on the map regressed: a leg of _t1438-instance-counts-cdp.mjs failed (T-1438)"
+  show_output "$TMP/leg-_t1438.out" "_t1438-instance-counts-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1438_instance_counts" _leg_t1438
 _leg_075() {
 
 # ── T-1273: an in-place mutation script cannot survive INT/TERM with its mutant ──
