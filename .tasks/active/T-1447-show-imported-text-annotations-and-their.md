@@ -149,6 +149,9 @@ bounds; associations draw as dotted lines (an arrowhead when associationDirectio
   matter: the same caption placement predates T-1447 (identical in the pre-T-1447 export) and is Greenfield's own
   finding (8); it is routed to T-1449 (caption-over-type-tag), not widened into this task. Note: the caption positions
   are the same at every width in the fit view (measured 1024 vs 1920); the 1024 tiles differ because zooming re-renders.
+  Round 4 (amber, V-20261119-60f6cafe) found note 2 still unchanged at 1440/1920/paper: the two places beside the caption
+  both still crossed it (the line arrives at a slant), so nothing moved. Fixed: every place along the edge, 4px apart,
+  nearest first; greenfield-export.png and 1920-closeup.png re-shot and changed (sha256 75966ec8… -> a8f19ae5…).
   **Expected:** the notes read as the map's content, nothing covers a step's name or a flow label it should not.
   **If not:** name the file and the note; the agent fixes and re-shoots.
 

@@ -16078,8 +16078,11 @@ function fitNoteEnds() {
       const d = dims(n), q = pts[at], c = capNearEnd(q); if (!c) continue;
       const onH = Math.abs(q.y - n.y) <= 3 || Math.abs(q.y - (n.y + d.h)) <= 3;   // top or bottom edge, else a side
       const lo = (onH ? n.x : n.y) + 8, hi = (onH ? n.x + d.w : n.y + d.h) - 8;
-      const v = onH ? q.x : q.y, before = (onH ? c.x1 : c.y1) - 2, after = (onH ? c.x2 : c.y2) + 2;
-      const opts = [before, after].filter(t => t >= lo && t <= hi).sort((a, b) => Math.abs(a - v) - Math.abs(b - v));
+      // every place along that edge, 4px apart, nearest first (a line arriving at a slant can still cross the caption
+      // from just beside it, so the two places either side of the caption are not enough; review round 4)
+      const v = onH ? q.x : q.y, opts = [];
+      for (let t = lo; t <= hi; t += 4) opts.push(t);
+      opts.sort((a, b) => Math.abs(a - v) - Math.abs(b - v));
       for (const t of opts) {
         const cand = onH ? { x: t, y: q.y } : { x: q.x, y: t };
         if (!capNearEnd(cand)) { pts[at] = cand; moved = true; break; }
