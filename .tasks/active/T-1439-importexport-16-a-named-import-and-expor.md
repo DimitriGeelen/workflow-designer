@@ -102,13 +102,18 @@ its current behaviour. Nothing is lost at 1024/1440/1920.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The toolbar has an **Import** menu (in place of Load…) and an **Export** menu, each listing "BPMN 2.0 / Camunda"
+- [x] The toolbar has an **Import** menu (in place of Load…) and an **Export** menu, each listing "BPMN 2.0 / Camunda"
       by name; Import opens the same file picker and import path as Load… did; Export downloads the same bytes as
       Save's download (a CDP harness asserts both: the imported map's node count, and byte equality of the two
       downloads).
-- [ ] The menus work from the keyboard (Enter/Space opens, arrows move, Escape closes and returns focus) and close on
+      Evidence: `tools/_t1439-io-menu-cdp.mjs` L1, L5 (real file chooser, audit-process imported, 14 nodes), L6 (export
+      17576 B == save 17576 B, as written by the browser). Against the pre-change designer it fails (teeth).
+- [x] The menus work from the keyboard (Enter/Space opens, arrows move, Escape closes and returns focus) and close on
       an outside click; at most one is open.
-- [ ] The menus are built from one list of formats, so a later task adds a format with one entry (T-1440..T-1444).
+      Evidence: L2 (one at a time), L3 (ArrowDown opens with the first item focused; Escape closes, focus back on the
+      button), L4 (outside click). Enter/Space are the button's native click.
+- [x] The menus are built from one list of formats, so a later task adds a format with one entry (T-1440..T-1444).
+      Evidence: L7 (menu items == `IO_FORMATS.import` ids).
 - [ ] `bash tools/person-sees-gate.sh` exits 0, and the browser tier is green (pool and here).
 
 ### Human
@@ -321,6 +326,11 @@ of one control; the official review is the first independent read.
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+grep -q 'id="btn-import"' src/aef-workflow-designer.html
+grep -q 'id="btn-export"' src/aef-workflow-designer.html
+! grep -q 'id="btn-load"' src/aef-workflow-designer.html
+grep -q '_leg_t1439' tests/run-bridge-tests.sh
+test -f docs/reports/T-1439-shots/1920-export-open.png
 
 ## RCA
 
