@@ -78,7 +78,9 @@ const ASSERT = `(async function(){
     function has(t, p){ return t.indexOf(p) > -1; }
     if (!has(notices.kitchen, ${JSON.stringify(KEPT_NESTING)})) errs.push('leg3: kitchen-sink notice does not say its subprocess contents are drawn flat and kept nested on save');
     if (!has(notices.kitchen, ${JSON.stringify(LOST_GEOMETRY)})) errs.push('leg3: kitchen-sink notice does not say its pool and lane outlines are not kept');
-    if (!has(notices.kitchen, '1 annotation, 3 groups, 2 associations kept unchanged')) errs.push('leg3: kitchen-sink notice does not count the kept annotation, groups and associations');
+    // T-1447: the annotation and its 2 associations are drawn now; only the 3 groups are still kept without being shown
+    if (!has(notices.kitchen, '3 groups kept unchanged') || /annotation|association[^.;]*not shown/.test(notices.kitchen))
+      errs.push('leg3: kitchen-sink notice does not count the 3 kept groups, or still calls the drawn annotation/associations not shown');
     if (!has(notices.nested, '2 nested lanes')) errs.push('leg3: nested-lane notice does not count the 2 nested lanes: ' + notices.nested.slice(0, 200));
     ${JSON.stringify(NEW_PARTS)}.forEach(function(p){ if (has(notices.corpus, p)) errs.push('leg3: a designer-written map shows "' + p + '"'); });
     var grew = [];
