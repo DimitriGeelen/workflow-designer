@@ -11,13 +11,13 @@ description: >
   a template map, how many live instances sit on it and which are overdue/stalled,
   from /api/instances; screenshot-reviewed at three widths.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -46,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-18T21:37:38Z
-last_update: '2026-11-19T21:54:46Z'
-date_finished:
+last_update: 2026-11-19T22:48:45Z
+date_finished: 2026-11-19T22:48:45Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -114,21 +114,22 @@ stalled badges need fields AEF does not send yet (`waiting_on`/`revisit_at`, the
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] With a served snapshot of instances on several steps and none selected, each step with N ≥ 1 NODE instances shows
+- [x] With a served snapshot of instances on several steps and none selected, each step with N ≥ 1 NODE instances shows
       "● N" (its title lists the task ids), and no other step shows a count. Measured in a CDP harness against the
-      snapshot's own counts.
-- [ ] STALE and NO-POSITION instances never put a count on the map; the picker's tooltip says how many are on steps
-      (its label has no room for it in the header at 1440).
-- [ ] Selecting an instance hides the counts and draws its route exactly as before (T-884/T-1428 harnesses unchanged and
-      green); clearing the selection brings the counts back.
-- [ ] Save is unchanged (the overlay is view state): byte-identity goldens green; buildBpmnXml identical with counts.
+      snapshot's own counts. (`_t1438-instance-counts-cdp.mjs` C1)
+- [x] STALE and NO-POSITION instances never put a count on the map; the picker's tooltip says how many are on steps
+      (its label has no room for it in the header at 1440). (C2)
+- [x] Selecting an instance hides the counts and draws its route exactly as before (T-884/T-1428 harnesses unchanged and
+      green); clearing the selection brings the counts back. (C3; `_t884-instance-overlay-cdp.mjs` 13/13)
+- [x] Save is unchanged (the overlay is view state): byte-identity goldens green; buildBpmnXml identical with counts.
       A picture export shows what the screen shows, counts included, as the single-instance overlay always has
-      (Decision below).
-- [ ] The harness is wired as a browser leg and bites (counts removed → it fails).
-- [ ] The overdue/stalled badge is captured as its own task, waiting on AEF T-5228.
+      (Decision below). (C4; browser tier 148/0 on pool-w2 and here, 2026-11-19)
+- [x] The harness is wired as a browser leg and bites (counts removed → it fails). (`test_t1438_instance_counts`;
+      `T1438_EDITOR=dist/aef-workflow-designer-0.44.0.html … --expect-red`: C1 and C2 red)
+- [x] The overdue/stalled badge is captured as its own task, waiting on AEF T-5228. (T-1455)
 
 ### Human
-- [ ] The step counts read clearly on the inception lifecycle map, at three widths.
+- [x] The step counts read clearly on the inception lifecycle map, at three widths.
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1438 --criterion 1`), who may escalate.
   **Steps:**
   1. `docs/reports/T-1438-shots/{1024,1440,1920}-overview.png`: the opening (fit) view; the map is wide, so the pills
@@ -183,6 +184,7 @@ stalled badges need fields AEF does not send yet (`waiting_on`/`revisit_at`, the
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261119-4cdd9329 — reviewer-judge-t-1438-r3-2112a60d971c:reviewer (rung rung-3-termlink-single-reviewer), digest f5b379b7fc0f; dispatch judge-t-1438-r3-2112a60d971c; evidence: .context/reviews/evidence/T-1438/AC1-judge-t-1438-r3-2112a60d971c.md, .context/reviews/evidence/T-1438/1024-overview-judge-t-1438-r3-2112a60d971c.png, .context/reviews/evidence/T-1438/1440-overview-judge-t-1438-r3-2112a60d971c.png, .context/reviews/evidence/T-1438/1920-overview-judge-t-1438-r3-2112a60d971c.png, .context/reviews/evidence/T-1438/closeup-1-agt_1_file-judge-t-1438-r3-2112a60d971c.png, .context/reviews/evidence/T-1438/closeup-2-agt_2_conduct-judge-t-1438-r3-2112a60d971c.png, .context/reviews/evidence/T-1438/closeup-3-hum_1_record-judge-t-1438-r3-2112a60d971c.png, .context/reviews/evidence/T-1438/1024-selected-judge-t-1438-r3-2112a60d971c.png, .context/reviews/evidence/T-1438/1440-selected-judge-t-1438-r3-2112a60d971c.png, .context/reviews/evidence/T-1438/1920-selected-judge-t-1438-r3-2112a60d971c.png, .context/reviews/evidence/T-1438/picker-judge-t-1438-r3-2112a60d971c.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -322,6 +324,10 @@ stalled badges need fields AEF does not send yet (`waiting_on`/`revisit_at`, the
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+node --check tools/_t1438-instance-counts-cdp.mjs
+grep -q 'test_t1438_instance_counts' tests/run-bridge-tests.sh
+grep -q 'function instanceCountsByNode' src/aef-workflow-designer.html
+test -f .tasks/active/T-1455-*.md || ls .tasks/completed/T-1455-*.md
 
 ## RCA
 
@@ -437,3 +443,16 @@ stalled badges need fields AEF does not send yet (`waiting_on`/`revisit_at`, the
 ### 2026-11-19T21:54:44Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-19T22:48:45Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-fd95ea60
+- **Timestamp:** 2026-11-19T22:49:09Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

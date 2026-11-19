@@ -1,0 +1,125 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1438: Instance overlay: per-step instance counts and overdue/stalled badges (AEF aef-inception-lifecycle map; O-3/O-4)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-19T22:50:10Z
+# ============================================================================
+
+task_id: T-1438
+task_name: "Instance overlay: per-step instance counts and overdue/stalled badges (AEF aef-inception-lifecycle map; O-3/O-4)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-11-18T21:37:38Z
+completed: 2026-11-19T22:48:45Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-11-18T22:38:17+01:00
+last_commit: 2026-11-19T23:05:04+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  capture instance overlay counts and overdue badges (AEF T-5227 inception-lifecycle map; operator's ask; O-3/O-4). instance overview — with instances loaded and none selected, '● N' on each step holding N live instances (state NODE), task ids on hover; nothing on a step holding none (il_closed never reads '0 stuck here'); picker adds '· N on steps'; selecting an instance hides the counts. Save unchanged; a picture export shows them as the screen does (decision recorded). Harness _t1438 4/4, bites on 0.44.0 (C1, C2), wired as test_t1438_instance_counts; T-884 13/13 unchanged. Overdue/stalled split to T-1455 (needs AEF T-5228). the step count moves from the picker label (cut at 1440) to its tooltip ('6 of 8 are on a step'); screenshots at 3 widths (fit view), 100% close-ups of the three counted steps, picker; reviewer criterion. reviewer verdict
+
+# Key outcomes
+outcomes:
+  - 'With a served snapshot of instances on several steps and none selected, each step with N ≥ 1 NODE instances shows'
+  - 'STALE and NO-POSITION instances never put a count on the map; the picker''s tooltip says how many are on steps'
+  - 'Selecting an instance hides the counts and draws its route exactly as before (T-884/T-1428 harnesses unchanged and'
+  - 'Save is unchanged (the overlay is view state): byte-identity goldens green; buildBpmnXml identical with counts.'
+  - 'The harness is wired as a browser leg and bites (counts removed → it fails). (`test_t1438_instance_counts`;'
+  - 'The overdue/stalled badge is captured as its own task, waiting on AEF T-5228. (T-1455)'
+  - 'The step counts read clearly on the inception lifecycle map, at three widths.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  - decision: '2026-11-19 — counts in a picture export'
+    chose: 'a picture export (SVG/PNG/PDF) shows the counts when they are on screen, as it already shows the single-instance overlay (T-1440 exports the canvas as seen); the saved map never carries them.'
+    rationale: 'one rule for both overlays; a person exporting "where our inceptions stand" gets what they see. Measured: 0.44.0 exports the single-instance halo and pills today.'
+    alternatives_rejected: ['hiding the counts only in exports (two overlays, two rules); hiding every overlay in exports (changes 0.44.0''s behaviour, outside this task; can be its own question).']
+  - decision: '2026-11-19 — where counts show'
+    chose: 'only with no instance selected, only on steps holding ≥ 1 (state NODE), "● N" at the top-right corner the single-instance badge uses.'
+    rationale: 'a selected instance''s route and a crowd of counts compete for the same corner; a "0" on a step that can never hold one (il_closed) reads as "nothing stuck here" when it means "not applicable" (AEF msg f6bd5371).'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1438/1024-overview-judge-t-1438-r3-2112a60d971c.png'
+  - '.context/reviews/evidence/T-1438/1024-selected-judge-t-1438-r3-2112a60d971c.png'
+  - '.context/reviews/evidence/T-1438/1440-overview-judge-t-1438-r3-2112a60d971c.png'
+  - '.context/reviews/evidence/T-1438/1440-selected-judge-t-1438-r3-2112a60d971c.png'
+  - '.context/reviews/evidence/T-1438/1920-overview-judge-t-1438-r3-2112a60d971c.png'
+  - '.context/reviews/evidence/T-1438/1920-selected-judge-t-1438-r3-2112a60d971c.png'
+  - '.context/reviews/evidence/T-1438/AC1-judge-t-1438-r3-2112a60d971c.md'
+  - '.context/reviews/evidence/T-1438/closeup-1-agt_1_file-judge-t-1438-r3-2112a60d971c.png'
+  - '.context/reviews/evidence/T-1438/closeup-2-agt_2_conduct-judge-t-1438-r3-2112a60d971c.png'
+  - '.context/reviews/evidence/T-1438/closeup-3-hum_1_record-judge-t-1438-r3-2112a60d971c.png'
+  - '.context/reviews/evidence/T-1438/picker-judge-t-1438-r3-2112a60d971c.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1438-instance-overlay-per-step-instance-count.md'
+  - 'docs/reports/T-1438-shots/1024-overview.png'
+  - 'docs/reports/T-1438-shots/1024-selected.png'
+  - 'docs/reports/T-1438-shots/1440-overview.png'
+  - 'docs/reports/T-1438-shots/1440-selected.png'
+  - 'docs/reports/T-1438-shots/1920-overview.png'
+  - 'docs/reports/T-1438-shots/1920-selected.png'
+  - 'docs/reports/T-1438-shots/closeup-1-agt_1_file.png'
+  - 'docs/reports/T-1438-shots/closeup-2-agt_2_conduct.png'
+  - 'docs/reports/T-1438-shots/closeup-3-hum_1_record.png'
+  - 'docs/reports/T-1438-shots/picker.png'
+  - 'docs/reports/T-1438-shots/shots.mjs'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1438-instance-counts-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-18T22:38:17'
+    action: 'T-1438: capture instance overlay counts and overdue badges (AEF T-5227 inception-lifecycle map; operator''s ask; O-3/O-4)'
+  - time: '2026-11-19T23:01:54'
+    action: 'T-1438: instance overview — with instances loaded and none selected, ''● N'' on each step holding N live instances (state NODE), task ids on hover; nothing on a step holding none (il_closed never reads ''0 stuck here''); picker adds ''· N on steps''; selecting an instance hides the counts. Save unchanged; a picture export shows them as the screen does (decision recorded). Harness _t1438 4/4, bites on 0.44.0 (C1, C2), wired as test_t1438_instance_counts; T-884 13/13 unchanged. Overdue/stalled split to T-1455 (needs AEF T-5228)'
+  - time: '2026-11-19T23:03:34'
+    action: 'T-1438: the step count moves from the picker label (cut at 1440) to its tooltip (''6 of 8 are on a step''); screenshots at 3 widths (fit view), 100% close-ups of the three counted steps, picker; reviewer criterion'
+  - time: '2026-11-19T23:05:04'
+    action: 'T-1438: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 1511 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1511
+  commits: 5
+  files_changed: 35
+  lines_added: 932
+  lines_removed: 38
+  footprint_refreshed_at: '2026-11-19T22:50:50Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1438-instance-overlay-per-step-instance-count.md
+generated_by: context-agent-hybrid
