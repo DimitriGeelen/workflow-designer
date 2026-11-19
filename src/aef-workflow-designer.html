@@ -12428,10 +12428,12 @@ function renderInstancePicker() {
   if (v.available === false) opt('', 'instances: n/a', !v.selected);
   else if (v.available === null) opt('', 'instances: loading…', !v.selected);
   else if (!v.instances.length) opt('', 'instances: none for ' + (v.template || 'this map'), !v.selected);
-  else {
-    // T-1438: how many of them stand on a step (and so carry a "● N" on the map); STALE / NO-POSITION ones do not
+  else opt('', 'instance: none (' + v.instances.length + ' on ' + (v.template || 'this map') + ')', !v.selected);
+  // T-1438: how many stand on a step (and so carry a "● N" on the map); STALE / NO-POSITION ones do not. In the title:
+  // the label has no room for it in the header (it was cut at 1440).
+  if (v.available === true && v.instances.length) {
     const placed = v.instances.filter(i => i.state === 'NODE' && i.node).length;
-    opt('', 'instance: none (' + v.instances.length + ' on ' + (v.template || 'this map') + ')' + (placed ? ' · ' + placed + ' on steps' : ''), !v.selected);
+    sel.title += ' With none selected: ● N on each step holding N live instances (' + placed + ' of ' + v.instances.length + ' are on a step).';
   }
   // Positioned instances first (they are what the overlay can draw), then STALE, then the
   // NO-POSITION majority — the corpus predates the mechanism, so most entities have no node.

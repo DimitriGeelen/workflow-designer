@@ -117,7 +117,8 @@ stalled badges need fields AEF does not send yet (`waiting_on`/`revisit_at`, the
 - [ ] With a served snapshot of instances on several steps and none selected, each step with N ≥ 1 NODE instances shows
       "● N" (its title lists the task ids), and no other step shows a count. Measured in a CDP harness against the
       snapshot's own counts.
-- [ ] STALE and NO-POSITION instances never put a count on the map; the picker's first line says how many are on steps.
+- [ ] STALE and NO-POSITION instances never put a count on the map; the picker's tooltip says how many are on steps
+      (its label has no room for it in the header at 1440).
 - [ ] Selecting an instance hides the counts and draws its route exactly as before (T-884/T-1428 harnesses unchanged and
       green); clearing the selection brings the counts back.
 - [ ] Save is unchanged (the overlay is view state): byte-identity goldens green; buildBpmnXml identical with counts.
@@ -127,6 +128,17 @@ stalled badges need fields AEF does not send yet (`waiting_on`/`revisit_at`, the
 - [ ] The overdue/stalled badge is captured as its own task, waiting on AEF T-5228.
 
 ### Human
+- [ ] The step counts read clearly on the inception lifecycle map, at three widths.
+  **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1438 --criterion 1`), who may escalate.
+  **Steps:**
+  1. `docs/reports/T-1438-shots/{1024,1440,1920}-overview.png`: the opening (fit) view; the map is wide, so the pills
+     are small there, as every label is. `closeup-{1,2,3}-*.png` (100%, 1440): "● 3", "● 2", "● 1"; each pill readable,
+     at its step's top-right corner, not covering the step's name, its id caption, its tier tag or a flow.
+  2. `docs/reports/T-1438-shots/{1024,1440,1920}-selected.png`: one instance selected; no counts, its route as before.
+  3. `docs/reports/T-1438-shots/picker.png`: the picker label as before ("instance: none (8 on …)"), not cut; the step
+     count is in its tooltip ("6 of 8 are on a step"), since the header has no room for it.
+  **Expected:** a person sees at a glance where the live instances stand, and nothing reads as clutter.
+  **If not:** name the file and the step; the agent fixes and re-shoots.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.

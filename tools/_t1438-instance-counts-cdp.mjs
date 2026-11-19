@@ -6,7 +6,7 @@
 // Legs (PASS/FAIL each; exit 0 only if all pass):
 //   C1 with none selected, each step holding N >= 1 NODE instances shows "● N", its title lists those task ids, and no
 //      other step shows a count (3 steps: 3, 2, 1 instances)
-//   C2 STALE and NO-POSITION instances put no count on the map; the picker's first line says "· 6 on steps"
+//   C2 STALE and NO-POSITION instances put no count on the map; the picker's title says "(6 of 8 are on a step)"
 //   C3 selecting an instance hides every count and draws its overlay ([data-instance] present); clearing brings them back
 //   C4 the counts write nothing to the map: buildBpmnXml identical before / with counts. A picture export shows what the
 //      screen shows (as the single-instance overlay always has, T-1440): the export carries the 3 count pills
@@ -76,8 +76,8 @@ try {
   const extra = Object.keys(counts).filter(k => !(k in want));
   leg('C1', bad.length === 0 && extra.length === 0, 'each step holding N live instances shows "● N" with their ids; no other step shows a count',
     JSON.stringify({ counts, bad, extra }).slice(0, 300));
-  const picker = await ev(`(document.getElementById('instancePicker') || {}).options ? document.getElementById('instancePicker').options[0].textContent : ''`);
-  leg('C2', !counts.gone_node && extra.length === 0 && / · 6 on steps$/.test(picker), 'STALE / NO-POSITION put nothing on the map; the picker says "· 6 on steps"', JSON.stringify(picker));
+  const picker = await ev(`(document.getElementById('instancePicker') || {}).title || ''`);
+  leg('C2', !counts.gone_node && extra.length === 0 && /\(6 of 8 are on a step\)/.test(picker), 'STALE / NO-POSITION put nothing on the map; the picker\'s title says "6 of 8 are on a step"', JSON.stringify(picker.slice(-120)));
   const sel = await ev(`(async()=>{ selectInstance('T-9004'); renderAll(); await new Promise(r=>setTimeout(r,200));
       const a = { counts: document.querySelectorAll('[data-instance-count]').length, overlay: document.querySelectorAll('[data-instance]').length };
       selectInstance(null); renderAll(); await new Promise(r=>setTimeout(r,200));
