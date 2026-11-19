@@ -114,7 +114,9 @@ its current behaviour. Nothing is lost at 1024/1440/1920.
       button), L4 (outside click). Enter/Space are the button's native click.
 - [x] The menus are built from one list of formats, so a later task adds a format with one entry (T-1440..T-1444).
       Evidence: L7 (menu items == `IO_FORMATS.import` ids).
-- [ ] `bash tools/person-sees-gate.sh` exits 0, and the browser tier is green (pool and here).
+- [x] `bash tools/person-sees-gate.sh` exits 0, and the browser tier is green (pool and here).
+      Evidence: gate exit 0 (toolbar-reach 21/21, 305 s); browser tier GREEN 144/0 here and on pool-w2 (144 = 143 + the
+      new test_t1439_io_menus leg).
 
 ### Human
 - [ ] [REVIEW] The toolbar's Import and Export menus read and fit at three widths, judged on the screenshots.
