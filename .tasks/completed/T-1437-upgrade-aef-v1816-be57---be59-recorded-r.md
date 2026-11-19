@@ -4,13 +4,13 @@ name: "Upgrade AEF v1.8.16-be.57 -> be.59 (recorded-ruling route T-5235, restate
 description: >
   Upgrade AEF v1.8.16-be.57 -> be.59 (recorded-ruling route T-5235, restatement length T-5239)
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_run
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t631-tier0-approval-reachable.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -39,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-18T20:47:36Z
-last_update: 2026-11-18T20:47:36Z
-date_finished: null
+last_update: 2026-11-19T08:36:33Z
+date_finished: 2026-11-19T08:36:33Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -377,3 +377,21 @@ test ! -e .tasks/templates/inception.md.upstream
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1437-upgrade-aef-v1816-be57---be59-recorded-r.md
 - **Context:** Initial task creation
+
+### 2026-11-19T08:36:33Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-84ec8bb2
+- **Timestamp:** 2026-11-19T08:36:35Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — Every declared local fix the upgrade overwrote is resolved via `tools/_t1000-revendor-worklist.py`, and
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t1000-revendor-worklist.py in: Every declared local fix the upgrade overwrote is resolved via `tools/_t1000-revendor-worklist.py`, and`

@@ -1,0 +1,207 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1437: Upgrade AEF v1.8.16-be.57 -> be.59 (recorded-ruling route T-5235, restatement length T-5239)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-19T08:36:49Z
+# ============================================================================
+
+task_id: T-1437
+task_name: "Upgrade AEF v1.8.16-be.57 -> be.59 (recorded-ruling route T-5235, restatement length T-5239)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-18T20:47:36Z
+completed: 2026-11-19T08:36:33Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-11-18T21:48:49+01:00
+last_commit: 2026-11-19T09:36:32+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  capture the be.57 -> be.59 upgrade. operator job 166 — upgrade AEF be.57 -> be.59 (same 11 steps as job 156; rehearsed). job 167 upgrades to be.60 directly (inception lifecycle map on top of be.59); job 166 retired unrun. target be.60. pristine vendor commit — AEF v1.8.16-be.60 (695627584) as fw upgrade wrote it (re-vendor protocol step 1, T-1000). advance the divergence baseline to the pristine AEF v1.8.16-be.60 commit, and record the upgrade in .framework.yaml (re-vendor protocol step 2, T-1000). re-apply 832's local fixes onto pristine AEF v1.8.16-be.60 (re-vendor protocol step 3, T-1000). inception template takes AEF be.60's EXPLORING guidance (T-5226), keeping 832's hypothesis section; .upstream removed (it held nothing else). _t631 tooth prints rc and the hook's output when mutant (a) misses the Tier 0 block (failed once locally under load on be.60, passed on the pool and 17/17 alone; cause unknowable without the output). criteria met (be.60 in, 37 fixes resolved, tiers green, pushed). verification commands
+
+# Key outcomes
+outcomes:
+  - '`.framework.yaml` version_sha is `6956275849f2041c5d419296ad3f140ab3c94fb0` (be.60; AEF released it on top of'
+  - 'Every declared local fix the upgrade overwrote is resolved via `tools/_t1000-revendor-worklist.py`, and'
+  - '`fw reviewer ruling record --help` works in the vendored framework.'
+  - 'Core and browser tiers green (pool and here, high-risk), and the push passes the T-1288 gate.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'criteria met (be.60 in, 37 fixes resolved, tiers green, pushed)'
+    source: git-mined
+  - description: 're-apply 832''s local fixes onto pristine AEF v1.8.16-be.60 (re-vendor protocol step 3, T-1000)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/.context/designer/projects/aef-inception-lifecycle/meta.json'
+  - '.agentic-framework/.context/designer/projects/aef-inception-lifecycle/v1.bpmn'
+  - '.agentic-framework/.fw-vendor-stamp.json'
+  - '.agentic-framework/.tasks/templates/inception.md'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/FRAMEWORK.md'
+  - '.agentic-framework/VERSION'
+  - '.agentic-framework/agents/audit/active-task-scan.py'
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.agentic-framework/agents/audit/completed-task-scan.py'
+  - '.agentic-framework/agents/context/block-cross-session-messages.sh'
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.agentic-framework/agents/context/check-human-ac-tick.py'
+  - '.agentic-framework/agents/context/check-inception-recommendation.py'
+  - '.agentic-framework/agents/context/check-inception-schema.py'
+  - '.agentic-framework/agents/context/checkpoint.sh'
+  - '.agentic-framework/agents/context/lib/extract_decisions.py'
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/agents/context/revisit-due-scan.sh'
+  - '.agentic-framework/agents/fabric/lib/drift.sh'
+  - '.agentic-framework/agents/fabric/lib/traverse.sh'
+  - '.agentic-framework/agents/git/lib/hooks.sh'
+  - '.agentic-framework/agents/handover/handover.sh'
+  - '.agentic-framework/agents/observe/observe.sh'
+  - '.agentic-framework/agents/task-create/create-batch.sh'
+  - '.agentic-framework/agents/task-create/create-task.sh'
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/agents/termlink/bvp-estimator/estimator.py'
+  - '.agentic-framework/bin/fw'
+  - '.agentic-framework/docs/generated/components/lib-idalloc.md'
+  - '.agentic-framework/docs/generated/components/lib-idalloc_reconcile.md'
+  - '.agentic-framework/docs/generated/components/lib-quota_limits.md'
+  - '.agentic-framework/docs/generated/components/lib-quota_status.md'
+  - '.agentic-framework/docs/reports/T-5211-decision-notice-to-agent.md'
+  - '.agentic-framework/docs/reports/T-5212-batch-task-creation.md'
+  - '.agentic-framework/docs/reports/T-5221-independent-review.md'
+  - '.agentic-framework/docs/reports/T-5224-arc-orchestrator.md'
+  - '.agentic-framework/docs/reports/T-5228-inception-triage.md'
+  - '.agentic-framework/docs/reports/field-test-v1.8.16-results.md'
+  - '.agentic-framework/docs/research/executable-workflow/contracts/v2/designer-0.43-mapping.md'
+  - '.agentic-framework/docs/research/executable-workflow/contracts/v2/runtime-projection/runtime-projection-v2.schema.json'
+  - '.agentic-framework/lib/agent_notice.py'
+  - '.agentic-framework/lib/arc.sh'
+  - '.agentic-framework/lib/arc_instantiate.py'
+  - '.agentic-framework/lib/bvp.sh'
+  - '.agentic-framework/lib/delegation_cli.py'
+  - '.agentic-framework/lib/delegation_widening.py'
+  - '.agentic-framework/lib/idalloc.sh'
+  - '.agentic-framework/lib/idalloc_reconcile.py'
+  - '.agentic-framework/lib/inception-readiness.sh'
+  - '.agentic-framework/lib/inception.sh'
+  - '.agentic-framework/lib/inception_lifecycle.py'
+  - '.agentic-framework/lib/inception_recommendation.sh'
+  - '.agentic-framework/lib/init.sh'
+  - '.agentic-framework/lib/objectives-seed.sh'
+  - '.agentic-framework/lib/operator_pending.py'
+  - '.agentic-framework/lib/recorded_ruling.py'
+  - '.agentic-framework/lib/render_task.py'
+  - '.agentic-framework/lib/review.sh'
+  - '.agentic-framework/lib/review_cost.py'
+  - '.agentic-framework/lib/reviewer/judge_cli.py'
+  - '.agentic-framework/lib/reviewer/restatement_cli.py'
+  - '.agentic-framework/lib/shell_write_scan.py'
+  - '.agentic-framework/lib/sidecar/addressing.py'
+  - '.agentic-framework/lib/sidecar/delivery.py'
+  - '.agentic-framework/lib/sidecar/profile_notices.py'
+  - '.agentic-framework/lib/sidecar/termlink_transport.py'
+  - '.agentic-framework/lib/sidecar_cli.py'
+  - '.agentic-framework/lib/task-audit.sh'
+  - '.agentic-framework/lib/task-create-rules.sh'
+  - '.agentic-framework/lib/templates/claude-project.md'
+  - '.agentic-framework/lib/ts/dist/loop-detect.js'
+  - '.agentic-framework/lib/upgrade.sh'
+  - '.agentic-framework/lib/upgrade_template_shipped.py'
+  - '.agentic-framework/lib/verdict_ledger.py'
+  - '.agentic-framework/lib/verification-port.sh'
+  - '.agentic-framework/tools/corpus_overlay.py'
+  - '.agentic-framework/web/app.py'
+  - '.agentic-framework/web/blueprints/approvals.py'
+  - '.agentic-framework/web/blueprints/bvp.py'
+  - '.agentic-framework/web/blueprints/designer.py'
+  - '.agentic-framework/web/blueprints/designer_api.py'
+  - '.agentic-framework/web/blueprints/fabric.py'
+  - '.agentic-framework/web/blueprints/inception.py'
+  - '.agentic-framework/web/blueprints/tasks.py'
+  - '.agentic-framework/web/conftest.py'
+  - '.agentic-framework/web/decide_runner.py'
+  - '.agentic-framework/web/shared.py'
+  - '.agentic-framework/web/templates/_approvals_content.html'
+  - '.agentic-framework/web/templates/approvals.html'
+  - '.agentic-framework/web/templates/designer_landing.html'
+  - '.agentic-framework/web/templates/designer_open.html'
+  - '.agentic-framework/web/templates/fabric_detail.html'
+  - '.agentic-framework/web/templates/inception.html'
+  - '.agentic-framework/web/templates/inception_detail.html'
+  - '.agentic-framework/web/test_app.py'
+  - '.agentic-framework/web/test_costs.py'
+  - '.context/runme/166-upgrade-aef-v1.8.16-be.59/dryrun.ok'
+  - '.context/runme/166-upgrade-aef-v1.8.16-be.59/job.sh'
+  - '.context/runme/166-upgrade-aef-v1.8.16-be.59/retired'
+  - '.context/runme/167-upgrade-aef-v1.8.16-be.60/dryrun.ok'
+  - '.context/runme/167-upgrade-aef-v1.8.16-be.60/job.sh'
+  - '.framework.yaml'
+  - '.tasks/active/T-1437-upgrade-aef-v1816-be57---be59-recorded-r.md'
+  - '.tasks/templates/inception.md'
+  - 'tools/_t631-tier0-approval-reachable.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-18T21:48:49'
+    action: 'T-1437: capture the be.57 -> be.59 upgrade'
+  - time: '2026-11-18T21:52:28'
+    action: 'T-1437: operator job 166 — upgrade AEF be.57 -> be.59 (same 11 steps as job 156; rehearsed)'
+  - time: '2026-11-18T23:50:12'
+    action: 'T-1437: job 167 upgrades to be.60 directly (inception lifecycle map on top of be.59); job 166 retired unrun'
+  - time: '2026-11-18T23:50:22'
+    action: 'T-1437: target be.60'
+  - time: '2026-11-19T08:28:06'
+    action: 'T-1437: pristine vendor commit — AEF v1.8.16-be.60 (695627584) as fw upgrade wrote it (re-vendor protocol step 1, T-1000)'
+  - time: '2026-11-19T08:28:09'
+    action: 'T-1437: advance the divergence baseline to the pristine AEF v1.8.16-be.60 commit, and record the upgrade in .framework.yaml (re-vendor protocol step 2, T-1000)'
+  - time: '2026-11-19T08:31:36'
+    action: 'T-1437: re-apply 832''s local fixes onto pristine AEF v1.8.16-be.60 (re-vendor protocol step 3, T-1000)'
+  - time: '2026-11-19T08:32:03'
+    action: 'T-1437: inception template takes AEF be.60''s EXPLORING guidance (T-5226), keeping 832''s hypothesis section; .upstream removed (it held nothing else)'
+  - time: '2026-11-19T08:58:31'
+    action: 'T-1437: _t631 tooth prints rc and the hook''s output when mutant (a) misses the Tier 0 block (failed once locally under load on be.60, passed on the pool and 17/17 alone; cause unknowable without the output)'
+  - time: '2026-11-19T09:36:08'
+    action: 'T-1437: criteria met (be.60 in, 37 fixes resolved, tiers green, pushed)'
+  - time: '2026-11-19T09:36:32'
+    action: 'T-1437: verification commands'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 11 commit(s), 708 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 708
+  commits: 12
+  files_changed: 109
+  lines_added: 10258
+  lines_removed: 4300
+  footprint_refreshed_at: '2026-11-19T08:37:13Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1437-upgrade-aef-v1816-be57---be59-recorded-r.md
+generated_by: context-agent-hybrid

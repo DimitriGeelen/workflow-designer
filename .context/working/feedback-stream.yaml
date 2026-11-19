@@ -23139,3 +23139,21 @@ scan_id: R-0880f73c
 task_id: T-1436
 payload:
   task_file: .tasks/active/T-1436-objectives-add-template-forks-operators-.md
+---
+kind: scan_emitted
+timestamp: '2026-11-19T08:36:35Z'
+scan_id: R-84ec8bb2
+task_id: T-1437
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-19T08:36:35Z'
+scan_id: R-84ec8bb2
+task_id: T-1437
+payload:
+  task_file: .tasks/active/T-1437-upgrade-aef-v1816-be57---be59-recorded-r.md
