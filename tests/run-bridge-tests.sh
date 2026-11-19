@@ -3779,7 +3779,9 @@ echo "== exported BPMN validates against the OMG schema and carries complete DI 
 # COST: ~2s. No browser — it validates files the previous leg already wrote.
 # Existence test via find (no stderr to discard: the dir is checked first), so T-527's
 # capture invariant can keep reading every `if … > null-sink` line as a discarded probe.
-if [ -d "$T423_ADD_EXP" ] && [ -n "$(find "$T423_ADD_EXP" -maxdepth 1 -name '*.bpmn' -print -quit)" ]; then
+# T-1452: ${...:-} — run without the leg that sets it (a shard), this must refuse plainly, not abort the runner on an
+# unbound variable (it did, on the pool, 2026-11-19: shard 1 stopped after 55 legs with no summary).
+if [ -n "${T423_ADD_EXP:-}" ] && [ -d "$T423_ADD_EXP" ] && [ -n "$(find "$T423_ADD_EXP" -maxdepth 1 -name '*.bpmn' -print -quit)" ]; then
   if timeout 120 python3 "$ROOT/tools/_t423-di-schema-validate.py" --self-test > "$TMP/leg-_t423-schema.out" 2>&1 \
      && timeout 300 python3 "$ROOT/tools/_t423-di-schema-validate.py" "$T423_ADD_EXP"/*.bpmn >> "$TMP/leg-_t423-schema.out" 2>&1; then
     pass=$((pass + 1))

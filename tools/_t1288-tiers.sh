@@ -136,6 +136,10 @@ PY
 # ── per-tier bookkeeping ────────────────────────────────────────────────────────────────────────────────────────
 declare -A T1288_PASS=() T1288_FAIL=() T1288_FLAKY=() T1288_QUAR=() T1288_SECS=() T1288_RAN=() _T1288_LEG_TIER=()
 declare -A _T1288_SHARD_N=()   # T-1452: legs seen per tier, for T1288_SHARD
+declare -A _T1288_SHARD_SLOT=()   # T-1452: the shard each leg was given
+# T-1452: legs that use what an earlier leg leaves behind, and that leg (found by scanning every leg body for a variable
+# another leg sets, 2026-11-19: this is the only pair). Sharding keeps each pair in one shard.
+declare -A _T1288_SHARD_WITH=([_t423-di-schema-validate]=_t423-additive-export-cdp)
 if [ -n "${T1288_SHARD:-}" ]; then
     if ! [[ "$T1288_SHARD" =~ ^([1-9][0-9]*)/([1-9][0-9]*)$ ]] || [ "${BASH_REMATCH[1]}" -gt "${BASH_REMATCH[2]}" ]; then
         echo "T1288_SHARD='$T1288_SHARD' is not i/k with 1 <= i <= k (T-1452)" >&2; exit 2
@@ -185,8 +189,17 @@ leg() {
     # in declaration order), so k pool workers run one tier between them. Names are still registered above, so the
     # whole-suite checks (quarantine names, declared-twice) hold in every shard. Unset: every leg runs, as before.
     if [ -n "${T1288_SHARD:-}" ]; then
-        _T1288_SHARD_N[$tier]=$(( ${_T1288_SHARD_N[$tier]:-0} + 1 ))
-        [ $(( (${_T1288_SHARD_N[$tier]} - 1) % ${T1288_SHARD#*/} )) -eq $(( ${T1288_SHARD%/*} - 1 )) ] || return 0
+        # A leg that uses what an earlier leg leaves behind goes to that leg's shard (_T1288_SHARD_WITH; the 2026-11-19
+        # trial: _t423-di-schema-validate read $T423_ADD_EXP from _t423-additive-export-cdp, which its shard had not run).
+        local slot partner="${_T1288_SHARD_WITH[$name]:-}"
+        if [ -n "$partner" ] && [ -n "${_T1288_SHARD_SLOT[$partner]:-}" ]; then
+            slot=${_T1288_SHARD_SLOT[$partner]}
+        else
+            _T1288_SHARD_N[$tier]=$(( ${_T1288_SHARD_N[$tier]:-0} + 1 ))
+            slot=$(( (${_T1288_SHARD_N[$tier]} - 1) % ${T1288_SHARD#*/} ))
+        fi
+        _T1288_SHARD_SLOT[$name]=$slot
+        [ "$slot" -eq $(( ${T1288_SHARD%/*} - 1 )) ] || return 0
     fi
     T1288_RAN[$tier]=1
     if [ -n "$_T1288_SECTION" ]; then printf '\n%s\n' "$_T1288_SECTION"; _T1288_SECTION=""; fi
