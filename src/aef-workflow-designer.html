@@ -734,6 +734,7 @@ font-family: 'Outfit';
   .node-label-sub { fill: var(--text-faint); font-family: var(--mono); font-size: 9px; pointer-events: none; }
   /* T-1369: a document's [state]: brighter and larger than a sub-label, it is what makes the document a trigger (sweep) */
   .data-state-label { fill: var(--text-dim); font-family: var(--mono); font-size: 10px; pointer-events: none; }
+  .note-text { fill: var(--text); font-family: var(--sans); font-size: 11px; pointer-events: none; }   /* T-1447 */
   /* Global label size (T-085): keyed off data-lsize on the svg root. The
      lane-fit ladder's explicit shrink steps use inline style, which wins
      over these rules by cascade priority. */
@@ -1834,12 +1835,18 @@ font-family: 'Outfit';
           <marker id="da-end" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
             <path d="M1,1 L9,5 L1,9" fill="none" stroke="var(--text-dim)" stroke-width="1.3" />
           </marker>
+          <!-- T-1447: an association's open arrowhead (associationDirection One at the target, Both at both ends) -->
+          <marker id="assoc-end" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            <path d="M1,1 L9,5 L1,9" fill="none" stroke="var(--text-dim)" stroke-width="1.3" />
+          </marker>
         </defs>
         <g id="g-pool"></g>
         <!-- T-1120: the other pools of a collaboration and the message flows, read-only (no pointer events) -->
         <g id="g-collab" pointer-events="none"></g>
         <!-- T-1369: documents (BPMN data objects) with their state and associations, read-only (no pointer events) -->
         <g id="g-data" pointer-events="none"></g>
+        <!-- T-1447: imported text annotations and associations (notes on a workshop map), read-only, under edges and nodes -->
+        <g id="g-notes" pointer-events="none"></g>
         <!-- T-286: id badges paint BELOW edges by default (arrows carry flow semantics;
              badges are secondary metadata) — the selected element's badge raises into
              g-badges-top. Both layers are pointer-events:none so badges never swallow
@@ -5712,6 +5719,7 @@ function wrapText(s, max) {
 function renderEdges() {
   renderCollab();   // T-1120: kept pools + message flows; on every edge redraw, so a flow follows a dragged node
   renderData();     // T-1369: documents and their associations, on every edge redraw, so a line follows a dragged task
+  renderNotes();    // T-1447: text annotations and associations, the same way
   gEdges.innerHTML = '';
   gHandles.innerHTML = '';
   for (const e of state.edges) {
@@ -11163,8 +11171,11 @@ function maybeShowLaneFixNotice() {
   if (pk && (pk.artifacts || []).length) {
     const count = tag => pk.artifacts.filter(a => new RegExp(`^<(?:[\\w.-]+:)?${tag}[\\s/>]`).test(a.xml)).length;
     const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
-    const kinds = [['textAnnotation', 'annotation'], ['group', 'group'], ['association', 'association']]
-      .map(([t, w]) => [count(t), w]).filter(([n]) => n).map(([n, w]) => plural(n, w));
+    // T-1447: annotations and associations are drawn now (renderNotes); groups, and an association whose ends are not
+    // on this map, are still only kept
+    const NL = notesLayout(state);
+    const kinds = [[count('group'), 'group'], [NL ? NL.undrawn.length : count('association'), 'association']]
+      .filter(([n]) => n).map(([n, w]) => plural(n, w));
     if (kinds.length) parts.push(`${kinds.join(', ')} kept unchanged and saved back, not shown yet`);
   }
   // T-1327: what a save of THIS file will not keep (T-1322 option C), stated last like the T-603 line.
@@ -15868,6 +15879,115 @@ function renderData() {
     const lines = dataLabelLines(d);
     lines.forEach((t, i) => grp.appendChild(el('text', { x: d.x + d.w / 2, y: d.y + d.h + 13 + i * DATA_LABEL_LINE, 'text-anchor': 'middle',
       class: i < lines.length - (d.state ? 1 : 0) ? 'node-label' : 'data-state-label', 'data-data-label': d.id }, [text(t)])));
+    g.appendChild(grp);
+  }
+}
+// T-1447: the text annotations and associations the import kept (T-1326, state.procKept), drawn read-only. Nothing
+// here writes state: save keeps emitting the kept XML exactly as before. An annotation stands where the file put it;
+// an association is drawn along the file's waypoints while both ends are still where the file had them, and straight
+// between the ends' current outlines once the person moves one (it follows the step, like a document's link).
+const NOTE_PAD = 5, NOTE_LINE = 14, NOTE_CHAR_W = 5.9;
+const _notesParsed = new WeakMap();   // procKept -> parsed annotations/associations (parsing once, drawing every drag)
+function notesParse(pk) {
+  if (_notesParsed.has(pk)) return _notesParsed.get(pk);
+  const NS = 'xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"'
+    + ' xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI"'
+    + ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"';
+  const parse = xml => {
+    const d = new DOMParser().parseFromString(`<r ${NS}>${xml}</r>`, 'application/xml');
+    return d.getElementsByTagName('parsererror').length ? null : d.documentElement.firstElementChild;
+  };
+  const shapes = new Map(), edges = new Map();
+  for (const d of pk.di || []) {
+    const e = parse(d.xml); if (!e) continue;
+    if (e.localName === 'BPMNShape') {
+      const b = Array.from(e.children).find(c => c.localName === 'Bounds');
+      const r = b && ['x', 'y', 'width', 'height'].map(a => parseFloat(b.getAttribute(a)));
+      if (r && r.every(Number.isFinite)) shapes.set(d.ref, { x: r[0], y: r[1], w: r[2], h: r[3] });
+    } else if (e.localName === 'BPMNEdge') {
+      const pts = Array.from(e.children).filter(c => c.localName === 'waypoint')
+        .map(p => ({ x: parseFloat(p.getAttribute('x')), y: parseFloat(p.getAttribute('y')) }));
+      if (pts.length >= 2 && pts.every(p => Number.isFinite(p.x) && Number.isFinite(p.y))) edges.set(d.ref, pts);
+    }
+  }
+  const notes = [], links = [];
+  for (const a of pk.artifacts || []) {
+    const e = parse(a.xml); if (!e) continue;
+    const id = e.getAttribute('id') || '';
+    if (e.localName === 'textAnnotation') {
+      const t = Array.from(e.children).find(c => c.localName === 'text');
+      const b = shapes.get(id);
+      if (b) notes.push({ id, text: t ? t.textContent : '', ...b });
+    } else if (e.localName === 'association') {
+      links.push({ id, dir: e.getAttribute('associationDirection') || 'None', ends: a.ends || {}, wps: edges.get(id) || null });
+    }
+  }
+  const out = { notes, links };
+  _notesParsed.set(pk, out);
+  return out;
+}
+// The lines of a note's text, wrapped to its box (the author's own line breaks kept).
+function noteLines(n) {
+  const max = Math.max(4, Math.floor((n.w - 2 * NOTE_PAD) / NOTE_CHAR_W));
+  return String(n.text).split(/\r?\n/).flatMap(p => p.trim() ? wrapText(p.trim().replace(/\s+/g, ' '), max) : ['']);
+}
+function notesLayout(s) {
+  const pk = s && s.procKept;
+  if (!pk || !(pk.artifacts || []).length) return null;
+  const { notes, links } = notesParse(pk);
+  if (!notes.length && !links.length) return null;
+  const byNote = new Map(notes.map(n => [n.id, n]));
+  const byUid = new Map(s.nodes.map(n => [n.uid, n]));
+  const rectOf = end => {
+    if (end && end.node) { const n = byUid.get(end.node); if (!n) return null; const d = dims(n); return { x: n.x, y: n.y, w: d.w, h: d.h }; }
+    if (end && end.id && byNote.has(end.id)) return byNote.get(end.id);
+    return null;   // a flow, or something not on this map: only the file's own waypoints can draw it
+  };
+  const near = (r, p) => p.x >= r.x - 3 && p.x <= r.x + r.w + 3 && p.y >= r.y - 3 && p.y <= r.y + r.h + 3;
+  const drawn = [], undrawn = [];
+  for (const l of links) {
+    const A = rectOf(l.ends.sourceRef), Z = rectOf(l.ends.targetRef);
+    let pts = null;
+    if (l.wps && (!A || near(A, l.wps[0])) && (!Z || near(Z, l.wps[l.wps.length - 1]))
+        && (A || Z || (l.ends.sourceRef && l.ends.sourceRef.flow) || (l.ends.targetRef && l.ends.targetRef.flow))) pts = l.wps;
+    else if (A && Z) pts = [rectExit(A, Z.x + Z.w / 2, Z.y + Z.h / 2), rectExit(Z, A.x + A.w / 2, A.y + A.h / 2)];
+    (pts ? drawn : undrawn).push({ ...l, pts });
+  }
+  return { notes, links: drawn, undrawn };
+}
+function renderNotes() {
+  const g = $('g-notes'); if (!g) return;
+  g.innerHTML = '';
+  const L = notesLayout(state); if (!L) return;
+  const byUid = new Map(state.nodes.map(n => [n.uid, n]));
+  // An arrowhead that lands on a step's bottom edge sits under the step's id badge (badges paint above this layer) and is
+  // hidden there (Greenfield's "Solution -> Product"). Move that end beside the badge, 8px in from the nearer corner, as
+  // the documents layer does (T-1381).
+  const clearBadge = (pts, at, end) => {
+    const n = end && end.node && byUid.get(end.node); if (!n) return pts;
+    const d = dims(n), p = pts[at], cx = n.x + d.w / 2, half = displayIdOf(n).length * 3.2 + 4;
+    if (Math.abs(p.y - (n.y + d.h)) > 3 || Math.abs(p.x - cx) > half) return pts;
+    const q = pts.slice(); q[at] = { x: p.x < cx ? n.x + 8 : n.x + d.w - 8, y: n.y + d.h };
+    return q;
+  };
+  for (const l0 of L.links) {
+    let l = l0;
+    if (l.dir === 'One' || l.dir === 'Both') l = { ...l, pts: clearBadge(l.pts, l.pts.length - 1, l.ends.targetRef) };
+    if (l.dir === 'Both') l = { ...l, pts: clearBadge(l.pts, 0, l.ends.sourceRef) };
+    const attrs = { d: 'M' + l.pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L'), fill: 'none',
+      stroke: 'var(--text-dim)', 'stroke-width': '1.2', 'stroke-dasharray': '2 3', 'data-note-assoc': l.id, 'data-dir': l.dir };
+    if (l.dir === 'One' || l.dir === 'Both') attrs['marker-end'] = 'url(#assoc-end)';
+    if (l.dir === 'Both') attrs['marker-start'] = 'url(#assoc-end)';
+    g.appendChild(el('path', attrs));
+  }
+  for (const n of L.notes) {
+    const grp = el('g', { 'data-note': n.id });
+    // BPMN's text annotation: an open bracket on the left, the text inside the box
+    const arm = Math.min(15, n.w / 4);
+    grp.appendChild(el('path', { d: `M${n.x + arm},${n.y} H${n.x} V${n.y + n.h} H${n.x + arm}`, fill: 'none',
+      stroke: 'var(--text-dim)', 'stroke-width': '1.3' }));
+    noteLines(n).forEach((t, i) => grp.appendChild(el('text', { x: n.x + NOTE_PAD, y: n.y + NOTE_PAD + 10 + i * NOTE_LINE,
+      class: 'note-text', 'data-note-text': n.id }, [text(t)])));
     g.appendChild(grp);
   }
 }

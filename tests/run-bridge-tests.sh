@@ -2187,6 +2187,20 @@ else
 fi
 }
 leg browser "test_t1441_text_bridges" _leg_t1441
+_leg_t1447() {
+
+# ── T-1447: imported text annotations and associations drawn read-only (Greenfield's workshop map) ──
+# Every note at its DI bounds with its text, every association from its source to its target (arrowhead when one-way),
+# lines follow a moved step, read-only and under the flow, save byte-identical to 0.44.0, notice and SVG export. ~20 s.
+if node "$ROOT/tools/_t1447-notes-cdp.mjs" > "$TMP/leg-_t1447.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "imported notes regressed: a leg of _t1447-notes-cdp.mjs failed (T-1447)"
+  show_output "$TMP/leg-_t1447.out" "_t1447-notes-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1447_notes" _leg_t1447
 _leg_075() {
 
 # ── T-1273: an in-place mutation script cannot survive INT/TERM with its mutant ──
