@@ -15,17 +15,54 @@ A completed task qualifies when ALL of:
 
 ## Population examined
 
-- completed inceptions: 35
-- with a GO recorded:   33
-- findings:             4
+- completed inceptions: 65
+- with a GO recorded:   61
+- findings:             10
 
 These are candidates for triage, not confirmed abandoned decisions:
 some may have shipped work that was simply never linked back. Deciding
 which is which is the judgement this check exists to force.
 
-## Findings (most recent first)
+## Tiers (T-3469)
 
-- T-301 — .tasks/completed/T-301-store-card-id-vs-workflowmeta-id-seam-ve.md
-- T-103 — .tasks/completed/T-103-adopt-the-t-101-zero-dependency-cdp-harn.md
-- T-007 — .tasks/completed/T-007-fw-init-seeds-patternsyaml-with-originta.md
-- T-006 — .tasks/completed/T-006-fw-vendor-should-ship-orchestrator-mcp-b.md
+The predicate above decides WHAT is flagged and is unchanged. These
+tiers describe a flagged item using one weaker signal the predicate
+does not consult: whether a build/refactor/test/decommission task
+created at-or-after the inception mentions it anywhere in its body.
+A body mention is weaker than a declared link, so it never removes a
+finding — it only labels one.
+
+EVERY item below has NO declared build link. A mention is a mention, not a
+build: whether any of this work was built is UNKNOWN until a build task
+declares it with unlocks_inception_decision: (T-1984). (T-3562: these tiers
+used to describe a mention as evidence that the work was under way or done;
+that label hid D-645 slice 1, unbuilt, for four days.)
+
+- candidate   (0) — no later build-class task mentions it at all.
+- in-flight   (4) — mentioned by at least one task still in active/. A mention, not evidence that the work started.
+- linked-late (6) — mentioned only by completed tasks. Whether it was built is UNKNOWN: check, then declare the link.
+
+Origin OBS-535: this scan used to report one undifferentiated count,
+which read as abandonment for every tier at once.
+
+## candidate (0, most recent first)
+
+_None._
+
+## in-flight (4, most recent first)
+
+- T-1285 — .tasks/completed/T-1285-quality-engine-what-structural-changes-m.md [followers: T-1286, T-1287, T-1288, T-1289, T-1290, T-1291*]
+- T-1219 — .tasks/completed/T-1219-traceable-data-elements-on-aefio-ref-rol.md [followers: T-1214, T-1220, T-1229*]
+- T-301 — .tasks/completed/T-301-store-card-id-vs-workflowmeta-id-seam-ve.md [followers: T-1237, T-306, T-500, T-540*, T-560, T-925]
+- T-281 — .tasks/completed/T-281-audience-render-lenses-sd-1422-businessl.md [followers: T-1064*, T-1241*, T-283, T-307, T-540*, T-590*]
+
+## linked-late (6, most recent first)
+
+- T-1397 — .tasks/completed/T-1397-run-832s-test-tiers-on-a-quieter-ring20-.md [followers: T-1399, T-1406, T-1407, T-1408]
+- T-1375 — .tasks/completed/T-1375-authoring-kit-a-general-skill-to-draft-u.md [followers: T-1376, T-1377, T-1378, T-1402]
+- T-1215 — .tasks/completed/T-1215-plain-bpmntask-from-third-party-maps-is-.md [followers: T-1226, T-1237]
+- T-103 — .tasks/completed/T-103-adopt-the-t-101-zero-dependency-cdp-harn.md [followers: T-105, T-272, T-673, T-704, T-705, T-706]
+- T-007 — .tasks/completed/T-007-fw-init-seeds-patternsyaml-with-originta.md [followers: T-008, T-010, T-950]
+- T-006 — .tasks/completed/T-006-fw-vendor-should-ship-orchestrator-mcp-b.md [followers: T-008, T-010, T-1237, T-950]
+
+(* = follower still in active/)

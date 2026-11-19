@@ -16,7 +16,7 @@ owner: agent
 horizon: now
 tags: []
 components: []
-related_tasks: []
+related_tasks: [T-1093]
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
 #                                 # at CAPTURE, unlike components: which the framework
@@ -119,9 +119,8 @@ its current behaviour. Nothing is lost at 1024/1440/1920.
       new test_t1439_io_menus leg).
 
 ### Human
-- [ ] [REVIEW] The toolbar's Import and Export menus read and fit at three widths, judged on the screenshots.
-  **Why you:** render surface: a person must see both entries and be able to read each open menu; the reviewer judges
-  the images, and may escalate.
+- [ ] The toolbar's Import and Export menus read and fit at three widths, judged on the screenshots.
+  **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1439 --criterion 1`), who may escalate.
   **Steps:**
   1. Open the nine screenshots in `docs/reports/T-1439-shots/`: `{1024,1440,1920}-{closed,import-open,export-open}.png`
      (measurements of every rect in `docs/reports/T-1439-shots/measure.json`).
@@ -330,6 +329,8 @@ of one control; the official review is the first independent read.
 -->
 grep -q 'id="btn-import"' src/aef-workflow-designer.html
 grep -q 'id="btn-export"' src/aef-workflow-designer.html
+# control for the absence leg below: the same pattern IS found in the designer as it was before T-1439
+git show ba141a62b^:src/aef-workflow-designer.html | grep 'id="btn-load"' >/dev/null
 ! grep -q 'id="btn-load"' src/aef-workflow-designer.html
 grep -q '_leg_t1439' tests/run-bridge-tests.sh
 test -f docs/reports/T-1439-shots/1920-export-open.png
