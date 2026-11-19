@@ -23237,3 +23237,21 @@ scan_id: R-c9c33575
 task_id: T-1440
 payload:
   task_file: .tasks/active/T-1440-importexport-26-svg-png-1x2x4x-and-pdf-o.md
+---
+kind: scan_emitted
+timestamp: '2026-11-19T15:01:30Z'
+scan_id: R-1bd927f4
+task_id: T-1441
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-19T15:01:30Z'
+scan_id: R-1bd927f4
+task_id: T-1441
+payload:
+  task_file: .tasks/active/T-1441-importexport-36-mermaid-and-csv-out-then.md

@@ -7,13 +7,13 @@ description: >
   part and reusing the BPMN import and Clean layout (IW-5 spike: VALID, no findings).
   Loss stated on import.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: [T-1093]
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -42,8 +42,8 @@ related_tasks: [T-1093]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-19T09:14:12Z
-last_update: '2026-11-19T13:08:37Z'
-date_finished:
+last_update: 2026-11-19T15:01:23Z
+date_finished: 2026-11-19T15:01:23Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -127,10 +127,10 @@ both, builds BPMN without a diagram, reuses the existing import, runs Clean, and
       T-1440 designer.
       Evidence: `tools/_t1441-text-bridges-cdp.mjs` (16 legs), leg `test_t1441_text_bridges`; on the T-1440 designer
       it fails at once (no such menu items).
-- [ ] `bash tools/person-sees-gate.sh` exits 0 and the browser tier is green (pool and here).
+- [x] `bash tools/person-sees-gate.sh` exits 0 and the browser tier is green (pool and here). (2026-11-19: person-sees exit 0 in 309 s; browser tier for 36cfd219d green on pool-w2 146/0 and here 146/0, build/tiergate/tier-browser.runs.log 14:59:56Z.)
 
 ### Human
-- [ ] The longer Import and Export menus fit, and the import notice reads well, at three widths.
+- [x] The longer Import and Export menus fit, and the import notice reads well, at three widths.
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1441 --criterion 1`), who may escalate.
   **Steps:**
   1. `docs/reports/T-1441-shots/menu/{1024,1440,1920}-{import-open,export-open}.png`: Import lists 3 formats, Export 8;
@@ -185,6 +185,7 @@ both, builds BPMN without a diagram, reuses the existing import, runs Clean, and
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261119-99af7869 — reviewer-judge-t-1441-r3-559ad8b7122b:reviewer (rung rung-3-termlink-single-reviewer), digest c307b856c463; dispatch judge-t-1441-r3-559ad8b7122b; evidence: .context/reviews/evidence/T-1441/AC1-judge-t-1441-r3-559ad8b7122b.md, .context/reviews/evidence/T-1441/1024-after-csv-import-judge-t-1441-r3-559ad8b7122b.png, .context/reviews/evidence/T-1441/1024-after-mermaid-import-judge-t-1441-r3-559ad8b7122b.png, .context/reviews/evidence/T-1441/1440-after-csv-import-judge-t-1441-r3-559ad8b7122b.png, .context/reviews/evidence/T-1441/1440-after-mermaid-import-judge-t-1441-r3-559ad8b7122b.png, .context/reviews/evidence/T-1441/1920-after-csv-import-judge-t-1441-r3-559ad8b7122b.png, .context/reviews/evidence/T-1441/1920-after-mermaid-import-judge-t-1441-r3-559ad8b7122b.png, .context/reviews/evidence/T-1441/menu-1024-export-open-judge-t-1441-r3-559ad8b7122b.png, .context/reviews/evidence/T-1441/menu-1024-import-open-judge-t-1441-r3-559ad8b7122b.png, .context/reviews/evidence/T-1441/menu-1440-export-open-judge-t-1441-r3-559ad8b7122b.png, .context/reviews/evidence/T-1441/menu-1440-import-open-judge-t-1441-r3-559ad8b7122b.png, .context/reviews/evidence/T-1441/menu-1920-export-open-judge-t-1441-r3-559ad8b7122b.png, .context/reviews/evidence/T-1441/menu-1920-import-open-judge-t-1441-r3-559ad8b7122b.png, .context/reviews/evidence/T-1441/zoom-fan-gateway-1920-mermaid-judge-t-1441-r3-559ad8b7122b.png, .context/reviews/evidence/T-1441/zoom-map-1920-csv-judge-t-1441-r3-559ad8b7122b.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -324,6 +325,11 @@ both, builds BPMN without a diagram, reuses the existing import, runs Clean, and
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+node --check tools/_t1441-text-bridges-cdp.mjs
+grep -q 'test_t1441_text_bridges' tests/run-bridge-tests.sh
+grep -q "id: 'mermaid'" src/aef-workflow-designer.html && grep -q "id: 'csv'" src/aef-workflow-designer.html
+grep -q 'Mermaid and CSV, both ways (T-1441)' docs/releases/RELEASE-NOTES-0.44.0.md
+grep -q '36cfd219d342	high-risk change: pool and local both green' build/tiergate/tier-browser.runs.log
 
 ## RCA
 
@@ -425,3 +431,21 @@ both, builds BPMN without a diagram, reuses the existing import, runs Clean, and
 ### 2026-11-19T13:08:35Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-19T15:01:23Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-1bd927f4
+- **Timestamp:** 2026-11-19T15:01:30Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#6 (Agent)** — `bash tools/person-sees-gate.sh` exits 0 and the browser tier is green (pool and here). (2026-11-19: person-sees exit 0 in 309 s; browser tier for 36cfd219d green on pool-w2 146/0 and here 146/0, buil
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/person-sees-gate.sh in: `bash tools/person-sees-gate.sh` exits 0 and the browser tier is green (pool and here). (2026-11-19: person-sees exit 0 in 309 s; browser tier for 36c`

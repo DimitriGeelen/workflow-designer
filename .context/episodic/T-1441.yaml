@@ -1,0 +1,160 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1441: Import/Export 3/6: Mermaid and CSV out, then in (BPMN without layout + Clean)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-19T15:01:39Z
+# ============================================================================
+
+task_id: T-1441
+task_name: "Import/Export 3/6: Mermaid and CSV out, then in (BPMN without layout + Clean)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-19T09:14:12Z
+completed: 2026-11-19T15:01:23Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-19T12:37:20+01:00
+last_commit: 2026-11-19T15:51:06+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  real acceptance criteria (Mermaid and CSV, out and in, loss stated). browser harness for Mermaid/CSV (16 legs, by permanent identity) and the criteria amended with what was learned (two ids, lane codes, conditions lost, no Mermaid parser on this host). Mermaid and CSV, export and import — lane subgraphs and shapes, two ids (aef:uid permanent, visible id re-derived), lane codes and authority carried, BPMN without layout + Clean on import, the loss named in the import notice (positions, gateway conditions, step details); browser leg _t1441 (16 legs; fails on the T-1440 designer). map id carried (aef:workflowMeta; Mermaid aef-map comment, CSV file name), empty lanes carried by Mermaid and named as lost for CSV, CSV rows in lane order; test extended (map id, lanes); evidence: menus, notice after import at 1024/1440/1920, exported files. five criteria met; render criterion for the reviewer. reviewer verdict. _t1439 L2 no longer demands exactly one Import entry (T-1441 added Mermaid and CSV; L7 holds the menu to IO_FORMATS) — red on both machines on a correct menu
+
+# Key outcomes
+outcomes:
+  - 'Export → Mermaid writes a `flowchart LR` with one subgraph per lane, BPMN shapes mapped to Mermaid shapes'
+  - 'Export → CSV writes one row per step, RFC 4180 quoting; Python''s csv module reads it back to the same rows.'
+  - 'Import → Mermaid and Import → CSV each rebuild the steps, flows, labels and lanes of an exported corpus map:'
+  - 'On import, what the format cannot carry is named in a notice to the user, never dropped silently: positions'
+  - 'A CDP harness covers export and the round trip on two corpus maps, is a browser-tier leg, and fails on the'
+  - '`bash tools/person-sees-gate.sh` exits 0 and the browser tier is green (pool and here). (2026-11-19: person-sees exit 0 in 309 s; browser tier for 36cfd219d green on pool-w2 146/0 and here 146/0, build/tiergate/tier-browser.runs.log 14:59:56Z.)'
+  - 'The longer Import and Export menus fit, and the import notice reads well, at three widths.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1441/1024-after-csv-import-judge-t-1441-r3-11d9d5c4409c.png'
+  - '.context/reviews/evidence/T-1441/1024-after-csv-import-judge-t-1441-r3-559ad8b7122b.png'
+  - '.context/reviews/evidence/T-1441/1024-after-mermaid-import-judge-t-1441-r3-11d9d5c4409c.png'
+  - '.context/reviews/evidence/T-1441/1024-after-mermaid-import-judge-t-1441-r3-559ad8b7122b.png'
+  - '.context/reviews/evidence/T-1441/1440-after-csv-import-judge-t-1441-r3-11d9d5c4409c.png'
+  - '.context/reviews/evidence/T-1441/1440-after-csv-import-judge-t-1441-r3-559ad8b7122b.png'
+  - '.context/reviews/evidence/T-1441/1440-after-mermaid-import-judge-t-1441-r3-11d9d5c4409c.png'
+  - '.context/reviews/evidence/T-1441/1440-after-mermaid-import-judge-t-1441-r3-559ad8b7122b.png'
+  - '.context/reviews/evidence/T-1441/1920-after-csv-import-judge-t-1441-r3-11d9d5c4409c.png'
+  - '.context/reviews/evidence/T-1441/1920-after-csv-import-judge-t-1441-r3-559ad8b7122b.png'
+  - '.context/reviews/evidence/T-1441/1920-after-mermaid-import-judge-t-1441-r3-11d9d5c4409c.png'
+  - '.context/reviews/evidence/T-1441/1920-after-mermaid-import-judge-t-1441-r3-559ad8b7122b.png'
+  - '.context/reviews/evidence/T-1441/AC1-judge-t-1441-r3-11d9d5c4409c.md'
+  - '.context/reviews/evidence/T-1441/AC1-judge-t-1441-r3-559ad8b7122b.md'
+  - '.context/reviews/evidence/T-1441/menu-1024-export-open-judge-t-1441-r3-11d9d5c4409c.png'
+  - '.context/reviews/evidence/T-1441/menu-1024-export-open-judge-t-1441-r3-559ad8b7122b.png'
+  - '.context/reviews/evidence/T-1441/menu-1024-import-open-judge-t-1441-r3-11d9d5c4409c.png'
+  - '.context/reviews/evidence/T-1441/menu-1024-import-open-judge-t-1441-r3-559ad8b7122b.png'
+  - '.context/reviews/evidence/T-1441/menu-1440-export-open-judge-t-1441-r3-11d9d5c4409c.png'
+  - '.context/reviews/evidence/T-1441/menu-1440-export-open-judge-t-1441-r3-559ad8b7122b.png'
+  - '.context/reviews/evidence/T-1441/menu-1440-import-open-judge-t-1441-r3-11d9d5c4409c.png'
+  - '.context/reviews/evidence/T-1441/menu-1440-import-open-judge-t-1441-r3-559ad8b7122b.png'
+  - '.context/reviews/evidence/T-1441/menu-1920-export-open-judge-t-1441-r3-11d9d5c4409c.png'
+  - '.context/reviews/evidence/T-1441/menu-1920-export-open-judge-t-1441-r3-559ad8b7122b.png'
+  - '.context/reviews/evidence/T-1441/menu-1920-import-open-judge-t-1441-r3-11d9d5c4409c.png'
+  - '.context/reviews/evidence/T-1441/menu-1920-import-open-judge-t-1441-r3-559ad8b7122b.png'
+  - '.context/reviews/evidence/T-1441/zoom-fan-gateway-1920-mermaid-judge-t-1441-r3-559ad8b7122b.png'
+  - '.context/reviews/evidence/T-1441/zoom-map-1920-csv-judge-t-1441-r3-559ad8b7122b.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1441-importexport-36-mermaid-and-csv-out-then.md'
+  - 'docs/reports/T-1441-shots/1024-after-csv-import.png'
+  - 'docs/reports/T-1441-shots/1024-after-mermaid-import.png'
+  - 'docs/reports/T-1441-shots/1440-after-csv-import.png'
+  - 'docs/reports/T-1441-shots/1440-after-mermaid-import.png'
+  - 'docs/reports/T-1441-shots/1920-after-csv-import.png'
+  - 'docs/reports/T-1441-shots/1920-after-mermaid-import.png'
+  - 'docs/reports/T-1441-shots/exported/arc-lifecycle-from-csv.bpmn'
+  - 'docs/reports/T-1441-shots/exported/arc-lifecycle-from-mermaid.bpmn'
+  - 'docs/reports/T-1441-shots/exported/arc-lifecycle.csv'
+  - 'docs/reports/T-1441-shots/exported/arc-lifecycle.mmd'
+  - 'docs/reports/T-1441-shots/exported/audit-process-from-csv.bpmn'
+  - 'docs/reports/T-1441-shots/exported/audit-process-from-mermaid.bpmn'
+  - 'docs/reports/T-1441-shots/exported/audit-process.csv'
+  - 'docs/reports/T-1441-shots/exported/audit-process.mmd'
+  - 'docs/reports/T-1441-shots/menu/1024-closed.png'
+  - 'docs/reports/T-1441-shots/menu/1024-export-open.png'
+  - 'docs/reports/T-1441-shots/menu/1024-import-open.png'
+  - 'docs/reports/T-1441-shots/menu/1440-closed.png'
+  - 'docs/reports/T-1441-shots/menu/1440-export-open.png'
+  - 'docs/reports/T-1441-shots/menu/1440-import-open.png'
+  - 'docs/reports/T-1441-shots/menu/1920-closed.png'
+  - 'docs/reports/T-1441-shots/menu/1920-export-open.png'
+  - 'docs/reports/T-1441-shots/menu/1920-import-open.png'
+  - 'docs/reports/T-1441-shots/menu/measure.json'
+  - 'docs/reports/T-1441-shots/notice.json'
+  - 'docs/reports/T-1441-shots/notice.mjs'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1439-io-menu-cdp.mjs'
+  - 'tools/_t1441-text-bridges-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-19T12:37:20'
+    action: 'T-1441: real acceptance criteria (Mermaid and CSV, out and in, loss stated)'
+  - time: '2026-11-19T13:45:28'
+    action: 'T-1441: browser harness for Mermaid/CSV (16 legs, by permanent identity) and the criteria amended with what was learned (two ids, lane codes, conditions lost, no Mermaid parser on this host)'
+  - time: '2026-11-19T14:09:52'
+    action: 'T-1441: Mermaid and CSV, export and import — lane subgraphs and shapes, two ids (aef:uid permanent, visible id re-derived), lane codes and authority carried, BPMN without layout + Clean on import, the loss named in the import notice (positions, gateway conditions, step details); browser leg _t1441 (16 legs; fails on the T-1440 designer)'
+  - time: '2026-11-19T14:21:18'
+    action: 'T-1441: map id carried (aef:workflowMeta; Mermaid aef-map comment, CSV file name), empty lanes carried by Mermaid and named as lost for CSV, CSV rows in lane order; test extended (map id, lanes); evidence: menus, notice after import at 1024/1440/1920, exported files'
+  - time: '2026-11-19T14:21:58'
+    action: 'T-1441: five criteria met; render criterion for the reviewer'
+  - time: '2026-11-19T14:23:12'
+    action: 'T-1441: reviewer verdict'
+  - time: '2026-11-19T15:24:59'
+    action: 'T-1441: _t1439 L2 no longer demands exactly one Import entry (T-1441 added Mermaid and CSV; L7 holds the menu to IO_FORMATS) — red on both machines on a correct menu'
+  - time: '2026-11-19T15:51:06'
+    action: 'T-1441: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 8 commit(s), 347 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 347
+  commits: 9
+  files_changed: 68
+  lines_added: 2971
+  lines_removed: 48
+  footprint_refreshed_at: '2026-11-19T15:01:49Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1441-importexport-36-mermaid-and-csv-out-then.md
+generated_by: context-agent-hybrid
