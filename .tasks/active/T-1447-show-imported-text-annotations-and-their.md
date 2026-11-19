@@ -2,7 +2,7 @@
 id: T-1447
 name: "Show imported text annotations (and their associations) on the canvas — Greenfield's workshop maps"
 description: >
-  Greenfield T-436 (sidecar msg dc28399b, 2026-11-19): a real Camunda workshop map (4 lanes, 23 nodes, 12 textAnnotations, 10 associations) imports cleanly into 0.38.0, but the annotations are 'kept but not shown' (T-1326/T-1327), and for workshop maps the notes ARE the content. Build: draw textAnnotation boxes at their DI position with their text and the association lines to their nodes, read-only first (editing later); keep the byte-identical save-back. Also noted in the same report: original pool/lane outlines are not kept (T-1264 known), and a server-side /api/save makes no thumbnail.
+  Greenfield T-436 (sidecar msg dc28399b, 2026-11-19): a real Camunda workshop map (4 lanes, 23 nodes, 12 textAnnotations, 10 associations) imports cleanly into 0.38.0, but the annotations are 'kept but not shown' (T-1326/T-1327), and for workshop maps the notes ARE the content. Build: draw textAnnotation boxes at their DI position with their text and the association lines to their nodes, read-only first (editing later); keep the byte-identical save-back. Also noted in the same report: original pool/lane outlines are not kept (T-1264 known), and a server-side /api/save makes no thumbnail. Scope added by Greenfield (msg ef63bb29): associations BETWEEN TASKS (associationDirection=One, a dotted status sync, e.g. Opportunity/Solution -> Product, Open Order -> Sales Order) are not drawn either, which leaves the target tasks looking unconnected; draw those too, not only annotation associations. Routing findings on the same map are T-1449.
 
 status: captured
 workflow_type: build
