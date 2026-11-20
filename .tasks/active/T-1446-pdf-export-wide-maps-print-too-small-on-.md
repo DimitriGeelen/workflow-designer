@@ -101,11 +101,17 @@ A4 export is unchanged.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Export has "PDF, one page A4" (today's, unchanged), "PDF, one page A3" and "PDF, A4 pages (readable)";
+- [x] Export has "PDF, one page A4" (today's, unchanged), "PDF, one page A3" and "PDF, A4 pages (readable)";
       each prints the map alone (no editor controls in the PDF's text), on the stated paper size (pdfinfo).
-- [ ] On arc-lifecycle and audit-process, the readable A4 pages print step names at 8 pt or more and A3 at a larger
+      Evidence: `_t1446` M1/A1/B1 on 4 maps: 842x595 pt (A4) and 1191x842 pt (A3), one page each, editor words none.
+      A3 is set by a temporary @page rule (76c0b90e5): the first version's named page printed TWO A3 pages on the
+      pool's Chromium (pool RED, here green); green on both since.
+- [x] On arc-lifecycle and audit-process, the readable A4 pages print step names at 8 pt or more and A3 at a larger
       size than one A4 page, measured from the PDF's word boxes (pdftotext -bbox), not from the code.
-- [ ] The readable pages together hold every step name, every step box prints whole on at least one page (checked in
+      Evidence: P1 smallest step name 8.4 / 8.1 pt (A4 one page 4.1 / 5.0 pt, A3 6.0 / 7.2 pt); probed on all 24
+      corpus maps: every one >= 8.0 pt. The scale follows the smallest box text DRAWN (the lane-fit ladder shrinks long
+      names; a fixed 11 px first gave 6.4 pt).
+- [x] The readable pages together hold every step name, every step box prints whole on at least one page (checked in
       the page geometry the export computes), and each page's heading names its part ("page 2 of 3"); a map that
       fits at 8 pt on one page gives exactly one page.
       **Amended 2026-11-20:** first written as "no step box is cut by a page edge". On cross-host-dispatch the wide
@@ -114,9 +120,16 @@ A4 export is unchanged.
       page edge and the next part starts where the first cut step begins (overlap): the step prints whole there.
       Also learned: no corpus map fits one readable page (the pool keeps an authored minimum width), so the pages end
       40 px after the last step, and the one-page case is a 3-step map made through Import -> CSV.
-- [ ] A CDP harness covers the three exports on three corpus maps and a small one, is a browser-tier leg, and fails
+      Evidence: P2 on arc-lifecycle (3 pages), audit-process (4), cross-host-dispatch (2; the overlap case), the 3-step
+      map (1 page, 16 pt): every name on some page, 0 boxes not whole on any page, headings "page k of N (row, column)";
+      P3 both cases covered.
+- [x] A CDP harness covers the three exports on three corpus maps and a small one, is a browser-tier leg, and fails
       on the 0.44.0 designer; T-1440's PDF leg still passes.
-- [ ] `bash tools/person-sees-gate.sh` exits 0 and the browser tier is green.
+      Evidence: `tools/_t1446-pdf-pages-cdp.mjs` (17 legs), leg `test_t1446_pdf_pages`; on 0.44.0 13 legs fail (the A4
+      ones pass, as they must); `_t1440` D1/D2 still pass.
+- [x] `bash tools/person-sees-gate.sh` exits 0 and the browser tier is green.
+      Evidence: person-sees exit 0 (2026-11-20 on 44d7d11a0, and on 5b6dad258, the designer unchanged since); browser tier for 30a2041d7 green on the
+      pool as two shards (pool-w1 78/0, pool-w2 73/0) and here 151/0 (build/tiergate/tier-browser.runs.log 14:53Z).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
