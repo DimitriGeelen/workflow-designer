@@ -101,18 +101,30 @@ next two formats reuse.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Export → Excel writes a valid `.xlsx` with one sheet "Steps", the CSV columns in the same order (id, name, type,
+- [x] Export → Excel writes a valid `.xlsx` with one sheet "Steps", the CSV columns in the same order (id, name, type,
       lane, next, next_labels, lane_code, lane_authority, uid) and one row per step; openpyxl reads it back to exactly
       the rows the CSV export gives for the same map.
-- [ ] Import → Excel rebuilds an exported corpus map like CSV does: by permanent identity the same steps, names, types,
+      Evidence: `_t1442` X1 on two maps, 15/15 rows equal by Python's zipfile+ElementTree AND openpyxl 3.1.5;
+      LibreOffice (headless convert to CSV) gives the same rows as our CSV export (diff empty, 2026-11-20).
+- [x] Import → Excel rebuilds an exported corpus map like CSV does: by permanent identity the same steps, names, types,
       lanes and flows with labels, laid out by Clean, no validator ERROR, and the notice names what the format does
       not carry.
-- [ ] Import reads a sheet NOT written by us: the same table re-saved by LibreOffice (shared strings, a numeric cell,
+      Evidence: R1/V1/N1 on two maps (14/14 steps, 13/13 and 17/17 flows; only W-XML-GW-AMBIGUOUS, the stated loss of
+      gateway conditions; notice "imported from Excel: … positions … conditions … details … lanes that hold no step").
+- [x] Import reads a sheet NOT written by us: the same table re-saved by LibreOffice (shared strings, a numeric cell,
       a sheet not named "Steps" at position 1) gives the same steps and flows; a file that is not a zip, or has no
       sheet with an "id" column, is refused with a message naming the reason, nothing imported.
-- [ ] A CDP harness covers export, the round trip on two corpus maps and the foreign-file case, is a browser-tier leg,
+      Evidence: F1 (`tests/fixtures/xlsx/arc-lifecycle-libreoffice.xlsx`, made by `make-fixtures.py`: sheet 1 "Notes",
+      table on sheet 2 "Process", columns reordered, numeric "order" column `t="n"`, shared strings) 14/14 steps,
+      13/13 flows; E1 "this file is not an .xlsx workbook (it is not a zip package)"; E2 "no sheet in this workbook
+      has an "id" column in its first row (sheets: Sheet)"; map unchanged in both.
+- [x] A CDP harness covers export, the round trip on two corpus maps and the foreign-file case, is a browser-tier leg,
       and fails on the 0.44.0 designer.
-- [ ] `bash tools/person-sees-gate.sh` exits 0 and the browser tier is green.
+      Evidence: `tools/_t1442-excel-cdp.mjs` (11 legs), leg `test_t1442_excel`; on `dist/aef-workflow-designer-0.44.0.html`
+      all 11 legs fail (no Excel menu items). T-1441's and T-1439's harnesses still pass after the shared-table refactor.
+- [x] `bash tools/person-sees-gate.sh` exits 0 and the browser tier is green.
+      Evidence: person-sees exit 0 in 358 s (2026-11-20); browser tier for 6d8b51b63 green on pool-w2 149/0 (1336 s)
+      and here 149/0 (1498 s), `build/tiergate/tier-browser.runs.log` 09:27:52Z.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.

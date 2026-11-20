@@ -32,7 +32,9 @@ try {
   const ev = async e => { const r = await cmd('Runtime.evaluate', { expression: e, returnByValue: true, awaitPromise: true }); if (r.exceptionDetails) throw new Error(JSON.stringify(r.exceptionDetails).slice(0, 300)); return r.result.value; };
   const open = async (W, MAP) => {
     await cmd('Emulation.setDeviceMetricsOverride', { width: W, height: 820, deviceScaleFactor: 1, mobile: false });
-    // fresh storage per shot: else the designer offers "Restored your unsaved work" from the previous shot
+    // fresh storage per shot, cleared AFTER the previous page is gone (its unload writes the autosave that would
+    // come back as "Restored your unsaved work")
+    await cmd('Page.navigate', { url: 'about:blank' }); await sleep(300);
     await cmd('Storage.clearDataForOrigin', { origin: `http://127.0.0.1:${port}`, storageTypes: 'all' });
     await cmd('Page.navigate', { url: `http://127.0.0.1:${port}/designer.html?load=rendered/${MAP}` });
     for (let i = 0; i < 150; i++) { if (await ev(`typeof _appReady!=='undefined'&&_appReady===true&&state.nodes.length>0`).catch(() => false)) break; await sleep(150); }
