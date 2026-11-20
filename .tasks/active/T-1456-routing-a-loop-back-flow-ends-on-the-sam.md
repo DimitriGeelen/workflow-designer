@@ -170,7 +170,7 @@ Opportunity/Solution's outgoing flow; corpus maps' routing otherwise unchanged e
   **Steps:**
   1. `docs/reports/T-1456-shots/greenfield-wel-{1024,1440,1920}-{before,after}.png`: after, the 'wel' loop runs inside
      lane Tacton (above the steps, not through Novis) and its arrowhead on Opportunity/Solution stands clear of that
-     step's outgoing flow (16 px; before 4 px, overlapping).
+     step's outgoing flow (12 px; before 4 px, overlapping).
   2. `docs/reports/T-1456-shots/task-lifecycle-rework-1440-{before,after}.png`: 'gate failed — rework' before ran under
      the last lane, through the "+ Add another lane" strip, its label colliding with that button; after it runs inside
      the lanes it connects, along the top, label clear, crossing two flows' lines. Judge which reads better.
@@ -412,12 +412,17 @@ T-1459 (a flow into its target's far side drawn as a loop through the target's o
 
 ### 2026-11-20 — Two scoring changes, measured against every drawn flow of the corpus
 - **Chose:** (1) a bar outside the lanes the flow connects costs 50 (more than an interior bar's 10, less than one
-  cut step's 100); (2) on a side that mixes incoming and outgoing ends, the ends that run straight keep their place
-  (else the outgoing ones), and the others move out an arrowhead (16 px) beside them, only where that fits on the side.
+  cut step's 100); (2) on a side that mixes incoming and outgoing ends, and ONLY where the ends as they actually land
+  (a straight end snapped onto the centre line, the rest at the even spread) put an incoming end closer than the
+  pitch to an outgoing one: the straight ends keep their place (else the outgoing ones) and the others move out an
+  arrowhead (12 px) beside them, where that fits on the side.
 - **Why:** each was tried and measured on all 340 drawn flows (24 corpus maps + the fixture). A first version (wider
   pitch for mixed sides) bent 7 straight flows; "incoming always yields" bent straight incoming flows; clamping on a
-  short side put two ends on one point (task-gate). The final rule changes 25 of 340 flows, bends none that was
-  straight, and adds no close pair or lane exit.
+  short side put two ends on one point (task-gate); re-spreading EVERY mixed side at 16 px (then 12) moved
+  aef-task-lifecycle's 'shelved' label onto flow tl_e15 (person-sees label-clearance: 56 errors). The real fault is
+  only the snap: the even spread puts a straight end off-centre, straightening pulls it back, and its neighbour is
+  left half a pitch away (Greenfield 4 px). The final rule changes 18 of 340 flows, bends none that was straight,
+  adds no close pair or lane exit, and label-clearance is clean.
 - **Rejected:** forbidding a foreign lane outright (where every in-lane bar cuts a step, leaving is the lesser fault);
   entering the far side (top) for a loop from above (a deeper port change; not needed once the ends are apart).
 

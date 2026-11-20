@@ -6404,14 +6404,22 @@ function spreadOffset(edge, role, dir, node) {
   // an outgoing start (Greenfield 'wel' at Opportunity/Solution). A flow that runs straight across is snapped back to
   // the centre line anyway, and moving it would bend it. So on such a side the ends that run straight (their route's
   // first turn, the group's sortKey, lies on the centre line) keep their places; when none does, the outgoing ones do.
-  // Every other end moves out beside them, at least an arrowhead (16 px) from the nearest, on the side its order puts
+  // Every other end moves out beside them, at least an arrowhead (12 px) from the nearest, on the side its order puts
   // it.
   const outs = list.filter(x => x.role === 'source'), ins = list.filter(x => x.role === 'target');
   if (routingPrefs.attach === 'middle' && outs.length && ins.length) {
     const dd = dims(node), c = (dir === 'E' || dir === 'W') ? node.y + dd.h / 2 : node.x + dd.w / 2;   // the side's centre line
     let fixed = list.filter(x => Math.abs(x.sortKey - c) <= 1);
+    // Only where the fault is: where the ends actually land (a straight end snapped onto the centre line, every
+    // other end at the even spread), an incoming and an outgoing end come closer than the pitch. Elsewhere the even
+    // spread stays (re-spreading every mixed side moved a flow label onto a line: aef-task-lifecycle 'shelved').
+    const landed = list.map((x, k) => ({ x, at: fixed.includes(x) ? 0 : (k - (n - 1) / 2) * actualSpacing }));
+    let closest = Infinity;
+    for (const a of landed) for (const b of landed) if (a.x.role === 'target' && b.x.role === 'source') closest = Math.min(closest, Math.abs(a.at - b.at));
+    if (closest >= spacing - 0.5) return (idx - (n - 1) / 2) * actualSpacing;
     if (!fixed.length) fixed = outs;
-    const half = (fixed.length - 1) / 2 * spacing, limit = cap / 2, ARROW = 16;
+    // 12, not 16: 16 widened every such side and pushed a flow label onto a line (aef-task-lifecycle 'shelved', T-1456)
+    const half = (fixed.length - 1) / 2 * spacing, limit = cap / 2, ARROW = 12;
     const first = list.indexOf(fixed[0]), last = list.indexOf(fixed[fixed.length - 1]);
     const me = list[idx];
     const before = list.filter((x, k) => k < first && !fixed.includes(x)), after = list.filter((x, k) => k > last && !fixed.includes(x));
