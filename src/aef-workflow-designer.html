@@ -363,14 +363,12 @@ font-family: 'Outfit';
   #print-sheet { display: none; }
   @media print {
     @page { size: A4 landscape; margin: 10mm; }
-    @page a3 { size: A3 landscape; margin: 10mm; }   /* T-1446: one page A3 */
     html, body { height: auto; overflow: visible; background: #fff; }
     body.printing-map > *:not(#print-sheet) { display: none !important; }
     body.printing-map #print-sheet { display: block; }
     #print-sheet h1 { font: 600 13pt var(--sans); color: #1a1e26; margin: 0 0 4mm; }
     #print-sheet svg { display: block; width: 100%; height: auto; max-height: 175mm; }
-    #print-sheet.paper-a3 { page: a3; }
-    #print-sheet.paper-a3 svg { max-height: 262mm; }
+    #print-sheet.paper-a3 svg { max-height: 258mm; }   /* T-1446: the A3 size itself is set by printMapSheet */
     /* T-1446: readable A4 pages: every part at one common scale (width/height set in mm on each svg) */
     #print-sheet .print-part { break-after: page; break-inside: avoid; }
     #print-sheet .print-part:last-child { break-after: auto; }
@@ -13920,8 +13918,17 @@ function printMapSheet(mode) {
       sheet.appendChild(part);
     });
   }
+  // T-1446: A3 by a temporary @page rule, not a named page. A named page (page: a3) made the pool's Chromium print
+  // two A3 pages (2026-11-20, pool-w2) where this host's printed one: a named-page boundary is browser-dependent.
+  let paper = null;
+  if (mode === 'a3') {
+    paper = document.createElement('style');
+    paper.id = 'print-paper-a3';
+    paper.textContent = '@media print { @page { size: A3 landscape; margin: 10mm; } }';
+    document.head.appendChild(paper);
+  }
   document.body.classList.add('printing-map');
-  const done = () => { document.body.classList.remove('printing-map'); window.removeEventListener('afterprint', done); };
+  const done = () => { document.body.classList.remove('printing-map'); if (paper) paper.remove(); window.removeEventListener('afterprint', done); };
   window.addEventListener('afterprint', done);
   window.print();
 }
