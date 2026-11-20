@@ -1,21 +1,21 @@
 ---
-id: T-1446
-name: "PDF export: wide maps print too small on one A4 page (A3 / fit-to-width across
-  pages)"
+id: T-1457
+name: "Routing: incoming and outgoing flows meet a step side by side on the same side
+  (Productieorder, Greenfield 7)"
 description: >
-  T-1440 reviewer note (green, non-blocking, 2026-11-19): arc-lifecycle (2100 px wide)
-  printed on one A4 landscape page puts box text at about 4.5 pt — crisp on screen,
-  small on paper. Options: offer A3, or tile a wide map across pages at a readable
-  minimum text size. Measure text size in the PDF as the test.
+  Split from T-1449 (repro report). Productieorder (NAV lane) on the Greenfield fixture:
+  incoming at (2294,485) and outgoing at (2302,485), both on the TOP side, 8 px apart.
+  Expected: in and out flows use different sides when the geometry allows, or a clear
+  gap.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
-related_tasks: [T-1440]
+related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
 #                                 # at CAPTURE, unlike components: which the framework
@@ -42,9 +42,9 @@ related_tasks: [T-1440]
 #                                 # FW_I_AM_DEMO_ORCHESTRATOR=1 (env) is passed. Prevents the parent
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
-created: 2026-11-19T11:26:47Z
-last_update: 2026-11-20T09:18:57Z
-date_finished:
+created: 2026-11-19T22:56:15Z
+last_update: 2026-11-20T17:35:47Z
+date_finished: 2026-11-20T17:35:47Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -56,7 +56,7 @@ date_finished:
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 bvp_scores_proposed:
-  - ts: '2026-11-20T09:18:40Z'
+  - ts: '2026-11-20T10:27:38Z'
     estimator: bvp-estimator-v1-heuristic
     scores:
       D1: 0
@@ -65,71 +65,52 @@ bvp_scores_proposed:
       D4: 0
       F-RECALL: 2
       F2: 0
-      F4: 1
+      F4: 2
       F3: 0
-      F1: 2
+      F1: 0
     rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
-      F-RECALL=2 (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body
+      F-RECALL=2 (body:lightly-promoted); F2=0 (no-signal); F4=2 (basis: task body
       — no hypothesis, so this score has no claim to be wrong about,L1:keyword=lane);
       F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
-      about,L0: no signal); F1=2 (basis: task body — no hypothesis, so this score
-      has no claim to be wrong about,L2:keyword=import)'
+      about,L0: no signal); F1=0 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L0: no signal)'
     rubric_sha: e4a00f38e801
 ---
 
-# T-1446: PDF export: wide maps print too small on one A4 page (A3 / fit-to-width across pages)
+# T-1457: Routing: incoming and outgoing flows meet a step side by side on the same side (Productieorder, Greenfield 7)
 
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** T-1440's reviewer (green, non-blocking, V-20261119-0a064daf): Export → PDF puts the whole map
-on one A4 landscape page, so arc-lifecycle (2100 px wide) prints its box text at about 4.5 pt: crisp on screen,
-too small on paper. The operator wants PDF "to hand to people" (T-1093).
+**Background / trigger:** Greenfield msg 5468c2ba item 7, reproduced by T-1449: at Productieorder (lane NAV) on
+`tests/fixtures/greenfield/nooteboom-offerte-tot-order-with-notes.bpmn` the incoming line (from Verkooporder
+compleet, straight down) and the outgoing line (up and right to Open VO) meet the step's TOP side 8 px apart, so
+they read as one bundle and the arrowhead touches the outgoing line.
 
-**Problem / hypothesis:** one page, fitted to width, scales text down with the map's width: box text is 11 px, A4
-landscape holds 277 mm, so any map wider than ~1200 px prints below 8 pt. A bigger sheet (A3) helps up to ~1700 px;
-beyond that only more pages keep the text readable.
+**Problem / hypothesis:** the same cause as T-1456's arrowhead: the even spread puts the two ends at -4/+4, the straight
+incoming flow is snapped back onto the centre line, and the outgoing end is left half a pitch from it. T-1456's rule
+(commit 92b26fa77: where ends as they land put an incoming end closer than the pitch to an outgoing one, the straight
+end keeps the centre and the other moves an arrowhead, 12 px, beside it) applies here too.
 
-**Goal:** Export offers, besides today's one A4 page, one A3 page, and A4 pages at a readable size: the map cut into
-pages so box text stays at 8 pt or more, cut between steps (never through a step box), each page saying which
-part it is.
+**Goal:** the two lines read as two distinct flows; per the task's expectation "different sides when the geometry
+allows, or a clear gap".
 
-**Expected outcome:** a wide map prints readably on ordinary A4 paper; a small map still gives one page; the one-page
-A4 export is unchanged.
+**Expected outcome:** Productieorder's incoming and outgoing ends at least 12 px apart at 1024/1440/1920, the
+incoming flow still straight; checked by a harness leg. Moving the outgoing end to the RIGHT side (which faces its
+target) is the fuller answer to "side by side"; it is a port-choice change, offered to Greenfield, not done here.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] Export has "PDF, one page A4" (today's, unchanged), "PDF, one page A3" and "PDF, A4 pages (readable)";
-      each prints the map alone (no editor controls in the PDF's text), on the stated paper size (pdfinfo).
-      Evidence: `_t1446` M1/A1/B1 on 4 maps: 842x595 pt (A4) and 1191x842 pt (A3), one page each, editor words none.
-      A3 is set by a temporary @page rule (76c0b90e5): the first version's named page printed TWO A3 pages on the
-      pool's Chromium (pool RED, here green); green on both since.
-- [x] On arc-lifecycle and audit-process, the readable A4 pages print step names at 8 pt or more and A3 at a larger
-      size than one A4 page, measured from the PDF's word boxes (pdftotext -bbox), not from the code.
-      Evidence: P1 smallest step name 8.4 / 8.1 pt (A4 one page 4.1 / 5.0 pt, A3 6.0 / 7.2 pt); probed on all 24
-      corpus maps: every one >= 8.0 pt. The scale follows the smallest box text DRAWN (the lane-fit ladder shrinks long
-      names; a fixed 11 px first gave 6.4 pt).
-- [x] The readable pages together hold every step name, every step box prints whole on at least one page (checked in
-      the page geometry the export computes), and each page's heading names its part ("page 2 of 3"); a map that
-      fits at 8 pt on one page gives exactly one page.
-      **Amended 2026-11-20:** first written as "no step box is cut by a page edge". On cross-host-dispatch the wide
-      gateway labels and the events under them overlap into one unbroken run from x 116 to 1074, wider than a
-      readable page, so no straight cut avoids every box. Where no gap leaves 60% of a page, a part ends at the
-      page edge and the next part starts where the first cut step begins (overlap): the step prints whole there.
-      Also learned: no corpus map fits one readable page (the pool keeps an authored minimum width), so the pages end
-      40 px after the last step, and the one-page case is a 3-step map made through Import -> CSV.
-      Evidence: P2 on arc-lifecycle (3 pages), audit-process (4), cross-host-dispatch (2; the overlap case), the 3-step
-      map (1 page, 16 pt): every name on some page, 0 boxes not whole on any page, headings "page k of N (row, column)";
-      P3 both cases covered.
-- [x] A CDP harness covers the three exports on three corpus maps and a small one, is a browser-tier leg, and fails
-      on the 0.44.0 designer; T-1440's PDF leg still passes.
-      Evidence: `tools/_t1446-pdf-pages-cdp.mjs` (17 legs), leg `test_t1446_pdf_pages`; on 0.44.0 13 legs fail (the A4
-      ones pass, as they must); `_t1440` D1/D2 still pass.
-- [x] `bash tools/person-sees-gate.sh` exits 0 and the browser tier is green.
-      Evidence: person-sees exit 0 (2026-11-20 on 44d7d11a0, and on 5b6dad258, the designer unchanged since); browser tier for 30a2041d7 green on the
-      pool as two shards (pool-w1 78/0, pool-w2 73/0) and here 151/0 (build/tiergate/tier-browser.runs.log 14:53Z).
+- [x] At 1024/1440/1920, Productieorder's incoming end and outgoing start are on different sides or >= 12 px apart,
+      and the incoming flow from Verkooporder compleet is drawn straight (one segment); a leg of
+      `tools/_t1456-routing-lanes-sides-cdp.mjs` checks it and fails on the 0.44.0 designer.
+      Evidence: F3 at all three widths: in top 2298,485 (2 points, straight), out top 2310,485, 12.0 px apart (were 8);
+      on 0.44.0 F3 fails (2294 / 2302).
+- [x] The browser tier is green with that leg.
+      Evidence: browser tier for 30a2041d7 green on the pool as two shards (pool-w1 78/0, pool-w2 73/0) and here
+      151/0 (build/tiergate/tier-browser.runs.log 14:53Z).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -176,25 +157,20 @@ A4 export is unchanged.
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
-- [x] [REVIEW] The PDF pages are a readable paper version of a wide map, and the Export menu with three PDF entries fits.
-  **Why you:** whether a page reads well on paper, and whether the parts are easy to follow, is a judgement on images.
-  **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1446 --criterion 1`), who may escalate.
+- [x] [REVIEW] At Productieorder the incoming and outgoing lines read as two distinct flows.
+  **Why you:** whether two lines on one side read as distinct or as a bundle is a judgement on the image.
+  **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1457 --criterion 1`), who may escalate.
   **Steps:**
-  1. `docs/reports/T-1446-shots/{1024,1440,1920}-export-open.png`: Export lists 11 entries, the three PDF ones
-     ("PDF, one page A4", "PDF, one page A3", "PDF, readable pages A4") readable and told apart; the menu inside the
-     window and on top.
-  2. `docs/reports/T-1446-shots/pdf/arc-lifecycle-{a4-1,a3-1,pages-1,pages-2,pages-3}.png` and
-     `cross-host-dispatch-{a4-1,a3-1,pages-1,pages-2}.png`: on the readable pages the step names are clearly larger
-     than on the one A4 page; each page's heading says which part it is; a step cut at a page's edge is whole on the
-     next page; the lane names are on the first column of pages.
-  **Expected:** the readable pages could be handed to a person and followed; the menu reads cleanly.
-  **If not:** name the file and what is wrong; the agent fixes and re-shoots.
-  **Reviewer verdict:** green V-20261120-242ee8c5 — reviewer-judge-t-1446-r1-20c8ae1f9c8b:reviewer (rung rung-1-same-vendor-independent), digest 323ed65c6910; dispatch judge-t-1446-r1-20c8ae1f9c8b; evidence: .context/reviews/evidence/T-1446/AC1-judge-t-1446-r1-20c8ae1f9c8b.md, .context/reviews/evidence/T-1446/1024-export-open-judge-t-1446-r1-20c8ae1f9c8b.png, .context/reviews/evidence/T-1446/1440-export-open-judge-t-1446-r1-20c8ae1f9c8b.png, .context/reviews/evidence/T-1446/1920-export-open-judge-t-1446-r1-20c8ae1f9c8b.png, .context/reviews/evidence/T-1446/arc-lifecycle-a3-1-judge-t-1446-r1-20c8ae1f9c8b.png, .context/reviews/evidence/T-1446/arc-lifecycle-a4-1-judge-t-1446-r1-20c8ae1f9c8b.png, .context/reviews/evidence/T-1446/arc-lifecycle-pages-1-judge-t-1446-r1-20c8ae1f9c8b.png, .context/reviews/evidence/T-1446/arc-lifecycle-pages-2-judge-t-1446-r1-20c8ae1f9c8b.png, .context/reviews/evidence/T-1446/arc-lifecycle-pages-3-judge-t-1446-r1-20c8ae1f9c8b.png, .context/reviews/evidence/T-1446/cross-host-dispatch-a3-1-judge-t-1446-r1-20c8ae1f9c8b.png, .context/reviews/evidence/T-1446/cross-host-dispatch-a4-1-judge-t-1446-r1-20c8ae1f9c8b.png, .context/reviews/evidence/T-1446/cross-host-dispatch-pages-1-judge-t-1446-r1-20c8ae1f9c8b.png, .context/reviews/evidence/T-1446/cross-host-dispatch-pages-2-judge-t-1446-r1-20c8ae1f9c8b.png; ledger .context/reviews/verdicts.jsonl
+  1. `docs/reports/T-1457-shots/productieorder-{1024,1440,1920}-{before,after}.png`: before, the incoming arrowhead
+     touches the outgoing line (8 px); after, 12 px apart, the incoming line still straight.
+  **Expected:** after, a reader tells the two flows apart without zooming in.
+  **If not:** say so; the fuller answer (the outgoing end on the right side, facing its target) becomes its own task.
+  **Reviewer verdict:** green V-20261120-f56a6aba — reviewer-judge-t-1457-r1-50b3da97acb2:reviewer (rung rung-1-same-vendor-independent), digest a361f09e9bb0; dispatch judge-t-1457-r1-50b3da97acb2; evidence: .context/reviews/evidence/T-1457/AC1-judge-t-1457-r1-50b3da97acb2.md, .context/reviews/evidence/T-1457/productieorder-1024-before-judge-t-1457-r1-50b3da97acb2.png, .context/reviews/evidence/T-1457/productieorder-1024-after-judge-t-1457-r1-50b3da97acb2.png, .context/reviews/evidence/T-1457/productieorder-1440-before-judge-t-1457-r1-50b3da97acb2.png, .context/reviews/evidence/T-1457/productieorder-1440-after-judge-t-1457-r1-50b3da97acb2.png, .context/reviews/evidence/T-1457/productieorder-1920-before-judge-t-1457-r1-50b3da97acb2.png, .context/reviews/evidence/T-1457/productieorder-1920-after-judge-t-1457-r1-50b3da97acb2.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
-node tools/_t1446-pdf-pages-cdp.mjs
-grep -q "test_t1446_pdf_pages" tests/run-bridge-tests.sh
+node tools/_t1456-routing-lanes-sides-cdp.mjs
+grep -q "F3 \[greenfield" tools/_t1456-routing-lanes-sides-cdp.mjs
 
 <!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
      headings; the completion gate strips HTML comments before running anything.
@@ -402,33 +378,7 @@ grep -q "test_t1446_pdf_pages" tests/run-bridge-tests.sh
      commit, that is a calibration failure — recommend GO or NO-GO.
 -->
 
-## Visual Verification
-
-Shots: `docs/reports/T-1446-shots/` (`shots.mjs`; fresh storage per shot, cleared after leaving the previous page;
-the PDFs' pages rendered at 50 dpi under `pdf/`; measurements in `measure.json`).
-
-| state | control | 1024 | 1440 | 1920 | note |
-|-------|---------|------|------|------|------|
-| Export menu open | 11 entries incl. PDF one page A4 / A3, readable pages A4 | ok | ok | ok | every item inside the window and on top (measured) |
-| PDF readable pages | headings, parts, step names | ok | ok | ok | paper output, independent of window width; arc-lifecycle 3 pages, cross-host-dispatch 2 |
-
-Read by the agent: the three PDF entries are told apart by label (one page / readable pages) and hint (A4 / A3);
-on the readable pages the step names are clearly larger than on the one-page A4 (8-10 pt measured against 4-5 pt),
-each heading says "page k of N (row, column)", the lane names print on the first column, arrowheads render on every
-page (each page repeats the SVG; its markers resolve). cross-host-dispatch page 1 shows the start of "ERROR (exit 1)"
-at its right edge: that step prints whole on page 2 (the overlap rule).
-
 ## Decisions
-
-### 2026-11-20 — Readable pages: one common scale, cuts between steps, overlap where none fits
-- **Chose:** three PDF entries (one page A4 as before, one page A3, readable A4 pages); the readable pages share one
-  scale set by the smallest box text actually drawn (>= 8 pt), end between steps where a gap leaves 60% of a page,
-  and otherwise overlap so a cut step prints whole on the next page; pages stop 40 px after the last step.
-- **Why:** one scale keeps the parts the same size to fit together; measured on all 24 corpus maps, every step name
-  printed at 8 pt or more; overlapping labels leave some maps without any clean gap (cross-host-dispatch).
-- **Rejected:** choosing the paper automatically (a person knows their printer; three explicit entries are clearer);
-  a fixed 11 px text size (the lane-fit ladder shrinks long names, which then printed at 6.4 pt); strict "never cut
-  a step" (impossible on cross-host-dispatch at 8 pt).
 
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
@@ -451,14 +401,24 @@ at its right edge: that step prints whole on page 2 (the overlap rule).
 
 ## Updates
 
-### 2026-11-19T11:26:47Z — task-created [task-create-agent]
+### 2026-11-19T22:56:15Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1446-pdf-export-wide-maps-print-too-small-on-.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-1457-routing-incoming-and-outgoing-flows-meet.md
 - **Context:** Initial task creation
 
-### 2026-11-20T09:18:38Z — status-update [task-update-agent]
+### 2026-11-20T10:27:37Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
-- **Change:** horizon: later → now (auto-sync)
+- **Change:** horizon: next → now (auto-sync)
 
-### 2026-11-20T09:18:57Z — status-update [task-update-agent]
-- **Change:** horizon: now → now
+### 2026-11-20T17:35:47Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-3702ee92
+- **Timestamp:** 2026-11-20T17:37:09Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

@@ -1,0 +1,105 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1457: Routing: incoming and outgoing flows meet a step side by side on the same side (Productieorder, Greenfield 7)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-20T17:37:32Z
+# ============================================================================
+
+task_id: T-1457
+task_name: "Routing: incoming and outgoing flows meet a step side by side on the same side (Productieorder, Greenfield 7)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-19T22:56:15Z
+completed: 2026-11-20T17:35:47Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-11-20T12:13:09+01:00
+last_commit: 2026-11-20T16:14:30+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Greenfield 7 met by T-1456's rule (a side whose ends would land closer than the pitch is re-spread): Productieorder's incoming and outgoing ends 12 px apart (were 8), the incoming flow still straight; leg F3 in _t1456 (fails on 0.44.0); before/after shots at 3 widths; the right-side alternative offered to Greenfield, not built. agent criteria met with evidence (browser tier for 30a2041d7 green: pool as two shards pool-w1 78/0 + pool-w2 73/0, here 151/0). reviewer verdict. reviewer verdict applied (green round 1, V-20261120-f56a6aba)
+
+# Key outcomes
+outcomes:
+  - 'At 1024/1440/1920, Productieorder''s incoming end and outgoing start are on different sides or >= 12 px apart,'
+  - 'The browser tier is green with that leg.'
+  - '[REVIEW] At Productieorder the incoming and outgoing lines read as two distinct flows.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1457/AC1-judge-t-1457-r1-50b3da97acb2.md'
+  - '.context/reviews/evidence/T-1457/productieorder-1024-after-judge-t-1457-r1-50b3da97acb2.png'
+  - '.context/reviews/evidence/T-1457/productieorder-1024-before-judge-t-1457-r1-50b3da97acb2.png'
+  - '.context/reviews/evidence/T-1457/productieorder-1440-after-judge-t-1457-r1-50b3da97acb2.png'
+  - '.context/reviews/evidence/T-1457/productieorder-1440-before-judge-t-1457-r1-50b3da97acb2.png'
+  - '.context/reviews/evidence/T-1457/productieorder-1920-after-judge-t-1457-r1-50b3da97acb2.png'
+  - '.context/reviews/evidence/T-1457/productieorder-1920-before-judge-t-1457-r1-50b3da97acb2.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1457-routing-incoming-and-outgoing-flows-meet.md'
+  - 'docs/reports/T-1457-shots/productieorder-1024-after.png'
+  - 'docs/reports/T-1457-shots/productieorder-1024-before.png'
+  - 'docs/reports/T-1457-shots/productieorder-1440-after.png'
+  - 'docs/reports/T-1457-shots/productieorder-1440-before.png'
+  - 'docs/reports/T-1457-shots/productieorder-1920-after.png'
+  - 'docs/reports/T-1457-shots/productieorder-1920-before.png'
+  - 'docs/reports/T-1457-shots/shots.mjs'
+  - 'tools/_t1456-routing-lanes-sides-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-20T12:13:09'
+    action: 'T-1457: Greenfield 7 met by T-1456''s rule (a side whose ends would land closer than the pitch is re-spread): Productieorder''s incoming and outgoing ends 12 px apart (were 8), the incoming flow still straight; leg F3 in _t1456 (fails on 0.44.0); before/after shots at 3 widths; the right-side alternative offered to Greenfield, not built'
+  - time: '2026-11-20T15:56:45'
+    action: 'T-1457: agent criteria met with evidence (browser tier for 30a2041d7 green: pool as two shards pool-w1 78/0 + pool-w2 73/0, here 151/0)'
+  - time: '2026-11-20T15:57:54'
+    action: 'T-1457: reviewer verdict'
+  - time: '2026-11-20T16:14:30'
+    action: 'T-1457: reviewer verdict applied (green round 1, V-20261120-f56a6aba)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 1119 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1119
+  commits: 5
+  files_changed: 27
+  lines_added: 508
+  lines_removed: 27
+  footprint_refreshed_at: '2026-11-20T17:37:54Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1457-routing-incoming-and-outgoing-flows-meet.md
+generated_by: context-agent-hybrid

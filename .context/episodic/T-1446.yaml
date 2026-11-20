@@ -1,0 +1,127 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1446: PDF export: wide maps print too small on one A4 page (A3 / fit-to-width across pages)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-20T17:35:28Z
+# ============================================================================
+
+task_id: T-1446
+task_name: "PDF export: wide maps print too small on one A4 page (A3 / fit-to-width across pages)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-11-19T11:26:47Z
+completed: 2026-11-20T17:34:39Z
+duration_days: 1
+updates_count: 4
+first_commit: 2026-11-19T12:27:17+01:00
+last_commit: 2026-11-20T16:14:13+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  capture the wide-map PDF text size follow-up (T-1440 reviewer note). Export -> PDF on one A4 page (unchanged), one A3 page, or readable A4 pages: one common scale from the smallest box text drawn (>= 8 pt), parts end between steps or overlap so a cut step prints whole on the next page, pages end 40 px after the last step; harness _t1446 (measured in the PDF; all 24 corpus maps >= 8 pt when probed), leg test_t1446_pdf_pages; shots; person-sees exit 0. A3 by a temporary @page rule instead of a named page: the pool's Chromium printed the named-page A3 as two pages (browser tier RED on pool-w2, B1 4 maps; green here 150/0), a named-page boundary being browser-dependent. agent criteria met with evidence (browser tier for 30a2041d7 green: pool as two shards pool-w1 78/0 + pool-w2 73/0, here 151/0). reviewer verdict. reviewer verdict applied (green round 1, V-20261120-242ee8c5)
+
+# Key outcomes
+outcomes:
+  - 'Export has "PDF, one page A4" (today''s, unchanged), "PDF, one page A3" and "PDF, A4 pages (readable)";'
+  - 'On arc-lifecycle and audit-process, the readable A4 pages print step names at 8 pt or more and A3 at a larger'
+  - 'The readable pages together hold every step name, every step box prints whole on at least one page (checked in'
+  - 'A CDP harness covers the three exports on three corpus maps and a small one, is a browser-tier leg, and fails'
+  - '`bash tools/person-sees-gate.sh` exits 0 and the browser tier is green.'
+  - '[REVIEW] The PDF pages are a readable paper version of a wide map, and the Export menu with three PDF entries fits.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  - decision: '2026-11-20 — Readable pages: one common scale, cuts between steps, overlap where none fits'
+    chose: 'three PDF entries (one page A4 as before, one page A3, readable A4 pages); the readable pages share one scale set by the smallest box text actually drawn (>= 8 pt), end between steps where a gap leaves 60% of a page, and otherwise overlap so a cut step prints whole on the next page; pages stop 40 px after the last step.'
+    rationale: 'one scale keeps the parts the same size to fit together; measured on all 24 corpus maps, every step name printed at 8 pt or more; overlapping labels leave some maps without any clean gap (cross-host-dispatch).'
+    alternatives_rejected: ['choosing the paper automatically (a person knows their printer; three explicit entries are clearer); a fixed 11 px text size (the lane-fit ladder shrinks long names, which then printed at 6.4 pt); strict "never cut a step" (impossible on cross-host-dispatch at 8 pt).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/evidence/T-1446/1024-export-open-judge-t-1446-r1-20c8ae1f9c8b.png'
+  - '.context/reviews/evidence/T-1446/1440-export-open-judge-t-1446-r1-20c8ae1f9c8b.png'
+  - '.context/reviews/evidence/T-1446/1920-export-open-judge-t-1446-r1-20c8ae1f9c8b.png'
+  - '.context/reviews/evidence/T-1446/AC1-judge-t-1446-r1-20c8ae1f9c8b.md'
+  - '.context/reviews/evidence/T-1446/arc-lifecycle-a3-1-judge-t-1446-r1-20c8ae1f9c8b.png'
+  - '.context/reviews/evidence/T-1446/arc-lifecycle-a4-1-judge-t-1446-r1-20c8ae1f9c8b.png'
+  - '.context/reviews/evidence/T-1446/arc-lifecycle-pages-1-judge-t-1446-r1-20c8ae1f9c8b.png'
+  - '.context/reviews/evidence/T-1446/arc-lifecycle-pages-2-judge-t-1446-r1-20c8ae1f9c8b.png'
+  - '.context/reviews/evidence/T-1446/arc-lifecycle-pages-3-judge-t-1446-r1-20c8ae1f9c8b.png'
+  - '.context/reviews/evidence/T-1446/cross-host-dispatch-a3-1-judge-t-1446-r1-20c8ae1f9c8b.png'
+  - '.context/reviews/evidence/T-1446/cross-host-dispatch-a4-1-judge-t-1446-r1-20c8ae1f9c8b.png'
+  - '.context/reviews/evidence/T-1446/cross-host-dispatch-pages-1-judge-t-1446-r1-20c8ae1f9c8b.png'
+  - '.context/reviews/evidence/T-1446/cross-host-dispatch-pages-2-judge-t-1446-r1-20c8ae1f9c8b.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1446-pdf-export-wide-maps-print-too-small-on-.md'
+  - 'docs/reports/T-1446-shots/1024-export-open.png'
+  - 'docs/reports/T-1446-shots/1440-export-open.png'
+  - 'docs/reports/T-1446-shots/1920-export-open.png'
+  - 'docs/reports/T-1446-shots/measure.json'
+  - 'docs/reports/T-1446-shots/pdf/arc-lifecycle-a3-1.png'
+  - 'docs/reports/T-1446-shots/pdf/arc-lifecycle-a4-1.png'
+  - 'docs/reports/T-1446-shots/pdf/arc-lifecycle-pages-1.png'
+  - 'docs/reports/T-1446-shots/pdf/arc-lifecycle-pages-2.png'
+  - 'docs/reports/T-1446-shots/pdf/arc-lifecycle-pages-3.png'
+  - 'docs/reports/T-1446-shots/pdf/cross-host-dispatch-a3-1.png'
+  - 'docs/reports/T-1446-shots/pdf/cross-host-dispatch-a4-1.png'
+  - 'docs/reports/T-1446-shots/pdf/cross-host-dispatch-pages-1.png'
+  - 'docs/reports/T-1446-shots/pdf/cross-host-dispatch-pages-2.png'
+  - 'docs/reports/T-1446-shots/shots.mjs'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1446-pdf-pages-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-19T12:27:17'
+    action: 'T-1446: capture the wide-map PDF text size follow-up (T-1440 reviewer note)'
+  - time: '2026-11-20T10:35:00'
+    action: 'T-1446: Export -> PDF on one A4 page (unchanged), one A3 page, or readable A4 pages: one common scale from the smallest box text drawn (>= 8 pt), parts end between steps or overlap so a cut step prints whole on the next page, pages end 40 px after the last step; harness _t1446 (measured in the PDF; all 24 corpus maps >= 8 pt when probed), leg test_t1446_pdf_pages; shots; person-sees exit 0'
+  - time: '2026-11-20T11:04:10'
+    action: 'T-1446: A3 by a temporary @page rule instead of a named page: the pool''s Chromium printed the named-page A3 as two pages (browser tier RED on pool-w2, B1 4 maps; green here 150/0), a named-page boundary being browser-dependent'
+  - time: '2026-11-20T15:56:12'
+    action: 'T-1446: agent criteria met with evidence (browser tier for 30a2041d7 green: pool as two shards pool-w1 78/0 + pool-w2 73/0, here 151/0)'
+  - time: '2026-11-20T15:58:26'
+    action: 'T-1446: reviewer verdict'
+  - time: '2026-11-20T16:14:13'
+    action: 'T-1446: reviewer verdict applied (green round 1, V-20261120-242ee8c5)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 1807 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1807
+  commits: 7
+  files_changed: 39
+  lines_added: 1233
+  lines_removed: 41
+  footprint_refreshed_at: '2026-11-20T17:37:53Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1446-pdf-export-wide-maps-print-too-small-on-.md
+generated_by: context-agent-hybrid
