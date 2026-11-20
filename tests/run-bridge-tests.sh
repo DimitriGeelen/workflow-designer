@@ -2203,6 +2203,21 @@ else
 fi
 }
 leg browser "test_t1442_excel" _leg_t1442
+_leg_t1446() {
+
+# ── T-1446: PDF on one A4 page, one A3 page, or readable A4 pages, measured in the PDF itself ──
+# Page sizes (pdfinfo-equivalent from pdftotext -bbox), step-name size calibrated on the 13 pt heading (>= 8 pt on the
+# readable pages, larger on A3 than A4), every step name on some page, every step box whole on some page, headings
+# naming the part, one page for a map that fits. Three corpus maps and a 3-step map. ~60 s.
+if node "$ROOT/tools/_t1446-pdf-pages-cdp.mjs" > "$TMP/leg-_t1446.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "PDF export (A4 / A3 / readable pages) regressed: a leg of _t1446-pdf-pages-cdp.mjs failed (run 'node tools/_t1446-pdf-pages-cdp.mjs /tmp/x' to keep the PDFs; T-1446)"
+  show_output "$TMP/leg-_t1446.out" "_t1446-pdf-pages-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1446_pdf_pages" _leg_t1446
 _leg_t1447() {
 
 # ── T-1447: imported text annotations and associations drawn read-only (Greenfield's workshop map) ──

@@ -363,11 +363,18 @@ font-family: 'Outfit';
   #print-sheet { display: none; }
   @media print {
     @page { size: A4 landscape; margin: 10mm; }
+    @page a3 { size: A3 landscape; margin: 10mm; }   /* T-1446: one page A3 */
     html, body { height: auto; overflow: visible; background: #fff; }
     body.printing-map > *:not(#print-sheet) { display: none !important; }
     body.printing-map #print-sheet { display: block; }
     #print-sheet h1 { font: 600 13pt var(--sans); color: #1a1e26; margin: 0 0 4mm; }
     #print-sheet svg { display: block; width: 100%; height: auto; max-height: 175mm; }
+    #print-sheet.paper-a3 { page: a3; }
+    #print-sheet.paper-a3 svg { max-height: 262mm; }
+    /* T-1446: readable A4 pages: every part at one common scale (width/height set in mm on each svg) */
+    #print-sheet .print-part { break-after: page; break-inside: avoid; }
+    #print-sheet .print-part:last-child { break-after: auto; }
+    #print-sheet .print-part svg { width: auto; max-height: none; }
   }
 
   /* ============ Main layout ============ */
@@ -13830,7 +13837,7 @@ function buildExportSvg() {
     const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
     title.textContent = state.workflowMeta.title || state.workflowMeta.id;
     clone.insertBefore(title, clone.firstChild);
-    return { svg: new XMLSerializer().serializeToString(clone), width: w, height: h };
+    return { svg: new XMLSerializer().serializeToString(clone), width: w, height: h, vb: { x: vb.x, y: vb.y, width: vb.width, height: vb.height } };
   } finally {
     document.body.classList.remove('export-paper');
     if (hadSel) { selection = keepSel; renderAll(); }
@@ -13876,19 +13883,94 @@ function downloadPngFile(scale) {
 }
 
 // PDF through the browser's own print ("Save as PDF"): a sheet with the title and the paper picture, and nothing else.
-function printMapSheet() {
-  const { svg } = buildExportSvg();
+// T-1446: three ways. 'a4' (T-1440's, unchanged): the whole map on one A4 landscape page. 'a3': the same on one A3
+// page. 'pages': A4 pages at a readable size, the map cut into parts so the smallest box text prints at 8 pt or more.
+const PRINT_A4 = { w: 277, h: 175 };          // mm for the picture on A4 landscape (10 mm margins, the heading above)
+const PRINT_MIN_PT = 8;                       // readable pages: box text at >= 8 pt
+let _lastPrintLayout = null;                  // the computed parts, for the test (T-1446)
+function printMapSheet(mode) {
+  mode = mode || 'a4';
+  const ex = buildExportSvg();
   let sheet = $('print-sheet');
   if (!sheet) { sheet = document.createElement('div'); sheet.id = 'print-sheet'; document.body.appendChild(sheet); }
   sheet.textContent = '';
-  const h = document.createElement('h1');
-  h.textContent = (state.workflowMeta.title || state.workflowMeta.id) + '  ·  v' + (state.workflowMeta.version || '1');
-  sheet.appendChild(h);
-  sheet.insertAdjacentHTML('beforeend', svg);
+  sheet.className = mode === 'a3' ? 'paper-a3' : '';
+  const title = (state.workflowMeta.title || state.workflowMeta.id) + '  ·  v' + (state.workflowMeta.version || '1');
+  if (mode !== 'pages') {
+    const h = document.createElement('h1');
+    h.textContent = title;
+    sheet.appendChild(h);
+    sheet.insertAdjacentHTML('beforeend', ex.svg);
+    _lastPrintLayout = { mode, parts: [{ x: ex.vb.x, y: ex.vb.y, w: ex.vb.width, h: ex.vb.height }] };
+  } else {
+    const L = printPartsLayout(ex.vb);
+    _lastPrintLayout = { mode, ...L };
+    L.parts.forEach((p, k) => {
+      const part = document.createElement('div');
+      part.className = 'print-part';
+      const h = document.createElement('h1');
+      h.textContent = L.parts.length > 1 ? `${title}  ·  page ${k + 1} of ${L.parts.length} (row ${p.row}, column ${p.col})` : title;
+      part.appendChild(h);
+      part.insertAdjacentHTML('beforeend', ex.svg);
+      const svg = part.querySelector('svg');
+      svg.setAttribute('viewBox', `${p.x} ${p.y} ${p.w} ${p.h}`);
+      svg.setAttribute('width', p.w); svg.setAttribute('height', p.h);
+      svg.style.width = (p.w * L.mmPerPx).toFixed(2) + 'mm';
+      svg.style.height = (p.h * L.mmPerPx).toFixed(2) + 'mm';
+      sheet.appendChild(part);
+    });
+  }
   document.body.classList.add('printing-map');
   const done = () => { document.body.classList.remove('printing-map'); window.removeEventListener('afterprint', done); };
   window.addEventListener('afterprint', done);
   window.print();
+}
+// The parts of the readable A4 pages. Every step (its box with name, id and badges, measured on the drawn canvas)
+// prints whole on at least one page: parts end between steps where they can, and overlap where they cannot. All parts
+// share one scale, the largest that fits the biggest part on a page, never below 8 pt.
+function printPartsLayout(vb) {
+  const canvas = $('canvas'), inv = canvas.getScreenCTM().inverse();
+  const toUser = (x, y) => { const p = canvas.createSVGPoint(); p.x = x; p.y = y; return p.matrixTransform(inv); };
+  const boxes = [...$('g-nodes').children].map(g => {
+    const r = g.getBoundingClientRect();
+    if (!r.width && !r.height) return null;
+    const a = toUser(r.left, r.top), b = toUser(r.right, r.bottom);
+    return { id: g.dataset.id || '', x0: Math.min(a.x, b.x) - 4, x1: Math.max(a.x, b.x) + 4, y0: Math.min(a.y, b.y) - 4, y1: Math.max(a.y, b.y) + 4 };
+  }).filter(Boolean);
+  // the smallest box text actually drawn: 11 px by default, less where the lane-fit ladder shrank a long name
+  const sizes = [...$('g-nodes').querySelectorAll('.node-label')].map(t => parseFloat(getComputedStyle(t).fontSize)).filter(v => v > 0);
+  const textPx = sizes.length ? Math.min(...sizes) : 11;
+  const pt2mm = 25.4 / 72, minMmPerPx = PRINT_MIN_PT * pt2mm / textPx;
+  const maxW = PRINT_A4.w / minMmPerPx, maxH = PRINT_A4.h / minMmPerPx;   // px a page holds at 8 pt
+  // Spans along one axis. Each span ends in a gap between steps when one leaves at least 60% of a page; otherwise at
+  // the page's edge, and then the NEXT span starts where the first step that edge cut begins, so that step prints
+  // whole on the next page (overlapping labels can leave no gap at all: T-1446, cross-host-dispatch).
+  const spans = (lo, hi, max, ivals) => {
+    const out = [];
+    let s = lo;
+    while (hi - s > max) {
+      const limit = s + max, floor = s + max * 0.6;
+      const inside = c => ivals.some(([a, b]) => c > a && c < b);
+      let c = limit;
+      while (c > floor && inside(c)) c = Math.min(c - 1, ...ivals.filter(([a, b]) => c > a && c < b).map(([a]) => a));
+      if (!inside(c) && c > floor) { out.push([s, c]); s = c; continue; }
+      out.push([s, limit]);
+      const cutStarts = ivals.filter(([a, b]) => limit > a && limit < b && a > s).map(([a]) => a);
+      s = cutStarts.length ? Math.min(...cutStarts) : limit;
+    }
+    out.push([s, hi]);
+    return out;
+  };
+  // a box wider (taller) than half a page, such as a group around several steps, does not steer the spans
+  // the pool keeps an authored minimum width, mostly empty on a small map: the pages end 40 px after the last step
+  // (the left edge, with the lane names, and the full height of the lanes stay)
+  const right = boxes.length ? Math.min(vb.x + vb.width, Math.max(...boxes.map(b => b.x1)) + 40) : vb.x + vb.width;
+  const xs = spans(vb.x, right, maxW, boxes.filter(b => b.x1 - b.x0 < maxW * 0.5).map(b => [b.x0, b.x1]));
+  const ys = spans(vb.y, vb.y + vb.height, maxH, boxes.filter(b => b.y1 - b.y0 < maxH * 0.5).map(b => [b.y0, b.y1]));
+  const parts = [];
+  ys.forEach(([y0, y1], r) => xs.forEach(([x0, x1], c) => parts.push({ row: r + 1, col: c + 1, x: x0, y: y0, w: x1 - x0, h: y1 - y0 })));
+  const mmPerPx = Math.min(PRINT_A4.w / Math.max(...parts.map(p => p.w)), PRINT_A4.h / Math.max(...parts.map(p => p.h)));
+  return { parts, mmPerPx, xs, ys, boxes, textPx, maxW, maxH, extent: { x0: vb.x, x1: right, y0: vb.y, y1: vb.y + vb.height }, textPt: textPx * mmPerPx / pt2mm };
 }
 
 // ── T-1441: Mermaid and CSV, both ways ──
@@ -14236,7 +14318,9 @@ const IO_FORMATS = {
   ],
   export: [
     { id: 'bpmn', label: 'BPMN 2.0 / Camunda', hint: '.bpmn', run: downloadBpmnFile },
-    { id: 'pdf', label: 'PDF (print)', hint: '.pdf', run: printMapSheet },              // T-1440
+    { id: 'pdf', label: 'PDF, one page', hint: 'A4', run: () => printMapSheet('a4') },              // T-1440
+    { id: 'pdf-a3', label: 'PDF, one page', hint: 'A3', run: () => printMapSheet('a3') },           // T-1446
+    { id: 'pdf-pages', label: 'PDF, readable pages', hint: 'A4', run: () => printMapSheet('pages') },
     { id: 'svg', label: 'SVG picture', hint: '.svg', run: downloadSvgFile },
     { id: 'png1', label: 'PNG picture', hint: '1x', run: () => downloadPngFile(1) },
     { id: 'png2', label: 'PNG picture', hint: '2x', run: () => downloadPngFile(2) },

@@ -1,0 +1,50 @@
+[
+ {
+  "width": 1024,
+  "items": 11,
+  "allInWindow": true,
+  "allOnTop": true
+ },
+ {
+  "width": 1440,
+  "items": 11,
+  "allInWindow": true,
+  "allOnTop": true
+ },
+ {
+  "width": 1920,
+  "items": 11,
+  "allInWindow": true,
+  "allOnTop": true
+ },
+ {
+  "map": "arc-lifecycle",
+  "mode": "a4",
+  "pages": 1
+ },
+ {
+  "map": "arc-lifecycle",
+  "mode": "a3",
+  "pages": 1
+ },
+ {
+  "map": "arc-lifecycle",
+  "mode": "pages",
+  "pages": 3
+ },
+ {
+  "map": "cross-host-dispatch",
+  "mode": "a4",
+  "pages": 1
+ },
+ {
+  "map": "cross-host-dispatch",
+  "mode": "a3",
+  "pages": 1
+ },
+ {
+  "map": "cross-host-dispatch",
+  "mode": "pages",
+  "pages": 2
+ }
+]
