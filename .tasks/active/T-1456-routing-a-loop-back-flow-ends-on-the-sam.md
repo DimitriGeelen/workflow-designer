@@ -108,15 +108,28 @@ Opportunity/Solution's outgoing flow; corpus maps' routing otherwise unchanged e
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The cause is named from a probe of the drawn geometry (H1, H2 or another), recorded in the task with the numbers.
-- [ ] On the Greenfield fixture, at 1024/1440/1920, the 'wel' path's every point lies inside lane Tacton, and its
+- [x] The cause is named from a probe of the drawn geometry (H1, H2 or another), recorded in the task with the numbers.
+      Evidence: ## RCA — H1 (crossings by bar height for 'wel': 208-272 -> 0 inside Tacton, 376-400 -> 0 in Novis;
+      interior penalty 10 vs closeness 0.28); H2 ruled out (no waypoints in the designer); the arrowhead from the
+      straight outgoing flow being snapped back to the centre line (4 px).
+- [x] On the Greenfield fixture, at 1024/1440/1920, the 'wel' path's every point lies inside lane Tacton, and its
       end on Opportunity/Solution is on a different side from that step's outgoing flow's start, or >= 12 px from it.
-- [ ] Across the 24 corpus maps and the Greenfield fixture: no flow between two steps of one lane leaves that lane
+      Evidence: `_t1456` F1/F2 at all three widths: ys 309..256..302 inside 192-322; 12 px from the outgoing start.
+- [x] Across the 24 corpus maps and the Greenfield fixture: no flow between two steps of one lane leaves that lane
       when a route inside exists, and no incoming end lies within 8 px of an outgoing start on the same step side
       (counts before/after recorded; none new).
-- [ ] A CDP harness checks both on the fixture and the corpus, is a browser-tier leg, and fails on the 0.44.0
+      Evidence: before L 4, S 1; after L 0, S 0 (C1). Excused and listed: git-commit-flow 'blocked' (route set by
+      the author), task-gate 're-issue' (every bar inside its lane cuts a step), upgrade-process 'dry-run' (known,
+      T-1459). All 340 drawn flows compared: 18 change, none that was straight bends.
+- [x] A CDP harness checks both on the fixture and the corpus, is a browser-tier leg, and fails on the 0.44.0
       designer; the existing routing harnesses stay green.
-- [ ] `bash tools/person-sees-gate.sh` exits 0 and the browser tier is green.
+      Evidence: `tools/_t1456-routing-lanes-sides-cdp.mjs` (F1-F3 x3 + C1), leg `test_t1456_routing_lanes_sides`; on
+      0.44.0 7 legs fail. Fallout fixed at its causes: label-clearance (56 -> 0, the narrowed rule), authority marker
+      (_t1069, measures real ends), saved bytes (_t1129 E, _t1447 N5: the 16 re-routed edges named). On the pool the
+      harness needed one browser per load (the pool's TasksMax=256, T-1463).
+- [x] `bash tools/person-sees-gate.sh` exits 0 and the browser tier is green.
+      Evidence: person-sees exit 0 on 5b6dad258 (label-clearance 0); browser tier for 30a2041d7 green on the pool as two
+      shards (pool-w1 78/0, pool-w2 73/0) and here 151/0 (build/tiergate/tier-browser.runs.log 14:53Z).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
