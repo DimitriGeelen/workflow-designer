@@ -98,3 +98,7 @@ in that window are excluded from the baseline as not comparable (1409 rule iii).
 - Operator: "but we need to test and evaluate the results … we have the eight step protocol, ask 1409" → asked 1409
   (msg 7252b782); answer 49026d6b (Der Kreis, five questions, four safeguards, lessons i–v).
 - Measurement of the baseline (above) shows lever A saves little on the browser tier; lever B carries most of the gain.
+- 2026-11-20 operator: "I haven't seen any progress on that" (the split was still shadow-only, every gate ran unsplit).
+  The agent offered 1) adopt the split now with the full run as a non-gating shadow, 2) also drop the local run for
+  designer changes, 3) keep to 10 trials. Operator: **"1, adopt the split now"**. Recorded as the T-1452 GO for lever
+  B (runme job); lever A stays in shadow.

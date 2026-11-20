@@ -136,13 +136,13 @@ We will know that we are successful when we see <measurable signal>.
 -->
 
 - **IW-1: Does running designer changes on the pool alone (lever A) cut the gate's wall time as expected, without losing a red the second machine would have caught?**
-  confidence: 0
-  disposition: open
-  rationale: expectation committed in docs/reports/T-1452-faster-test-gate.md before any measurement (1409's circle, step 0)
+  confidence: 1
+  disposition: deferred
+  rationale: data so far (2026-11-19/20): the local half was the slower one every time (here 1498-1706 s vs pool 1336-1422 s) and caught nothing the pool missed; the pool caught one real defect the local run passed (A3 named page, 44d7d11a0). Fewer than 10 designer runs: stays in shadow, both machines keep gating (operator 2026-11-20 chose option 1, not option 2).
 - **IW-2: Does splitting the browser tier over several pool workers (lever B) cut its wall time as expected, with every leg giving the same result as the unsplit run?**
-  confidence: 0
-  disposition: open
-  rationale: as IW-1; shadow mode first (split runs compared, never gating)
+  confidence: 2
+  disposition: answered
+  rationale: 3 balanced runs (trials 3, 4, 5; docs/reports/T-1452-faster-test-gate.md): shards 11.8 / 11.9-11.7 / 12.0 min submit to verdict vs 22.4-23.7 min whole, slowest shard 48-50% of the whole's compute (expectation <= 13 min: met 3/3); C1-C3 (same legs, none twice, same outcome) pass 143-146/143-146 every time. Operator 2026-11-20 ("1, adopt the split now") adopts it at 3 runs instead of 10, with the full run kept as a non-gating shadow so a disagreement still shows.
 
 ## Exploration Plan
 
@@ -184,13 +184,13 @@ We will know that we are successful when we see <measurable signal>.
 ## Go/No-Go Criteria
 
 <!-- Fill these BEFORE writing the recommendation. The placeholder detector will block review/decide if left empty. -->
-**GO if:**
-- Root cause identified with bounded fix path
-- Fix is scoped, testable, and reversible
+**GO if (per lever, from the step-0 expectations in the report):**
+- Lever B: pool browser run <= 13 min end to end at k=2 AND every leg the same result as the unsplit run, every trial
+- Lever A: browser saving >= 1 min and core >= 3 min, and no real disagreement between the machines
 
 **NO-GO if:**
-- Problem requires fundamental redesign or unbounded scope
-- Fix cost exceeds benefit given current evidence
+- Any leg differs between split and unsplit runs (lever B), or a real red only one machine shows (lever A)
+- The saving is below the thresholds above
 
 ## Verification
 
@@ -205,17 +205,22 @@ We will know that we are successful when we see <measurable signal>.
 
 ## Recommendation
 
-**Recommendation:** EXPLORING
+**Recommendation:** GO (lever B now; lever A stays in shadow)
 
 **Rationale:**
 
-Operator 2026-11-19 chose both levers and asked that they be measured and evaluated before adoption, by the eight-step protocol (1409's 'Der Kreis').
+Lever B met its expectation in every balanced trial (about 12 min instead of 22-24 per pool browser run, same result for
+every leg), and the operator asked on 2026-11-20 to adopt it now ("1, adopt the split now") rather than after 10 runs.
+Adopted with a guard: every gate also starts the full unsplit run on the pool as a non-gating shadow, and a leg that
+differs is reported and stops the push, so the remaining 7 runs are still collected. Lever A (dropping the local run
+for designer changes) has fewer than 10 runs and one disagreement to explain, so both machines keep gating.
 
 **Evidence:**
 
-<!-- Add evidence bullets as exploration progresses (file paths,
-     commit hashes, test results). The filing-time recommendation
-     can be revised before fw inception decide. -->
+- docs/reports/T-1452-faster-test-gate.md, trials 3-5 (balanced runs 1-3): 11.8, 11.9/11.7, 12.0 min vs 22.4-23.7 min; C1-C3 pass each
+- tests/shard-plan-browser-2.tsv (time-balanced, 662/662 leg-s); compare-shards.py checks C1-C4
+- Staging race found and fixed on the way (6d83e2783: a lock in submit.sh; held in trials 5 and 6)
+- Lever A: here slower every run (1498-1706 s vs 1336-1422 s); the pool caught the A3 defect the local run passed (44d7d11a0)
 
 ## Decisions
 
