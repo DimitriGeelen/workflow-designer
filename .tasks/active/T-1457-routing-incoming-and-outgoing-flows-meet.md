@@ -103,10 +103,14 @@ target) is the fuller answer to "side by side"; it is a port-choice change, offe
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] At 1024/1440/1920, Productieorder's incoming end and outgoing start are on different sides or >= 12 px apart,
+- [x] At 1024/1440/1920, Productieorder's incoming end and outgoing start are on different sides or >= 12 px apart,
       and the incoming flow from Verkooporder compleet is drawn straight (one segment); a leg of
       `tools/_t1456-routing-lanes-sides-cdp.mjs` checks it and fails on the 0.44.0 designer.
-- [ ] The browser tier is green with that leg.
+      Evidence: F3 at all three widths: in top 2298,485 (2 points, straight), out top 2310,485, 12.0 px apart (were 8);
+      on 0.44.0 F3 fails (2294 / 2302).
+- [x] The browser tier is green with that leg.
+      Evidence: browser tier for 30a2041d7 green on the pool as two shards (pool-w1 78/0, pool-w2 73/0) and here
+      151/0 (build/tiergate/tier-browser.runs.log 14:53Z).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
