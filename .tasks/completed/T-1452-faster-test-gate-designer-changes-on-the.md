@@ -6,19 +6,19 @@ description: >
   Inception: Faster test gate: designer changes on the pool alone, and the browser
   tier split over several pool workers - measured before adopted (1409's circle)
 
-status: started-work
+status: work-completed
 workflow_type: inception
-current_node: frw_1_start
+current_node: frw_end_task
 owner: human
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
 waiting_on: agent
 revisit_at: 2026-11-26
 created: 2026-11-19T18:54:19Z
-last_update: '2026-11-19T18:55:00Z'
-date_finished:
+last_update: 2026-11-20T14:08:00Z
+date_finished: 2026-11-20T14:08:00Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -164,15 +164,15 @@ We will know that we are successful when we see every split run finish in 13 min
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Why you:** direction — the operator chose both levers and asked to adopt them only on measured results (2026-11-19); whether they become the standard gate is theirs
   **Steps:**
   1. Run: `fw task review T-XXX` (opens Watchtower with recommendation, assumptions, research artifacts)
@@ -235,7 +235,15 @@ for designer changes) has fewer than 10 runs and one disagreement to explain, so
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Lever B met its expectation in every balanced trial (about 12 min instead of 22-24 per pool browser run, same result for
+every leg), and the operator asked on 2026-11-20 to adopt it now ("1, adopt the split now") rather than after 10 runs.
+Adopted with a guard: every gate also starts the full unsplit run on the pool as a non-gating shadow, and a leg that
+differs is reported and stops the push, so the remaining 7 runs are still collected. Lever A (dropping the local run
+for designer changes) has fewer than 10 runs and one disagreement to explain, so both machines keep gating.
+
+**Date**: 2026-11-20T14:07:59Z
 
 ## Updates
 
@@ -244,3 +252,34 @@ for designer changes) has fewer than 10 runs and one disagreement to explain, so
 
 ### 2026-11-19T18:54:59Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-20T14:07:59Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Lever B met its expectation in every balanced trial (about 12 min instead of 22-24 per pool browser run, same result for
+every leg), and the operator asked on 2026-11-20 to adopt it now ("1, adopt the split now") rather than after 10 runs.
+Adopted with a guard: every gate also starts the full unsplit run on the pool as a non-gating shadow, and a leg that
+differs is reported and stops the push, so the remaining 7 runs are still collected. Lever A (dropping the local run
+for designer changes) has fewer than 10 runs and one disagreement to explain, so both machines keep gating.
+
+### 2026-11-20T14:08:00Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-e99ed604
+- **Timestamp:** 2026-11-20T14:08:02Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none
+
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-5b5cbe5e
+- **Timestamp:** 2026-11-20T14:08:02Z
+- **Overall:** UNVERIFIED
+- **Claims:** 0
+- No verifiable claims found in ## Recommendation
