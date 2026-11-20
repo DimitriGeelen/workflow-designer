@@ -7,7 +7,7 @@ description: >
 status: captured
 workflow_type: build
 owner: agent
-horizon: next
+horizon: later
 tags: []
 components: []
 related_tasks: []
@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-19T22:56:16Z
-last_update: 2026-11-19T22:56:16Z
+last_update: 2026-11-20T10:09:41Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -57,13 +57,22 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** T-1447 reviewer round 3, measured by T-1449: on the Greenfield fixture the id caption
+`sal_6_opportunity` sat over the "⟨task⟩" tag of Opportunity Closed -> Won (caption at 1643,94) at 1024 and 1920 wide,
+below the step (1696,179) at 1440.
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** not established. On 2026-11-20 it did NOT reproduce, on the designer T-1449 measured
+(3e70420fa) nor on the current one (93ec5a5f0), in 13 states: window 1024x900 / 1440x900 / 1920x900, 1024x768,
+1440x768, 1920x1080; zoom 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.13, 1.25, 1.5; notices closed; palette and properties
+collapsed (the T-1447 shots' state). Every state: caption below the step at (1696,179), clear of the tag at
+(1635,98). Four hypotheses ruled out (width, zoom, panel state, window height). What T-1449's session had that these
+do not is unknown (candidates: a state reached through Import -> BPMN instead of ?load=; a restored autosave; an
+interaction before the measure). Probe: the caption's getBoundingClientRect mapped into canvas coordinates.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** know whether the fault still exists before changing label placement.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** either a reproduction (then the AC below applies) or Greenfield's re-check on 0.45.0 finds it
+gone and this task closes as not reproducible.
 
 ## Acceptance Criteria
 
@@ -353,3 +362,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1458-labels-an-id-caption-lands-on-a-steps-ty.md
 - **Context:** Initial task creation
+
+### 2026-11-20T10:09:41Z — status-update [task-update-agent]
+- **Change:** horizon: next → later
