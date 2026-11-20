@@ -1,13 +1,22 @@
 ---
 id: T-1456
-name: "Routing: a loop-back flow ends on the same side as the step's outgoing flow (arrowheads overlap) and detours through a foreign lane (Greenfield 6)"
+name: "Routing: a loop-back flow ends on the same side as the step's outgoing flow
+  (arrowheads overlap) and detours through a foreign lane (Greenfield 6)"
 description: >
-  Split from T-1449 (docs/reports/T-1449-greenfield-layout-repro.md, Greenfield msg ef63bb29 item 6). On the Greenfield fixture: the 'wel' flow from gateway Redesign ends on the RIGHT side of Opportunity/Solution at (681,318), 4 px from that step's outgoing flow at (681,314), so the arrowheads overlap; its route dips to y 381 inside the Novis lane though both ends are in Tacton. Expected: an incoming flow does not end on a side an outgoing flow leaves from (or keeps a clear gap), and a flow between two steps of one lane does not cross into another lane when a route inside the lane exists.
+  Split from T-1449 (docs/reports/T-1449-greenfield-layout-repro.md, Greenfield msg
+  ef63bb29 item 6). On the Greenfield fixture: the 'wel' flow from gateway Redesign
+  ends on the RIGHT side of Opportunity/Solution at (681,318), 4 px from that step's
+  outgoing flow at (681,314), so the arrowheads overlap; its route dips to y 381 inside
+  the Novis lane though both ends are in Tacton. Expected: an incoming flow does not
+  end on a side an outgoing flow leaves from (or keeps a clear gap), and a flow between
+  two steps of one lane does not cross into another lane when a route inside the lane
+  exists.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +47,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-19T22:56:13Z
-last_update: 2026-11-19T22:56:13Z
-date_finished: null
+last_update: 2026-11-20T09:34:27Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +59,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-20T09:34:11Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 2
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=2 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=0 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1456: Routing: a loop-back flow ends on the same side as the step's outgoing flow (arrowheads overlap) and detours through a foreign lane (Greenfield 6)
@@ -57,20 +86,37 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** Greenfield msg ef63bb29 item 6, reproduced by T-1449
+(`docs/reports/T-1449-greenfield-layout-repro.md`) on `tests/fixtures/greenfield/nooteboom-offerte-tot-order-with-notes.bpmn`:
+the 'wel' flow (Flow_11, gateway Redesign -> Opportunity/Solution, both in lane Tacton) ends on the RIGHT side of
+Opportunity/Solution 4 px from that step's outgoing flow (arrowheads overlap), and dips to y 381 inside lane Novis.
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** two candidate causes, to be told apart by a probe before any fix:
+(H1) the loop-back router (`orthoLoopBack`) always adds its two fallback detour heights even when they lie outside
+the lanes the flow connects, and Tacton is too tight for a clamped height below the gateway's label; (H2) the flow
+carries Greenfield's own DI waypoints (y 378, inside Tacton in THEIR coordinates: lanes 170 px), which the designer
+keeps while it lays the lanes out at its own heights, so the stored bend falls into Novis. Neither explains the
+side choice alone: the router does not look at which sides other flows already use.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** a flow whose two ends share a lane stays inside that lane when a route inside it exists, and an incoming
+flow does not end on the side (and at the point) an outgoing flow of the same step leaves from.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** on the Greenfield fixture the 'wel' loop stays in Tacton and its arrowhead is clear of
+Opportunity/Solution's outgoing flow; corpus maps' routing otherwise unchanged except where it had the same faults.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] The cause is named from a probe of the drawn geometry (H1, H2 or another), recorded in the task with the numbers.
+- [ ] On the Greenfield fixture, at 1024/1440/1920, the 'wel' path's every point lies inside lane Tacton, and its
+      end on Opportunity/Solution is on a different side from that step's outgoing flow's start, or >= 12 px from it.
+- [ ] Across the 24 corpus maps and the Greenfield fixture: no flow between two steps of one lane leaves that lane
+      when a route inside exists, and no incoming end lies within 8 px of an outgoing start on the same step side
+      (counts before/after recorded; none new).
+- [ ] A CDP harness checks both on the fixture and the corpus, is a browser-tier leg, and fails on the 0.44.0
+      designer; the existing routing harnesses stay green.
+- [ ] `bash tools/person-sees-gate.sh` exits 0 and the browser tier is green.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -117,8 +163,26 @@ date_finished: null
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+- [ ] [REVIEW] The changed routes read better than before: the Greenfield 'wel' loop, and the two corpus maps whose
+  routes changed most.
+  **Why you:** whether a route reads well (crossings against staying inside the lanes) is a judgement on images.
+  **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1456 --criterion 1`), who may escalate.
+  **Steps:**
+  1. `docs/reports/T-1456-shots/greenfield-wel-{1024,1440,1920}-{before,after}.png`: after, the 'wel' loop runs inside
+     lane Tacton (above the steps, not through Novis) and its arrowhead on Opportunity/Solution stands clear of that
+     step's outgoing flow (16 px; before 4 px, overlapping).
+  2. `docs/reports/T-1456-shots/task-lifecycle-rework-1440-{before,after}.png`: 'gate failed — rework' before ran under
+     the last lane, through the "+ Add another lane" strip, its label colliding with that button; after it runs inside
+     the lanes it connects, along the top, label clear, crossing two flows' lines. Judge which reads better.
+  3. `docs/reports/T-1456-shots/task-gate-block-1440-{before,after}.png`: unchanged on purpose (a short side keeps its
+     even spread).
+  **Expected:** after reads at least as well as before in each pair, and better for 'wel'.
+  **If not:** name the pair and what reads worse; the agent adjusts the rule and re-measures.
 
 ## Verification
+
+node tools/_t1456-routing-lanes-sides-cdp.mjs
+grep -q "test_t1456_routing_lanes_sides" tests/run-bridge-tests.sh
 
 <!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
      headings; the completion gate strips HTML comments before running anything.
@@ -326,7 +390,36 @@ date_finished: null
      commit, that is a calibration failure — recommend GO or NO-GO.
 -->
 
+## RCA
+
+**Lane (H1, measured 2026-11-20).** `orthoLoopBack` scores bar heights by crossings x100 + interior penalty 10 (content
+above AND below the bar) + closeness. Inside Tacton every bar has Salesforce steps above it (interior 10); the
+always-added fallback "just below the lower step" (y 381) lies in Novis with nothing below it (interior 0, closeness
+0.28). Crossings by height for 'wel': y 208-272 -> 0 (inside Tacton), 280-368 -> 3, 376-400 -> 0 (Novis). Leaving
+the connected lanes cost nothing. The same fault on the corpus: git-commit-flow 'blocked' (a detour height set in the
+file, clamped below the lane), task-gate 're-issue' (every bar inside its 96 px lane cuts a step), upgrade-process
+'dry-run' (another class: T-1459). H2 (Greenfield's DI waypoints kept) was ruled out: the flow has no waypoints in the
+designer; its file bends are kept only for saving (diKept).
+
+**Arrowhead.** `spreadOffset` spaced every end on a side at the 'middle' pitch (8 px), so an incoming end sat 4 px from
+an outgoing start; the outgoing flow runs straight and straightening snaps it back to the centre line, so only the
+incoming end ever moved.
+
+**Also found (separate tasks):** T-1460 (lanes redrawn at 130 px on import, steps hang 24 px into the next lane),
+T-1459 (a flow into its target's far side drawn as a loop through the target's own box).
+
 ## Decisions
+
+### 2026-11-20 — Two scoring changes, measured against every drawn flow of the corpus
+- **Chose:** (1) a bar outside the lanes the flow connects costs 50 (more than an interior bar's 10, less than one
+  cut step's 100); (2) on a side that mixes incoming and outgoing ends, the ends that run straight keep their place
+  (else the outgoing ones), and the others move out an arrowhead (16 px) beside them, only where that fits on the side.
+- **Why:** each was tried and measured on all 340 drawn flows (24 corpus maps + the fixture). A first version (wider
+  pitch for mixed sides) bent 7 straight flows; "incoming always yields" bent straight incoming flows; clamping on a
+  short side put two ends on one point (task-gate). The final rule changes 25 of 340 flows, bends none that was
+  straight, and adds no close pair or lane exit.
+- **Rejected:** forbidding a foreign lane outright (where every in-lane bar cuts a step, leaving is the lesser fault);
+  entering the far side (top) for a loop from above (a deeper port change; not needed once the ends are apart).
 
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
@@ -353,3 +446,10 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1456-routing-a-loop-back-flow-ends-on-the-sam.md
 - **Context:** Initial task creation
+
+### 2026-11-20T09:34:09Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-20T09:34:27Z — status-update [task-update-agent]
+- **Change:** horizon: now → now

@@ -2218,6 +2218,20 @@ else
 fi
 }
 leg browser "test_t1446_pdf_pages" _leg_t1446
+_leg_t1456() {
+
+# ── T-1456 (Greenfield 6): a same-lane flow stays in its lane; an incoming end is not on top of an outgoing start ──
+# On the drawn paths: the Greenfield fixture's 'wel' loop at 1024/1440/1920 (inside Tacton, arrowhead >= 12 px from the
+# outgoing start), and the 24 corpus maps + fixture (no avoidable lane exit, no in/out pair within 8 px). ~90 s.
+if node "$ROOT/tools/_t1456-routing-lanes-sides-cdp.mjs" > "$TMP/leg-_t1456.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "Routing regressed: a flow leaves its lane or an arrowhead sits on an outgoing start (_t1456-routing-lanes-sides-cdp.mjs; T1456_REPORT=1 lists every case; T-1456)"
+  show_output "$TMP/leg-_t1456.out" "_t1456-routing-lanes-sides-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1456_routing_lanes_sides" _leg_t1456
 _leg_t1447() {
 
 # ── T-1447: imported text annotations and associations drawn read-only (Greenfield's workshop map) ──

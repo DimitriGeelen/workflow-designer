@@ -6400,6 +6400,35 @@ function spreadOffset(edge, role, dir, node) {
   const cap = sideLen * 0.7;
   const totalSpread = Math.min((n - 1) * spacing, cap);
   const actualSpacing = (n > 1) ? totalSpread / (n - 1) : 0;
+  // T-1456: a side holding both incoming and outgoing ends. At the tight 'middle' pitch an arrowhead landed 4 px from
+  // an outgoing start (Greenfield 'wel' at Opportunity/Solution). A flow that runs straight across is snapped back to
+  // the centre line anyway, and moving it would bend it. So on such a side the ends that run straight (their route's
+  // first turn, the group's sortKey, lies on the centre line) keep their places; when none does, the outgoing ones do.
+  // Every other end moves out beside them, at least an arrowhead (16 px) from the nearest, on the side its order puts
+  // it.
+  const outs = list.filter(x => x.role === 'source'), ins = list.filter(x => x.role === 'target');
+  if (routingPrefs.attach === 'middle' && outs.length && ins.length) {
+    const dd = dims(node), c = (dir === 'E' || dir === 'W') ? node.y + dd.h / 2 : node.x + dd.w / 2;   // the side's centre line
+    let fixed = list.filter(x => Math.abs(x.sortKey - c) <= 1);
+    if (!fixed.length) fixed = outs;
+    const half = (fixed.length - 1) / 2 * spacing, limit = cap / 2, ARROW = 16;
+    const first = list.indexOf(fixed[0]), last = list.indexOf(fixed[fixed.length - 1]);
+    const me = list[idx];
+    const before = list.filter((x, k) => k < first && !fixed.includes(x)), after = list.filter((x, k) => k > last && !fixed.includes(x));
+    const between = list.filter((x, k) => k > first && k < last && !fixed.includes(x));
+    const fi = fixed.findIndex(x => x.edgeId === edge.id && x.role === role);
+    const ruleFits = [before.length, after.length + between.length].every(m => !m || half + ARROW + (m - 1) * spacing <= limit);
+    if (fi >= 0 && ruleFits) return (fi - (fixed.length - 1) / 2) * spacing;
+    // The k-th of m ends moved to one side: an arrowhead beyond the fixed block, then a pitch apart. Only where that
+    // fits on the side: a short side (task-gate 'Block - exit 2': three ends on 48 px) keeps the even spread below,
+    // which there leaves more room between an incoming and an outgoing end than any squeezed arrowhead gap.
+    const after2 = after.concat(between);   // an end sorting between fixed ones goes to the far side (rare)
+    if (ruleFits) {
+      const bi = before.indexOf(me), ai = after2.indexOf(me);
+      if (bi >= 0) return -(half + ARROW + (before.length - 1 - bi) * spacing);
+      if (ai >= 0) return half + ARROW + ai * spacing;
+    }
+  }
   // Distribute symmetrically around the port center.
   return (idx - (n - 1) / 2) * actualSpacing;
 }
@@ -6768,10 +6797,11 @@ function orthoLoopBack(spA, spB, dirA, dirB, src, tgt, edge) {
   const TEXT_CLEARANCE = 6 + routeMargin;   // extra gap below a node's label/badge text
   const LANE_MARGIN = 12 + routeMargin;     // distance from the lane border to the detour line
   let belowMin, belowMax, aboveMin, aboveMax;
+  let topY = -Infinity, botY = Infinity;   // T-1456: the lanes the flow connects (no lane info: unbounded)
   const laneA = findLane(src.lane), laneB = findLane(tgt.lane);
   if (laneA && laneB) {
-    const topY = Math.min(laneTop(src.lane), laneTop(tgt.lane));
-    const botY = Math.max(laneTop(src.lane) + laneA.height, laneTop(tgt.lane) + laneB.height);
+    topY = Math.min(laneTop(src.lane), laneTop(tgt.lane));
+    botY = Math.max(laneTop(src.lane) + laneA.height, laneTop(tgt.lane) + laneB.height);
     belowMin = lowestBottom + TEXT_CLEARANCE;
     belowMax = botY - LANE_MARGIN;
     aboveMin = topY + LANE_MARGIN;
@@ -6842,7 +6872,12 @@ function orthoLoopBack(spA, spB, dirA, dirB, src, tgt, edge) {
     const closenessPenalty = c.kind === 'below'
       ? (c.y - lowestBottom) / 50
       : (highestTop - c.y) / 50;
-    const score = crossings * 100 + interiorPenalty + closenessPenalty + (c.kind === 'above' ? 0.05 : 0);
+    // T-1456: the two fallback heights (just below the lower step, just above the higher) are added even when they
+    // lie outside the lanes the flow connects. Leaving those lanes cost nothing, so a bar through a FOREIGN lane
+    // (nothing below it: no interior penalty) beat every bar inside the lane (Greenfield 'wel', corpus: blocked,
+    // re-issue, dry-run). It now costs more than an interior bar and less than cutting a step.
+    const foreignLane = (c.y < topY || c.y > botY) ? 50 : 0;
+    const score = crossings * 100 + foreignLane + interiorPenalty + closenessPenalty + (c.kind === 'above' ? 0.05 : 0);
     if (score < bestScore) { bestScore = score; best = c; }
   }
 
