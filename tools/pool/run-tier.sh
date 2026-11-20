@@ -22,19 +22,43 @@ T0=$(date +%s)
 LOG="$OUT/tier.log"
 : > "$LOG"
 
+# T-1463: the job's process count against its cap. Every 832 job unit ran at TasksMax=256 until ring20 raised it to 2048
+# (2026-11-20T14:07Z, their T-2797); at the cap Chromium cannot start threads and a renderer hangs with no log line
+# anywhere. Sampled every 30 s into out/pids.tsv (epoch, pids.current, pids.max, times the cap was hit); the peak
+# (pids.peak where the kernel has it) and the hit count go into result.json, so a stall is read against the cap.
+PIDS_DIR=""
+cg=$(sed -n 's/^0:://p' /proc/self/cgroup 2>/dev/null | head -1)
+for d in "/sys/fs/cgroup$cg" /sys/fs/cgroup; do [ -r "$d/pids.current" ] && { PIDS_DIR=$d; break; }; done
+PIDS_LOOP=""
+if [ -n "$PIDS_DIR" ]; then
+    ( while :; do printf '%s\t%s\t%s\t%s\n' "$(date +%s)" "$(cat "$PIDS_DIR/pids.current" 2>/dev/null)" "$(cat "$PIDS_DIR/pids.max" 2>/dev/null)" \
+        "$(sed -n 's/^max //p' "$PIDS_DIR/pids.events" 2>/dev/null)"; sleep 30; done ) > "$OUT/pids.tsv" 2>/dev/null &
+    PIDS_LOOP=$!
+fi
+
 result() {  # result <exit_code> <error or empty>
     local rc=$1 err=$2 commit result_line fails
+    [ -n "$PIDS_LOOP" ] && kill "$PIDS_LOOP" 2>/dev/null
+    local pids_peak pids_max pids_hits
+    pids_peak=$(cat "$PIDS_DIR/pids.peak" 2>/dev/null || cut -f2 "$OUT/pids.tsv" 2>/dev/null | sort -n | tail -1)
+    pids_max=$(cat "$PIDS_DIR/pids.max" 2>/dev/null || echo "")
+    pids_hits=$(sed -n 's/^max //p' "$PIDS_DIR/pids.events" 2>/dev/null || echo "")
     commit=$(git -C "$WORK/repo" rev-parse HEAD 2>/dev/null || echo "")
     result_line=$(grep -E '^tier [a-z]+ ' "$LOG" 2>/dev/null | tail -1)
     fails=$(grep -E '^\s*\[(FAIL|QUARANTINED)\]' "$LOG" 2>/dev/null | head -40)
-    python3 - "$OUT/result.json" "$TIER" "$commit" "$rc" "$result_line" "$fails" "$(( $(date +%s) - T0 ))" "$err" <<'PY'
+    python3 - "$OUT/result.json" "$TIER" "$commit" "$rc" "$result_line" "$fails" "$(( $(date +%s) - T0 ))" "$err" \
+        "${pids_peak:-}" "${pids_max:-}" "${pids_hits:-}" "${PIDS_DIR:-}" <<'PY'
 import json, os, platform, sys
-path, tier, commit, rc, line, fails, dur, err = sys.argv[1:]
+path, tier, commit, rc, line, fails, dur, err, ppeak, pmax, phits, pdir = sys.argv[1:]
+num = lambda v: int(v) if v.strip().isdigit() else (v.strip() or None)
 json.dump({"tier": tier, "commit": commit, "exit_code": int(rc), "result_line": line,
            "fail_lines": [l.strip() for l in fails.splitlines() if l.strip()], "duration_s": int(dur),
            "node": platform.node(), "arch": platform.machine(), "launcher": "tools/pool/run-tier.sh (832 T-1406)",
            "error": err or None, "shard": os.environ.get("T1288_SHARD") or None,
-           "shard_plan": os.path.basename(os.environ.get("T1288_SHARD_PLAN") or "") or None}, open(path, "w"), indent=2)
+           "shard_plan": os.path.basename(os.environ.get("T1288_SHARD_PLAN") or "") or None,
+           # T-1463: processes against the cap (pids_cap_hits > 0: the job hit TasksMax and threads failed to start)
+           "pids_peak": num(ppeak), "pids_max": num(pmax), "pids_cap_hits": num(phits), "pids_cgroup": pdir or None},
+          open(path, "w"), indent=2)
 PY
     exit "$rc"
 }

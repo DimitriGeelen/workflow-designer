@@ -44,8 +44,14 @@ LEGS = ("note-field", "note-reads", "note-writes", "disclosure", "disclosure-rea
 
 
 def run_probe(src_path):
-    r = subprocess.run(["node", PROBE, "--src", src_path],
-                       capture_output=True, text=True, timeout=600, cwd=ROOT)
+    # T-1463: 120 s per probe (it takes seconds). A probe whose browser stopped answering (the pool's TasksMax=256,
+    # 2026-11-20) waited 600 s each and drove a pool job into its 1 h limit; now it is named and the leg ends.
+    try:
+        r = subprocess.run(["node", PROBE, "--src", src_path],
+                           capture_output=True, text=True, timeout=120, cwd=ROOT)
+    except subprocess.TimeoutExpired:
+        print("COULD NOT MEASURE: probe timed out after 120s on %s" % os.path.basename(src_path))
+        sys.exit(2)
     return r.returncode, r.stdout + r.stderr
 
 

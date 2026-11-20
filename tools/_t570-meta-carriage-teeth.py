@@ -72,9 +72,9 @@ class CouldNotMeasure(Exception):
 def run_probe(src_path):
     try:
         r = subprocess.run(["node", PROBE, "--src", src_path],
-                           capture_output=True, text=True, timeout=600, cwd=ROOT)
+                           capture_output=True, text=True, timeout=120, cwd=ROOT)   # T-1463: was 600 s (see _t566)
     except subprocess.TimeoutExpired:
-        raise CouldNotMeasure("probe timed out after 600s on %s" % os.path.basename(src_path))
+        raise CouldNotMeasure("probe timed out after 120s on %s" % os.path.basename(src_path))
     except OSError as e:
         raise CouldNotMeasure("cannot start the probe (node): %s" % e)
     out = r.stdout + r.stderr
