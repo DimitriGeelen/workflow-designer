@@ -176,7 +176,7 @@ A4 export is unchanged.
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
-- [ ] [REVIEW] The PDF pages are a readable paper version of a wide map, and the Export menu with three PDF entries fits.
+- [x] [REVIEW] The PDF pages are a readable paper version of a wide map, and the Export menu with three PDF entries fits.
   **Why you:** whether a page reads well on paper, and whether the parts are easy to follow, is a judgement on images.
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1446 --criterion 1`), who may escalate.
   **Steps:**
@@ -189,6 +189,7 @@ A4 export is unchanged.
      next page; the lane names are on the first column of pages.
   **Expected:** the readable pages could be handed to a person and followed; the menu reads cleanly.
   **If not:** name the file and what is wrong; the agent fixes and re-shoots.
+  **Reviewer verdict:** green V-20261120-242ee8c5 — reviewer-judge-t-1446-r1-20c8ae1f9c8b:reviewer (rung rung-1-same-vendor-independent), digest 323ed65c6910; dispatch judge-t-1446-r1-20c8ae1f9c8b; evidence: .context/reviews/evidence/T-1446/AC1-judge-t-1446-r1-20c8ae1f9c8b.md, .context/reviews/evidence/T-1446/1024-export-open-judge-t-1446-r1-20c8ae1f9c8b.png, .context/reviews/evidence/T-1446/1440-export-open-judge-t-1446-r1-20c8ae1f9c8b.png, .context/reviews/evidence/T-1446/1920-export-open-judge-t-1446-r1-20c8ae1f9c8b.png, .context/reviews/evidence/T-1446/arc-lifecycle-a3-1-judge-t-1446-r1-20c8ae1f9c8b.png, .context/reviews/evidence/T-1446/arc-lifecycle-a4-1-judge-t-1446-r1-20c8ae1f9c8b.png, .context/reviews/evidence/T-1446/arc-lifecycle-pages-1-judge-t-1446-r1-20c8ae1f9c8b.png, .context/reviews/evidence/T-1446/arc-lifecycle-pages-2-judge-t-1446-r1-20c8ae1f9c8b.png, .context/reviews/evidence/T-1446/arc-lifecycle-pages-3-judge-t-1446-r1-20c8ae1f9c8b.png, .context/reviews/evidence/T-1446/cross-host-dispatch-a3-1-judge-t-1446-r1-20c8ae1f9c8b.png, .context/reviews/evidence/T-1446/cross-host-dispatch-a4-1-judge-t-1446-r1-20c8ae1f9c8b.png, .context/reviews/evidence/T-1446/cross-host-dispatch-pages-1-judge-t-1446-r1-20c8ae1f9c8b.png, .context/reviews/evidence/T-1446/cross-host-dispatch-pages-2-judge-t-1446-r1-20c8ae1f9c8b.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
