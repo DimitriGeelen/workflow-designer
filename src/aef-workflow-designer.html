@@ -14304,11 +14304,15 @@ async function buildXlsx() {
   const rows = stepRows();
   // Column widths from the longest value (capped), so the sheet opens readable; header row bold and frozen.
   const widths = rows[0].map((_, ci) => Math.min(60, Math.max(8, ...rows.map(r => String(r[ci]).length + 2))));
-  const sheet = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<worksheet xmlns="${XLSX_NS}">` +
-    `<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>` +
-    `<cols>${widths.map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join('')}</cols><sheetData>` +
-    rows.map((r, ri) => `<row r="${ri + 1}">${r.map((v, ci) => `<c r="${xlsxCol(ci)}${ri + 1}" t="inlineStr"${ri === 0 ? ' s="1"' : ''}><is><t xml:space="preserve">${xlsxEsc(v)}</t></is></c>`).join('')}</row>`).join('') +
-    `</sheetData></worksheet>`;
+  // T-1464: built from plain pieces, not template literals nested inside ${...} (valid JavaScript, but the
+  // swallowed-failure census _t821 lost track of the backticks and read ~150 lines below as text).
+  const col = (w, i) => '<col min="' + (i + 1) + '" max="' + (i + 1) + '" width="' + w + '" customWidth="1"/>';
+  const cell = (v, ci, ri) => '<c r="' + xlsxCol(ci) + (ri + 1) + '" t="inlineStr"' + (ri === 0 ? ' s="1"' : '') +
+    '><is><t xml:space="preserve">' + xlsxEsc(v) + '</t></is></c>';
+  const row = (r, ri) => '<row r="' + (ri + 1) + '">' + r.map((v, ci) => cell(v, ci, ri)).join('') + '</row>';
+  const sheet = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<worksheet xmlns="' + XLSX_NS + '">' +
+    '<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>' +
+    '<cols>' + widths.map(col).join('') + '</cols><sheetData>' + rows.map(row).join('') + '</sheetData></worksheet>';
   const x = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
   return zipWrite([
     ['[Content_Types].xml', `${x}<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="${XLSX_CT_MAIN}.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="${XLSX_CT_MAIN}.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="${XLSX_CT_MAIN}.styles+xml"/></Types>`],
