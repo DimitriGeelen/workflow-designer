@@ -4,12 +4,13 @@ name: "Release designer 0.45.0: Excel, PDF pages/A3, notes layer, instance count
 description: >
   Operator 2026-11-20: 'yes, prepare the 0.45.0 release'. Carries T-1438, T-1447, T-1442, T-1446, T-1456, T-1457 (+ T-1464's sheet-builder rewrite). Runme job modelled on 170; release notes; AEF and Greenfield told after (Greenfield re-checks 5, 8, 9 on it).
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-20T18:55:03Z
-last_update: 2026-11-20T18:55:03Z
-date_finished: null
+last_update: 2026-11-20T22:49:07Z
+date_finished: 2026-11-20T22:49:07Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -74,13 +75,24 @@ sha256, bytes; Greenfield re-checks 5, 8, 9 on it).
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `docs/releases/RELEASE-NOTES-0.45.0.md` names every change since 0.44.0, the exact stored-map change (the 14
+- [x] `docs/releases/RELEASE-NOTES-0.45.0.md` names every change since 0.44.0, the exact stored-map change (the 14
       re-routed corpus edges, coordinates only), the five endpoints, and the shared-contracts table that
       `_t1425-shared-contracts.py --check` accepts; no DRAFT marker.
-- [ ] A runme job for 0.45.0 (modelled on 170, its preflight naming T-1438, T-1442, T-1446, T-1447, T-1456, T-1457 as
+      Evidence: commit of the notes; `--check` "shared-contract table agrees (designer-v0.44.0..HEAD)".
+- [x] A runme job for 0.45.0 (modelled on 170, its preflight naming T-1438, T-1442, T-1446, T-1447, T-1456, T-1457 as
       closed) passes its dry-run.
-- [ ] After the operator's run: tag designer-v0.45.0 on origin, the artifact's sha256 and bytes recorded here, AEF and
+      Evidence: job 173 (dry-run passed, sha a95ce65d8abb); it ran steps 1-7 (bump faec70fc7, codex and GLM-5.3
+      calibration PASS, cut, release commit 0d7157263, local tag) and stopped at step 8 on an infrastructure red (Chrome
+      did not start in _t1447); resume job 174 lost one leg to the same class (test_designer_export_contract); the
+      operator chose option 1, and job 175 ran the browser tier on the pool split in 4 (T-1467), core, push.
+- [x] After the operator's run: tag designer-v0.45.0 on origin, the artifact's sha256 and bytes recorded here, AEF and
       Greenfield told.
+      Evidence: job 175 done rc=0 (2026-11-20T22:47:15Z): browser tier on the pool, 4 shards (pool-w1 x2, pool-w2 x2;
+      342-355 s each; 6 min 50 s submit to verdict), core green on the pool (233/0) and here (233/0); pushed
+      75ddf2d89..d50fee662 and tag designer-v0.45.0 (c0c3c85ab). Artifact dist/aef-workflow-designer-0.45.0.html,
+      sha256 ed2842652b83641bbede81666f246df30e265bbdfd76d235319a69ddb68f86f4, 1434483 bytes. AEF told (conversation
+      832-designer-release-0.45.0, msg c4c18fcf: pin request with the stored-map change); Greenfield told (msg
+      91eb1a28: re-check 5, 6, 7, 8, 9, T-1458).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -267,6 +279,11 @@ sha256, bytes; Greenfield re-checks 5, 8, 9 on it).
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
 
+git ls-remote --exit-code --tags origin designer-v0.45.0
+test "$(sha256sum dist/aef-workflow-designer-0.45.0.html | cut -d' ' -f1)" = ed2842652b83641bbede81666f246df30e265bbdfd76d235319a69ddb68f86f4
+test "$(tr -d '[:space:]' < VERSION)" = 0.45.0
+python3 tools/_t1425-shared-contracts.py --version 0.45.0 --check
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -363,3 +380,16 @@ sha256, bytes; Greenfield re-checks 5, 8, 9 on it).
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1466-release-designer-0450-excel-pdf-pagesa3-.md
 - **Context:** Initial task creation
+
+### 2026-11-20T22:49:07Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-844a6d8a
+- **Timestamp:** 2026-11-20T22:49:11Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

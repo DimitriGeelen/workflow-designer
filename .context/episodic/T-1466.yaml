@@ -1,0 +1,123 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1466: Release designer 0.45.0: Excel, PDF pages/A3, notes layer, instance counts, routing (Greenfield 6/7)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-20T22:49:29Z
+# ============================================================================
+
+task_id: T-1466
+task_name: "Release designer 0.45.0: Excel, PDF pages/A3, notes layer, instance counts, routing (Greenfield 6/7)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-20T18:55:03Z
+completed: 2026-11-20T22:49:07Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-11-20T19:57:59+01:00
+last_commit: 2026-11-20T22:06:50+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  release notes 0.45.0 (Excel, PDF A3/readable pages, annotations drawn, instance counts, routing for Greenfield 6/7; NOT byte-identical: 14 corpus edges' bends on re-save, coordinates only; endpoints unchanged; shared-contract table checked). runme job 173 — release designer 0.45.0 (modelled on 170; preflight names the six carried tasks closed); dry-run passed. retire runme job 172 — its GO on T-1452 was recorded at 14:07Z (35e6959d0); a second run at 20:41 stopped at preflight as it must, but the job still showed as pending. 0.45.0 — VERSION and APP_VERSION bumped by the release job (parity ok). release designer 0.45.0 — Excel both ways, PDF on A3 or readable A4 pages, annotations drawn, instance counts, routing (Greenfield 6 and 7); kit calibrated on its bytes. runme job 174 — resume the 0.45.0 release after its browser tier (job 173 stopped at step 8 on an infrastructure red: Chrome did not start in _t1447); 173 retired; dry-run passed. retire job 174 (its local browser tier lost one leg to a Chrome start on this host; operator's option 1: the release's browser tier on the pool, split). runme job 175 — the 0.45.0 release resumed with the browser tier on the pool, split in 4 (operator's option 1); dry-run passed
+
+# Key outcomes
+outcomes:
+  - '`docs/releases/RELEASE-NOTES-0.45.0.md` names every change since 0.44.0, the exact stored-map change (the 14'
+  - 'A runme job for 0.45.0 (modelled on 170, its preflight naming T-1438, T-1442, T-1446, T-1447, T-1456, T-1457 as'
+  - 'After the operator''s run: tag designer-v0.45.0 on origin, the artifact''s sha256 and bytes recorded here, AEF and'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/172-decide-t1452-go-2/retired'
+  - '.context/runme/173-release-designer-0.45.0/dryrun.ok'
+  - '.context/runme/173-release-designer-0.45.0/job.sh'
+  - '.context/runme/173-release-designer-0.45.0/retired'
+  - '.context/runme/174-release-designer-0.45.0-resume/dryrun.ok'
+  - '.context/runme/174-release-designer-0.45.0-resume/job.sh'
+  - '.context/runme/174-release-designer-0.45.0-resume/retired'
+  - '.context/runme/175-release-designer-0.45.0-resume-pool/dryrun.ok'
+  - '.context/runme/175-release-designer-0.45.0-resume-pool/job.sh'
+  - '.tasks/active/T-1466-release-designer-0450-excel-pdf-pagesa3-.md'
+  - 'VERSION'
+  - 'dist/MANIFEST.yaml'
+  - 'dist/aef-authoring-kit-0.45.0/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.45.0/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.45.0/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.45.0/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.45.0/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.45.0/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.45.0/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.45.0/SKILL.md'
+  - 'dist/aef-authoring-kit-0.45.0/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.45.0/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.45.0/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.45.0/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.45.0/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.45.0/loop.sh'
+  - 'dist/aef-authoring-kit-0.45.0/validate-workflow.py'
+  - 'dist/aef-authoring-kit-0.45.0/verify-findings.py'
+  - 'dist/aef-workflow-designer-0.45.0.html'
+  - 'docs/authoring-kit/calibration-records/0.45.0.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.45.0.md'
+  - 'src/aef-workflow-designer.html'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-20T19:57:59'
+    action: 'T-1466: release notes 0.45.0 (Excel, PDF A3/readable pages, annotations drawn, instance counts, routing for Greenfield 6/7; NOT byte-identical: 14 corpus edges'' bends on re-save, coordinates only; endpoints unchanged; shared-contract table checked)'
+  - time: '2026-11-20T19:58:31'
+    action: 'T-1466: runme job 173 — release designer 0.45.0 (modelled on 170; preflight names the six carried tasks closed); dry-run passed'
+  - time: '2026-11-20T20:41:41'
+    action: 'T-1466: retire runme job 172 — its GO on T-1452 was recorded at 14:07Z (35e6959d0); a second run at 20:41 stopped at preflight as it must, but the job still showed as pending'
+  - time: '2026-11-20T20:43:24'
+    action: 'T-1466: 0.45.0 — VERSION and APP_VERSION bumped by the release job (parity ok)'
+  - time: '2026-11-20T20:54:25'
+    action: 'T-1466: release designer 0.45.0 — Excel both ways, PDF on A3 or readable A4 pages, annotations drawn, instance counts, routing (Greenfield 6 and 7); kit calibrated on its bytes'
+  - time: '2026-11-20T21:25:16'
+    action: 'T-1466: runme job 174 — resume the 0.45.0 release after its browser tier (job 173 stopped at step 8 on an infrastructure red: Chrome did not start in _t1447); 173 retired; dry-run passed'
+  - time: '2026-11-20T22:06:33'
+    action: 'T-1466: retire job 174 (its local browser tier lost one leg to a Chrome start on this host; operator''s option 1: the release''s browser tier on the pool, split)'
+  - time: '2026-11-20T22:06:50'
+    action: 'T-1466: runme job 175 — the 0.45.0 release resumed with the browser tier on the pool, split in 4 (operator''s option 1); dry-run passed'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 8 commit(s), 234 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 234
+  commits: 9
+  files_changed: 35
+  lines_added: 23189
+  lines_removed: 20
+  footprint_refreshed_at: '2026-11-20T22:49:38Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1466-release-designer-0450-excel-pdf-pagesa3-.md
+generated_by: context-agent-hybrid
