@@ -6323,6 +6323,7 @@ let _edgeGroupCacheKey = '';
 
 let _edgeGroupBuilding = false;   // T-1456: re-entry guard (building the groups routes every flow; see barRunsAlongFlows)
 let _edgeNatPolys = new Map();      // T-1456: each flow's natural route (no spread, no channels), cached with the groups
+let _edgeNatPhase2 = false;         // T-1456 round 3: re-keying with the alongside cost, reading _edgeNatPolys as built
 function buildEdgeGroups() {
   // simple cache key based on edges + node positions (good enough for the demo)
   const key = state.edges.map(e => `${e.id}|${e.source}|${e.target}|${e.sourcePort || ''}|${e.targetPort || ''}`).join(';') +
@@ -6331,6 +6332,7 @@ function buildEdgeGroups() {
 
   const groups = new Map();
   const natPolys = new Map();
+  const ends = [];   // T-1456 round 3: what phase 2 needs to re-key each edge
   _edgeGroupBuilding = true;
   try {
   for (const e of state.edges) {
@@ -6373,10 +6375,33 @@ function buildEdgeGroups() {
     const tGroupKey = `${e.target}:${tDir}`;
     if (!groups.has(sGroupKey)) groups.set(sGroupKey, []);
     if (!groups.has(tGroupKey)) groups.set(tGroupKey, []);
-    groups.get(sGroupKey).push({ edgeId: e.id, role: 'source', sortKey: sKey });
-    groups.get(tGroupKey).push({ edgeId: e.id, role: 'target', sortKey: tKey });
+    const sEnt = { edgeId: e.id, role: 'source', sortKey: sKey }, tEnt = { edgeId: e.id, role: 'target', sortKey: tKey };
+    groups.get(sGroupKey).push(sEnt);
+    groups.get(tGroupKey).push(tEnt);
+    ends.push({ e, src, tgt, sAnchor, tAnchor, sDir, tDir, sEnt, tEnt });
   }
   } finally { _edgeGroupBuilding = false; }
+  // T-1456 round 3 (reviewer amber, 'All gates passed?'): phase 1 routes every flow WITHOUT the alongside cost (it
+  // reads the other flows' routes, which do not exist yet), so a loop's natural route could detour one way while the
+  // drawn route, with the cost, detoured the other; the ends on a side were then ordered by the wrong route and a
+  // loop's leg crossed its neighbour. Phase 2 re-routes each flow WITH the cost, reading phase 1's routes, and orders
+  // the ends by that route: the order and the drawing agree. Map-only and deterministic (T-423).
+  _edgeNatPolys = natPolys;
+  _edgeNatPhase2 = true;
+  try {
+    for (const x of ends) {
+      try {
+        const nat = routeOrthogonalSegment(x.sAnchor, x.tAnchor, x.sDir, x.tDir, x.src, x.tgt,
+          { id: x.e.id, routingHints: x.e.routingHints, detourY: x.e.detourY });
+        const poly = nat.polyline;
+        if (poly && poly.length >= 4) {
+          const first = poly[2], last = poly[poly.length - 3];
+          x.sEnt.sortKey = (x.sDir === 'E' || x.sDir === 'W') ? first.y : first.x;
+          x.tEnt.sortKey = (x.tDir === 'E' || x.tDir === 'W') ? last.y : last.x;
+        }
+      } catch (err) { aefRecordFault('edge-groups-rekey', err); }   // phase 1's keys stay
+    }
+  } finally { _edgeNatPhase2 = false; }
   // Stable sort each group by sortKey
   for (const list of groups.values()) {
     list.sort((a, b) => a.sortKey - b.sortKey || a.edgeId.localeCompare(b.edgeId));
@@ -6806,7 +6831,7 @@ function polylineCrossesNodes(points, src, tgt, margin = 4) {
 // saved bytes must not depend on the screen, T-423). While those are being built, 0.
 function barRunsAlongFlows(y, xa, xb, edge) {
   if (_edgeGroupBuilding || !edge || !edge.id) return 0;
-  buildEdgeGroups();
+  if (!_edgeNatPhase2) buildEdgeGroups();   // in phase 2 the routes are those just built (no re-entry)
   const lo = Math.min(xa, xb), hi = Math.max(xa, xb);
   let count = 0;
   for (const [id, poly] of _edgeNatPolys) {

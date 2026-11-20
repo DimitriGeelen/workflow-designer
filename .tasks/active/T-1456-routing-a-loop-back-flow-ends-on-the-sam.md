@@ -185,12 +185,17 @@ Opportunity/Solution's outgoing flow; corpus maps' routing otherwise unchanged e
      step's outgoing flow (12 px; before 4 px, overlapping).
   2. `docs/reports/T-1456-shots/task-lifecycle-rework-1440-{before,after}.png`: 'gate failed — rework' keeps its route
      under the last lane (round 2: every bar height inside its lanes runs along another flow's line, which now costs
-     more than leaving the lanes; round 1 put it ON 'blocked / failing'). Expected: the same as before. Its label on the
-     "+ Add another lane" strip is a label-placement fault that predates T-1456 (T-1465), not judged here.
-  4. Round 2, Greenfield: the 'wel' bar no longer runs 4 px above Send Proposal's outgoing flow (bar at y 245, ~11 px
+     more than leaving the lanes; round 1 put it ON 'blocked / failing'). Round 3: its start at 'All gates passed?' is
+     back BELOW the incoming flow from 'Run completion gate battery' (round 2 had swapped them, so its leg crossed that
+     flow): the ends on a side are now ordered by the same route that is drawn (a second pass with the alongside cost).
+     Its drawn route is now identical to before T-1456. The one difference left in this clip is the vertical of the
+     healing flow left of 'Outcome?', 4 px further right (the end-spread rule). Its label on the "+ Add another lane"
+     strip is a label-placement fault that predates T-1456 (T-1465), not judged here.
+  3. `docs/reports/T-1456-shots/task-gate-block-1440-{before,after}.png`: no route, crossing or label changes; on
+     'Write real acceptance criteria' the two ends move from 8 px to 12 px apart (the mixed-side rule), the straight
+     flow from 'Create task + set focus' 4 px lower, still straight.
+  4. Round 2, Greenfield: the 'wel' bar no longer runs 4 px above Send Proposal's outgoing flow (bar at y 245, ~13 px
      clear); `greenfield-wel-{1024,1440,1920}-after.png`.
-  3. `docs/reports/T-1456-shots/task-gate-block-1440-{before,after}.png`: unchanged on purpose (a short side keeps its
-     even spread).
   **Expected:** after reads at least as well as before in each pair, and better for 'wel'.
   **If not:** name the pair and what reads worse; the agent adjusts the rule and re-measures.
 

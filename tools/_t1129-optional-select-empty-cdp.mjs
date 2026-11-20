@@ -141,7 +141,7 @@ async function main() {
     // routing, so a save writes the new routing for exactly these flows. Their waypoint COORDINATES are masked; every
     // other byte of those edges, and every other edge, still compares. Listed by measure (saving before vs after).
     const T1456_REROUTED = { 'promotion-pipeline': ['flow_6', 'flow_7'], 'release-pipeline': ['flow_13', 'flow_14', 'flow_15', 'flow_17'],
-      'session-capture': ['flow_4', 'flow_6'], 'task-gate': ['flow_13', 'flow_14'], 'task-lifecycle': ['flow_6', 'flow_9', 'flow_11', 'flow_12'] };
+      'session-capture': ['flow_4', 'flow_6'], 'task-gate': ['flow_13', 'flow_14'], 'task-lifecycle': ['flow_6', 'flow_9'] };
     const maskRerouted = (f, x) => {
       const ids = T1456_REROUTED[f.replace(/^.*\//, '').replace(/\.bpmn$/, '')];
       if (!ids) return x;
