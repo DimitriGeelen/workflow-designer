@@ -78,7 +78,12 @@ only remove the wait for the slower local run and the host contention it causes.
 | 1 | d4dbbb17 / 47bfe503 | 793 s, STOPPED after 55 legs | 396 s, 71 legs | 1328 s, 142 legs | — | shard 2: 71/71 same | shard 1 hit a leg that uses another leg's output (`$T423_ADD_EXP`): fixed (3e70420f); shards from two commits (I committed mid-trial): not comparable |
 | 2 | 3e70420f (whole: 01e72ba4, docs/tasks only) | 891 s, 72 legs, 879 leg-s | 409 s, 71 legs, 395 leg-s | 1336 s, 143 legs | **67%** (expected ≤ 13 min = 58%): missed | **pass** 143/143 | cause named: legs split by COUNT, so shard 1 got the slow ones (879 vs 395 leg-s); step 4: balance by measured leg time |
 
+| 3 | 9ea72270 (all four jobs) | 671 s, 71 legs, 659 leg-s | 589 s, 72 legs, 578 leg-s | 1330 s compute / 1343 s end to end | **50%**; shards end to end **706 s (11.8 min)** vs 1343 s (22.4 min): **met** (≤ 13 min) | **pass** 143/143, C4 pass | first trial on the time-balanced plan (`tests/shard-plan-browser-2.tsv`); counts as balanced run 1 of 10 |
+
 Rule learned (1409 iii, like with like): during a trial, commit nothing; `submit.sh` stages HEAD at submit time.
+
+Lever A data point (core gate on a designer push, 2026-11-19 23:13Z, 01e72ba4): pool-w1 615 s, here 1673 s (host busy),
+push 1849 s end to end: the gate waited 21 min for the local run that the pool had already answered.
 
 Before this, the pool had been giving no result since ~18:40Z (T-1453: one-file limit, then unstaged chain links): runs
 in that window are excluded from the baseline as not comparable (1409 rule iii).
