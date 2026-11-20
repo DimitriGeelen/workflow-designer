@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1464: Census (_t821) misreads template literals nested inside ${...}: T-1442's sheet builder made it mask ~150 lines as text (core red)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-20T15:23:06Z
+# ============================================================================
+
+task_id: T-1464
+task_name: "Census (_t821) misreads template literals nested inside ${...}: T-1442's sheet builder made it mask ~150 lines as text (core red)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-20T15:10:51Z
+completed: 2026-11-20T15:22:20Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-11-20T16:12:21+01:00
+last_commit: 2026-11-20T16:22:17+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  buildXlsx without template literals nested inside ${...}: the census _t821 lost track of their backticks and read ~150 lines as text, dropping T-1450's excused catch from its count (push of 30a2041d7 refused, core red on pool and here; bisected to T-1442's 6d8b51b63); census 0 findings, 98 sites (3 now seen, all recorded), controls 6/0, _t1442 green (same bytes). the census follows ${...} inside template literals (a brace-depth stack; braces counted only in code), so a literal nested in one no longer flips the state and hides code; control branch 6 plants such a nesting before a bare catch (new census finds it, the old one fails the branch); T821_CENSUS overrides the census for control runs; on T-1442's original version the count is right
+
+# Key outcomes
+outcomes:
+  - '`buildXlsx` builds the sheet without template literals nested inside `${...}`; `_t1442` still passes (same bytes'
+  - '`_code_mask` treats a `${...}` inside a template literal as code, including template literals nested in it; a'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1464-census-t821-misreads-template-literals-n.md'
+  - 'src/aef-workflow-designer.html'
+  - 'tools/_t821-census-controls.sh'
+  - 'tools/_t821-swallowed-failure-census.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-20T16:12:21'
+    action: 'T-1464: buildXlsx without template literals nested inside ${...}: the census _t821 lost track of their backticks and read ~150 lines as text, dropping T-1450''s excused catch from its count (push of 30a2041d7 refused, core red on pool and here; bisected to T-1442''s 6d8b51b63); census 0 findings, 98 sites (3 now seen, all recorded), controls 6/0, _t1442 green (same bytes)'
+  - time: '2026-11-20T16:22:17'
+    action: 'T-1464: the census follows ${...} inside template literals (a brace-depth stack; braces counted only in code), so a literal nested in one no longer flips the state and hides code; control branch 6 plants such a nesting before a bare catch (new census finds it, the old one fails the branch); T821_CENSUS overrides the census for control runs; on T-1442''s original version the count is right'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 11 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 11
+  commits: 3
+  files_changed: 7
+  lines_added: 546
+  lines_removed: 13
+  footprint_refreshed_at: '2026-11-20T15:23:25Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1464-census-t821-misreads-template-literals-n.md
+generated_by: context-agent-hybrid
