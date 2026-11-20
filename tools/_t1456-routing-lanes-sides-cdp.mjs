@@ -47,6 +47,7 @@ const chrome = readdirSync(cache).filter(d => d.startsWith('chromium-')).sort().
 const udd = makeProfileDir('t1456-');
 const br = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--window-size=1440,900', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: 'ignore' });
 let cl;
+const dialogs = [];
 // In the page: every flow's drawn polyline, its ends' sides, lane bounds; the two counts and the 'wel' details.
 const MEASURE = `(function(){
   const laneOf = id => state.lanes.find(l => l.id === id);
@@ -112,7 +113,11 @@ const MEASURE = `(function(){
 })()`;
 try {
   let dp; for (let i = 0; i < 150 && !dp; i++) { try { dp = parseInt(readFileSync(join(udd, 'DevToolsActivePort'), 'utf8').split('\n')[0], 10); } catch (_) { await sleep(100); } }
-  cl = cdp(await pageWsUrl(dp), { cmdMs: 60000 }); await cl.ready; const { cmd } = cl;
+  // T-1395's rule: a JavaScript dialog blocks every Runtime.evaluate until answered (on the pool this harness got "no
+  // answer in 60000 ms" at the third load, twice, on both workers; here never): accept it at once, and NAME it.
+  cl = cdp(await pageWsUrl(dp), { cmdMs: 60000, onEvent: m => { if (m.method === 'Page.javascriptDialogOpening') {
+    dialogs.push(`${m.params.type}: ${String(m.params.message).slice(0, 160)}`); cl.cmd('Page.handleJavaScriptDialog', { accept: true }).catch(() => {}); } } });
+  await cl.ready; const { cmd } = cl;
   const ev = async e => { const r = await cmd('Runtime.evaluate', { expression: e, returnByValue: true, awaitPromise: true }); if (r.exceptionDetails) throw new Error('eval: ' + JSON.stringify(r.exceptionDetails).slice(0, 300)); return r.result.value; };
   await cmd('Page.enable'); await cmd('Runtime.enable');
   const open = async (map, W) => {
@@ -155,6 +160,7 @@ try {
   try { cl && cl.close(); } catch (_) {}
   br.kill('SIGKILL'); py.kill('SIGKILL');
   for (const d of [doc, udd]) { try { rmSync(d, { recursive: true, force: true }); } catch (_) {} }
+  if (dialogs.length) console.log(`NOTE  ${dialogs.length} JavaScript dialog(s) opened and were accepted: ${dialogs.join(' | ')}`);
   console.log(fails ? `${fails} leg(s) FAILED` : 'all legs passed');
   process.exit(fails ? 1 : 0);
 }
