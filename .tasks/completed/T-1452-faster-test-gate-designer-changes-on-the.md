@@ -12,7 +12,7 @@ current_node: frw_end_task
 owner: human
 horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t1405-red-log-teeth.sh, tools/pool/run-tier.sh, tools/pool/submit.sh, tools/pool/tier-gate.sh]
 related_tasks: []
 waiting_on: agent
 revisit_at: 2026-11-26

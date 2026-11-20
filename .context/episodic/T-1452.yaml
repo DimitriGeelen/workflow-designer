@@ -1,0 +1,129 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1452: Faster test gate: designer changes on the pool alone, and the browser tier split over several pool workers - measured before adopted (1409's circle)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-20T14:08:10Z
+# ============================================================================
+
+task_id: T-1452
+task_name: "Faster test gate: designer changes on the pool alone, and the browser tier split over several pool workers - measured before adopted (1409's circle)"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-19T18:54:19Z
+completed: 2026-11-20T14:08:00Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-11-19T19:56:11+01:00
+last_commit: 2026-11-20T15:08:03+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  step 0 of 1409's circle — expectations, baseline (browser 25.0 vs 23.5 min, core 18.8 vs 13.2 min medians), stop rules and the five questions committed BEFORE any measurement; IW-1 (pool alone for designer changes), IW-2 (browser tier split over pool workers). the go/no-go criterion names why it is the operator's (direction: adopt only on measured results) — the T-1066 why-you check caught it on the pool's first chain run. first raw measurement (core push on 558214e5f: pool-w2 744 s, here 899 s, end to end 985 s); pool outage window excluded from the baseline as not comparable. raw measurement 0b — pool browser via the chain, 1222 s end to end, ~25 s of it outside compute (old links reused). steps 1-2 of 1409's circle — every gate run now leaves a verdict line (REFUSED, local-only green, fallback green, or 'ENDED without a verdict' from an exit trap; before, red and killed runs left only a start line: 12 on 2026-11-19); _t1405 teeth +2 legs (7 REFUSED lines after 7 red runs; the green run's verdict last), control with the old gate red 0/7; timing report spike (gate-times.py: gate runs by kind, red/ended counted apart, pool jobs cut into wait/run/compute/overhead from ring20's node_times, refused jobs named). lever B in shadow — T1288_SHARD=i/k runs every k-th leg of a tier (round robin, validated, names still registered so whole-suite checks hold; shard runs not recorded as suite runs); T1288_LEGLOG writes one line per leg attempt (tier, name, attempt, passes, fails, seconds) so a shard is compared with the whole tier leg by leg; the pool launcher takes shard=i/k from job.info and always delivers out/legs.tsv; SHARD=i/k bash tools/pool/submit.sh <tier> submits one shard, with its own last-result file so it never touches the gate's. Unset, nothing changes (tiers 41/41, _t1405 6/6). shadow comparison spike (compare-shards.py: shards cover exactly the full run's legs, none twice, same outcome per leg, same commit; then compute times and per-shard leg-seconds). a shard keeps a leg with the leg whose output it uses (_t423-di-schema-validate with _t423-additive-export-cdp, the only such pair in 246 legs, found by scanning leg bodies for a variable another leg sets); that leg refuses plainly when run without its partner instead of aborting the runner on an unbound variable (shard 1 of the first trial stopped after 55 legs that way). trial 3 — time-balanced shards: all four checks pass on one commit (143/143 legs, same outcomes), slowest shard 50% of the whole tier, shards end to end 11.8 min vs 22.4 min: the step-0 expectation (<= 13 min at k=2) is met, balanced run 1 of 10; lever A data point (pool 615 s vs here 1673 s on a designer push). session handover S-2026-1120-0116 (0.44.0 released; T-1438/T-1447/T-1449/T-1453 closed; T-1452 balanced shard trial 1 of 10 met its expectation). balanced shard run 2 of 10 (trial 4, 968fc21e): C1-C4 pass 143/143, slowest shard 50% of the whole tier, each shard 11.9/11.7 min end to end from its own submit; shard 2's first submit lost a staging race (two submits rebuilt the same per-commit stage dir) - submit.sh now builds a commit's inputs under a lock. balanced run 3 of 10 (trial 5): shards side by side on pool-w1 and pool-w2, 12.0 min submit to verdict vs 23.7 min whole, slowest 48% of the whole's compute; C1-C3 pass 146/146; the staging lock held; a hub 'in flight' retry noted. recommendation GO for lever B (3/3 balanced runs met: ~12 min vs 22-24, every leg the same), adopted now at the operator's word ('1, adopt the split now') with the full run kept as a non-gating shadow; lever A deferred, stays in shadow; IW-1 deferred, IW-2 answered. runme job 171 — record the operator's GO (lever B now, lever A in shadow); dry-run passed. hypothesis written (the decide gate refused job 171 on the template, T-866); job 171 retired. runme job 172 — record the operator's GO (replaces 171; preflight now checks the hypothesis); dry-run passed. inception decision GO (via Watchtower)
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/handovers/LATEST.md'
+  - '.context/handovers/S-2026-1120-0116.md'
+  - '.context/reviews/human-ac-ticks.jsonl'
+  - '.context/runme/171-decide-t1452-go/dryrun.ok'
+  - '.context/runme/171-decide-t1452-go/job.sh'
+  - '.context/runme/171-decide-t1452-go/retired'
+  - '.context/runme/172-decide-t1452-go-2/dryrun.ok'
+  - '.context/runme/172-decide-t1452-go-2/job.sh'
+  - 'docs/reports/T-1452-faster-test-gate.md'
+  - 'docs/reports/T-1452-spikes/compare-shards.py'
+  - 'docs/reports/T-1452-spikes/gate-times.py'
+  - '.tasks/active/T-1452-faster-test-gate-designer-changes-on-the.md'
+  - '.tasks/completed/T-1452-faster-test-gate-designer-changes-on-the.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/pool/run-tier.sh'
+  - 'tools/pool/submit.sh'
+  - 'tools/pool/tier-gate.sh'
+  - 'tools/_t1288-tiers.sh'
+  - 'tools/_t1405-red-log-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-19T19:56:11'
+    action: 'T-1452: step 0 of 1409''s circle — expectations, baseline (browser 25.0 vs 23.5 min, core 18.8 vs 13.2 min medians), stop rules and the five questions committed BEFORE any measurement; IW-1 (pool alone for designer changes), IW-2 (browser tier split over pool workers)'
+  - time: '2026-11-19T21:40:34'
+    action: 'T-1452: the go/no-go criterion names why it is the operator''s (direction: adopt only on measured results) — the T-1066 why-you check caught it on the pool''s first chain run'
+  - time: '2026-11-19T21:58:09'
+    action: 'T-1452: first raw measurement (core push on 558214e5f: pool-w2 744 s, here 899 s, end to end 985 s); pool outage window excluded from the baseline as not comparable'
+  - time: '2026-11-19T22:23:45'
+    action: 'T-1452: raw measurement 0b — pool browser via the chain, 1222 s end to end, ~25 s of it outside compute (old links reused)'
+  - time: '2026-11-19T22:33:42'
+    action: 'T-1452: steps 1-2 of 1409''s circle — every gate run now leaves a verdict line (REFUSED, local-only green, fallback green, or ''ENDED without a verdict'' from an exit trap; before, red and killed runs left only a start line: 12 on 2026-11-19); _t1405 teeth +2 legs (7 REFUSED lines after 7 red runs; the green run''s verdict last), control with the old gate red 0/7; timing report spike (gate-times.py: gate runs by kind, red/ended counted apart, pool jobs cut into wait/run/compute/overhead from ring20''s node_times, refused jobs named)'
+  - time: '2026-11-19T22:36:32'
+    action: 'T-1452: lever B in shadow — T1288_SHARD=i/k runs every k-th leg of a tier (round robin, validated, names still registered so whole-suite checks hold; shard runs not recorded as suite runs); T1288_LEGLOG writes one line per leg attempt (tier, name, attempt, passes, fails, seconds) so a shard is compared with the whole tier leg by leg; the pool launcher takes shard=i/k from job.info and always delivers out/legs.tsv; SHARD=i/k bash tools/pool/submit.sh <tier> submits one shard, with its own last-result file so it never touches the gate''s. Unset, nothing changes (tiers 41/41, _t1405 6/6)'
+  - time: '2026-11-19T22:37:20'
+    action: 'T-1452: shadow comparison spike (compare-shards.py: shards cover exactly the full run''s legs, none twice, same outcome per leg, same commit; then compute times and per-shard leg-seconds)'
+  - time: '2026-11-19T23:52:09'
+    action: 'T-1452: a shard keeps a leg with the leg whose output it uses (_t423-di-schema-validate with _t423-additive-export-cdp, the only such pair in 246 legs, found by scanning leg bodies for a variable another leg sets); that leg refuses plainly when run without its partner instead of aborting the runner on an unbound variable (shard 1 of the first trial stopped after 55 legs that way)'
+  - time: '2026-11-20T01:16:22'
+    action: 'T-1452: trial 3 — time-balanced shards: all four checks pass on one commit (143/143 legs, same outcomes), slowest shard 50% of the whole tier, shards end to end 11.8 min vs 22.4 min: the step-0 expectation (<= 13 min at k=2) is met, balanced run 1 of 10; lever A data point (pool 615 s vs here 1673 s on a designer push)'
+  - time: '2026-11-20T01:18:16'
+    action: 'T-1452: session handover S-2026-1120-0116 (0.44.0 released; T-1438/T-1447/T-1449/T-1453 closed; T-1452 balanced shard trial 1 of 10 met its expectation)'
+  - time: '2026-11-20T10:02:24'
+    action: 'T-1452: balanced shard run 2 of 10 (trial 4, 968fc21e): C1-C4 pass 143/143, slowest shard 50% of the whole tier, each shard 11.9/11.7 min end to end from its own submit; shard 2''s first submit lost a staging race (two submits rebuilt the same per-commit stage dir) - submit.sh now builds a commit''s inputs under a lock'
+  - time: '2026-11-20T14:01:43'
+    action: 'T-1452: balanced run 3 of 10 (trial 5): shards side by side on pool-w1 and pool-w2, 12.0 min submit to verdict vs 23.7 min whole, slowest 48% of the whole''s compute; C1-C3 pass 146/146; the staging lock held; a hub ''in flight'' retry noted'
+  - time: '2026-11-20T14:57:29'
+    action: 'T-1452: recommendation GO for lever B (3/3 balanced runs met: ~12 min vs 22-24, every leg the same), adopted now at the operator''s word (''1, adopt the split now'') with the full run kept as a non-gating shadow; lever A deferred, stays in shadow; IW-1 deferred, IW-2 answered'
+  - time: '2026-11-20T14:58:00'
+    action: 'T-1452: runme job 171 — record the operator''s GO (lever B now, lever A in shadow); dry-run passed'
+  - time: '2026-11-20T15:07:35'
+    action: 'T-1452: hypothesis written (the decide gate refused job 171 on the template, T-866); job 171 retired'
+  - time: '2026-11-20T15:07:52'
+    action: 'T-1452: runme job 172 — record the operator''s GO (replaces 171; preflight now checks the hypothesis); dry-run passed'
+  - time: '2026-11-20T15:08:03'
+    action: 'T-1452: inception decision GO (via Watchtower)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 17 commit(s), 1153 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1153
+  commits: 18
+  files_changed: 22
+  lines_added: 1411
+  lines_removed: 40
+  footprint_refreshed_at: '2026-11-20T14:08:15Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1452-faster-test-gate-designer-changes-on-the.md
+generated_by: context-agent-hybrid
