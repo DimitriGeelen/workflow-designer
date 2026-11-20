@@ -12,13 +12,13 @@ description: >
   two steps of one lane does not cross into another lane when a route inside the lane
   exists.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -47,8 +47,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-19T22:56:13Z
-last_update: 2026-11-20T09:34:27Z
-date_finished:
+last_update: 2026-11-20T18:43:25Z
+date_finished: 2026-11-20T18:43:25Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -176,7 +176,7 @@ Opportunity/Solution's outgoing flow; corpus maps' routing otherwise unchanged e
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
-- [ ] The changed routes read better than before: the Greenfield 'wel' loop, and the two corpus maps whose
+- [x] The changed routes read better than before: the Greenfield 'wel' loop, and the two corpus maps whose
   routes changed most.
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1456 --criterion 1`), who may escalate.
   **Steps:**
@@ -198,6 +198,7 @@ Opportunity/Solution's outgoing flow; corpus maps' routing otherwise unchanged e
      clear); `greenfield-wel-{1024,1440,1920}-after.png`.
   **Expected:** after reads at least as well as before in each pair, and better for 'wel'.
   **If not:** name the pair and what reads worse; the agent adjusts the rule and re-measures.
+  **Reviewer verdict:** green V-20261120-b2a1757c — reviewer-judge-t-1456-r1-94d6a10b06de:reviewer (rung rung-1-same-vendor-independent), digest 089c748a82ea; dispatch judge-t-1456-r1-94d6a10b06de; evidence: .context/reviews/evidence/T-1456/AC1-judge-t-1456-r1-94d6a10b06de.md, .context/reviews/evidence/T-1456/greenfield-wel-1440-after-judge-t-1456-r1-94d6a10b06de.png, .context/reviews/evidence/T-1456/greenfield-wel-1440-before-judge-t-1456-r1-94d6a10b06de.png, .context/reviews/evidence/T-1456/greenfield-wel-1920-after-judge-t-1456-r1-94d6a10b06de.png, .context/reviews/evidence/T-1456/task-gate-block-1440-after-judge-t-1456-r1-94d6a10b06de.png, .context/reviews/evidence/T-1456/task-gate-block-1440-before-judge-t-1456-r1-94d6a10b06de.png, .context/reviews/evidence/T-1456/task-lifecycle-rework-1440-after-judge-t-1456-r1-94d6a10b06de.png, .context/reviews/evidence/T-1456/task-lifecycle-rework-1440-before-judge-t-1456-r1-94d6a10b06de.png, .context/reviews/evidence/T-1456/zoom4x-greenfield-gateway-1920-before-left-after-right-judge-t-1456-r1-94d6a10b06de.png, .context/reviews/evidence/T-1456/zoom5x-gateblock-target-before-left-after-right-judge-t-1456-r1-94d6a10b06de.png, .context/reviews/evidence/T-1456/zoom5x-greenfield-opp-before-left-after-right-judge-t-1456-r1-94d6a10b06de.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -490,3 +491,21 @@ T-1459 (a flow into its target's far side drawn as a loop through the target's o
 
 ### 2026-11-20T09:34:27Z — status-update [task-update-agent]
 - **Change:** horizon: now → now
+
+### 2026-11-20T18:43:25Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-a069b766
+- **Timestamp:** 2026-11-20T18:44:07Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#5 (Agent)** — `bash tools/person-sees-gate.sh` exits 0 and the browser tier is green.
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/person-sees-gate.sh in: `bash tools/person-sees-gate.sh` exits 0 and the browser tier is green.`

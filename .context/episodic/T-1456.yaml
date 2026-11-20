@@ -1,0 +1,180 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1456: Routing: a loop-back flow ends on the same side as the step's outgoing flow (arrowheads overlap) and detours through a foreign lane (Greenfield 6)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-20T18:44:14Z
+# ============================================================================
+
+task_id: T-1456
+task_name: "Routing: a loop-back flow ends on the same side as the step's outgoing flow (arrowheads overlap) and detours through a foreign lane (Greenfield 6)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-11-19T22:56:13Z
+completed: 2026-11-20T18:43:25Z
+duration_days: 1
+updates_count: 4
+first_commit: 2026-11-20T11:05:57+01:00
+last_commit: 2026-11-20T18:50:41+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Greenfield 6 — a loop bar outside the lanes a flow connects costs 50 (between an interior bar's 10 and a cut step's 100), and on a side mixing incoming and outgoing ends the straight ends keep their place while the others move an arrowhead (16 px) beside them where that fits; 'wel' stays in Tacton, arrowhead 16 px from the outgoing start (was 4); 25 of 340 corpus flows change, none straight bent, no new lane exit or close pair; harness _t1456 (7 legs fail on 0.44.0), leg test_t1456_routing_lanes_sides; before/after shots; captured T-1459 (flow through its own target box) and T-1460 (lane heights on import). re-spread a mixed side only where the ends as they land (straight ends snapped to the centre line) put an incoming end closer than the pitch to an outgoing one, at 12 px: re-spreading every mixed side moved aef-task-lifecycle's 'shelved' label onto flow tl_e15 (person-sees label-clearance 56 errors); now label-clearance 0, _t1456 green, 18 of 340 corpus flows change, none straight bent; shots re-taken. browser tier fallout, each at its cause — the authority marker measures where the top side's ends land instead of assuming top-centre (a re-spread end 12 px left crossed it: promotion-pipeline n_promote/e_06, release-pipeline n_gh/e_15; _t1069 M1 0 again); a deliberate change of saved bytes recorded by name: corpus files' bends equal the designer's routing, so a save writes the new route for exactly the 14 corpus edges and 2 Greenfield edges measured (save before vs after) — their waypoint coordinates masked in _t1129 E and _t1447 N5, every other byte still compared. the harness accepts and names any JavaScript dialog (T-1395's rule): on the pool it got 'no answer in 60000 ms' at the third load of the Greenfield map, on both workers (12:23 pool-w2 full run, 12:47 pool-w1 shard), never here. on a page that stops answering, the harness pauses it through the debugger (enabled at the start) and prints the call stack, and names the step it was in: the pool's 'no answer in 60000 ms' came back without any dialog (15dbd274e, pool-w2), so it is not a dialog; proven on a deliberate hang (names deliberateHangForTest:3648 < openingZoom). one browser (fresh profile) per map load, and a page crash named (Inspector.targetCrashed): on the pool the third page in one tab stopped answering at 1920 even to Debugger.pause (shard a6ab6ec28, pool-w1) — the page process, not a script; 63 s here, all legs green, the stack dump still names a deliberate hang. agent criteria met with evidence (browser tier for 30a2041d7 green: pool as two shards pool-w1 78/0 + pool-w2 73/0, here 151/0). reviewer verdict. the reviewer-judged criterion loses its [REVIEW] prefix and Why-you line (the why-you check, core red: [REVIEW] is for criteria that need the operator). the harness removes each browser's profile with removeProfileDir, which also removes Chrome's per-launch org.chromium.Chromium.* dir (a plain rmSync left one per load: _t1257 red here, 2026-11-20 15:50Z); 0 left behind, _t1257 self-test green. round 2 (reviewer amber): a loop bar within 6 px of another flow's horizontal run over >= 12 px costs 60 per flow (more than leaving the lane), read from the flows' natural routes cached with the edge groups (map-only, T-423) behind a re-entry guard; 2 of 340 flows change: 'wel' clear of Send Proposal's line (bar 256 -> 245), 'gate failed — rework' back under the lanes instead of ON 'blocked / failing'; _t1456, label-clearance, _t1069, _t1129 E, _t1447 N5 green, the 16 re-routed saved edges unchanged; shots re-taken; T-1465 captured (a label on the add-lane strip). round 3 (reviewer amber: at 'All gates passed?' rework's start and the incoming flow had swapped, its leg crossing that flow) — buildEdgeGroups orders a side's ends in a second pass that re-routes each flow WITH the alongside cost, reading the first pass's routes, so the order follows the drawn route; rework's route identical to before T-1456; 2 flows change vs round 2; the saved-bytes allowance shrinks to the 14 edges that still move; the re-key's catch records its fault (census 0); shots re-taken; criterion text for pairs 2 and 3 made exact
+
+# Key outcomes
+outcomes:
+  - 'The cause is named from a probe of the drawn geometry (H1, H2 or another), recorded in the task with the numbers.'
+  - 'On the Greenfield fixture, at 1024/1440/1920, the ''wel'' path''s every point lies inside lane Tacton, and its'
+  - 'Across the 24 corpus maps and the Greenfield fixture: no flow between two steps of one lane leaves that lane'
+  - 'A CDP harness checks both on the fixture and the corpus, is a browser-tier leg, and fails on the 0.44.0'
+  - '`bash tools/person-sees-gate.sh` exits 0 and the browser tier is green.'
+  - 'The changed routes read better than before: the Greenfield ''wel'' loop, and the two corpus maps whose'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the reviewer-judged criterion loses its [REVIEW] prefix and Why-you line (the why-you check, core red: [REVIEW] is for criteria that need the operator)'
+    source: git-mined
+  - description: 'one browser (fresh profile) per map load, and a page crash named (Inspector.targetCrashed): on the pool the third page in one tab stopped answering at 1920 even to Debugger.pause (shard a6ab6ec28, pool-w1) — the page process, not a script; 63 s here, all legs green, the stack dump still names a deliberate hang'
+    source: git-mined
+  - description: 'on a page that stops answering, the harness pauses it through the debugger (enabled at the start) and prints the call stack, and names the step it was in: the pool''s ''no answer in 60000 ms'' came back without any dialog (15dbd274e, pool-w2), so it is not a dialog; proven on a deliberate hang (names deliberateHangForTest:3648 < openingZoom)'
+    source: git-mined
+  - description: 're-spread a mixed side only where the ends as they land (straight ends snapped to the centre line) put an incoming end closer than the pitch to an outgoing one, at 12 px: re-spreading every mixed side moved aef-task-lifecycle''s ''shelved'' label onto flow tl_e15 (person-sees label-clearance 56 errors); now label-clearance 0, _t1456 green, 18 of 340 corpus flows change, none straight bent; shots re-taken'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  - decision: '2026-11-20 — Two scoring changes, measured against every drawn flow of the corpus'
+    chose: '(1) a bar outside the lanes the flow connects costs 50 (more than an interior bar''s 10, less than one cut step''s 100); (2) on a side that mixes incoming and outgoing ends, and ONLY where the ends as they actually land (a straight end snapped onto the centre line, the rest at the even spread) put an incoming end closer than the pitch to an outgoing one: the straight ends keep their place (else the outgoing ones) and the others move out an arrowhead (12 px) beside them, where that fits on the side.'
+    rationale: 'each was tried and measured on all 340 drawn flows (24 corpus maps + the fixture). A first version (wider pitch for mixed sides) bent 7 straight flows; "incoming always yields" bent straight incoming flows; clamping on a short side put two ends on one point (task-gate); re-spreading EVERY mixed side at 16 px (then 12) moved aef-task-lifecycle''s ''shelved'' label onto flow tl_e15 (person-sees label-clearance: 56 errors). The real fault is only the snap: the even spread puts a straight end off-centre, straightening pulls it back, and its neighbour is left half a pitch away (Greenfield 4 px). The final rule changes 18 of 340 flows, bends none that was straight, adds no close pair or lane exit, and label-clearance is clean.'
+    alternatives_rejected: ['forbidding a foreign lane outright (where every in-lane bar cuts a step, leaving is the lesser fault); entering the far side (top) for a loop from above (a deeper port change; not needed once the ends are apart).']
+  - decision: '2026-11-20 — Round 2 (reviewer AMBER, V judge-t-1456-r1-11f433b45871): a bar must not run along another flow'
+    chose: 'a bar height within 6 px of another flow''s horizontal run over >= 12 px costs 60 per such flow (more than leaving the lane, 50: an ambiguous route reads worse than one outside the lanes). The other flows are read from their NATURAL routes, which buildEdgeGroups already computes from the map alone and caches (T-423: saved bytes must not depend on the screen), behind a re-entry guard (T-1459''s prototype hung a renderer without one).'
+    rationale: 'the scoring knew steps, lanes and closeness, never other flows'' lines.'
+    alternatives_rejected: ['reading other flows'' DRAWN polylines (render state in export geometry; order-dependent bytes).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1456/AC1-judge-t-1456-r1-11f433b45871.md'
+  - '.context/reviews/evidence/T-1456/AC1-judge-t-1456-r1-80ddd836ec49.md'
+  - '.context/reviews/evidence/T-1456/AC1-judge-t-1456-r1-94d6a10b06de.md'
+  - '.context/reviews/evidence/T-1456/greenfield-wel-1024-after-judge-t-1456-r1-80ddd836ec49.png'
+  - '.context/reviews/evidence/T-1456/greenfield-wel-1440-after-judge-t-1456-r1-11f433b45871.png'
+  - '.context/reviews/evidence/T-1456/greenfield-wel-1440-after-judge-t-1456-r1-80ddd836ec49.png'
+  - '.context/reviews/evidence/T-1456/greenfield-wel-1440-after-judge-t-1456-r1-94d6a10b06de.png'
+  - '.context/reviews/evidence/T-1456/greenfield-wel-1440-before-judge-t-1456-r1-11f433b45871.png'
+  - '.context/reviews/evidence/T-1456/greenfield-wel-1440-before-judge-t-1456-r1-80ddd836ec49.png'
+  - '.context/reviews/evidence/T-1456/greenfield-wel-1440-before-judge-t-1456-r1-94d6a10b06de.png'
+  - '.context/reviews/evidence/T-1456/greenfield-wel-1920-after-judge-t-1456-r1-80ddd836ec49.png'
+  - '.context/reviews/evidence/T-1456/greenfield-wel-1920-after-judge-t-1456-r1-94d6a10b06de.png'
+  - '.context/reviews/evidence/T-1456/task-gate-block-1440-after-judge-t-1456-r1-11f433b45871.png'
+  - '.context/reviews/evidence/T-1456/task-gate-block-1440-after-judge-t-1456-r1-80ddd836ec49.png'
+  - '.context/reviews/evidence/T-1456/task-gate-block-1440-after-judge-t-1456-r1-94d6a10b06de.png'
+  - '.context/reviews/evidence/T-1456/task-gate-block-1440-before-judge-t-1456-r1-80ddd836ec49.png'
+  - '.context/reviews/evidence/T-1456/task-gate-block-1440-before-judge-t-1456-r1-94d6a10b06de.png'
+  - '.context/reviews/evidence/T-1456/task-lifecycle-rework-1440-after-judge-t-1456-r1-11f433b45871.png'
+  - '.context/reviews/evidence/T-1456/task-lifecycle-rework-1440-after-judge-t-1456-r1-80ddd836ec49.png'
+  - '.context/reviews/evidence/T-1456/task-lifecycle-rework-1440-after-judge-t-1456-r1-94d6a10b06de.png'
+  - '.context/reviews/evidence/T-1456/task-lifecycle-rework-1440-before-judge-t-1456-r1-11f433b45871.png'
+  - '.context/reviews/evidence/T-1456/task-lifecycle-rework-1440-before-judge-t-1456-r1-80ddd836ec49.png'
+  - '.context/reviews/evidence/T-1456/task-lifecycle-rework-1440-before-judge-t-1456-r1-94d6a10b06de.png'
+  - '.context/reviews/evidence/T-1456/zoom4x-greenfield-gateway-1920-before-left-after-right-judge-t-1456-r1-94d6a10b06de.png'
+  - '.context/reviews/evidence/T-1456/zoom4x-greenfield-opp-before-left-after-right-judge-t-1456-r1-80ddd836ec49.png'
+  - '.context/reviews/evidence/T-1456/zoom4x-task-lifecycle-left-after-judge-t-1456-r1-11f433b45871.png'
+  - '.context/reviews/evidence/T-1456/zoom4x-task-lifecycle-left-before-judge-t-1456-r1-11f433b45871.png'
+  - '.context/reviews/evidence/T-1456/zoom5x-gateblock-target-before-left-after-right-judge-t-1456-r1-94d6a10b06de.png'
+  - '.context/reviews/evidence/T-1456/zoom5x-greenfield-opp-before-left-after-right-judge-t-1456-r1-94d6a10b06de.png'
+  - '.context/reviews/evidence/T-1456/zoom5x-greenfield-sendproposal-after-judge-t-1456-r1-11f433b45871.png'
+  - '.context/reviews/evidence/T-1456/zoom5x-lifecycle-outcome-before-left-after-right-judge-t-1456-r1-80ddd836ec49.png'
+  - '.context/reviews/evidence/T-1456/zoom7x-lifecycle-allgates-before-left-after-right-judge-t-1456-r1-80ddd836ec49.png'
+  - '.context/reviews/evidence/T-1456/zoom8x-gateblock-target-before-left-after-right-judge-t-1456-r1-80ddd836ec49.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1456-routing-a-loop-back-flow-ends-on-the-sam.md'
+  - '.tasks/active/T-1459-routing-a-flow-into-a-steps-far-side-is-.md'
+  - '.tasks/active/T-1460-import-lanes-are-redrawn-at-the-designer.md'
+  - '.tasks/active/T-1465-labels-a-flows-label-is-placed-on-the--a.md'
+  - 'docs/reports/T-1456-shots/greenfield-wel-1024-after.png'
+  - 'docs/reports/T-1456-shots/greenfield-wel-1024-before.png'
+  - 'docs/reports/T-1456-shots/greenfield-wel-1440-after.png'
+  - 'docs/reports/T-1456-shots/greenfield-wel-1440-before.png'
+  - 'docs/reports/T-1456-shots/greenfield-wel-1920-after.png'
+  - 'docs/reports/T-1456-shots/greenfield-wel-1920-before.png'
+  - 'docs/reports/T-1456-shots/shots.mjs'
+  - 'docs/reports/T-1456-shots/task-gate-block-1440-after.png'
+  - 'docs/reports/T-1456-shots/task-gate-block-1440-before.png'
+  - 'docs/reports/T-1456-shots/task-lifecycle-rework-1440-after.png'
+  - 'docs/reports/T-1456-shots/task-lifecycle-rework-1440-before.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1129-optional-select-empty-cdp.mjs'
+  - 'tools/_t1447-notes-cdp.mjs'
+  - 'tools/_t1456-routing-lanes-sides-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-20T11:05:57'
+    action: 'T-1456: Greenfield 6 — a loop bar outside the lanes a flow connects costs 50 (between an interior bar''s 10 and a cut step''s 100), and on a side mixing incoming and outgoing ends the straight ends keep their place while the others move an arrowhead (16 px) beside them where that fits; ''wel'' stays in Tacton, arrowhead 16 px from the outgoing start (was 4); 25 of 340 corpus flows change, none straight bent, no new lane exit or close pair; harness _t1456 (7 legs fail on 0.44.0), leg test_t1456_routing_lanes_sides; before/after shots; captured T-1459 (flow through its own target box) and T-1460 (lane heights on import)'
+  - time: '2026-11-20T11:26:27'
+    action: 'T-1456: re-spread a mixed side only where the ends as they land (straight ends snapped to the centre line) put an incoming end closer than the pitch to an outgoing one, at 12 px: re-spreading every mixed side moved aef-task-lifecycle''s ''shelved'' label onto flow tl_e15 (person-sees label-clearance 56 errors); now label-clearance 0, _t1456 green, 18 of 340 corpus flows change, none straight bent; shots re-taken'
+  - time: '2026-11-20T12:12:44'
+    action: 'T-1456: browser tier fallout, each at its cause — the authority marker measures where the top side''s ends land instead of assuming top-centre (a re-spread end 12 px left crossed it: promotion-pipeline n_promote/e_06, release-pipeline n_gh/e_15; _t1069 M1 0 again); a deliberate change of saved bytes recorded by name: corpus files'' bends equal the designer''s routing, so a save writes the new route for exactly the 14 corpus edges and 2 Greenfield edges measured (save before vs after) — their waypoint coordinates masked in _t1129 E and _t1447 N5, every other byte still compared'
+  - time: '2026-11-20T14:00:31'
+    action: 'T-1456: the harness accepts and names any JavaScript dialog (T-1395''s rule): on the pool it got ''no answer in 60000 ms'' at the third load of the Greenfield map, on both workers (12:23 pool-w2 full run, 12:47 pool-w1 shard), never here'
+  - time: '2026-11-20T14:32:04'
+    action: 'T-1456: on a page that stops answering, the harness pauses it through the debugger (enabled at the start) and prints the call stack, and names the step it was in: the pool''s ''no answer in 60000 ms'' came back without any dialog (15dbd274e, pool-w2), so it is not a dialog; proven on a deliberate hang (names deliberateHangForTest:3648 < openingZoom)'
+  - time: '2026-11-20T14:48:24'
+    action: 'T-1456: one browser (fresh profile) per map load, and a page crash named (Inspector.targetCrashed): on the pool the third page in one tab stopped answering at 1920 even to Debugger.pause (shard a6ab6ec28, pool-w1) — the page process, not a script; 63 s here, all legs green, the stack dump still names a deliberate hang'
+  - time: '2026-11-20T15:56:28'
+    action: 'T-1456: agent criteria met with evidence (browser tier for 30a2041d7 green: pool as two shards pool-w1 78/0 + pool-w2 73/0, here 151/0)'
+  - time: '2026-11-20T15:58:57'
+    action: 'T-1456: reviewer verdict'
+  - time: '2026-11-20T16:14:47'
+    action: 'T-1456: the reviewer-judged criterion loses its [REVIEW] prefix and Why-you line (the why-you check, core red: [REVIEW] is for criteria that need the operator)'
+  - time: '2026-11-20T16:52:41'
+    action: 'T-1456: the harness removes each browser''s profile with removeProfileDir, which also removes Chrome''s per-launch org.chromium.Chromium.* dir (a plain rmSync left one per load: _t1257 red here, 2026-11-20 15:50Z); 0 left behind, _t1257 self-test green'
+  - time: '2026-11-20T17:00:47'
+    action: 'T-1456: round 2 (reviewer amber): a loop bar within 6 px of another flow''s horizontal run over >= 12 px costs 60 per flow (more than leaving the lane), read from the flows'' natural routes cached with the edge groups (map-only, T-423) behind a re-entry guard; 2 of 340 flows change: ''wel'' clear of Send Proposal''s line (bar 256 -> 245), ''gate failed — rework'' back under the lanes instead of ON ''blocked / failing''; _t1456, label-clearance, _t1069, _t1129 E, _t1447 N5 green, the 16 re-routed saved edges unchanged; shots re-taken; T-1465 captured (a label on the add-lane strip)'
+  - time: '2026-11-20T17:03:59'
+    action: 'T-1456: reviewer verdict'
+  - time: '2026-11-20T18:48:08'
+    action: 'T-1456: round 3 (reviewer amber: at ''All gates passed?'' rework''s start and the incoming flow had swapped, its leg crossing that flow) — buildEdgeGroups orders a side''s ends in a second pass that re-routes each flow WITH the alongside cost, reading the first pass''s routes, so the order follows the drawn route; rework''s route identical to before T-1456; 2 flows change vs round 2; the saved-bytes allowance shrinks to the 14 edges that still move; the re-key''s catch records its fault (census 0); shots re-taken; criterion text for pairs 2 and 3 made exact'
+  - time: '2026-11-20T18:50:41'
+    action: 'T-1456: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 14 commit(s), 1187 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1187
+  commits: 15
+  files_changed: 63
+  lines_added: 2047
+  lines_removed: 84
+  footprint_refreshed_at: '2026-11-20T18:44:26Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1456-routing-a-loop-back-flow-ends-on-the-sam.md
+generated_by: context-agent-hybrid

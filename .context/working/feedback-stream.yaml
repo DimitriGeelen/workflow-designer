@@ -23497,3 +23497,21 @@ scan_id: R-3702ee92
 task_id: T-1457
 payload:
   task_file: .tasks/active/T-1457-routing-incoming-and-outgoing-flows-meet.md
+---
+kind: scan_emitted
+timestamp: '2026-11-20T18:44:07Z'
+scan_id: R-a069b766
+task_id: T-1456
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-20T18:44:07Z'
+scan_id: R-a069b766
+task_id: T-1456
+payload:
+  task_file: .tasks/active/T-1456-routing-a-loop-back-flow-ends-on-the-sam.md
