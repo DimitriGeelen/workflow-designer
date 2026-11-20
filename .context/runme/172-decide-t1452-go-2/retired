@@ -1,0 +1,1 @@
+Its work is done: the operator's GO on T-1452 was recorded 2026-11-20T14:07:59Z (commit 35e6959d0, sidecar notice 1c32c770); T-1452 is closed, so the job's preflight can no longer pass. Retired so it leaves the menu.
