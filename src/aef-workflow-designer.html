@@ -6321,6 +6321,8 @@ function nodeSideLength(node, side) {
 let _edgeGroupCache = null;
 let _edgeGroupCacheKey = '';
 
+let _edgeGroupBuilding = false;   // T-1456: re-entry guard (building the groups routes every flow; see barRunsAlongFlows)
+let _edgeNatPolys = new Map();      // T-1456: each flow's natural route (no spread, no channels), cached with the groups
 function buildEdgeGroups() {
   // simple cache key based on edges + node positions (good enough for the demo)
   const key = state.edges.map(e => `${e.id}|${e.source}|${e.target}|${e.sourcePort || ''}|${e.targetPort || ''}`).join(';') +
@@ -6328,6 +6330,9 @@ function buildEdgeGroups() {
   if (_edgeGroupCache && _edgeGroupCacheKey === key) return _edgeGroupCache;
 
   const groups = new Map();
+  const natPolys = new Map();
+  _edgeGroupBuilding = true;
+  try {
   for (const e of state.edges) {
     const src = findNode(e.source);
     const tgt = findNode(e.target);
@@ -6356,6 +6361,7 @@ function buildEdgeGroups() {
       const nat = routeOrthogonalSegment(sAnchor, tAnchor, sDir, tDir, src, tgt,
         { routingHints: e.routingHints, detourY: e.detourY });
       const poly = nat.polyline;
+      if (poly) natPolys.set(e.id, poly);
       if (poly && poly.length >= 4) {
         const first = poly[2], last = poly[poly.length - 3];
         sKey = (sDir === 'E' || sDir === 'W') ? first.y : first.x;
@@ -6370,12 +6376,14 @@ function buildEdgeGroups() {
     groups.get(sGroupKey).push({ edgeId: e.id, role: 'source', sortKey: sKey });
     groups.get(tGroupKey).push({ edgeId: e.id, role: 'target', sortKey: tKey });
   }
+  } finally { _edgeGroupBuilding = false; }
   // Stable sort each group by sortKey
   for (const list of groups.values()) {
     list.sort((a, b) => a.sortKey - b.sortKey || a.edgeId.localeCompare(b.edgeId));
   }
   _edgeGroupCache = groups;
   _edgeGroupCacheKey = key;
+  _edgeNatPolys = natPolys;
   return groups;
 }
 
@@ -6791,6 +6799,28 @@ function polylineCrossesNodes(points, src, tgt, margin = 4) {
   return false;
 }
 
+// T-1456 (reviewer round 1): a detour bar laid on, or a few px beside, another flow's horizontal run reads as ONE line
+// (task-lifecycle 'gate failed — rework' shared 36 px with 'blocked / failing', so it seemed to end in the wrong
+// step). How many OTHER flows have a horizontal segment within 6 px of height y over at least 12 px of [xa, xb]?
+// Read from the flows' natural routes, which buildEdgeGroups computes from the map alone (never from what is drawn:
+// saved bytes must not depend on the screen, T-423). While those are being built, 0.
+function barRunsAlongFlows(y, xa, xb, edge) {
+  if (_edgeGroupBuilding || !edge || !edge.id) return 0;
+  buildEdgeGroups();
+  const lo = Math.min(xa, xb), hi = Math.max(xa, xb);
+  let count = 0;
+  for (const [id, poly] of _edgeNatPolys) {
+    if (id === edge.id) continue;
+    for (let k = 0; k < poly.length - 1; k++) {
+      const a = poly[k], b = poly[k + 1];
+      if (Math.abs(a.y - b.y) > 0.5 || Math.abs(a.y - y) > 6) continue;
+      const ov = Math.min(hi, Math.max(a.x, b.x)) - Math.max(lo, Math.min(a.x, b.x));
+      if (ov >= 12) { count++; break; }
+    }
+  }
+  return count;
+}
+
 // Route via a detour band above or below the bounding box of source+target.
 // Generalised over direction: from each stub, go vertically toward the chosen
 // detour Y, then horizontally across, then vertically to the other stub.
@@ -6894,7 +6924,9 @@ function orthoLoopBack(spA, spB, dirA, dirB, src, tgt, edge) {
     // (nothing below it: no interior penalty) beat every bar inside the lane (Greenfield 'wel', corpus: blocked,
     // re-issue, dry-run). It now costs more than an interior bar and less than cutting a step.
     const foreignLane = (c.y < topY || c.y > botY) ? 50 : 0;
-    const score = crossings * 100 + foreignLane + interiorPenalty + closenessPenalty + (c.kind === 'above' ? 0.05 : 0);
+    // T-1456 round 2: running along another flow is worse than leaving the lane (an ambiguous route reads worse)
+    const alongside = barRunsAlongFlows(c.y, spA.x, spB.x, edge) * 60;
+    const score = crossings * 100 + alongside + foreignLane + interiorPenalty + closenessPenalty + (c.kind === 'above' ? 0.05 : 0);
     if (score < bestScore) { bestScore = score; best = c; }
   }
 

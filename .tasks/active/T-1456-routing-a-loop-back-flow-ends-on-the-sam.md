@@ -183,9 +183,12 @@ Opportunity/Solution's outgoing flow; corpus maps' routing otherwise unchanged e
   1. `docs/reports/T-1456-shots/greenfield-wel-{1024,1440,1920}-{before,after}.png`: after, the 'wel' loop runs inside
      lane Tacton (above the steps, not through Novis) and its arrowhead on Opportunity/Solution stands clear of that
      step's outgoing flow (12 px; before 4 px, overlapping).
-  2. `docs/reports/T-1456-shots/task-lifecycle-rework-1440-{before,after}.png`: 'gate failed — rework' before ran under
-     the last lane, through the "+ Add another lane" strip, its label colliding with that button; after it runs inside
-     the lanes it connects, along the top, label clear, crossing two flows' lines. Judge which reads better.
+  2. `docs/reports/T-1456-shots/task-lifecycle-rework-1440-{before,after}.png`: 'gate failed — rework' keeps its route
+     under the last lane (round 2: every bar height inside its lanes runs along another flow's line, which now costs
+     more than leaving the lanes; round 1 put it ON 'blocked / failing'). Expected: the same as before. Its label on the
+     "+ Add another lane" strip is a label-placement fault that predates T-1456 (T-1465), not judged here.
+  4. Round 2, Greenfield: the 'wel' bar no longer runs 4 px above Send Proposal's outgoing flow (bar at y 245, ~11 px
+     clear); `greenfield-wel-{1024,1440,1920}-after.png`.
   3. `docs/reports/T-1456-shots/task-gate-block-1440-{before,after}.png`: unchanged on purpose (a short side keeps its
      even spread).
   **Expected:** after reads at least as well as before in each pair, and better for 'wel'.
@@ -437,6 +440,18 @@ T-1459 (a flow into its target's far side drawn as a loop through the target's o
   adds no close pair or lane exit, and label-clearance is clean.
 - **Rejected:** forbidding a foreign lane outright (where every in-lane bar cuts a step, leaving is the lesser fault);
   entering the far side (top) for a loop from above (a deeper port change; not needed once the ends are apart).
+
+### 2026-11-20 — Round 2 (reviewer AMBER, V judge-t-1456-r1-11f433b45871): a bar must not run along another flow
+- **Finding:** task-lifecycle 'gate failed — rework' moved inside its lanes but its bar lies ON 'blocked / failing'
+  for ~36 px (a T-junction makes it read as ending in the diagnose step) and 4 px beside the healing flow; on
+  Greenfield the 'wel' bar runs 4 px above Send Proposal's outgoing flow for ~77 px. Evidence:
+  `.context/reviews/evidence/T-1456/AC1-judge-t-1456-r1-11f433b45871.md`.
+- **Chose:** a bar height within 6 px of another flow's horizontal run over >= 12 px costs 60 per such flow (more than
+  leaving the lane, 50: an ambiguous route reads worse than one outside the lanes). The other flows are read from their
+  NATURAL routes, which buildEdgeGroups already computes from the map alone and caches (T-423: saved bytes must not
+  depend on the screen), behind a re-entry guard (T-1459's prototype hung a renderer without one).
+- **Why:** the scoring knew steps, lanes and closeness, never other flows' lines.
+- **Rejected:** reading other flows' DRAWN polylines (render state in export geometry; order-dependent bytes).
 
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
