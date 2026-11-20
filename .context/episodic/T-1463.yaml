@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1463: Pool: a browser page process stops answering in multi-load CDP harnesses (pool only) — T-566/T-570 teeth then wait 600 s per probe and the job hits the 1 h limit
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-20T15:18:15Z
+# ============================================================================
+
+task_id: T-1463
+task_name: "Pool: a browser page process stops answering in multi-load CDP harnesses (pool only) — T-566/T-570 teeth then wait 600 s per probe and the job hits the 1 h limit"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-20T14:02:18Z
+completed: 2026-11-20T15:17:41Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-20T15:10:42+01:00
+last_commit: 2026-11-20T15:10:42+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  cause found by ring20 (every 832 job unit ran at TasksMax=256, the intended 2048 lost in a trailing comment of their setup, their T-2797; raised 2026-11-20T14:07Z; no OOM, peaks 2.4-2.9 G of 4 G) — run-tier.sh samples pids.current/max/cap hits every 30 s into out/pids.tsv and writes pids_peak/pids_max/pids_cap_hits into result.json; _t566/_t570 probes budget 120 s instead of 600 and name a timeout (COULD NOT MEASURE), so a hang no longer eats the job's hour
+
+# Key outcomes
+outcomes:
+  - '`tools/pool/run-tier.sh` logs pids.current, pids.max and pids.events (from the job''s own cgroup) every 30 s'
+  - 'At least 3 pool browser jobs after 14:07Z show pids.max 2048, their peak pids.current, and no stall (no CDP'
+  - '`_t566-note-field-teeth.py` and `_t570-meta-carriage-teeth.py` give each CDP probe a budget of minutes, not 600 s,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1463-pool-a-browser-page-process-stops-answer.md'
+  - 'tools/_t566-note-field-teeth.py'
+  - 'tools/_t570-meta-carriage-teeth.py'
+  - 'tools/pool/run-tier.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-20T15:10:42'
+    action: 'T-1463: cause found by ring20 (every 832 job unit ran at TasksMax=256, the intended 2048 lost in a trailing comment of their setup, their T-2797; raised 2026-11-20T14:07Z; no OOM, peaks 2.4-2.9 G of 4 G) — run-tier.sh samples pids.current/max/cap hits every 30 s into out/pids.tsv and writes pids_peak/pids_max/pids_cap_hits into result.json; _t566/_t570 probes budget 120 s instead of 600 and name a timeout (COULD NOT MEASURE), so a hang no longer eats the job''s hour'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 75 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 75
+  commits: 2
+  files_changed: 7
+  lines_added: 575
+  lines_removed: 16
+  footprint_refreshed_at: '2026-11-20T15:18:42Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1463-pool-a-browser-page-process-stops-answer.md
+generated_by: context-agent-hybrid

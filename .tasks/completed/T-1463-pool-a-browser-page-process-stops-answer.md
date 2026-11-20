@@ -14,13 +14,13 @@ description: >
   for the job sandbox's memory limit and any OOM kill of a renderer in those windows;
   (c) a hung leg must end within minutes, never eat the job's hour.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t566-note-field-teeth.py, tools/_t570-meta-carriage-teeth.py, tools/pool/run-tier.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -49,8 +49,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-20T14:02:18Z
-last_update: '2026-11-20T14:08:31Z'
-date_finished:
+last_update: 2026-11-20T15:17:41Z
+date_finished: 2026-11-20T15:17:41Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -106,12 +106,23 @@ pids.max 2048 and no stall; a CDP probe that stops answering ends its leg quickl
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `tools/pool/run-tier.sh` logs pids.current, pids.max and pids.events (from the job's own cgroup) every 30 s
+- [x] `tools/pool/run-tier.sh` logs pids.current, pids.max and pids.events (from the job's own cgroup) every 30 s
       into the job's out/ (a file the result carries back), and result.json gains the peak pids.current and pids.max.
-- [ ] At least 3 pool browser jobs after 14:07Z show pids.max 2048, their peak pids.current, and no stall (no CDP
+      Evidence: 9af1d64ee; out/pids.tsv and result.json pids_peak/pids_max/pids_cap_hits/pids_cgroup on every job since.
+- [x] At least 3 pool browser jobs after 14:07Z show pids.max 2048, their peak pids.current, and no stall (no CDP
       timeout, no 1 h limit); recorded with the job names.
-- [ ] `_t566-note-field-teeth.py` and `_t570-meta-carriage-teeth.py` give each CDP probe a budget of minutes, not 600 s,
+      Evidence (commit 30a2041d7, all green, no stall): 832-browser-30a2041d7a50-20261120T143243 (pool-w1) peak 123;
+      832-browser-shard1of2-30a2041d7a50 (pool-w1) peak 121; 832-browser-shard2of2-30a2041d7a50 (pool-w2) peak 122;
+      832-core-30a2041d7a50-20261120T145404 (pool-w2) peak 37; max 2048, cap hits 0 on all four. The peak is the
+      kernel's exact pids.peak (121; the 30 s samples saw 117).
+      **What this does and does not show:** with today's tests a browser job peaks near 120 processes, BELOW the old cap
+      of 256, so these runs do not prove that the stalls hit TasksMax (ring20's suspect). The stalling harness now loads
+      each page in a fresh browser (7714f0398), which may have removed the stall by itself. The cap is 2048 either way;
+      a stall that comes back with pids_cap_hits > 0 would confirm the cap, one with 0 would rule it out.
+- [x] `_t566-note-field-teeth.py` and `_t570-meta-carriage-teeth.py` give each CDP probe a budget of minutes, not 600 s,
       and name a probe that ran out (COULD NOT MEASURE), so a hang costs at most a few minutes of the hour.
+      Evidence: 9af1d64ee: 120 s per probe; _t566 now catches TimeoutExpired and prints COULD NOT MEASURE (it crashed
+      with a traceback before); both green (4/4, 5/5).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -164,6 +175,7 @@ pids.max 2048 and no stall; a CDP probe that stops answering ends its leg quickl
 <!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
      headings; the completion gate strips HTML comments before running anything.
      Write your commands BELOW this comment, one per line.
+     (T-1463's commands are after this comment.)
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
@@ -298,6 +310,12 @@ pids.max 2048 and no stall; a CDP probe that stops answering ends its leg quickl
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
 
+bash -n tools/pool/run-tier.sh
+grep -q 'pids_cap_hits' tools/pool/run-tier.sh
+grep -q 'timeout=120' tools/_t566-note-field-teeth.py
+grep -q 'timeout=120' tools/_t570-meta-carriage-teeth.py
+python3 -c "import json,glob; r=[json.load(open(f)) for f in glob.glob('build/pool/results/*30a2041d7a50*/result.json')]; assert len(r) >= 3 and all(x.get('pids_max') == 2048 for x in r)"
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -397,3 +415,16 @@ pids.max 2048 and no stall; a CDP probe that stops answering ends its leg quickl
 
 ### 2026-11-20T14:08:29Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-20T15:17:41Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-d6bafdf0
+- **Timestamp:** 2026-11-20T15:17:48Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none
