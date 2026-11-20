@@ -127,7 +127,7 @@ Two carry an open tail, which does not change the verdict — the GO propagated:
 **T-038** (T-041, phase P4, `started-work`) and **T-685** (T-341/T-358, both blocked on
 operator rulings, not on filing).
 
-### PARTIAL (9) — the decision propagated, the delivery did not
+### PARTIAL (10) — the decision propagated, the delivery did not
 
 - ~~**T-263** — *Save-to-project target binding.* The slice **was filed**: T-264, and is
   still `captured`. Filed 2026-07-27, never started. **This is the one on the list most
@@ -161,6 +161,14 @@ operator rulings, not on filing).
   and tools/pool/submit.sh exist, a first pool run went end to end on pool-w2 (core 194/29, env gaps since closed by
   ring20's bridge832-2); the comparison runs and the push gate's trust change are still to come. Evidence:
   `docs/reports/T-1397-ring20-test-pool.md`. Added when the triage checker flagged it (2026-11-13, T-1405's close).
+- **T-1452** — *Faster test gate: designer changes on the pool alone, and the browser tier split over several pool
+  workers* (GO 2026-11-20, operator job 172, recording the operator's "1, adopt the split now"). PARTIAL. Lever B is
+  built as **T-1462** (in progress): tools/pool/tier-gate.sh runs the browser gate's pool half as two shards in parallel
+  with the unsplit run as a non-gating shadow (commit 30a2041d7; first real runs green on pool-w1 + pool-w2, the
+  shadow comparing clean, C1-C4 146/146); it is pushed with the batch this entry rides in. Lever A (designer changes on
+  the pool alone) was deferred by the same decision and stays in shadow. Evidence:
+  `docs/reports/T-1452-faster-test-gate.md`. Added when the triage checker flagged it (2026-11-20, the push of the
+  T-1462 batch refused here; the back-link on the closed T-1452 needs the operator's closed-record override).
 - **T-1219** — *Traceable data elements on aef:io* (GO 2026-10-20). PARTIAL. Its first half, keeping unknown `aef:`
   attributes through a save, shipped as **T-1220** in 0.24.0 (912f8d3e9, 01beb611d). Its second half, designer fields
   for ref/role/cardinality/dataType, waited on AEF T-4415. AEF has since ruled it (DRAFT 2), and 832 took it up as
