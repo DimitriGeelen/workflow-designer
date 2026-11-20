@@ -172,8 +172,10 @@ FOLDER=$(mktemp -d "${TMPDIR:-/tmp}/832pool-folder.XXXXXX")
 printf 'tier=%s\ncommit=%s\n' "$TIER" "$COMMIT" > "$FOLDER/job.info"
 # T-1452 (lever B, shadow): SHARD=i/k runs one shard of the tier; its result counts for nothing but the comparison
 if [ -n "${SHARD:-}" ]; then printf 'shard=%s\n' "$SHARD" >> "$FOLDER/job.info"; fi
+[ -n "${POOL_NODE:-}" ] && echo "pinned to node $POOL_NODE (T-1467)" >&2
 pool-client --hub "$HUB" submit-cmd "$FOLDER" --name "$NAME" --unit "832/$SHORT" --step "$TIER" \
-    --entry "832.bridge-$TIER" --env "$POOL_ENV" --client 832-Workflow-designer --task T-1406 "${REFS[@]}"
+    --entry "832.bridge-$TIER" --env "$POOL_ENV" --client 832-Workflow-designer --task T-1406 \
+    ${POOL_NODE:+--node "$POOL_NODE"} "${REFS[@]}"   # T-1467: POOL_NODE pins the job to one node (ring20 T-2644)
 rm -rf "$FOLDER"
 echo "submitted $NAME; waiting (up to 75 min) ..." >&2
 pool-client --hub "$HUB" wait "$NAME" --timeout 4500 --dir "$ROOT/build/pool/wait" || true

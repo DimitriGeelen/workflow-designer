@@ -64,7 +64,9 @@ local_run() {  # the tier here; 0 green, 1 red (a red run's log is kept, newest 
 pool_job() {  # pool_job <shard i/k or empty> <tag>: ONE pool job for HEAD; 0 green, 1 red, 3 no result for THIS commit
     local shard=$1 tag=$2 last commit code line node log
     last="$ROOT/build/pool/last-$TIER${shard:+-shard${shard%/*}of${shard#*/}}.result"
-    ( cd "$ROOT" && SHARD="$shard" ${T1408_POOL_SUBMIT:-bash tools/pool/submit.sh} "$TIER" ) </dev/null > "$WD/$PFX.pool$tag.out" 2>&1 8<&-
+    local node=""   # T-1467: a shard on its configured node, the shadow ("" shard, tag .shadow-*) on the shadow node
+    if [ -n "$shard" ]; then node=$(node_of "${shard%/*}"); elif [ "${tag#.shadow}" != "$tag" ]; then node=$SHADOW_NODE; fi
+    ( cd "$ROOT" && SHARD="$shard" POOL_NODE="$node" ${T1408_POOL_SUBMIT:-bash tools/pool/submit.sh} "$TIER" ) </dev/null > "$WD/$PFX.pool$tag.out" 2>&1 8<&-
     if [ ! -f "$last" ]; then   # T-1453: say why, when the pool said why (a refusal names its reason)
         echo "T-1288 $TIER: the pool${shard:+ (shard $shard)} gave no result (see ${WD#"$ROOT"/}/$PFX.pool$tag.out)" >&2
         grep -E '^POOL [A-Z]+ on ' "$WD/$PFX.pool$tag.out" 2>/dev/null | tail -1 | sed "s/^/T-1288 $TIER: /" >&2
@@ -90,23 +92,35 @@ pool_job() {  # pool_job <shard i/k or empty> <tag>: ONE pool job for HEAD; 0 gr
 # until a person has looked (and removed it): a disagreement still stops a push, one push later, without the gate
 # paying for the full run each time. T1462_SPLIT=0 runs the unsplit job as the gate's pool half, as before.
 SHADOW_DIR="$ROOT/build/tiergate/split-shadow"
-split_ok() { [ "$TIER" = browser ] && [ "${T1462_SPLIT:-1}" != 0 ] && [ -f "$ROOT/tests/shard-plan-browser-2.tsv" ]; }
+# T-1467 (operator 2026-11-20: "I want the full split now. I want us to use all pool workers"): k shards, k = the
+# number of capable workers. T1462_K, else tools/pool/workers (browser_shards=<k>, what ring20 admits), else 2; the
+# time-balanced plan tests/shard-plan-browser-<k>.tsv must exist (shard-plan.py builds it from a whole run).
+K=${T1462_K:-$(sed -n 's/^browser_shards=//p' "$ROOT/tools/pool/workers" 2>/dev/null | head -1)}
+case "$K" in ''|*[!0-9]*) K=2 ;; esac
+[ "$K" -ge 2 ] && [ -f "$ROOT/tests/shard-plan-browser-$K.tsv" ] || K=2
+# Which node runs each shard and the shadow (ring20 T-2644 pin; tools/pool/workers: shard_nodes="pool-w1 pool-w2 ...",
+# shadow_node=pool-132). The shards on the fast slots, the unsplit shadow on the slow node so it takes no fast slot.
+SHARD_NODES=$(sed -n 's/^shard_nodes=//p' "$ROOT/tools/pool/workers" 2>/dev/null | head -1 | tr -d '"')
+SHADOW_NODE=$(sed -n 's/^shadow_node=//p' "$ROOT/tools/pool/workers" 2>/dev/null | head -1 | tr -d '"')
+node_of() { echo "$SHARD_NODES" | awk -v i="$1" '{print $i}'; }
+split_ok() { [ "$TIER" = browser ] && [ "${T1462_SPLIT:-1}" != 0 ] && [ -f "$ROOT/tests/shard-plan-browser-$K.tsv" ]; }
 shadow_start() {  # the unsplit job, detached from this gate; writes its rc and the comparison when it ends
     mkdir -p "$SHADOW_DIR"; local tag="${HEAD_SHA:0:12}-$(date -u +%Y%m%dT%H%M%SZ)"
     SHADOW_RC="$SHADOW_DIR/$tag.rc"
     ( trap '' HUP; cd "$ROOT"
       pool_job "" ".shadow-$tag" 2>> "$SHADOW_DIR/$tag.log"; echo $? > "$SHADOW_RC.tmp"; mv "$SHADOW_RC.tmp" "$SHADOW_RC"
       whole=$(sed -n 's/^name=//p' "$ROOT/build/pool/last-$TIER.result" 2>/dev/null)
-      s1=$(sed -n 's/^name=//p' "$SHADOW_DIR/$tag.shard1"); s2=$(sed -n 's/^name=//p' "$SHADOW_DIR/$tag.shard2")
-      if [ -n "$whole" ] && [ -n "$s1" ] && [ -n "$s2" ]; then
+      shards=(); missing=0
+      for i in $(seq 1 "$K"); do n=$(sed -n 's/^name=//p' "$SHADOW_DIR/$tag.shard$i" 2>/dev/null); [ -n "$n" ] && shards+=("$n") || missing=1; done
+      if [ -n "$whole" ] && [ "$missing" = 0 ]; then
           # written under a temporary name; the marker (if any) first, the .compare last: a visible .compare is complete
-          python3 "$ROOT/docs/reports/T-1452-spikes/compare-shards.py" "$whole" "$s1" "$s2" > "$SHADOW_DIR/$tag.compare.tmp" 2>&1
+          python3 "$ROOT/docs/reports/T-1452-spikes/compare-shards.py" "$whole" "${shards[@]}" > "$SHADOW_DIR/$tag.compare.tmp" 2>&1
           if grep -qE '^FAIL  C[123]' "$SHADOW_DIR/$tag.compare.tmp"; then
               cp "$SHADOW_DIR/$tag.compare.tmp" "$SHADOW_DIR/DIFFER-$tag"
               printf '%s\t%s\t%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "${HEAD_SHA:0:12}" "SPLIT SHADOW DISAGREES: $SHADOW_DIR/DIFFER-$tag" >> "$RUNS"
           fi
           mv "$SHADOW_DIR/$tag.compare.tmp" "$SHADOW_DIR/$tag.compare"
-      else echo "no comparison: whole='$whole' shard1='$s1' shard2='$s2'" > "$SHADOW_DIR/$tag.compare.tmp"; mv "$SHADOW_DIR/$tag.compare.tmp" "$SHADOW_DIR/$tag.compare"; fi
+      else echo "no comparison: whole='$whole' shards='${shards[*]}' (of $K)" > "$SHADOW_DIR/$tag.compare.tmp"; mv "$SHADOW_DIR/$tag.compare.tmp" "$SHADOW_DIR/$tag.compare"; fi
     ) </dev/null > /dev/null 2>&1 &
     SHADOW_TAG=$tag
 }
@@ -115,19 +129,20 @@ pool_run() {  # the tier on ring20's pool; 0 green, 1 red, 3 no result for THIS 
         echo "T-1288 $TIER: running the $TIER tier on ring20's POOL (tools/pool/submit.sh $TIER) ..." >&2
         pool_job "" ""; return $?
     fi
-    echo "T-1288 $TIER: running the $TIER tier on ring20's POOL as 2 shards in parallel, the unsplit run as a non-gating shadow (T-1462) ..." >&2
+    echo "T-1288 $TIER: running the $TIER tier on ring20's POOL as $K shards in parallel, the unsplit run as a non-gating shadow (T-1462, T-1467) ..." >&2
     shadow_start
-    local r1f="$WD/$PFX.pool.s1.rc" r2f="$WD/$PFX.pool.s2.rc" r1 r2; rm -f "$r1f" "$r2f"
-    ( pool_job 1/2 .s1; echo $? > "$r1f" ) & local p1=$!
-    ( pool_job 2/2 .s2; echo $? > "$r2f" ) & local p2=$!
-    wait "$p1" "$p2"
-    r1=$(cat "$r1f" 2>/dev/null || echo 3); r2=$(cat "$r2f" 2>/dev/null || echo 3)
-    cp "$ROOT/build/pool/last-$TIER-shard1of2.result" "$SHADOW_DIR/$SHADOW_TAG.shard1" 2>/dev/null
-    cp "$ROOT/build/pool/last-$TIER-shard2of2.result" "$SHADOW_DIR/$SHADOW_TAG.shard2" 2>/dev/null
-    if [ "$r1" = 0 ] && [ "$r2" = 0 ]; then return 0; fi
-    if [ "$r1" = 1 ] || [ "$r2" = 1 ]; then return 1; fi
+    local i pids=() rcs=() anyred=0 allgreen=1
+    for i in $(seq 1 "$K"); do rm -f "$WD/$PFX.pool.s$i.rc"; ( pool_job "$i/$K" ".s$i"; echo $? > "$WD/$PFX.pool.s$i.rc" ) & pids+=($!); done
+    wait "${pids[@]}"
+    for i in $(seq 1 "$K"); do
+        rcs+=("$(cat "$WD/$PFX.pool.s$i.rc" 2>/dev/null || echo 3)")
+        cp "$ROOT/build/pool/last-$TIER-shard${i}of$K.result" "$SHADOW_DIR/$SHADOW_TAG.shard$i" 2>/dev/null
+    done
+    for r in "${rcs[@]}"; do [ "$r" = 0 ] || allgreen=0; [ "$r" = 1 ] && anyred=1; done
+    if [ "$allgreen" = 1 ]; then return 0; fi
+    if [ "$anyred" = 1 ]; then return 1; fi
     # a shard gave no result: the unsplit shadow decides for the pool (waited for, up to its own limit)
-    echo "T-1288 $TIER: a shard gave no result (shard 1: $r1, shard 2: $r2): waiting for the unsplit run instead ..." >&2
+    echo "T-1288 $TIER: a shard gave no result (rc per shard: ${rcs[*]}): waiting for the unsplit run instead ..." >&2
     local t=0; while [ ! -f "$SHADOW_DIR/$SHADOW_TAG.rc" ] && [ $t -lt 4800 ]; do sleep 10; t=$((t + 10)); done
     return "$(cat "$SHADOW_DIR/$SHADOW_TAG.rc" 2>/dev/null || echo 3)"
 }
@@ -152,6 +167,15 @@ if [ "${T1408_POOL:-1}" = 0 ]; then
     note "T1408_POOL=0: $TIER runs locally only (pool skipped on request)"
     local_run || refuse "local $TIER is red, or could not run"
     note "local only: green"   # T-1452: the verdict line, as every other path writes one
+elif [ "${T1467_POOL_ONLY:-0}" = 1 ]; then
+    # T-1467 (operator 2026-11-20, option 1 for release 0.45.0): the pool alone, even for a high-risk change. This host is
+    # a busy desktop where a Chrome start fails now and then (release job 173 and 174 each lost one leg to it); the
+    # release's browser tier runs on the quiet pool workers instead. No pool result is a refusal here, never a local run.
+    note "T1467_POOL_ONLY=1: $TIER runs on the pool only (operator's choice for releases, 2026-11-20)${risky:+; high-risk change: ${risky% }}"
+    pool_run; prc=$?
+    [ "$prc" = 3 ] && refuse "the pool gave no result (T1467_POOL_ONLY: no local fallback)"
+    [ "$prc" = 0 ] || refuse "pool $TIER is red"
+    note "pool only: green"
 elif [ -n "$risky" ]; then
     note "high-risk change (${risky% }): $TIER runs on the pool AND here, side by side; both must be green"
     prcf="$WD/$PFX.pool.rc"; rm -f "$prcf"

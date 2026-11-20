@@ -130,7 +130,11 @@ refuses the push on red.
     and is investigated, never retried until it agrees.
   - **No pool result for HEAD** (unreachable, refused, timed out): the local run decides, and the output and
     `.context/working/prepush-core.runs.log` say so. `T1408_POOL=0` forces local.
-  - Releases are unchanged: the release job keeps its own local runs.
+  - Releases go through the same gates (operator, 2026-11-20: "I want the full split now. I want us to use all pool
+    workers"; T-1467): a release job runs the browser tier as `T1467_POOL_ONLY=1 bash tools/pool/tier-gate.sh browser`
+    (the pool alone, split over the fast workers; operator's option 1 the same evening: this host is a busy desktop
+    where a Chrome start fails now and then, and jobs 173 and 174 each lost one leg to it), and the push gate for core.
+    Before that, releases kept their own local runs (25-30 min each).
 - **The core tier:** about 190 legs (`tests/run-bridge-tests.sh --list-legs`; the run's "passed" count is higher, some
   legs count several checks), hermetic, about 17 minutes. It must be 100% green. A known non-product red goes into
   `tests/quarantine.yaml` with an owner task and a fix-by date, never pushed past silently.
@@ -144,6 +148,10 @@ refuses the push on red.
 - **A change under `src/`, or to `tools/validate-workflow.py`, also needs the browser tier before it is pushed**
   (T-1374): `bash tools/pool/tier-gate.sh browser` (T-1409: the same rules as the push gate, so the pool alone for a
   normal change, pool AND here for a high-risk one, local when the pool gives no result; logs under `build/tiergate/`).
+  **Its pool half runs split** (T-1452 GO, T-1462, T-1467): k shards in parallel, one per capable pool worker (k from
+  `tools/pool/workers`, each with its time-balanced plan `tests/shard-plan-browser-<k>.tsv`), the unsplit run as a
+  non-gating shadow compared when it ends; a disagreement leaves `build/tiergate/split-shadow/DIFFER-*`, and every later
+  gate refuses until a person has read it and removed the marker. `T1462_SPLIT=0` runs one unsplit job.
   The hook runs only core, and the browser legs
   (byte-identity goldens, the CDP harnesses) are where a designer change shows. The designer's Check runs the
   validator, so CDP harnesses assert its exact findings too. T-1377 was pushed on core alone and its new warning turned
@@ -838,6 +846,7 @@ When giving the human a command to run (Tier 0 approvals, inception decisions, v
 When the active task has `workflow_type: inception`:
 1. **State the phase** — Say "This is an inception/exploration task" before doing any work
 2. **Present the filled template** for review before executing any spikes or prototypes
+   - **The recommendation reads `EXPLORING` while you explore.** File with a rationale and no verdict (`fw inception start "<question>" --rationale "…"`); agent filings default to `EXPLORING`, meaning *not ready for decision*. While it reads EXPLORING, `fw task review`, `fw task review-batch` and `fw inception decide` refuse the inception, and the Watchtower page shows no decision buttons. When every IW question is disposed, audit and the handover report it as *ready for a recommendation*: replace `EXPLORING` with GO, NO-GO or DEFER plus a rationale, and only then hand it off.
 3. **Do not write build artifacts** (production code, full apps) before `fw inception decide T-XXX go`
 4. **The commit-msg hook enforces this** — after 2 exploration commits, further commits are blocked until a decision is recorded
 5. After a GO decision, **create separate build tasks** for implementation — do not continue building under the inception task ID
@@ -972,6 +981,14 @@ After fixing any problem discovered by the human (not found during development):
 
 If you need to explore before planning, use the Explore agent or `/explore` skill.
 If you need to plan implementation, create a task first, then use `/plan`.
+
+## Cross-Session Messaging Ban — TermLink Only (T-5225)
+
+**Agent-to-agent messages go over TermLink. Never use Claude Code's own cross-session messaging tools: `SendMessage`, `SendToProject`, `SendToProjectContext`.** Operator rule, 2026-11-17 ("You should always use Termlink. It's forbidden."), confirmed 2026-11-18. Those tools deliver to another session or project outside TermLink's observability, delivery receipts, untrusted-data framing and idle-aware delivery.
+
+- **Send:** `fw sidecar send --to <peer> --body "..."` (add `--conversation <id>` to reply on a thread). **Read:** `fw sidecar inbox`.
+- **Structural enforcement:** PreToolUse hook `block-cross-session-messages` (matcher `SendMessage|SendToProject|SendToProjectContext`) refuses each with exit 2 and names the TermLink route. It fails closed on an unreadable payload and allows every other tool. `fw init` writes it and `fw upgrade` delivers it.
+- Sibling bans: the built-in task tools (`block-task-tools`) and the harness Agent tool (`FW_DISPATCH_LIMIT=0`, `fw termlink dispatch`).
 
 ## Session Start Protocol
 

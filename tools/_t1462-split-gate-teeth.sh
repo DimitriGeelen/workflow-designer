@@ -20,16 +20,18 @@ git init -q && mkdir -p tools/pool tests docs/reports/T-1452-spikes build/pool |
 cp "${T1462_TIERGATE:-$ROOT/tools/pool/tier-gate.sh}" tools/pool/tier-gate.sh || exit 2   # T1462_TIERGATE: control runs
 cp "$ROOT/tools/pool/high-risk.re" tools/pool/ 2>/dev/null
 cp "$ROOT/docs/reports/T-1452-spikes/compare-shards.py" docs/reports/T-1452-spikes/ || exit 2
-cp "$ROOT/tests/shard-plan-browser-2.tsv" tests/ || exit 2
-printf '#!/bin/bash\necho "tier browser GREEN: 4 passed, 0 failed"\nexit 0\n' > tests/run-bridge-tests.sh
+cp "$ROOT/tests/shard-plan-browser-2.tsv" "$ROOT/tests/shard-plan-browser-3.tsv" tests/ || exit 2
+printf '#!/bin/bash\ntouch "$(git rev-parse --show-toplevel)/local-ran"\necho "tier browser GREEN: 6 passed, 0 failed"\nexit 0\n' > tests/run-bridge-tests.sh
 git -C "$ROOT" show HEAD:.gitignore > .gitignore 2>/dev/null
 # The stub pool: STUB_RC_1 / STUB_RC_2 / STUB_RC_W are the shards' and the whole run's exit codes ('none': no result);
 # STUB_W_FAILS names a leg the whole run fails while the shards pass it (a disagreement).
 cat > stub-submit.sh <<'STUB'
 #!/bin/bash
 TIER=$1; ROOT=$(git rev-parse --show-toplevel); HEAD=$(git rev-parse HEAD)
-if [ -n "${SHARD:-}" ]; then i=${SHARD%/*}; rc_var="STUB_RC_$i"; rc=${!rc_var:-0}; suf="-shard${i}of${SHARD#*/}"; legs=$([ "$i" = 1 ] && echo "L1 L2" || echo "L3 L4"); sleep 1
-else rc=${STUB_RC_W:-0}; suf=""; legs="L1 L2 L3 L4"; sleep 3; fi
+echo "${SHARD:-whole}|${POOL_NODE:-}" >> "$ROOT/stub-nodes.log"   # T-1467: where each job was pinned
+if [ -n "${SHARD:-}" ]; then i=${SHARD%/*}; k=${SHARD#*/}; rc_var="STUB_RC_$i"; rc=${!rc_var:-0}; suf="-shard${i}of$k"
+     legs=$(for n in 1 2 3 4 5 6; do [ $(( (n - 1) % k + 1 )) = "$i" ] && printf 'L%s ' "$n"; done); sleep 1
+else rc=${STUB_RC_W:-0}; suf=""; legs="L1 L2 L3 L4 L5 L6"; sleep 3; fi
 name="stub-$TIER$suf-$$"; last="$ROOT/build/pool/last-$TIER$suf.result"; rm -f "$last"
 [ "$rc" = none ] && { echo "POOL REFUSED on stub: no capable node"; exit 1; }
 d="$ROOT/build/pool/results/$name"; mkdir -p "$d"
@@ -67,5 +69,22 @@ rm -f build/tiergate/split-shadow/DIFFER-*
 rm -f build/pool/last-browser-shard*.result
 rc=$(T1462_SPLIT=0 STUB_RC_W=0 gate)
 [ "$rc" = 0 ] && ! grep -q '2 shards' gate.out && [ ! -f build/pool/last-browser-shard1of2.result ]; leg $? "T1462_SPLIT=0: one unsplit job, no shards (rc $rc)"
+# 6 (T-1467) k = 3 from tools/pool/workers, each shard pinned to its node, the shadow to the shadow node
+printf 'browser_shards=3\nshard_nodes="w-a w-b w-a"\nshadow_node=w-slow\n' > tools/pool/workers
+git add -A && git -c user.name=t -c user.email=t@invalid commit -qm workers
+rm -f stub-nodes.log
+rc=$(STUB_RC_1=0 STUB_RC_2=0 STUB_RC_3=0 gate); shadow_done 5
+c=$(ls -t build/tiergate/split-shadow/*.compare 2>/dev/null | head -1)
+[ "$rc" = 0 ] && grep -q '3 shards in parallel' gate.out && [ -f build/pool/last-browser-shard3of3.result ] && grep -q '^PASS  C1' "$c"
+leg $? "k = 3 from tools/pool/workers: 3 shards, all green, the shadow compares all three (rc $rc)"
+grep -qx '1/3|w-a' stub-nodes.log && grep -qx '2/3|w-b' stub-nodes.log && grep -qx '3/3|w-a' stub-nodes.log && grep -qx 'whole|w-slow' stub-nodes.log
+leg $? "each shard went to its configured node, the shadow to the shadow node ($(tr '\n' ' ' < stub-nodes.log))"
+# 7 (T-1467) T1467_POOL_ONLY=1: a high-risk change on the pool alone, no local run
+rm -f local-ran
+rc=$(T1467_POOL_ONLY=1 STUB_RC_1=0 STUB_RC_2=0 STUB_RC_3=0 gate); shadow_done 6
+[ "$rc" = 0 ] && [ ! -f local-ran ] && grep -q 'pool only: green' build/tiergate/tier-browser.runs.log
+leg $? "T1467_POOL_ONLY=1: green on the pool alone, the local tier never started (rc $rc)"
+rc=$(T1467_POOL_ONLY=1 STUB_RC_1=0 STUB_RC_2=1 STUB_RC_3=0 gate); shadow_done 7
+[ "$rc" = 1 ] && [ ! -f local-ran ]; leg $? "T1467_POOL_ONLY=1 with a red shard: refused, still no local run (rc $rc)"
 echo "=== $pass passed, $fail failed ==="
 [ "$fail" -eq 0 ]

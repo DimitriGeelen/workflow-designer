@@ -1,0 +1,6 @@
+# T-1467: the pool slots 832 browser jobs use (ring20, 2026-11-20: pool-w1 x2, pool-w2 x2 fast; pool-132 x1, slower).
+# browser_shards = k (a plan tests/shard-plan-browser-<k>.tsv must exist); shard_nodes = node per shard, in order;
+# shadow_node = where the unsplit shadow run goes (so it takes no fast slot).
+browser_shards=4
+shard_nodes="pool-w1 pool-w2 pool-w1 pool-w2"
+shadow_node=pool-132
