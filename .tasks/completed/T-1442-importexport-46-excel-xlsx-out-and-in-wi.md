@@ -6,13 +6,13 @@ description: >
   ~60 lines); Excel sheet Steps (id, name, type, lane, next); import through the step-3
   route. Test: openpyxl reads the export; round trip of our own reader.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: [T-1093]
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -41,8 +41,8 @@ related_tasks: [T-1093]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-19T09:14:12Z
-last_update: 2026-11-20T08:28:02Z
-date_finished:
+last_update: 2026-11-20T09:30:38Z
+date_finished: 2026-11-20T09:30:38Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -171,7 +171,7 @@ next two formats reuse.
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
-- [ ] [REVIEW] The Import and Export menus with Excel added fit, and the Excel import notice reads well, at three widths.
+- [x] [REVIEW] The Import and Export menus with Excel added fit, and the Excel import notice reads well, at three widths.
   **Why you:** a menu entry and a notice are what a person sees; only a look at the images judges them.
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1442 --criterion 1`), who may escalate.
   **Steps:**
@@ -182,6 +182,7 @@ next two formats reuse.
   3. Optional: `docs/reports/T-1442-shots/exported/*.xlsx` opened in a spreadsheet program reads as a step list.
   **Expected:** all of it reads cleanly.
   **If not:** name the file and the element; the agent fixes and re-shoots.
+  **Reviewer verdict:** green V-20261120-fa505f8a — reviewer-judge-t-1442-r1-88271a14b8db:reviewer (rung rung-1-same-vendor-independent), digest 26d369342e51; dispatch judge-t-1442-r1-88271a14b8db; evidence: .context/reviews/evidence/T-1442/AC1-judge-t-1442-r1-88271a14b8db.md, .context/reviews/evidence/T-1442/1024-import-open-judge-t-1442-r1-88271a14b8db.png, .context/reviews/evidence/T-1442/1024-export-open-judge-t-1442-r1-88271a14b8db.png, .context/reviews/evidence/T-1442/1024-after-xlsx-import-judge-t-1442-r1-88271a14b8db.png, .context/reviews/evidence/T-1442/1440-import-open-judge-t-1442-r1-88271a14b8db.png, .context/reviews/evidence/T-1442/1440-export-open-judge-t-1442-r1-88271a14b8db.png, .context/reviews/evidence/T-1442/1440-after-xlsx-import-judge-t-1442-r1-88271a14b8db.png, .context/reviews/evidence/T-1442/1920-import-open-judge-t-1442-r1-88271a14b8db.png, .context/reviews/evidence/T-1442/1920-export-open-judge-t-1442-r1-88271a14b8db.png, .context/reviews/evidence/T-1442/1920-after-xlsx-import-judge-t-1442-r1-88271a14b8db.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -451,3 +452,21 @@ reverts" (same in T-1441's shots).
 
 ### 2026-11-20T08:28:02Z — status-update [task-update-agent]
 - **Change:** horizon: now → now
+
+### 2026-11-20T09:30:38Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-18ad8001
+- **Timestamp:** 2026-11-20T09:31:01Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#5 (Agent)** — `bash tools/person-sees-gate.sh` exits 0 and the browser tier is green.
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/person-sees-gate.sh in: `bash tools/person-sees-gate.sh` exits 0 and the browser tier is green.`

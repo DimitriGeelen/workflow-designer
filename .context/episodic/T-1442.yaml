@@ -1,0 +1,124 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1442: Import/Export 4/6: Excel (.xlsx) out and in, with the shared ZIP core
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-20T09:31:09Z
+# ============================================================================
+
+task_id: T-1442
+task_name: "Import/Export 4/6: Excel (.xlsx) out and in, with the shared ZIP core"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-11-19T09:14:12Z
+completed: 2026-11-20T09:30:38Z
+duration_days: 1
+updates_count: 4
+first_commit: 2026-11-20T10:02:47+01:00
+last_commit: 2026-11-20T10:29:44+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Export and Import -> Excel (.xlsx) with the shared ZIP core: sheet Steps with the CSV columns (shared step table and row parser), a reader for any workbook (shared strings, numbers, sparse cells, the Steps sheet or the first with an id column; .xls and non-zip refused by name); harness _t1442 (11 legs, all fail on 0.44.0), browser leg test_t1442_excel; LibreOffice-made fixtures; shots at 3 widths; person-sees exit 0. agent criteria met with evidence (browser tier green pool-w2 149/0 and here 149/0); shots re-taken with storage cleared after leaving the previous page (its unload wrote the autosave that came back as 'Restored your unsaved work'). reviewer verdict
+
+# Key outcomes
+outcomes:
+  - 'Export → Excel writes a valid `.xlsx` with one sheet "Steps", the CSV columns in the same order (id, name, type,'
+  - 'Import → Excel rebuilds an exported corpus map like CSV does: by permanent identity the same steps, names, types,'
+  - 'Import reads a sheet NOT written by us: the same table re-saved by LibreOffice (shared strings, a numeric cell,'
+  - 'A CDP harness covers export, the round trip on two corpus maps and the foreign-file case, is a browser-tier leg,'
+  - '`bash tools/person-sees-gate.sh` exits 0 and the browser tier is green.'
+  - '[REVIEW] The Import and Export menus with Excel added fit, and the Excel import notice reads well, at three widths.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Export and Import -> Excel (.xlsx) with the shared ZIP core: sheet Steps with the CSV columns (shared step table and row parser), a reader for any workbook (shared strings, numbers, sparse cells, the Steps sheet or the first with an id column; .xls and non-zip refused by name); harness _t1442 (11 legs, all fail on 0.44.0), browser leg test_t1442_excel; LibreOffice-made fixtures; shots at 3 widths; person-sees exit 0'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  - decision: '2026-11-20 — Excel reads the CSV columns through the CSV route; the reader takes any workbook'
+    chose: 'one step table (`stepRows`) and one row parser (`stepRowsToModel`) shared by CSV and Excel; the reader picks the sheet named "Steps", else the first sheet whose first filled row has an "id" column.'
+    rationale: 'the same columns mean one round-trip rule for both formats; a person''s own workbook rarely keeps our sheet name or column order, and a refused file names the sheets it looked at.'
+    alternatives_rejected: ['a separate Excel model (two rules to keep equal); only reading our own export (the operator asked for Excel as an import format, which means files made in Excel).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1442/1024-after-xlsx-import-judge-t-1442-r1-88271a14b8db.png'
+  - '.context/reviews/evidence/T-1442/1024-export-open-judge-t-1442-r1-88271a14b8db.png'
+  - '.context/reviews/evidence/T-1442/1024-import-open-judge-t-1442-r1-88271a14b8db.png'
+  - '.context/reviews/evidence/T-1442/1440-after-xlsx-import-judge-t-1442-r1-88271a14b8db.png'
+  - '.context/reviews/evidence/T-1442/1440-export-open-judge-t-1442-r1-88271a14b8db.png'
+  - '.context/reviews/evidence/T-1442/1440-import-open-judge-t-1442-r1-88271a14b8db.png'
+  - '.context/reviews/evidence/T-1442/1920-after-xlsx-import-judge-t-1442-r1-88271a14b8db.png'
+  - '.context/reviews/evidence/T-1442/1920-export-open-judge-t-1442-r1-88271a14b8db.png'
+  - '.context/reviews/evidence/T-1442/1920-import-open-judge-t-1442-r1-88271a14b8db.png'
+  - '.context/reviews/evidence/T-1442/AC1-judge-t-1442-r1-88271a14b8db.md'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1442-importexport-46-excel-xlsx-out-and-in-wi.md'
+  - 'docs/reports/T-1442-shots/1024-after-xlsx-import.png'
+  - 'docs/reports/T-1442-shots/1024-export-open.png'
+  - 'docs/reports/T-1442-shots/1024-import-open.png'
+  - 'docs/reports/T-1442-shots/1440-after-xlsx-import.png'
+  - 'docs/reports/T-1442-shots/1440-export-open.png'
+  - 'docs/reports/T-1442-shots/1440-import-open.png'
+  - 'docs/reports/T-1442-shots/1920-after-xlsx-import.png'
+  - 'docs/reports/T-1442-shots/1920-export-open.png'
+  - 'docs/reports/T-1442-shots/1920-import-open.png'
+  - 'docs/reports/T-1442-shots/exported/arc-lifecycle.xlsx'
+  - 'docs/reports/T-1442-shots/exported/audit-process.xlsx'
+  - 'docs/reports/T-1442-shots/measure.json'
+  - 'docs/reports/T-1442-shots/shots.mjs'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/fixtures/xlsx/arc-lifecycle-libreoffice.xlsx'
+  - 'tests/fixtures/xlsx/make-fixtures.py'
+  - 'tests/fixtures/xlsx/no-id-column.xlsx'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1442-excel-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-20T10:02:47'
+    action: 'T-1442: Export and Import -> Excel (.xlsx) with the shared ZIP core: sheet Steps with the CSV columns (shared step table and row parser), a reader for any workbook (shared strings, numbers, sparse cells, the Steps sheet or the first with an id column; .xls and non-zip refused by name); harness _t1442 (11 legs, all fail on 0.44.0), browser leg test_t1442_excel; LibreOffice-made fixtures; shots at 3 widths; person-sees exit 0'
+  - time: '2026-11-20T10:28:38'
+    action: 'T-1442: agent criteria met with evidence (browser tier green pool-w2 149/0 and here 149/0); shots re-taken with storage cleared after leaving the previous page (its unload wrote the autosave that came back as ''Restored your unsaved work'')'
+  - time: '2026-11-20T10:29:44'
+    action: 'T-1442: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 1456 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1456
+  commits: 4
+  files_changed: 39
+  lines_added: 923
+  lines_removed: 35
+  footprint_refreshed_at: '2026-11-20T09:31:15Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1442-importexport-46-excel-xlsx-out-and-in-wi.md
+generated_by: context-agent-hybrid
