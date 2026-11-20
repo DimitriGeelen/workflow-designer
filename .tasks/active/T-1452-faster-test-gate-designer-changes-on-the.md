@@ -109,9 +109,9 @@ bvp_scores_proposed:
      correction is sticky — set `hypothesis_source: human` in the frontmatter and no
      automatic pass will ever overwrite it. -->
 
-We believe that <change>,
-we will achieve <outcome>.
-We will know that we are successful when we see <measurable signal>.
+We believe that splitting the browser tier over two pool workers by measured leg time (lever B), and later running designer changes on the pool alone (lever A),
+we will achieve a pool browser gate that answers in about half the time with exactly the same verdict per leg.
+We will know that we are successful when we see every split run finish in 13 minutes or less from submit to verdict, with every leg giving the same result as the unsplit run of the same commit (compare-shards.py C1-C3 pass), in each balanced trial recorded in docs/reports/T-1452-faster-test-gate.md.
 
 ## Assumptions
 
