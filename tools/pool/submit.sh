@@ -64,6 +64,12 @@ chain_cuts() {  # the release tags the chain ends its links at, oldest first; ke
 }
 build_inputs() {
     local dir="$STAGE/$SHORT"
+    # T-1452: one builder per commit. Two submits for the same commit (the shards of a split tier) both rebuilt this
+    # dir (rm -rf + rebuild) at once and one lost ("last chain link failed", trial 4, 2026-11-20). The second now waits
+    # here and then finds .complete. Runs in DIR=$(...)'s subshell, so the lock goes when the function returns.
+    mkdir -p "$STAGE"
+    exec 9>"$STAGE/.build-$SHORT.lock"
+    flock 9
     if [ -f "$dir/.complete" ]; then echo "$dir"; return; fi
     rm -rf "$dir"; mkdir -p "$dir"
     git archive --format=tar HEAD -- tools/pool > "$dir/code.tar"
