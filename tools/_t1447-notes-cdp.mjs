@@ -158,10 +158,17 @@ try {
 
   // N5
   // the map's uuid is minted fresh on every import (both pages imported the file), so it is masked; every other byte counts
-  const maskUuid = x => typeof x === 'string' ? x.replace(/(<aef:workflowMeta\b[^>]*\suuid=")[^"]*"/, '$1…"') : x;
+  // T-1456/T-1457 (2026-11-20, a deliberate routing change): Productieorder's incoming and outgoing ends, 8 px apart, are
+  // re-spread 12 px apart. These two flows' file bends equal the designer's own routing, so a save writes the new route:
+  // their waypoint coordinates are masked on both sides; every other byte, of them and of every other edge, counts.
+  const REROUTED = ['flow_19', 'flow_20'];
+  const maskRerouted = x => typeof x === 'string' ? x.replace(/(<bpmndi:BPMNEdge\b[^>]*\sbpmnElement="([^"]+)"[^>]*>)([\s\S]*?)(<\/bpmndi:BPMNEdge>)/g,
+    (all, open, id, body, close) => REROUTED.includes(id) ? open + body.replace(/(?:<di:waypoint\b[^>]*\/>\s*)+/, '<di:waypoint (rerouted, T-1456)/>') + close : all) : x;
+  const maskUuid = x => typeof x === 'string' ? maskRerouted(x.replace(/(<aef:workflowMeta\b[^>]*\suuid=")[^"]*"/, '$1…"')) : x;
   const save = maskUuid(await ev(`buildBpmnXml(state)`));
-  if (save !== baseSave) { let i = 0; while (i < save.length && save[i] === baseSave[i]) i++; console.log('N5 first difference at ' + i + ': new ' + JSON.stringify(save.slice(i - 60, i + 60)) + ' | 0.44.0 ' + JSON.stringify(baseSave.slice(i - 60, i + 60))); }
-  leg('N5', typeof save === 'string' && save.length > 1000 && save === baseSave, 'save writes the same bytes as 0.44.0 (the import-minted uuid masked)', `${save && save.length} vs ${baseSave && baseSave.length} B`);
+  const base = maskRerouted(baseSave);
+  if (save !== base) { let i = 0; while (i < save.length && save[i] === base[i]) i++; console.log('N5 first difference at ' + i + ': new ' + JSON.stringify(save.slice(i - 60, i + 60)) + ' | 0.44.0 ' + JSON.stringify(base.slice(i - 60, i + 60))); }
+  leg('N5', typeof save === 'string' && save.length > 1000 && save === base, 'save writes the same bytes as 0.44.0 (the import-minted uuid masked; T-1456 re-routed flows: coordinates masked)', `${save && save.length} vs ${base && base.length} B`);
 
   // N6
   const notice = await ev(`(function(){ const m = document.getElementById('lane-fix-msg'); return m ? m.textContent : ''; })()`);

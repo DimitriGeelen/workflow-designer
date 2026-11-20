@@ -4631,7 +4631,16 @@ function renderNodes() {
       authCount.total++;
       if (mstate === 'missing' && !authDeclared) { authCount.missing++; mstate = 'none'; }
       const MARKER_CH = 4.9;                       // 8px monospace advance, rounded up
-      const avail = def.w / 2 - 2 - 7;             // from n.x+2 to top-centre, minus an arrowhead half-width
+      // From n.x+2 to the leftmost flow end on the top side (top-centre when there is none or it lies right of the
+      // centre), minus an arrowhead half-width. T-1456: ends on a side are not always at or right of the centre (a side
+      // mixing incoming and outgoing ends moves some 12 px aside), so the marker measures where they land.
+      let topLeft = 0;
+      const topEnds = buildEdgeGroups().get(`${n.id}:N`) || [];
+      for (const x of topEnds) {
+        const e = state.edges.find(z => z.id === x.edgeId);
+        if (e) topLeft = Math.min(topLeft, spreadOffset(e, x.role, 'N', n));
+      }
+      const avail = def.w / 2 + topLeft - 2 - 7;
       const fitMarker = (forms) => forms.find(t => t.length * MARKER_CH <= avail) || forms[forms.length - 1];
       const marker = (cls, kind, full, forms) => {
         const t = el('text', { x: n.x + 2, y: n.y - 3, class: cls, 'data-authority-marker': kind }, [text(fitMarker(forms))]);

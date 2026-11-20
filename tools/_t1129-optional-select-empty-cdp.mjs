@@ -136,9 +136,21 @@ async function main() {
     // tools/yaml-to-bpmn.py) no longer gains the collaboration + participant 0.17.0 invented, and is marked
     // poolProvenance on aef:workflowMeta. For such a file only, both are removed from both sides; every other byte
     // still compares. A file that declares its participant is untouched by this.
+    // T-1456 (2026-11-20, a deliberate routing change): a loop bar outside the lanes a flow connects costs more, and a
+    // side whose ends would land closer than a pitch is re-spread. A corpus file's bends equal the designer's own
+    // routing, so a save writes the new routing for exactly these flows. Their waypoint COORDINATES are masked; every
+    // other byte of those edges, and every other edge, still compares. Listed by measure (saving before vs after).
+    const T1456_REROUTED = { 'promotion-pipeline': ['flow_6', 'flow_7'], 'release-pipeline': ['flow_13', 'flow_14', 'flow_15', 'flow_17'],
+      'session-capture': ['flow_4', 'flow_6'], 'task-gate': ['flow_13', 'flow_14'], 'task-lifecycle': ['flow_6', 'flow_9', 'flow_11', 'flow_12'] };
+    const maskRerouted = (f, x) => {
+      const ids = T1456_REROUTED[f.replace(/^.*\//, '').replace(/\.bpmn$/, '')];
+      if (!ids) return x;
+      return x.replace(/(<bpmndi:BPMNEdge\b[^>]*\sbpmnElement="([^"]+)"[^>]*>)([\s\S]*?)(<\/bpmndi:BPMNEdge>)/g,
+        (all, open, id, body, close) => ids.includes(id) ? open + body.replace(/(?:<di:waypoint\b[^>]*\/>\s*)+/, '<di:waypoint (rerouted, T-1456)/>') + close : all);
+    };
     const noPool = f => !/<(?:[A-Za-z0-9_]+:)?participant\b/.test(readFileSync(f, 'utf8'));
     const dropPool = (f, x) => noPool(f) ? x.replace(/\n?[ \t]*<bpmn:collaboration\b[\s\S]*?<\/bpmn:collaboration>\n?/, '\n').replace(/\spoolProvenance="[^"]*"/, '') : x;
-    const norm = (f, x0) => { const x = dropPool(f, x0); return blocks(maskCont((/<aef:workflowMeta[^>]*\suuid="/.test(readFileSync(f, 'utf8')) ? x : x.replace(/(<aef:workflowMeta[^>]*?)\suuid="[^"]*"/, '$1')).replace(ID, 'ID'))); };
+    const norm = (f, x0) => { const x = maskRerouted(f, dropPool(f, x0)); return blocks(maskCont((/<aef:workflowMeta[^>]*\suuid="/.test(readFileSync(f, 'utf8')) ? x : x.replace(/(<aef:workflowMeta[^>]*?)\suuid="[^"]*"/, '$1')).replace(ID, 'ID'))); };
     const diffs = corpus.filter(f => norm(f, now[f]) !== norm(f, was[f])).map(f => ({ file: f.replace(REPO + '/', ''), at: firstDiff(norm(f, now[f]), norm(f, was[f])) }));
     leg(diffs.length === 0, `E export of ${corpus.length} examples identical to 0.17.0`, diffs);
   } catch (e) {
