@@ -157,7 +157,7 @@ target) is the fuller answer to "side by side"; it is a port-choice change, offe
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
-- [ ] [REVIEW] At Productieorder the incoming and outgoing lines read as two distinct flows.
+- [x] [REVIEW] At Productieorder the incoming and outgoing lines read as two distinct flows.
   **Why you:** whether two lines on one side read as distinct or as a bundle is a judgement on the image.
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1457 --criterion 1`), who may escalate.
   **Steps:**
@@ -165,6 +165,7 @@ target) is the fuller answer to "side by side"; it is a port-choice change, offe
      touches the outgoing line (8 px); after, 12 px apart, the incoming line still straight.
   **Expected:** after, a reader tells the two flows apart without zooming in.
   **If not:** say so; the fuller answer (the outgoing end on the right side, facing its target) becomes its own task.
+  **Reviewer verdict:** green V-20261120-f56a6aba — reviewer-judge-t-1457-r1-50b3da97acb2:reviewer (rung rung-1-same-vendor-independent), digest a361f09e9bb0; dispatch judge-t-1457-r1-50b3da97acb2; evidence: .context/reviews/evidence/T-1457/AC1-judge-t-1457-r1-50b3da97acb2.md, .context/reviews/evidence/T-1457/productieorder-1024-before-judge-t-1457-r1-50b3da97acb2.png, .context/reviews/evidence/T-1457/productieorder-1024-after-judge-t-1457-r1-50b3da97acb2.png, .context/reviews/evidence/T-1457/productieorder-1440-before-judge-t-1457-r1-50b3da97acb2.png, .context/reviews/evidence/T-1457/productieorder-1440-after-judge-t-1457-r1-50b3da97acb2.png, .context/reviews/evidence/T-1457/productieorder-1920-before-judge-t-1457-r1-50b3da97acb2.png, .context/reviews/evidence/T-1457/productieorder-1920-after-judge-t-1457-r1-50b3da97acb2.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
