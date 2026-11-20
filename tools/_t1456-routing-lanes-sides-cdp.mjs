@@ -18,7 +18,7 @@ import { tmpdir, homedir } from 'node:os';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import net from 'node:net';
-import { makeProfileDir } from './_cdp-profile.mjs';
+import { makeProfileDir, removeProfileDir } from './_cdp-profile.mjs';
 import { pageWsUrl } from './_cdp-attach.mjs';
 import { cdp } from './_cdp-client.mjs';
 
@@ -115,9 +115,16 @@ const MEASURE = `(function(){
   }
   return { L, S, excused, wel: welInfo, prod, flows: flows.length };
 })()`;
-const stopBrowser = () => { try { cl && cl.close(); } catch (_) {} try { br && br.kill('SIGKILL'); } catch (_) {} cl = null; br = null; };
+// T-1257: removeProfileDir also removes Chrome's own per-launch org.chromium.Chromium.* dir (found through the
+// profile's SingletonSocket link); a plain rmSync of the profile left one behind per load (_t1257 red, 2026-11-20).
+const stopBrowser = async () => {
+  try { cl && cl.close(); } catch (_) {}
+  if (br) { const dead = new Promise(r => br.once('exit', r)); try { br.kill('SIGKILL'); } catch (_) {} await Promise.race([dead, sleep(3000)]); }
+  if (udd) removeProfileDir(udd);
+  cl = null; br = null; udd = null;
+};
 const startBrowser = async W => {
-  stopBrowser();
+  await stopBrowser();
   udd = makeProfileDir('t1456-'); profiles.push(udd);   // a fresh profile: no storage carried over either
   br = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', `--window-size=${W},900`, '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: 'ignore' });
   let dp; for (let i = 0; i < 150 && !dp; i++) { try { dp = parseInt(readFileSync(join(udd, 'DevToolsActivePort'), 'utf8').split('\n')[0], 10); } catch (_) { await sleep(100); } }
@@ -179,8 +186,9 @@ try {
     } catch (e2) { console.log('STACK: could not pause the page: ' + String(e2 && e2.message || e2).slice(0, 160)); }
   }
 } finally {
-  stopBrowser(); py.kill('SIGKILL');
-  for (const d of [doc, ...profiles]) { try { rmSync(d, { recursive: true, force: true }); } catch (_) {} }
+  await stopBrowser(); py.kill('SIGKILL');
+  for (const d of profiles) removeProfileDir(d);
+  try { rmSync(doc, { recursive: true, force: true }); } catch (_) {}
   if (crashes.length) console.log(`NOTE  the page process crashed during: ${crashes.join(' | ')}`);
   if (dialogs.length) console.log(`NOTE  ${dialogs.length} JavaScript dialog(s) opened and were accepted: ${dialogs.join(' | ')}`);
   console.log(fails ? `${fails} leg(s) FAILED` : 'all legs passed');
