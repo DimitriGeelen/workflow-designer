@@ -1,0 +1,113 @@
+[
+ {
+  "width": 1024,
+  "shot": "import-open",
+  "items": 4,
+  "allInWindow": true,
+  "allOnTop": true,
+  "ids": [
+   "bpmn",
+   "mermaid",
+   "csv",
+   "xlsx"
+  ]
+ },
+ {
+  "width": 1024,
+  "shot": "export-open",
+  "items": 9,
+  "allInWindow": true,
+  "allOnTop": true,
+  "ids": [
+   "bpmn",
+   "pdf",
+   "svg",
+   "png1",
+   "png2",
+   "png4",
+   "mermaid",
+   "csv",
+   "xlsx"
+  ]
+ },
+ {
+  "width": 1024,
+  "shot": "after-xlsx-import",
+  "notice": "⚠ imported from Excel: 14 steps and 17 flows; not in this format: positions (laid out by Clean, so the step numbers in the visible ids follow the new layout), the conditions on flows out of a gateway, and each step's details such as inputs, outputs and roles, and lanes that hold no step",
+  "inWindow": true
+ },
+ {
+  "width": 1440,
+  "shot": "import-open",
+  "items": 4,
+  "allInWindow": true,
+  "allOnTop": true,
+  "ids": [
+   "bpmn",
+   "mermaid",
+   "csv",
+   "xlsx"
+  ]
+ },
+ {
+  "width": 1440,
+  "shot": "export-open",
+  "items": 9,
+  "allInWindow": true,
+  "allOnTop": true,
+  "ids": [
+   "bpmn",
+   "pdf",
+   "svg",
+   "png1",
+   "png2",
+   "png4",
+   "mermaid",
+   "csv",
+   "xlsx"
+  ]
+ },
+ {
+  "width": 1440,
+  "shot": "after-xlsx-import",
+  "notice": "⚠ imported from Excel: 14 steps and 17 flows; not in this format: positions (laid out by Clean, so the step numbers in the visible ids follow the new layout), the conditions on flows out of a gateway, and each step's details such as inputs, outputs and roles, and lanes that hold no step",
+  "inWindow": true
+ },
+ {
+  "width": 1920,
+  "shot": "import-open",
+  "items": 4,
+  "allInWindow": true,
+  "allOnTop": true,
+  "ids": [
+   "bpmn",
+   "mermaid",
+   "csv",
+   "xlsx"
+  ]
+ },
+ {
+  "width": 1920,
+  "shot": "export-open",
+  "items": 9,
+  "allInWindow": true,
+  "allOnTop": true,
+  "ids": [
+   "bpmn",
+   "pdf",
+   "svg",
+   "png1",
+   "png2",
+   "png4",
+   "mermaid",
+   "csv",
+   "xlsx"
+  ]
+ },
+ {
+  "width": 1920,
+  "shot": "after-xlsx-import",
+  "notice": "⚠ imported from Excel: 14 steps and 17 flows; not in this format: positions (laid out by Clean, so the step numbers in the visible ids follow the new layout), the conditions on flows out of a gateway, and each step's details such as inputs, outputs and roles, and lanes that hold no step",
+  "inWindow": true
+ }
+]

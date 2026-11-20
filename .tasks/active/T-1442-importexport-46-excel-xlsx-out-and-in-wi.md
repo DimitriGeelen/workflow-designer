@@ -2,12 +2,15 @@
 id: T-1442
 name: "Import/Export 4/6: Excel (.xlsx) out and in, with the shared ZIP core"
 description: >
-  T-1093 GO step 4. ZIP writer/reader on CompressionStream('deflate-raw') (spike office-spike.mjs, ~60 lines); Excel sheet Steps (id, name, type, lane, next); import through the step-3 route. Test: openpyxl reads the export; round trip of our own reader.
+  T-1093 GO step 4. ZIP writer/reader on CompressionStream('deflate-raw') (spike office-spike.mjs,
+  ~60 lines); Excel sheet Steps (id, name, type, lane, next); import through the step-3
+  route. Test: openpyxl reads the export; round trip of our own reader.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: later
+horizon: now
 tags: []
 components: []
 related_tasks: [T-1093]
@@ -38,8 +41,8 @@ related_tasks: [T-1093]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-19T09:14:12Z
-last_update: 2026-11-19T09:14:12Z
-date_finished: null
+last_update: 2026-11-20T08:28:02Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +53,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-20T08:27:46Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=2 (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body
+      — no hypothesis, so this score has no claim to be wrong about,L1:keyword=lane);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=2 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1442: Import/Export 4/6: Excel (.xlsx) out and in, with the shared ZIP core
@@ -57,20 +80,39 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** The operator asked for Excel both ways (2026-11-15/18, `docs/reports/T-1093-import-export-formats.md`,
+"Maybe also Excel, good import and export format"). T-1093 GO, step 4 of the order: Excel, which brings the ZIP core
+that Word (T-1443) and Visio (T-1444) reuse. The spike (`docs/reports/T-1093-spikes/office-spike.mjs`) wrote a
+`.xlsx` that openpyxl opened, and read it back with its own reader, in ~60 lines on CompressionStream('deflate-raw').
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** The designer has no zip writer/reader, so no Office format. Excel holds the same table as
+the T-1441 CSV, so export and import can share CSV's columns and its route (rows → BPMN without a diagram → Clean).
+A real Excel or LibreOffice file is not our own output: it uses shared strings, numbers, sparse cells (only the
+`r="C5"` reference says where a cell is) and data descriptors, so the reader must handle those, not only our format.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** Export → Excel writes a sheet "Steps" with the CSV columns; Import → Excel reads it (or a sheet a person
+made or re-saved in Excel/LibreOffice with the same column names) through the CSV route.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** One more entry in each menu; a map → .xlsx → map round trip keeps steps, flows, labels and
+lanes like CSV does; an independent program (openpyxl, LibreOffice) opens the export; a ZIP core in the file that the
+next two formats reuse.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] Export → Excel writes a valid `.xlsx` with one sheet "Steps", the CSV columns in the same order (id, name, type,
+      lane, next, next_labels, lane_code, lane_authority, uid) and one row per step; openpyxl reads it back to exactly
+      the rows the CSV export gives for the same map.
+- [ ] Import → Excel rebuilds an exported corpus map like CSV does: by permanent identity the same steps, names, types,
+      lanes and flows with labels, laid out by Clean, no validator ERROR, and the notice names what the format does
+      not carry.
+- [ ] Import reads a sheet NOT written by us: the same table re-saved by LibreOffice (shared strings, a numeric cell,
+      a sheet not named "Steps" at position 1) gives the same steps and flows; a file that is not a zip, or has no
+      sheet with an "id" column, is refused with a message naming the reason, nothing imported.
+- [ ] A CDP harness covers export, the round trip on two corpus maps and the foreign-file case, is a browser-tier leg,
+      and fails on the 0.44.0 designer.
+- [ ] `bash tools/person-sees-gate.sh` exits 0 and the browser tier is green.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -117,8 +159,22 @@ date_finished: null
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+- [ ] [REVIEW] The Import and Export menus with Excel added fit, and the Excel import notice reads well, at three widths.
+  **Why you:** a menu entry and a notice are what a person sees; only a look at the images judges them.
+  **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1442 --criterion 1`), who may escalate.
+  **Steps:**
+  1. `docs/reports/T-1442-shots/{1024,1440,1920}-{import-open,export-open}.png`: Import lists 4 formats, Export 9;
+     every entry readable, the menu inside the window and on top, nothing overlapping.
+  2. `docs/reports/T-1442-shots/{1024,1440,1920}-after-xlsx-import.png`: the imported map is laid out and readable;
+     the notice names what Excel did not carry and is fully visible.
+  3. Optional: `docs/reports/T-1442-shots/exported/*.xlsx` opened in a spreadsheet program reads as a step list.
+  **Expected:** all of it reads cleanly.
+  **If not:** name the file and the element; the agent fixes and re-shoots.
 
 ## Verification
+
+node tools/_t1442-excel-cdp.mjs
+grep -q "test_t1442_excel" tests/run-bridge-tests.sh
 
 <!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
      headings; the completion gate strips HTML comments before running anything.
@@ -326,7 +382,30 @@ date_finished: null
      commit, that is a calibration failure — recommend GO or NO-GO.
 -->
 
+## Visual Verification
+
+Shots: `docs/reports/T-1442-shots/` (`shots.mjs`, fresh browser storage per shot; measurements in `measure.json`).
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| Import menu open | 4 entries incl. Excel (step list) .xlsx | ok | ok | ok | every item inside the window and on top (measured) |
+| Export menu open | 9 entries incl. Excel (step list) .xlsx | ok | ok | ok | at 1920 the menus open leftwards from the right edge, as before |
+| after Import → Excel | notice + map laid out by Clean | ok | ok | ok | notice names Excel, positions, conditions, details, empty lanes; fully visible |
+
+Read by the agent, per shot: menu labels and hints readable, aligned, nothing clipped or overlapped; after import the
+notice wraps inside the canvas (two lines at 1440, four at 1024), the map below it is laid out and readable. Not
+from this task: at 1440 Save wraps to a second toolbar row once Clean's button shows "Cleaned 14 nodes — Ctrl+Z
+reverts" (same in T-1441's shots).
+
 ## Decisions
+
+### 2026-11-20 — Excel reads the CSV columns through the CSV route; the reader takes any workbook
+- **Chose:** one step table (`stepRows`) and one row parser (`stepRowsToModel`) shared by CSV and Excel; the reader
+  picks the sheet named "Steps", else the first sheet whose first filled row has an "id" column.
+- **Why:** the same columns mean one round-trip rule for both formats; a person's own workbook rarely keeps our
+  sheet name or column order, and a refused file names the sheets it looked at.
+- **Rejected:** a separate Excel model (two rules to keep equal); only reading our own export (the operator asked
+  for Excel as an import format, which means files made in Excel).
 
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
@@ -353,3 +432,10 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1442-importexport-46-excel-xlsx-out-and-in-wi.md
 - **Context:** Initial task creation
+
+### 2026-11-20T08:27:45Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
+
+### 2026-11-20T08:28:02Z — status-update [task-update-agent]
+- **Change:** horizon: now → now

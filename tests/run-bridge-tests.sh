@@ -2188,6 +2188,21 @@ else
 fi
 }
 leg browser "test_t1441_text_bridges" _leg_t1441
+_leg_t1442() {
+
+# ── T-1442 (T-1093 GO step 4): Excel (.xlsx) export and import, the shared ZIP core ──
+# The export read by an independent reader (Python zipfile/ElementTree, openpyxl when installed) equals the CSV
+# export's rows; the round trip by permanent identity; no validator ERROR; the import notice; a LibreOffice-saved
+# workbook (tests/fixtures/xlsx) imports; a non-zip file and a sheet without "id" are refused by name. ~45 s.
+if node "$ROOT/tools/_t1442-excel-cdp.mjs" > "$TMP/leg-_t1442.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "Excel export or import regressed: a leg of _t1442-excel-cdp.mjs failed (run 'node tools/_t1442-excel-cdp.mjs /tmp/x' to keep the files; T-1442)"
+  show_output "$TMP/leg-_t1442.out" "_t1442-excel-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1442_excel" _leg_t1442
 _leg_t1447() {
 
 # ── T-1447: imported text annotations and associations drawn read-only (Greenfield's workshop map) ──

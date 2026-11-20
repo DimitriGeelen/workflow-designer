@@ -13980,7 +13980,9 @@ function parseMermaid(text) {
 // labels, both ";"-separated and aligned. lane_code, lane_authority and uid keep what Mermaid keeps in its comments.
 const CSV_HEAD = ['id', 'name', 'type', 'lane', 'next', 'next_labels', 'lane_code', 'lane_authority', 'uid'];
 function csvCell(v) { v = String(v == null ? '' : v); return /[",\r\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
-function buildCsv() {
+function buildCsv() { return stepRows().map(r => r.map(csvCell).join(',')).join('\r\n') + '\r\n'; }
+// The step table both CSV and Excel (T-1442) write: a header row, then one row per step, lane by lane.
+function stepRows() {
   const m = bridgeModel();
   const idOfUid = new Map(m.steps.map(st => [st.uid, st.id]));
   const rows = [CSV_HEAD];
@@ -13992,7 +13994,7 @@ function buildCsv() {
     rows.push([st.id, st.name, st.type, st.lane, out.map(f => idOfUid.get(f.to) || f.to).join(';'),
       out.map(f => f.label.replace(/;/g, ',')).join(';'), lm.abbr || '', lm.authority || '', st.uid]);
   }
-  return rows.map(r => r.map(csvCell).join(',')).join('\r\n') + '\r\n';
+  return rows;
 }
 function parseCsvRows(text) {
   const rows = []; let row = [], cell = '', q = false;
@@ -14007,8 +14009,10 @@ function parseCsvRows(text) {
   if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
   return rows.filter(r => r.some(x => x.trim() !== ''));
 }
-function parseCsv(text) {
-  const rows = parseCsvRows(text.replace(/^﻿/, ''));
+function parseCsv(text) { return stepRowsToModel(parseCsvRows(text.replace(/^﻿/, ''))); }
+// A step table (first row = column names, any order, extra columns ignored) -> steps and flows. Shared by CSV and Excel.
+function stepRowsToModel(rows) {
+  rows = rows.map(r => r.map(c => String(c == null ? '' : c))).filter(r => r.some(x => x.trim() !== ''));
   const head = (rows.shift() || []).map(h => h.trim().toLowerCase());
   const col = k => head.indexOf(k);
   if (col('id') < 0) throw new Error('the first row must name the columns, including "id"');
@@ -14066,29 +14070,158 @@ function bridgeToBpmn(model, workflowId, title) {
   return L.join('\n') + '\n';
 }
 
+const BRIDGE_NAME = { mermaid: 'Mermaid', csv: 'CSV', xlsx: 'Excel' };
 function importBridgeText(kind, text, fileName) {
-  const model = kind === 'mermaid' ? parseMermaid(text) : parseCsv(text);
-  if (!model.steps.length) throw new Error(`no steps found in this ${kind === 'mermaid' ? 'Mermaid' : 'CSV'} file`);
+  importBridgeModel(kind, kind === 'mermaid' ? parseMermaid(text) : parseCsv(text), fileName);
+}
+function importBridgeModel(kind, model, fileName) {
+  if (!model.steps.length) throw new Error(`no steps found in this ${BRIDGE_NAME[kind]} file`);
   const base = String(fileName || 'imported').replace(/\.[^.]+$/, '').replace(/\.v\d+$/, '') || 'imported';
   const id = (model.mapId && /^[\w.-]+$/.test(model.mapId) ? model.mapId : base).toLowerCase();
   const title = model.mapTitle || id;
-  _bridgeImportNote = `imported from ${kind === 'mermaid' ? 'Mermaid' : 'CSV'}: ${model.steps.length} steps and ` +
-    `${model.flows.length} flows; not in this format: ${BRIDGE_LOSS}${kind === 'csv' ? ', and lanes that hold no step' : ''}`;
+  _bridgeImportNote = `imported from ${BRIDGE_NAME[kind]}: ${model.steps.length} steps and ` +
+    `${model.flows.length} flows; not in this format: ${BRIDGE_LOSS}${kind !== 'mermaid' ? ', and lanes that hold no step' : ''}`;
   adoptImportedXml(bridgeToBpmn(model, id, title), { userImport: true });
   if (typeof cleanLayoutAll === 'function') cleanLayoutAll(); else $('btn-clean').click();
   openingZoom();
 }
+async function importXlsxBytes(u8, fileName) { importBridgeModel('xlsx', stepRowsToModel(await readXlsxRows(u8)), fileName); }
 function importBridgeFile(kind) {
   const input = document.createElement('input');
   input.type = 'file';
-  input.accept = kind === 'mermaid' ? '.mmd,.mermaid,.md,.txt,text/plain' : '.csv,text/csv,text/plain';
+  input.accept = kind === 'mermaid' ? '.mmd,.mermaid,.md,.txt,text/plain'
+    : kind === 'xlsx' ? '.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : '.csv,text/csv,text/plain';
   input.onchange = async ev => {
     const file = ev.target.files[0];
     if (!file) return;
-    try { importBridgeText(kind, await file.text(), file.name); }
-    catch (e) { _bridgeImportNote = ''; aefRecordFault('import-' + kind, e); alert(`Failed to import ${kind === 'mermaid' ? 'Mermaid' : 'CSV'}:\n` + e.message); }
+    try {
+      if (kind === 'xlsx') await importXlsxBytes(new Uint8Array(await file.arrayBuffer()), file.name);
+      else importBridgeText(kind, await file.text(), file.name);
+    }
+    catch (e) { _bridgeImportNote = ''; aefRecordFault('import-' + kind, e); alert(`Failed to import ${BRIDGE_NAME[kind]}:\n` + e.message); }
   };
   input.click();
+}
+
+// ── T-1442: the ZIP core (Excel now; Word and Visio reuse it) ──
+// Writer: deflate-raw through the browser's CompressionStream, CRC-32, local headers + central directory. Reader: the
+// central directory gives each entry's sizes (so entries written with a data descriptor read fine too).
+const ZIP_CRC = new Uint32Array(256).map((_, n) => { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; return c >>> 0; });
+function zipCrc32(b) { let c = 0xFFFFFFFF; for (let i = 0; i < b.length; i++) c = ZIP_CRC[(c ^ b[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+async function zipPipe(bytes, stream) { return new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(stream)).arrayBuffer()); }
+async function zipWrite(files) {   // files: [[name, text or Uint8Array], ...] -> Uint8Array
+  const enc = new TextEncoder(), parts = [], central = [];
+  let off = 0;
+  for (const [name, body] of files) {
+    const raw = typeof body === 'string' ? enc.encode(body) : body, nm = enc.encode(name), crc = zipCrc32(raw);
+    const data = await zipPipe(raw, new CompressionStream('deflate-raw'));
+    const lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(8, 8, true); lh.setUint16(12, 0x21, true);   // 1980-01-01: same bytes every time
+    lh.setUint32(14, crc, true); lh.setUint32(18, data.length, true); lh.setUint32(22, raw.length, true); lh.setUint16(26, nm.length, true);
+    parts.push(new Uint8Array(lh.buffer), nm, data);
+    const ch = new DataView(new ArrayBuffer(46));
+    ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(10, 8, true); ch.setUint16(14, 0x21, true);
+    ch.setUint32(16, crc, true); ch.setUint32(20, data.length, true); ch.setUint32(24, raw.length, true); ch.setUint16(28, nm.length, true); ch.setUint32(42, off, true);
+    central.push(new Uint8Array(ch.buffer), nm);
+    off += 30 + nm.length + data.length;
+  }
+  const csize = central.reduce((n, p) => n + p.length, 0), end = new DataView(new ArrayBuffer(22));
+  end.setUint32(0, 0x06054b50, true); end.setUint16(8, files.length, true); end.setUint16(10, files.length, true);
+  end.setUint32(12, csize, true); end.setUint32(16, off, true);
+  return new Uint8Array(await new Blob([...parts, ...central, new Uint8Array(end.buffer)]).arrayBuffer());
+}
+async function zipRead(u8) {   // -> { name: Uint8Array }
+  if (u8.length >= 4 && u8[0] === 0xD0 && u8[1] === 0xCF && u8[2] === 0x11 && u8[3] === 0xE0)
+    throw new Error('this is an old-style Excel file (.xls); save it as .xlsx (Excel Workbook) and import that');
+  const dv = new DataView(u8.buffer, u8.byteOffset, u8.byteLength), out = {}, dec = new TextDecoder();
+  let e = u8.length - 22;
+  while (e >= 0 && e > u8.length - 22 - 65557 && dv.getUint32(e, true) !== 0x06054b50) e--;
+  if (e < 0 || dv.getUint32(e, true) !== 0x06054b50) throw new Error('this file is not an .xlsx workbook (it is not a zip package)');
+  let p = dv.getUint32(e + 16, true);
+  for (let i = 0, n = dv.getUint16(e + 10, true); i < n; i++) {
+    if (p + 46 > u8.length || dv.getUint32(p, true) !== 0x02014b50) throw new Error('this .xlsx file is damaged (its zip directory is broken)');
+    const method = dv.getUint16(p + 10, true), csz = dv.getUint32(p + 20, true), nl = dv.getUint16(p + 28, true);
+    const xl = dv.getUint16(p + 30, true), cl = dv.getUint16(p + 32, true), lo = dv.getUint32(p + 42, true);
+    const name = dec.decode(u8.subarray(p + 46, p + 46 + nl));
+    const ds = lo + 30 + dv.getUint16(lo + 26, true) + dv.getUint16(lo + 28, true), data = u8.subarray(ds, ds + csz);
+    if (method === 8) out[name] = await zipPipe(data, new DecompressionStream('deflate-raw'));
+    else if (method === 0) out[name] = data;
+    else throw new Error(`this .xlsx file uses a zip compression the designer cannot read (method ${method})`);
+    p += 46 + nl + xl + cl;
+  }
+  return out;
+}
+
+// ── T-1442: Excel (.xlsx): one sheet "Steps" with the CSV columns ──
+const XLSX_CT_MAIN = 'application/vnd.openxmlformats-officedocument.spreadsheetml';
+const XLSX_NS = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main';
+const XLSX_REL = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+const XLSX_PKG_REL = 'http://schemas.openxmlformats.org/package/2006/relationships';
+function xlsxCol(i) { let s = ''; for (i++; i > 0; i = Math.floor((i - 1) / 26)) s = String.fromCharCode(65 + (i - 1) % 26) + s; return s; }
+function xlsxEsc(v) { return String(v).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+async function buildXlsx() {
+  const rows = stepRows();
+  // Column widths from the longest value (capped), so the sheet opens readable; header row bold and frozen.
+  const widths = rows[0].map((_, ci) => Math.min(60, Math.max(8, ...rows.map(r => String(r[ci]).length + 2))));
+  const sheet = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<worksheet xmlns="${XLSX_NS}">` +
+    `<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>` +
+    `<cols>${widths.map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join('')}</cols><sheetData>` +
+    rows.map((r, ri) => `<row r="${ri + 1}">${r.map((v, ci) => `<c r="${xlsxCol(ci)}${ri + 1}" t="inlineStr"${ri === 0 ? ' s="1"' : ''}><is><t xml:space="preserve">${xlsxEsc(v)}</t></is></c>`).join('')}</row>`).join('') +
+    `</sheetData></worksheet>`;
+  const x = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
+  return zipWrite([
+    ['[Content_Types].xml', `${x}<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="${XLSX_CT_MAIN}.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="${XLSX_CT_MAIN}.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="${XLSX_CT_MAIN}.styles+xml"/></Types>`],
+    ['_rels/.rels', `${x}<Relationships xmlns="${XLSX_PKG_REL}"><Relationship Id="rId1" Type="${XLSX_REL}/officeDocument" Target="xl/workbook.xml"/></Relationships>`],
+    ['xl/workbook.xml', `${x}<workbook xmlns="${XLSX_NS}" xmlns:r="${XLSX_REL}"><sheets><sheet name="Steps" sheetId="1" r:id="rId1"/></sheets></workbook>`],
+    ['xl/_rels/workbook.xml.rels', `${x}<Relationships xmlns="${XLSX_PKG_REL}"><Relationship Id="rId1" Type="${XLSX_REL}/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="${XLSX_REL}/styles" Target="styles.xml"/></Relationships>`],
+    ['xl/styles.xml', `${x}<styleSheet xmlns="${XLSX_NS}"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs></styleSheet>`],
+    ['xl/worksheets/sheet1.xml', sheet],
+  ]);
+}
+async function downloadXlsxFile() {
+  try { downloadBlob(new Blob([await buildXlsx()], { type: XLSX_CT_MAIN + '.sheet' }), `${exportBaseName()}.xlsx`); }
+  catch (e) { aefRecordFault('export-xlsx', e); alert('Failed to export Excel:\n' + e.message); }
+}
+// Reader for any .xlsx, not only ours: shared strings, inline strings, numbers, booleans, sparse cells (placed by their
+// r="C5" reference), sheets reached through workbook.xml and its relationships. The sheet named "Steps" is read if
+// there is one, else the first sheet whose first filled row has an "id" column.
+async function readXlsxRows(u8) {
+  const files = await zipRead(u8), dec = new TextDecoder();
+  const part = p => { p = p.replace(/^\//, ''); return files[p] ? new DOMParser().parseFromString(dec.decode(files[p]), 'application/xml') : null; };
+  const all = (doc, tag) => doc ? [...doc.getElementsByTagNameNS('*', tag)] : [];
+  const wb = part('xl/workbook.xml');
+  if (!wb) throw new Error('this zip file is not an Excel workbook (no xl/workbook.xml inside)');
+  const rels = new Map(all(part('xl/_rels/workbook.xml.rels'), 'Relationship').map(r => [r.getAttribute('Id'), r.getAttribute('Target')]));
+  const target = t => !t ? '' : t.startsWith('/') ? t.slice(1) : 'xl/' + t.replace(/^\.\//, '');
+  const shared = all(part('xl/sharedStrings.xml'), 'si').map(si =>
+    all(si, 't').filter(t => !(t.parentNode && t.parentNode.localName === 'rPh')).map(t => t.textContent).join(''));
+  const textOf = c => {
+    const t = c.getAttribute('t'), v = all(c, 'v')[0];
+    if (t === 'inlineStr') return all(c, 't').filter(x => !(x.parentNode && x.parentNode.localName === 'rPh')).map(x => x.textContent).join('');
+    if (!v) return '';
+    if (t === 's') return shared[+v.textContent] ?? '';
+    if (t === 'b') return v.textContent === '1' ? 'TRUE' : 'FALSE';
+    if (t === 'str' || t === 'e') return v.textContent;
+    const n = Number(v.textContent);   // a number: written as a person would type it (1, not 1.0)
+    return Number.isFinite(n) ? String(n) : v.textContent;
+  };
+  const colIx = ref => { const m = /^([A-Z]+)/.exec(ref || ''); if (!m) return -1; let n = 0; for (const ch of m[1]) n = n * 26 + ch.charCodeAt(0) - 64; return n - 1; };
+  const sheetRows = doc => all(doc, 'row').map(row => {
+    const out = []; let next = 0;
+    for (const c of all(row, 'c')) { const ix = colIx(c.getAttribute('r')); const at = ix >= 0 ? ix : next; out[at] = textOf(c); next = at + 1; }
+    return Array.from(out, x => x ?? '');
+  });
+  const sheets = all(wb, 'sheet').map(s => ({ name: s.getAttribute('name') || '', path: target(rels.get(s.getAttributeNS(XLSX_REL, 'id') || s.getAttribute('r:id'))) }));
+  if (!sheets.length) throw new Error('this Excel workbook has no sheets');
+  const named = sheets.find(s => s.name.trim().toLowerCase() === 'steps');
+  for (const s of named ? [named, ...sheets.filter(x => x !== named)] : sheets) {
+    const doc = part(s.path);
+    if (!doc) continue;
+    const rows = sheetRows(doc);
+    const head = rows.find(r => r.some(x => String(x).trim() !== ''));
+    if (head && head.some(h => String(h).trim().toLowerCase() === 'id')) return rows;
+  }
+  throw new Error(`no sheet in this workbook has an "id" column in its first row (sheets: ${sheets.map(s => s.name).join(', ')})`);
 }
 function downloadTextFile(text, ext, type) { downloadBlob(new Blob([text], { type }), `${exportBaseName()}.${ext}`); }
 
@@ -14099,6 +14232,7 @@ const IO_FORMATS = {
     { id: 'bpmn', label: 'BPMN 2.0 / Camunda', hint: '.bpmn, .xml', run: importBpmnFile },
     { id: 'mermaid', label: 'Mermaid', hint: '.mmd', run: () => importBridgeFile('mermaid') },     // T-1441
     { id: 'csv', label: 'CSV (step list)', hint: '.csv', run: () => importBridgeFile('csv') },
+    { id: 'xlsx', label: 'Excel (step list)', hint: '.xlsx', run: () => importBridgeFile('xlsx') },   // T-1442
   ],
   export: [
     { id: 'bpmn', label: 'BPMN 2.0 / Camunda', hint: '.bpmn', run: downloadBpmnFile },
@@ -14109,6 +14243,7 @@ const IO_FORMATS = {
     { id: 'png4', label: 'PNG picture', hint: '4x', run: () => downloadPngFile(4) },
     { id: 'mermaid', label: 'Mermaid', hint: '.mmd', run: () => downloadTextFile(buildMermaid(), 'mmd', 'text/plain') },   // T-1441
     { id: 'csv', label: 'CSV (step list)', hint: '.csv', run: () => downloadTextFile(buildCsv(), 'csv', 'text/csv') },
+    { id: 'xlsx', label: 'Excel (step list)', hint: '.xlsx', run: downloadXlsxFile },   // T-1442
   ],
 };
 
