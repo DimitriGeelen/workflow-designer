@@ -25,7 +25,7 @@
 set -uo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-CENSUS="$REPO/tools/_t821-swallowed-failure-census.py"
+CENSUS="${T821_CENSUS:-$REPO/tools/_t821-swallowed-failure-census.py}"   # T821_CENSUS: run the controls against another census (control runs)
 SRC_REL="src/aef-workflow-designer.html"
 
 PASS=0; FAIL=0
@@ -146,6 +146,21 @@ else
         ok "bare catch after a regex holding a quote -> FINDING (the regex is not a string)"
     else
         bad "regex control red for another reason" "the census went red but the findings did not rise. $(tail -4 "$WORK/out")"
+    fi
+fi
+
+# 6. a template literal nested inside ${...} must not hide the code after it (T-1464)
+#    Before T-1464 the inner backtick closed the outer literal, the inner text read as code, and the apostrophe in it
+#    opened a 'string' that hid real code: T-1442's sheet builder made ~150 lines vanish and a catch left the count.
+build
+inject 'function _t1464ControlNestedTemplate(r){ const s = `<a>${r.map(v => `<b>it'"'"'s ${v}</b>`).join("")}</a>`; try { JSON.parse(s); } catch (_) {} return s; }'
+if run; then
+    bad "bare catch after a nested template literal not caught" "the census PASSED: the nested template literal hid the bare catch after it — the T-1464 blind spot is back"
+else
+    if [ "$(findings)" -gt "${BASE_F:-0}" ]; then
+        ok "bare catch after a template literal nested in \${...} -> FINDING (the nesting is followed)"
+    else
+        bad "nested-template control red for another reason" "the census went red but the findings did not rise. $(tail -4 "$WORK/out")"
     fi
 fi
 

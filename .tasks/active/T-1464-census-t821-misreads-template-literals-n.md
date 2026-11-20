@@ -74,11 +74,16 @@ the count. Valid JavaScript: the census's blind spot (the same class as T-1450's
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `buildXlsx` builds the sheet without template literals nested inside `${...}`; `_t1442` still passes (same bytes
+- [x] `buildXlsx` builds the sheet without template literals nested inside `${...}`; `_t1442` still passes (same bytes
       read back by Python and openpyxl); `_t821` and `_t821-census-controls.sh` are green on src.
-- [ ] `_code_mask` treats a `${...}` inside a template literal as code, including template literals nested in it; a
+      Evidence: c43a56c8e; census 98 sites (3 now seen, all instrumented), 0 findings; controls green; _t1442 X1 green.
+- [x] `_code_mask` treats a `${...}` inside a template literal as code, including template literals nested in it; a
       control branch in `_t821-census-controls.sh` plants such a nesting before a known excused catch and proves the
       count holds (and that the old masker fails it).
+      Evidence: a brace-depth stack per open ${ (braces counted only in code). The census on T-1442's original nested
+      version (6d8b51b63) now counts correctly (no MOVED). Branch 6 plants `<a>${r.map(v => `<b>it's ${v}</b>`)...}`
+      before a bare catch: the new census finds it (7/7); the old census fails branch 6 (T821_CENSUS=old: 6/7).
+      Amended: the plant is a bare catch (a FINDING must rise), which bites harder than a count that holds.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -265,7 +270,17 @@ the count. Valid JavaScript: the census's blind spot (the same class as T-1450's
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
 
+python3 tools/_t821-swallowed-failure-census.py
+bash tools/_t821-census-controls.sh
+grep -q 'tmpl.append(0)' tools/_t821-swallowed-failure-census.py
+
 ## RCA
+
+**Cause:** `_code_mask` (the census's code/text masker) modelled template literals as one flat string; a `${...}` is
+code again and may hold its own template literal. T-1442 nested one, so the masker flipped state on every later
+backtick and ~150 lines read as text. **Why the framework allowed it:** the census's controls covered comments and
+(since T-1450) regex quotes, not template nesting; the blind spot showed only when real code nested a literal. It
+cost one refused push, no shipped defect. **Prevention:** branch 6 in the controls, which fails on the old masker.
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).

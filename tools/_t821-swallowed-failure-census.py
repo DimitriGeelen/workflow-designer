@@ -227,9 +227,25 @@ def _code_mask(text):
     mask = [True] * len(text)
     i, n = 0, len(text)
     state = None          # None | '//' | '/*' | "'" | '"' | '`'
+    # T-1464: a template literal's ${...} is CODE again, and may hold template literals of its own. Each open ${
+    # pushes a brace depth; braces are counted only in code; the } that closes it returns to the template literal.
+    # Before, the inner backtick of `<row>${r.map(v => `<c>${v}</c>`)}` closed the outer literal and every later
+    # backtick flipped the state: T-1442's sheet builder made ~150 lines read as text and hid a catch from the count.
+    tmpl = []
     while i < n:
         c = text[i]
         nxt = text[i + 1] if i + 1 < n else ''
+        if state is None and tmpl:
+            if c == '{':
+                tmpl[-1] += 1
+            elif c == '}':
+                if tmpl[-1] == 0:
+                    tmpl.pop()
+                    state = '`'
+                    mask[i] = False
+                    i += 1
+                    continue
+                tmpl[-1] -= 1
         if state is None:
             if c == '/' and nxt not in ('/', '*') and _regex_may_start(text, i):
                 # T-1450: a regex literal is neither code nor a string. Before this, the `"` in
@@ -266,6 +282,12 @@ def _code_mask(text):
                 if c == '\\':
                     if i + 1 < n:
                         mask[i + 1] = False
+                    i += 2
+                    continue
+                if state == '`' and c == '$' and nxt == '{':   # T-1464: back to code until the matching }
+                    mask[i + 1] = False
+                    tmpl.append(0)
+                    state = None
                     i += 2
                     continue
                 if c == state:
