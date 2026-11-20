@@ -1,0 +1,89 @@
+--- /tmp/claude-0/-opt-832-Workflow-designer/572fe488-2aab-419e-ab67-999e6c4a77db/scratchpad/base-now.html	2026-11-20 13:23:49.914834997 +0100
++++ /tmp/claude-0/-opt-832-Workflow-designer/572fe488-2aab-419e-ab67-999e6c4a77db/scratchpad/designer-t1459.html	2026-11-20 13:34:26.042603181 +0100
+@@ -6321,6 +6321,7 @@
+ let _edgeGroupCache = null;
+ let _edgeGroupCacheKey = '';
+ 
++let _edgeGroupBuilding = false;   // T-1459: re-entry guard, see routeAvoidingWithPorts
+ function buildEdgeGroups() {
+   // simple cache key based on edges + node positions (good enough for the demo)
+   const key = state.edges.map(e => `${e.id}|${e.source}|${e.target}|${e.sourcePort || ''}|${e.targetPort || ''}`).join(';') +
+@@ -6328,6 +6329,8 @@
+   if (_edgeGroupCache && _edgeGroupCacheKey === key) return _edgeGroupCache;
+ 
+   const groups = new Map();
++  _edgeGroupBuilding = true;
++  try {
+   for (const e of state.edges) {
+     const src = findNode(e.source);
+     const tgt = findNode(e.target);
+@@ -6370,6 +6373,7 @@
+     groups.get(sGroupKey).push({ edgeId: e.id, role: 'source', sortKey: sKey });
+     groups.get(tGroupKey).push({ edgeId: e.id, role: 'target', sortKey: tKey });
+   }
++  } finally { _edgeGroupBuilding = false; }
+   // Stable sort each group by sortKey
+   for (const list of groups.values()) {
+     list.sort((a, b) => a.sortKey - b.sortKey || a.edgeId.localeCompare(b.edgeId));
+@@ -6909,6 +6913,22 @@
+ // polylineCrossesNodes). Same axis-aligned segment-vs-rect test, same margin default.
+ // Used by the obstacle router (T-114) to accept a reroute only if it strictly reduces
+ // the number of nodes cut.
++// T-1459: how many of the flow's OWN end steps a polyline passes through, not counting its first and last segment
++// (anchor -> stub: where it leaves the source and enters the target). countNodeCrossings skips src and tgt, so a loop
++// over its target that ran down THROUGH the target to reach its far side counted 0 (upgrade-process 'dry-run').
++function ownBoxCrossings(points, src, tgt) {
++  let hits = 0;
++  for (const n of [src, tgt]) {
++    if (!n) continue;
++    const d = dims(n), x1 = n.x + 1, x2 = n.x + d.w - 1, y1 = n.y + 1, y2 = n.y + d.h - 1;
++    for (let i = 1; i < points.length - 2; i++) {
++      const a = points[i], b = points[i + 1];
++      if (Math.max(a.x, b.x) < x1 || Math.min(a.x, b.x) > x2 || Math.max(a.y, b.y) < y1 || Math.min(a.y, b.y) > y2) continue;
++      hits++; break;
++    }
++  }
++  return hits;
++}
+ function countNodeCrossings(points, src, tgt, margin = 4) {
+   const hit = new Set();
+   for (let i = 0; i < points.length - 1; i++) {
+@@ -7084,8 +7104,14 @@
+ // fewest node crossings (ties broken by fewer bends, then length). Returns {polyline, crossings}
+ // or null. Pure — computes points only, mutates nothing (PD-044).
+ const ROUTER_SIDES = ['N', 'S', 'E', 'W'];
+-function routeAvoidingWithPorts(src, tgt) {
++function routeAvoidingWithPorts(src, tgt, edge) {
+   let best = null;
++  // T-1459: ending on a side where a flow of the other direction already sits put two arrows on one point (this router
++  // anchors at the side's centre, unspread): such a side costs two bends.
++  // NOT while the groups are being built: building them routes every flow, which can land here, and asking for the
++  // groups again from inside that build multiplied the work without end (a renderer at 100% for minutes).
++  const groups = edge && !_edgeGroupBuilding ? buildEdgeGroups() : null;
++  const clash = (node, side, role) => !!groups && (groups.get(`${node.id}:${side}`) || []).some(x => x.edgeId !== edge.id && x.role !== role);
+   for (const sa of ROUTER_SIDES) {
+     const A = nodeSideStub(src, sa);
+     if (!pointClearOfNodes(A.stub, src, tgt)) continue;
+@@ -7095,8 +7121,8 @@
+       const mid = routeAroundObstacles(A.stub, B.stub, src, tgt);
+       if (!mid || mid.length < 2) continue;
+       const poly = [A.anchor, ...mid, B.anchor];
+-      const crossings = countNodeCrossings(poly, src, tgt);
+-      let bends = 0;
++      const crossings = countNodeCrossings(poly, src, tgt) + ownBoxCrossings(poly, src, tgt);   // T-1459
++      let bends = (clash(src, sa, 'source') ? 2 : 0) + (clash(tgt, sb, 'target') ? 2 : 0);
+       for (let i = 1; i < poly.length - 1; i++) {
+         const p = poly[i - 1], q = poly[i], r = poly[i + 1];
+         const d1x = Math.sign(q.x - p.x), d1y = Math.sign(q.y - p.y);
+@@ -7317,9 +7343,9 @@
+     // reduces the nodes cut. Conservative: clean loops are never touched, and the
+     // acceptance test guarantees the reroute can only ever help (else fallback).
+     if (src && tgt) {
+-      const loopCross = countNodeCrossings(loopPolyline, src, tgt);
++      const loopCross = countNodeCrossings(loopPolyline, src, tgt) + ownBoxCrossings(loopPolyline, src, tgt);   // T-1459
+       if (loopCross > 0) {
+-        const avoid = routeAvoidingWithPorts(src, tgt);
++        const avoid = routeAvoidingWithPorts(src, tgt, edge);
+         if (avoid && avoid.crossings < loopCross) {
+           // A general polyline with chosen faces — no fixed 3-segment loop shape, so it
+           // carries no interior segment-drag handles (users can still add manual waypoints).

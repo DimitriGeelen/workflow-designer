@@ -1,13 +1,23 @@
 ---
 id: T-1459
-name: "Routing: a flow into a step's far side is drawn as a loop and runs through that step's own box (upgrade-process 'dry-run')"
+name: "Routing: a flow into a step's far side is drawn as a loop and runs through
+  that step's own box (upgrade-process 'dry-run')"
 description: >
-  Found by T-1456's corpus measure. upgrade-process 'dry-run' (gateway 'Dry-run mode?' -> 'Report planned changes', target up-right of source, end on the target's BOTTOM side): orthoLoopBack offers only bars above both steps or below both, so the bar at y 128 (above the lane, 142-622) passes over the target and runs DOWN THROUGH the target's own box to its bottom edge (path 368,378 -> 390,378 -> 390,128 -> 575,128 -> 575,218). Any bar between the steps (y 236-362) is clear and inside the lane (loopPathCrossings 0). Expected: such a flow takes the clear Z between the steps (or enters the near side), never crosses its own end step, stays in its lane. Present in 0.44.0.
+  Found by T-1456's corpus measure. upgrade-process 'dry-run' (gateway 'Dry-run mode?'
+  -> 'Report planned changes', target up-right of source, end on the target's BOTTOM
+  side): orthoLoopBack offers only bars above both steps or below both, so the bar
+  at y 128 (above the lane, 142-622) passes over the target and runs DOWN THROUGH
+  the target's own box to its bottom edge (path 368,378 -> 390,378 -> 390,128 -> 575,128
+  -> 575,218). Any bar between the steps (y 236-362) is clear and inside the lane
+  (loopPathCrossings 0). Expected: such a flow takes the clear Z between the steps
+  (or enters the near side), never crosses its own end step, stays in its lane. Present
+  in 0.44.0.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +48,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-20T09:44:24Z
-last_update: 2026-11-20T09:44:24Z
-date_finished: null
+last_update: '2026-11-20T11:02:37Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +60,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-20T11:02:37Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 2
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=2 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=0 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1459: Routing: a flow into a step's far side is drawn as a loop and runs through that step's own box (upgrade-process 'dry-run')
@@ -57,20 +87,33 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** found by T-1456's corpus measure (2026-11-20): upgrade-process 'dry-run' (gateway 'Dry-run
+mode?' -> 'Report planned changes (no mutation)', the target up-right of the gateway, entered on its BOTTOM side) is
+drawn 368,378 -> 390,378 -> 390,128 -> 575,128 -> 575,218: over the target, then DOWN THROUGH the target's own box to
+its bottom edge, and outside its lane (142-622). Present in 0.44.0. Listed as known in `_t1456` (KNOWN map).
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** `routeOrthogonalSegment` draws a loop when the straight route is blocked, then counts the
+steps the loop cuts (`countNodeCrossings`) and, only if that count is above 0, tries `routeAvoidingWithPorts` (T-114),
+which may choose other faces. The count skips the flow's own source and target, so a loop through its own target counts
+0 and the fallback never runs; `orthoLoopBack` offers only bars above both ends or below both, never the clear Z
+between them (bars at y 236-362 cut nothing).
 
-**Goal:** <what we are trying to achieve>
+**Goal:** a flow's route never passes through its own source or target box (beyond the short stubs where it leaves
+and enters them).
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** 'dry-run' takes a clear route between the two steps, inside its lane; no other corpus flow gets
+worse (no new crossing of a step, no new lane exit, no straight flow bent).
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] Across the 24 corpus maps and the Greenfield fixture at 1440, no drawn flow has a segment (other than its first
+      and last stub) inside its own source's or target's box; 'dry-run' among them, inside its lane. A leg in
+      `tools/_t1456-routing-lanes-sides-cdp.mjs` checks it, and the KNOWN entry for 'dry-run' is removed.
+- [ ] Every drawn flow compared before/after on the corpus: no new step crossing, lane exit, close end pair, or bent
+      straight flow; the number changed is recorded.
+- [ ] `bash tools/person-sees-gate.sh` exits 0 and the browser tier is green.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -326,6 +369,23 @@ date_finished: null
      commit, that is a calibration failure — recommend GO or NO-GO.
 -->
 
+## Prototype findings (2026-11-20, not in src)
+
+Diff against src at 5b6dad258: `docs/reports/T-1459-prototype/prototype.diff`. Three parts: (1) `ownBoxCrossings`
+counted in the loop fallback's trigger and in `routeAvoidingWithPorts`'s score; (2) in that router, ending on a side
+where a flow of the other direction sits costs two bends (its anchors are the side's centre, unspread); (3) a re-entry
+guard. Measured on all 340 drawn corpus flows:
+- (1) alone fixes 'dry-run' (one clean L, inside its lane) and task-gate 'agent remediates' (it too ran up through its
+  own target), but the fallback anchored 'agent remediates' on the exact point where Create task's outgoing flow
+  starts (two arrows on one point) -> (2).
+- (2) as first written asked `buildEdgeGroups()` from inside the router; building the groups routes every flow, which
+  can land in the router: the work multiplied without end (a renderer at 100% CPU for 10 min; two measurements
+  "timed out" before this was seen). (3) a re-entry flag fixes the hang: 7 of 340 flows change, 'agent remediates'
+  enters from above, no own-box pass.
+- Still wrong: session-capture, 'nothing uncaptured' is MISSING from Triage observation inbox's N group in the
+  prototype (present in src), so e6 is alone in the group and lands on the centre point, on the arrowhead (0.0 px).
+  Cause not found; first suspect is the re-entry flag's try/finally around the grouping loop. Next attempt starts there.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -353,3 +413,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1459-routing-a-flow-into-a-steps-far-side-is-.md
 - **Context:** Initial task creation
+
+### 2026-11-20T11:02:36Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
