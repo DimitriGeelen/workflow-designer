@@ -24,7 +24,10 @@ STAGE="$ROOT/build/pool/stage"
 mkdir -p "$STAGE" "$ROOT/build/pool/wait"
 COMMIT=$(git rev-parse HEAD)
 SHORT=${COMMIT:0:12}
-rm -f "$ROOT/build/pool/last-$TIER${SHARD:+-shard}.result"   # T-1408: never let an older run's outcome stand in for this one
+# T-1462: each shard has its own last-result file (both used to write last-<tier>-shard.result, so two shards run at
+# once overwrote each other): last-<tier>-shard<i>of<k>.result.
+LAST="$ROOT/build/pool/last-$TIER${SHARD:+-shard${SHARD%/*}of${SHARD#*/}}.result"
+rm -f "$LAST"   # T-1408: never let an older run's outcome stand in for this one
 
 # --- inputs, from git only ---------------------------------------------------------------------------------------
 # T-1453: where the chain is cut. CHAIN_MAX is the target size of one link, estimated cheaply with `rev-list
@@ -190,7 +193,7 @@ cat "$ROOT/build/pool/wait/$NAME/exit_code" 2>/dev/null || true
 RES="$ROOT/build/pool/results/$NAME/result.json"
 for _ in 1 2 3 4 5 6; do [ -f "$RES" ] && break; sleep 10; done   # out/ is delivered just after the wait answers
 if [ -f "$RES" ]; then
-    python3 - "$RES" "$NAME" "$ROOT/build/pool/last-$TIER${SHARD:+-shard}.result" <<'PY'
+    python3 - "$RES" "$NAME" "$LAST" <<'PY'
 import json, sys
 res, name, dest = sys.argv[1:]
 d = json.load(open(res))

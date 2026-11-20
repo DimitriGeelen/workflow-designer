@@ -1994,6 +1994,21 @@ else
 fi
 }
 leg core "_t1405-red-log" _leg_234
+_leg_t1462() {
+
+# ── T-1462 (T-1452 GO, lever B): the browser gate's pool half runs as two shards, the unsplit run as a shadow ──
+# The real tier-gate.sh in a scratch repo with a stub pool: both shards green -> green; one red -> refused; a shard with
+# no result -> the shadow decides; a shadow that disagrees leaves a marker that refuses the next gate; T1462_SPLIT=0 ->
+# one unsplit job. Control: the old gate fails 7 of the 8 legs. ~40 s.
+if bash "$ROOT/tools/_t1462-split-gate-teeth.sh" > "$TMP/leg-_t1462.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the split browser gate regressed: shards, shadow comparison or the disagreement marker (run 'T1462_KEEP=1 bash tools/_t1462-split-gate-teeth.sh'; T-1462)"
+  show_output "$TMP/leg-_t1462.out" "_t1462-split-gate-teeth.sh"
+  fail=$((fail + 1))
+fi
+}
+leg core "_t1462-split-gate" _leg_t1462
 _leg_235() {
 
 # ── T-1408: where the pre-push gate runs core ──

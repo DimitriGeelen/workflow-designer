@@ -61,26 +61,75 @@ local_run() {  # the tier here; 0 green, 1 red (a red run's log is kept, newest 
     return 0
 }
 
-pool_run() {  # the tier on ring20's pool; 0 green, 1 red, 3 no result for THIS commit (unavailable)
-    echo "T-1288 $TIER: running the $TIER tier on ring20's POOL (tools/pool/submit.sh $TIER) ..." >&2
-    local last="$ROOT/build/pool/last-$TIER.result" commit code line node log
-    ( cd "$ROOT" && ${T1408_POOL_SUBMIT:-bash tools/pool/submit.sh} "$TIER" ) </dev/null > "$WD/$PFX.pool.out" 2>&1 8<&-
+pool_job() {  # pool_job <shard i/k or empty> <tag>: ONE pool job for HEAD; 0 green, 1 red, 3 no result for THIS commit
+    local shard=$1 tag=$2 last commit code line node log
+    last="$ROOT/build/pool/last-$TIER${shard:+-shard${shard%/*}of${shard#*/}}.result"
+    ( cd "$ROOT" && SHARD="$shard" ${T1408_POOL_SUBMIT:-bash tools/pool/submit.sh} "$TIER" ) </dev/null > "$WD/$PFX.pool$tag.out" 2>&1 8<&-
     if [ ! -f "$last" ]; then   # T-1453: say why, when the pool said why (a refusal names its reason)
-        echo "T-1288 $TIER: the pool gave no result (see ${WD#"$ROOT"/}/$PFX.pool.out)" >&2
-        grep -E '^POOL [A-Z]+ on ' "$WD/$PFX.pool.out" 2>/dev/null | tail -1 | sed "s/^/T-1288 $TIER: /" >&2
+        echo "T-1288 $TIER: the pool${shard:+ (shard $shard)} gave no result (see ${WD#"$ROOT"/}/$PFX.pool$tag.out)" >&2
+        grep -E '^POOL [A-Z]+ on ' "$WD/$PFX.pool$tag.out" 2>/dev/null | tail -1 | sed "s/^/T-1288 $TIER: /" >&2
         return 3
     fi
     commit=$(sed -n 's/^commit=//p' "$last"); code=$(sed -n 's/^exit_code=//p' "$last")
     line=$(sed -n 's/^result_line=//p' "$last"); node=$(sed -n 's/^node=//p' "$last"); log=$(sed -n 's/^tier_log=//p' "$last")
     if [ -z "$commit" ]; then   # T-1453: the job failed before it tested anything; say why, by the job's own words
-        echo "T-1288 $TIER: the pool job failed before testing (exit $code on $node): $(sed -n 's/^error=//p' "$last") — not counted" >&2; return 3
+        echo "T-1288 $TIER: the pool job${shard:+ (shard $shard)} failed before testing (exit $code on $node): $(sed -n 's/^error=//p' "$last") — not counted" >&2; return 3
     fi
-    [ "$commit" = "$HEAD_SHA" ] || { echo "T-1288 $TIER: the pool's result is for ${commit:0:12}, not HEAD ${HEAD_SHA:0:12} — not counted" >&2; return 3; }
-    echo "$line   [pool: $node]" >&2
+    [ "$commit" = "$HEAD_SHA" ] || { echo "T-1288 $TIER: the pool's result${shard:+ (shard $shard)} is for ${commit:0:12}, not HEAD ${HEAD_SHA:0:12} — not counted" >&2; return 3; }
+    echo "$line   [pool: $node${shard:+, shard $shard}]" >&2
     if [ "$code" = 0 ]; then return 0; fi
-    echo "T-1288 $TIER: POOL $TIER tier is RED (exit $code). Full output: ${log#"$ROOT"/}" >&2
+    echo "T-1288 $TIER: POOL $TIER tier${shard:+ (shard $shard)} is RED (exit $code). Full output: ${log#"$ROOT"/}" >&2
     [ -f "$log" ] && grep -E '^\s*\[(FAIL|QUARANTINED)\]' "$log" | head -20 >&2
     return 1
+}
+
+# T-1462 (T-1452 GO for lever B, operator 2026-11-20 "1, adopt the split now"): the browser tier runs on the pool as two
+# shards in parallel (pool-w1 + pool-w2, the time-balanced plan tests/shard-plan-browser-2.tsv), about 12 min instead of
+# 23. The unsplit run still goes, as a SHADOW the gate does not wait for: when it ends, compare-shards.py checks that
+# the shards ran exactly its legs with the same outcome. A difference leaves a marker that refuses every later gate
+# until a person has looked (and removed it): a disagreement still stops a push, one push later, without the gate
+# paying for the full run each time. T1462_SPLIT=0 runs the unsplit job as the gate's pool half, as before.
+SHADOW_DIR="$ROOT/build/tiergate/split-shadow"
+split_ok() { [ "$TIER" = browser ] && [ "${T1462_SPLIT:-1}" != 0 ] && [ -f "$ROOT/tests/shard-plan-browser-2.tsv" ]; }
+shadow_start() {  # the unsplit job, detached from this gate; writes its rc and the comparison when it ends
+    mkdir -p "$SHADOW_DIR"; local tag="${HEAD_SHA:0:12}-$(date -u +%Y%m%dT%H%M%SZ)"
+    SHADOW_RC="$SHADOW_DIR/$tag.rc"
+    ( trap '' HUP; cd "$ROOT"
+      pool_job "" ".shadow-$tag" 2>> "$SHADOW_DIR/$tag.log"; echo $? > "$SHADOW_RC.tmp"; mv "$SHADOW_RC.tmp" "$SHADOW_RC"
+      whole=$(sed -n 's/^name=//p' "$ROOT/build/pool/last-$TIER.result" 2>/dev/null)
+      s1=$(sed -n 's/^name=//p' "$SHADOW_DIR/$tag.shard1"); s2=$(sed -n 's/^name=//p' "$SHADOW_DIR/$tag.shard2")
+      if [ -n "$whole" ] && [ -n "$s1" ] && [ -n "$s2" ]; then
+          # written under a temporary name; the marker (if any) first, the .compare last: a visible .compare is complete
+          python3 "$ROOT/docs/reports/T-1452-spikes/compare-shards.py" "$whole" "$s1" "$s2" > "$SHADOW_DIR/$tag.compare.tmp" 2>&1
+          if grep -qE '^FAIL  C[123]' "$SHADOW_DIR/$tag.compare.tmp"; then
+              cp "$SHADOW_DIR/$tag.compare.tmp" "$SHADOW_DIR/DIFFER-$tag"
+              printf '%s\t%s\t%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "${HEAD_SHA:0:12}" "SPLIT SHADOW DISAGREES: $SHADOW_DIR/DIFFER-$tag" >> "$RUNS"
+          fi
+          mv "$SHADOW_DIR/$tag.compare.tmp" "$SHADOW_DIR/$tag.compare"
+      else echo "no comparison: whole='$whole' shard1='$s1' shard2='$s2'" > "$SHADOW_DIR/$tag.compare.tmp"; mv "$SHADOW_DIR/$tag.compare.tmp" "$SHADOW_DIR/$tag.compare"; fi
+    ) </dev/null > /dev/null 2>&1 &
+    SHADOW_TAG=$tag
+}
+pool_run() {  # the tier on ring20's pool; 0 green, 1 red, 3 no result for THIS commit (unavailable)
+    if ! split_ok; then
+        echo "T-1288 $TIER: running the $TIER tier on ring20's POOL (tools/pool/submit.sh $TIER) ..." >&2
+        pool_job "" ""; return $?
+    fi
+    echo "T-1288 $TIER: running the $TIER tier on ring20's POOL as 2 shards in parallel, the unsplit run as a non-gating shadow (T-1462) ..." >&2
+    shadow_start
+    local r1f="$WD/$PFX.pool.s1.rc" r2f="$WD/$PFX.pool.s2.rc" r1 r2; rm -f "$r1f" "$r2f"
+    ( pool_job 1/2 .s1; echo $? > "$r1f" ) & local p1=$!
+    ( pool_job 2/2 .s2; echo $? > "$r2f" ) & local p2=$!
+    wait "$p1" "$p2"
+    r1=$(cat "$r1f" 2>/dev/null || echo 3); r2=$(cat "$r2f" 2>/dev/null || echo 3)
+    cp "$ROOT/build/pool/last-$TIER-shard1of2.result" "$SHADOW_DIR/$SHADOW_TAG.shard1" 2>/dev/null
+    cp "$ROOT/build/pool/last-$TIER-shard2of2.result" "$SHADOW_DIR/$SHADOW_TAG.shard2" 2>/dev/null
+    if [ "$r1" = 0 ] && [ "$r2" = 0 ]; then return 0; fi
+    if [ "$r1" = 1 ] || [ "$r2" = 1 ]; then return 1; fi
+    # a shard gave no result: the unsplit shadow decides for the pool (waited for, up to its own limit)
+    echo "T-1288 $TIER: a shard gave no result (shard 1: $r1, shard 2: $r2): waiting for the unsplit run instead ..." >&2
+    local t=0; while [ ! -f "$SHADOW_DIR/$SHADOW_TAG.rc" ] && [ $t -lt 4800 ]; do sleep 10; t=$((t + 10)); done
+    return "$(cat "$SHADOW_DIR/$SHADOW_TAG.rc" 2>/dev/null || echo 3)"
 }
 
 # T-1452 (1409's first question: can we see what happened?): every run leaves a verdict line in the runs log, a red
@@ -92,6 +141,9 @@ trap 'rc=$?; [ "$_GATE_ENDED" = 1 ] || [ "$rc" = 0 ] || note "ENDED without a ve
 trap 'exit 130' INT TERM HUP
 gr() { [ "$1" = 0 ] && echo green || echo red; }
 
+if split_ok && ls "$SHADOW_DIR"/DIFFER-* >/dev/null 2>&1; then
+    refuse "a split run disagreed with its unsplit shadow: $(ls "$SHADOW_DIR"/DIFFER-* | head -3 | tr '\n' ' ')— read it, find out why, then remove the marker (T-1462)"
+fi
 upstream=$(cd "$ROOT" && git rev-parse -q --verify '@{u}' 2>/dev/null) || upstream=""
 if [ -n "$upstream" ]; then changed=$(cd "$ROOT" && git diff --name-only "$upstream" HEAD); else changed=$(cd "$ROOT" && git ls-tree -r --name-only HEAD); fi
 risky=$(printf '%s\n' "$changed" | grep -E "$HIGH_RISK_RE" | head -3 | tr '\n' ' ')
