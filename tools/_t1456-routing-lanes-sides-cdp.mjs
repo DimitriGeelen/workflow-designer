@@ -44,11 +44,14 @@ const port = await new Promise(r => { const s = net.createServer(); s.listen(0, 
 const py = spawn('python3', ['-m', 'http.server', String(port), '--bind', '127.0.0.1', '--directory', doc], { stdio: 'ignore' });
 const cache = join(homedir(), '.cache', 'ms-playwright');
 const chrome = readdirSync(cache).filter(d => d.startsWith('chromium-')).sort().reverse().map(d => join(cache, d, 'chrome-linux64', 'chrome')).find(existsSync);
-const udd = makeProfileDir('t1456-');
-const br = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--window-size=1440,900', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: 'ignore' });
-let cl;
-const dialogs = [];
-let paused = null, step = 'start';   // T-1456: where the page was when it stopped answering (pool only, 2026-11-20)
+// T-1456: one browser per map load. On the pool, the third large page loaded in ONE tab stopped answering at
+// 1920 (twice, both workers) and did not even answer Debugger.pause, which interrupts any running script (proven
+// here on a deliberate hang): the page process itself was gone or blocked, not our code looping. A fresh browser per
+// load keeps every measure independent of the ones before it; a reported crash is named (Inspector.targetCrashed).
+let br = null, cl = null, udd = null;
+const profiles = [];
+const dialogs = [], crashes = [];
+let paused = null, step = 'start';
 // In the page: every flow's drawn polyline, its ends' sides, lane bounds; the two counts and the 'wel' details.
 const MEASURE = `(function(){
   const laneOf = id => state.lanes.find(l => l.id === id);
@@ -112,22 +115,28 @@ const MEASURE = `(function(){
   }
   return { L, S, excused, wel: welInfo, prod, flows: flows.length };
 })()`;
-try {
+const stopBrowser = () => { try { cl && cl.close(); } catch (_) {} try { br && br.kill('SIGKILL'); } catch (_) {} cl = null; br = null; };
+const startBrowser = async W => {
+  stopBrowser();
+  udd = makeProfileDir('t1456-'); profiles.push(udd);   // a fresh profile: no storage carried over either
+  br = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', `--window-size=${W},900`, '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: 'ignore' });
   let dp; for (let i = 0; i < 150 && !dp; i++) { try { dp = parseInt(readFileSync(join(udd, 'DevToolsActivePort'), 'utf8').split('\n')[0], 10); } catch (_) { await sleep(100); } }
-  // T-1395's rule: a JavaScript dialog blocks every Runtime.evaluate until answered (on the pool this harness got "no
-  // answer in 60000 ms" at the third load, twice, on both workers; here never): accept it at once, and NAME it.
-  cl = cdp(await pageWsUrl(dp), { cmdMs: 60000, onEvent: m => { if (m.method === 'Page.javascriptDialogOpening') {
-    dialogs.push(`${m.params.type}: ${String(m.params.message).slice(0, 160)}`); cl.cmd('Page.handleJavaScriptDialog', { accept: true }).catch(() => {}); }
+  // T-1395's rule: a JavaScript dialog blocks every Runtime.evaluate until answered: accept it at once, and NAME it.
+  const c = cdp(await pageWsUrl(dp), { cmdMs: 60000, onEvent: m => {
+    if (m.method === 'Page.javascriptDialogOpening') { dialogs.push(`${m.params.type}: ${String(m.params.message).slice(0, 160)}`); c.cmd('Page.handleJavaScriptDialog', { accept: true }).catch(() => {}); }
+    if (m.method === 'Inspector.targetCrashed') crashes.push(step);
     if (m.method === 'Debugger.paused') paused = m.params; } });
-  await cl.ready; const { cmd } = cl;
-  const ev = async e => { const r = await cmd('Runtime.evaluate', { expression: e, returnByValue: true, awaitPromise: true }); if (r.exceptionDetails) throw new Error('eval: ' + JSON.stringify(r.exceptionDetails).slice(0, 300)); return r.result.value; };
-  await cmd('Page.enable'); await cmd('Runtime.enable'); await cmd('Debugger.enable');
+  await c.ready;
+  await c.cmd('Page.enable'); await c.cmd('Runtime.enable'); await c.cmd('Inspector.enable').catch(() => {}); await c.cmd('Debugger.enable');
+  cl = c;
+};
+try {
+  const ev = async e => { const r = await cl.cmd('Runtime.evaluate', { expression: e, returnByValue: true, awaitPromise: true }); if (r.exceptionDetails) throw new Error('eval: ' + JSON.stringify(r.exceptionDetails).slice(0, 300)); return r.result.value; };
   const open = async (map, W) => {
     step = `open ${map} @${W}`;
-    await cmd('Emulation.setDeviceMetricsOverride', { width: W, height: 900, deviceScaleFactor: 1, mobile: false });
-    await cmd('Page.navigate', { url: 'about:blank' }); await sleep(100);
-    await cmd('Storage.clearDataForOrigin', { origin: `http://127.0.0.1:${port}`, storageTypes: 'all' });
-    await cmd('Page.navigate', { url: `http://127.0.0.1:${port}/designer.html?load=rendered/${map}` });
+    await startBrowser(W);
+    await cl.cmd('Emulation.setDeviceMetricsOverride', { width: W, height: 900, deviceScaleFactor: 1, mobile: false });
+    await cl.cmd('Page.navigate', { url: `http://127.0.0.1:${port}/designer.html?load=rendered/${map}` });
     for (let i = 0; i < 150; i++) { if (await ev(`typeof _appReady!=='undefined'&&_appReady===true&&state.nodes.length>0`).catch(() => false)) break; await sleep(150); }
     await sleep(500);
     step = `measure ${map} @${W}`;
@@ -170,9 +179,9 @@ try {
     } catch (e2) { console.log('STACK: could not pause the page: ' + String(e2 && e2.message || e2).slice(0, 160)); }
   }
 } finally {
-  try { cl && cl.close(); } catch (_) {}
-  br.kill('SIGKILL'); py.kill('SIGKILL');
-  for (const d of [doc, udd]) { try { rmSync(d, { recursive: true, force: true }); } catch (_) {} }
+  stopBrowser(); py.kill('SIGKILL');
+  for (const d of [doc, ...profiles]) { try { rmSync(d, { recursive: true, force: true }); } catch (_) {} }
+  if (crashes.length) console.log(`NOTE  the page process crashed during: ${crashes.join(' | ')}`);
   if (dialogs.length) console.log(`NOTE  ${dialogs.length} JavaScript dialog(s) opened and were accepted: ${dialogs.join(' | ')}`);
   console.log(fails ? `${fails} leg(s) FAILED` : 'all legs passed');
   process.exit(fails ? 1 : 0);
