@@ -48,6 +48,7 @@ const udd = makeProfileDir('t1456-');
 const br = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--window-size=1440,900', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: 'ignore' });
 let cl;
 const dialogs = [];
+let paused = null, step = 'start';   // T-1456: where the page was when it stopped answering (pool only, 2026-11-20)
 // In the page: every flow's drawn polyline, its ends' sides, lane bounds; the two counts and the 'wel' details.
 const MEASURE = `(function(){
   const laneOf = id => state.lanes.find(l => l.id === id);
@@ -116,17 +117,20 @@ try {
   // T-1395's rule: a JavaScript dialog blocks every Runtime.evaluate until answered (on the pool this harness got "no
   // answer in 60000 ms" at the third load, twice, on both workers; here never): accept it at once, and NAME it.
   cl = cdp(await pageWsUrl(dp), { cmdMs: 60000, onEvent: m => { if (m.method === 'Page.javascriptDialogOpening') {
-    dialogs.push(`${m.params.type}: ${String(m.params.message).slice(0, 160)}`); cl.cmd('Page.handleJavaScriptDialog', { accept: true }).catch(() => {}); } } });
+    dialogs.push(`${m.params.type}: ${String(m.params.message).slice(0, 160)}`); cl.cmd('Page.handleJavaScriptDialog', { accept: true }).catch(() => {}); }
+    if (m.method === 'Debugger.paused') paused = m.params; } });
   await cl.ready; const { cmd } = cl;
   const ev = async e => { const r = await cmd('Runtime.evaluate', { expression: e, returnByValue: true, awaitPromise: true }); if (r.exceptionDetails) throw new Error('eval: ' + JSON.stringify(r.exceptionDetails).slice(0, 300)); return r.result.value; };
-  await cmd('Page.enable'); await cmd('Runtime.enable');
+  await cmd('Page.enable'); await cmd('Runtime.enable'); await cmd('Debugger.enable');
   const open = async (map, W) => {
+    step = `open ${map} @${W}`;
     await cmd('Emulation.setDeviceMetricsOverride', { width: W, height: 900, deviceScaleFactor: 1, mobile: false });
     await cmd('Page.navigate', { url: 'about:blank' }); await sleep(100);
     await cmd('Storage.clearDataForOrigin', { origin: `http://127.0.0.1:${port}`, storageTypes: 'all' });
     await cmd('Page.navigate', { url: `http://127.0.0.1:${port}/designer.html?load=rendered/${map}` });
     for (let i = 0; i < 150; i++) { if (await ev(`typeof _appReady!=='undefined'&&_appReady===true&&state.nodes.length>0`).catch(() => false)) break; await sleep(150); }
     await sleep(500);
+    step = `measure ${map} @${W}`;
     return ev(MEASURE);
   };
   for (const W of [1024, 1440, 1920]) {
@@ -155,7 +159,16 @@ try {
   leg(Lsum === 0 && Ssum === 0, `C1 [${CORPUS.length} corpus maps + the fixture @1440] no same-lane flow leaves its lane (L), no incoming end within 8 px of an outgoing start on one side (S)`,
       `L ${Lsum}, S ${Ssum}${per.length ? ': ' + per.join('; ') : ''}; leaving the lane excused: ${exc.length ? exc.join(' | ') : 'none'}`);
 } catch (e) {
-  leg(false, 'harness error', String(e && e.message || e).slice(0, 300));
+  leg(false, 'harness error', `${String(e && e.message || e).slice(0, 300)} (during: ${step})`);
+  // A page that stopped answering: pause its JavaScript and print where it is (our code or the browser's).
+  if (/CDP TIMEOUT/.test(String(e && e.message)) && cl) {
+    try {
+      await cl.cmd('Debugger.pause');   // enabled at the start: enabling it needs the busy main thread
+      for (let i = 0; i < 100 && !paused; i++) await sleep(100);
+      console.log(paused ? 'STACK of the page that stopped answering: ' + paused.callFrames.slice(0, 10).map(f => `${f.functionName || '(anon)'}:${f.location.lineNumber + 1}`).join(' < ')
+                         : 'STACK: the page did not pause within 10 s (not busy in JavaScript: stuck in layout, paint or the browser)');
+    } catch (e2) { console.log('STACK: could not pause the page: ' + String(e2 && e2.message || e2).slice(0, 160)); }
+  }
 } finally {
   try { cl && cl.close(); } catch (_) {}
   br.kill('SIGKILL'); py.kill('SIGKILL');
