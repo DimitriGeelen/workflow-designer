@@ -176,9 +176,8 @@ Opportunity/Solution's outgoing flow; corpus maps' routing otherwise unchanged e
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
-- [ ] [REVIEW] The changed routes read better than before: the Greenfield 'wel' loop, and the two corpus maps whose
+- [ ] The changed routes read better than before: the Greenfield 'wel' loop, and the two corpus maps whose
   routes changed most.
-  **Why you:** whether a route reads well (crossings against staying inside the lanes) is a judgement on images.
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1456 --criterion 1`), who may escalate.
   **Steps:**
   1. `docs/reports/T-1456-shots/greenfield-wel-{1024,1440,1920}-{before,after}.png`: after, the 'wel' loop runs inside
