@@ -6,6 +6,8 @@
 //      has every point inside lane Tacton
 //   F2 [same] its arrowhead end on Opportunity/Solution is on another side than that step's outgoing starts, or >= 12 px
 //      from each of them
+//   F3 [same] T-1457 (Greenfield 7): at Productieorder the incoming and outgoing ends are on different sides or >= 12 px
+//      apart, and the incoming flow (straight down from Verkooporder compleet) stays one straight segment
 //   C1 [24 corpus maps + the fixture, 1440] L = automatically routed same-lane flows outside their lane although a bar
 //      inside it cuts no step; S = incoming ends within 8 px of an outgoing start on the same side of one step: both
 //      0. Flows that leave for a reason (a route the author set; a lane where every bar cuts a step) are listed.
@@ -97,7 +99,16 @@ const MEASURE = `(function(){
       inside: wel.pl.every(q => q.y >= b.top - 1 && q.y <= b.bot + 1), end: [Math.round(wel.b.x), Math.round(wel.b.y), wel.sb],
       outs: outs.map(o => ({ side: o.sa, at: [Math.round(o.a.x), Math.round(o.a.y)], d: Math.round(Math.hypot(wel.b.x - o.a.x, wel.b.y - o.a.y) * 10) / 10 })) };
   }
-  return { L, S, excused, wel: welInfo, flows: flows.length };
+  // T-1457: Productieorder (lane NAV): its incoming and outgoing ends, and whether the incoming flow is straight
+  const prodNode = state.nodes.find(n => /^Productieorder/.test(n.name || ''));
+  let prod = null;
+  if (prodNode) {
+    const ins = flows.filter(f => f.t.id === prodNode.id), outs = flows.filter(f => f.s.id === prodNode.id);
+    prod = { ins: ins.map(f => ({ side: f.sb, at: [Math.round(f.b.x), Math.round(f.b.y)], pts: f.pl.length })),
+             outs: outs.map(f => ({ side: f.sa, at: [Math.round(f.a.x), Math.round(f.a.y)] })),
+             minGap: Math.min(Infinity, ...ins.flatMap(i => outs.filter(o => o.sa === i.sb).map(o => Math.hypot(i.b.x - o.a.x, i.b.y - o.a.y)))) };
+  }
+  return { L, S, excused, wel: welInfo, prod, flows: flows.length };
 })()`;
 try {
   let dp; for (let i = 0; i < 150 && !dp; i++) { try { dp = parseInt(readFileSync(join(udd, 'DevToolsActivePort'), 'utf8').split('\n')[0], 10); } catch (_) { await sleep(100); } }
@@ -120,6 +131,10 @@ try {
     const clear = !!w && w.outs.every(o => o.side !== w.end[2] || o.d >= 12);
     leg(clear, `F2 [greenfield @${W}] its arrowhead on Opportunity/Solution is on another side than the step's outgoing starts, or >= 12 px from them`,
         w ? `end ${w.end.join(' ')}; outgoing ${w.outs.map(o => o.side + ' ' + o.at.join(',') + ' (' + o.d + ' px)').join('; ')}` : '');
+    const p = m.prod;   // T-1457 (Greenfield 7)
+    leg(!!p && p.ins.length > 0 && p.outs.length > 0 && p.minGap >= 12 && p.ins.every(i => i.pts === 2),
+        `F3 [greenfield @${W}] at Productieorder the incoming and outgoing ends are on different sides or >= 12 px apart, and the incoming flow stays straight (T-1457)`,
+        p ? `in ${p.ins.map(i => i.side + ' ' + i.at.join(',') + ' (' + i.pts + ' points)').join('; ')}; out ${p.outs.map(o => o.side + ' ' + o.at.join(',')).join('; ')}; nearest same-side gap ${Number.isFinite(p.minGap) ? p.minGap.toFixed(1) + ' px' : 'none (different sides)'}` : 'no step Productieorder');
   }
   let Lsum = 0, Ssum = 0; const per = [], exc = [];
   for (const map of [...CORPUS, 'greenfield.bpmn']) {

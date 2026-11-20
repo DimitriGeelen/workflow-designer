@@ -1,13 +1,18 @@
 ---
 id: T-1457
-name: "Routing: incoming and outgoing flows meet a step side by side on the same side (Productieorder, Greenfield 7)"
+name: "Routing: incoming and outgoing flows meet a step side by side on the same side
+  (Productieorder, Greenfield 7)"
 description: >
-  Split from T-1449 (repro report). Productieorder (NAV lane) on the Greenfield fixture: incoming at (2294,485) and outgoing at (2302,485), both on the TOP side, 8 px apart. Expected: in and out flows use different sides when the geometry allows, or a clear gap.
+  Split from T-1449 (repro report). Productieorder (NAV lane) on the Greenfield fixture:
+  incoming at (2294,485) and outgoing at (2302,485), both on the TOP side, 8 px apart.
+  Expected: in and out flows use different sides when the geometry allows, or a clear
+  gap.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-19T22:56:15Z
-last_update: 2026-11-19T22:56:15Z
-date_finished: null
+last_update: '2026-11-20T10:27:38Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +55,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-20T10:27:38Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 2
+      F2: 0
+      F4: 2
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=2 (body:lightly-promoted); F2=0 (no-signal); F4=2 (basis: task body
+      — no hypothesis, so this score has no claim to be wrong about,L1:keyword=lane);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=0 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1457: Routing: incoming and outgoing flows meet a step side by side on the same side (Productieorder, Greenfield 7)
@@ -57,20 +82,31 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** Greenfield msg 5468c2ba item 7, reproduced by T-1449: at Productieorder (lane NAV) on
+`tests/fixtures/greenfield/nooteboom-offerte-tot-order-with-notes.bpmn` the incoming line (from Verkooporder
+compleet, straight down) and the outgoing line (up and right to Open VO) meet the step's TOP side 8 px apart, so
+they read as one bundle and the arrowhead touches the outgoing line.
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** the same cause as T-1456's arrowhead: the even spread puts the two ends at -4/+4, the straight
+incoming flow is snapped back onto the centre line, and the outgoing end is left half a pitch from it. T-1456's rule
+(commit 92b26fa77: where ends as they land put an incoming end closer than the pitch to an outgoing one, the straight
+end keeps the centre and the other moves an arrowhead, 12 px, beside it) applies here too.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** the two lines read as two distinct flows; per the task's expectation "different sides when the geometry
+allows, or a clear gap".
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** Productieorder's incoming and outgoing ends at least 12 px apart at 1024/1440/1920, the
+incoming flow still straight; checked by a harness leg. Moving the outgoing end to the RIGHT side (which faces its
+target) is the fuller answer to "side by side"; it is a port-choice change, offered to Greenfield, not done here.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] At 1024/1440/1920, Productieorder's incoming end and outgoing start are on different sides or >= 12 px apart,
+      and the incoming flow from Verkooporder compleet is drawn straight (one segment); a leg of
+      `tools/_t1456-routing-lanes-sides-cdp.mjs` checks it and fails on the 0.44.0 designer.
+- [ ] The browser tier is green with that leg.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -117,8 +153,19 @@ date_finished: null
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+- [ ] [REVIEW] At Productieorder the incoming and outgoing lines read as two distinct flows.
+  **Why you:** whether two lines on one side read as distinct or as a bundle is a judgement on the image.
+  **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1457 --criterion 1`), who may escalate.
+  **Steps:**
+  1. `docs/reports/T-1457-shots/productieorder-{1024,1440,1920}-{before,after}.png`: before, the incoming arrowhead
+     touches the outgoing line (8 px); after, 12 px apart, the incoming line still straight.
+  **Expected:** after, a reader tells the two flows apart without zooming in.
+  **If not:** say so; the fuller answer (the outgoing end on the right side, facing its target) becomes its own task.
 
 ## Verification
+
+node tools/_t1456-routing-lanes-sides-cdp.mjs
+grep -q "F3 \[greenfield" tools/_t1456-routing-lanes-sides-cdp.mjs
 
 <!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
      headings; the completion gate strips HTML comments before running anything.
@@ -353,3 +400,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1457-routing-incoming-and-outgoing-flows-meet.md
 - **Context:** Initial task creation
+
+### 2026-11-20T10:27:37Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
