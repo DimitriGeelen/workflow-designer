@@ -4192,7 +4192,7 @@ function fitPoolToLabels() {
     const e = state.edges.find(x => x.id === g.dataset.id);
     if (!e || !inLanes(e.source) || !inLanes(e.target)) continue;
     for (const t of g.querySelectorAll('path.edge-path, text.edge-label')) {
-      let b; try { b = t.getBBox(); } catch (_) { continue; }
+      let b; try { b = t.getBBox(); } catch (err) { aefRecordFault('pool-fit:flow-bbox', err); continue; }
       if (b.y + b.height > floor) bottom = Math.max(bottom, b.y + b.height + POOL_LABEL_MARGIN_BOTTOM);
     }
   }
