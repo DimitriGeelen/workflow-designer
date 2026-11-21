@@ -6,19 +6,19 @@ description: >
   Inception: How do we make the test gates faster (browser and core, pool and this
   machine) without losing what they catch?
 
-status: started-work
+status: work-completed
 workflow_type: inception
-current_node: frw_1_start
+current_node: frw_end_task
 owner: human
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
 waiting_on: agent
 revisit_at: 2026-11-28
 created: 2026-11-21T21:22:39Z
-last_update: 2026-11-21T21:42:43Z
-date_finished:
+last_update: 2026-11-21T21:55:29Z
+date_finished: 2026-11-21T21:55:29Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -167,15 +167,15 @@ We will know that we are successful when we see 3 consecutive designer commits w
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Why you:** direction — how the test gates guarding every push are run, and what they guarantee, is the operator's call (as T-1397, T-1408 and T-1452 were)
   **Steps:**
   1. Run: `fw task review T-1478` (opens Watchtower with recommendation, assumptions, research artifacts)
@@ -242,7 +242,16 @@ decision; it is not decided by this GO.
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: The consultation (codex, GLM-5.3, ring20) converged: the pool part can come down from ~21 to ~10 min without testing
+less, but not to 5 (work ÷ 4 RAM-bound fast slots). The blocking run on this machine is the real bottleneck, and the
+desktop is the only independent Chrome build (ring20: the pool's Chromium is byte-identical on every node), so O5 as
+written is dropped. Whether this machine's run keeps blocking each designer change, or runs per change after the push
+with an automatic revert on red (GLM's M1 "optimistic push"), changes the guarantee and is the operator's separate
+decision; it is not decided by this GO.
+
+**Date**: 2026-11-21T21:55:28Z
 
 ## Updates
 
@@ -251,3 +260,43 @@ decision; it is not decided by this GO.
 
 ### 2026-11-21T21:24:03Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-21T21:55:28Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** The consultation (codex, GLM-5.3, ring20) converged: the pool part can come down from ~21 to ~10 min without testing
+less, but not to 5 (work ÷ 4 RAM-bound fast slots). The blocking run on this machine is the real bottleneck, and the
+desktop is the only independent Chrome build (ring20: the pool's Chromium is byte-identical on every node), so O5 as
+written is dropped. Whether this machine's run keeps blocking each designer change, or runs per change after the push
+with an automatic revert on red (GLM's M1 "optimistic push"), changes the guarantee and is the operator's separate
+decision; it is not decided by this GO.
+
+### 2026-11-21T21:55:29Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-e555b021
+- **Timestamp:** 2026-11-21T21:55:30Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-2
+     - evidence: `IW-2 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-6f095ced
+- **Timestamp:** 2026-11-21T21:55:30Z
+- **Overall:** CONFIRMED
+- **Claims:** 1
+
+| Claim | Type | Status |
+|-------|------|--------|
+| `docs/reports/T-1478-test-acceleration.md` | file | ✓ pass |
