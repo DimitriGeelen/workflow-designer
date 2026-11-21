@@ -46,6 +46,19 @@ The endpoints, unchanged since 0.44.0 (as you confirmed them: msg adadee0b, 2026
 | `GET/PUT /api/field-profile[?id=<id>]` | **Project field profile** (T-1125, T-1128) | not served by design (your T-4737 IW-3): its settings are hidden (T-1391) |
 | `GET/POST /api/field-suggestions` | **"Suggest as a field"** (T-1126) | not served by design (your T-4737 IW-3): the button is hidden (T-1391) |
 
+## Shared contracts
+
+`tools/_t1425-shared-contracts.py --check` (a core leg) holds the last column to what moved since `designer-v0.45.0`.
+"Moved" means the 832 artifact changed, not that the contract did: the designer page changed for drawing and view only.
+
+| # | Contract | AEF artifact | 832 artifact | Moved in this release |
+|---|---|---|---|---|
+| 1 | Procedure interchange | contracts v2 `procedure.schema.json` v1, ac9aaefc | designer page (export) | yes |
+| 2 | Mapping / compatibility | "designer produces contracts v2" (AEF T-5184, drafting) | authoring kit | no |
+| 3 | Validation / refusal diagnostics | contracts v2 `refusal.schema.json` v2, c4148a34 | validate-workflow.py | no |
+| 4 | Runtime projection | projection schema (AEF T-5185, to be frozen) | designer page (overlay renderer) | yes |
+| 5 | Ratification | `task-lifecycle-contract.md` (frozen T-3386) | designer page (save/export proposal-only) | yes |
+
 ## Known, filed
 
 - T-1474: one label pass still follows the zoom at render time (two flow labels on review-emission come within 14 px

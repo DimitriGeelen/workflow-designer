@@ -26,6 +26,8 @@ CHROME = "shoots fixed UI (toolbar, panels, dialogs, labels at known places), no
 COMPOSITE = ("clips a computed region spanning several elements (save(name, clip) over a union of rects), not one "
              "element: clearShot's one-element rule does not apply as is; needs a region form of the guard (T-1429)")
 UNGUARDED = {
+    "_t1470-assoc-straight-cdp.mjs": "T1470_SHOTS only: a review crop of a 360 px region around an association pair, "
+                                     "scrolled into the canvas first; not a shot of one element, and not a leg",
     "_t1078-advisory-overlap-cdp.mjs": "clips the whole .canvas-wrap (the canvas region itself, top 360 px), not a node "
                                        "that can move under it: nothing in the canvas can cover the canvas",
     "_t1366-shots.mjs": COMPOSITE,
