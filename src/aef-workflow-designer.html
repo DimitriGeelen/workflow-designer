@@ -13797,6 +13797,10 @@ function adoptImportedXml(text, opts) {
     alert('Could not parse this file. Expected BPMN XML with AEF extensions.');
     return;
   }
+  // T-1472: a zoom the opening set (openingZoom, now also for the starter map) is the previous map's, judged on its
+  // text; the adopted map starts at fit, as it did before the starter was zoomed, and the caller's openingZoom (every
+  // load path has one) judges it anew. A zoom the person chose is kept (_zoomFromOpen is false then).
+  if (_zoomFromOpen) { zoomFactor = null; _zoomFromOpen = false; applyCanvasZoom(); }
   saveActiveToLibrary();
   // S1 (T-224): one-time uuid backfill for legacy maps that predate the field. Not a dirty edit —
   // adopt does not autosave and there is no beforeunload/isDirty nag, so opening a legacy map stays

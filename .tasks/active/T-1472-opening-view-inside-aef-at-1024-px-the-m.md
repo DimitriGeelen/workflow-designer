@@ -41,7 +41,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T12:36:05Z
-last_update: 2026-11-21T16:32:52Z
+last_update: 2026-11-21T16:56:05Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -316,9 +316,11 @@ query and empty storage, the very state of a first visit and of AEF's screenshot
 at three widths (0.45.0 fails it at all three).
 **Found on the way:** the person-sees gate's label-clearance leg6 went red (review-emission: 'not found' x 'found?'
 13.6 px). That harness opens the bare designer and adopts each map by calling the editor, so after the fix it laid every
-map out at 100% instead of fit, and one label pass follows the zoom. Not a fault of the fix: the call is guarded to the
-no-?load= case, and `_t1256`'s RUN now sets fit before adopting a map (its baselines are at fit). The zoom dependence
-itself is filed as T-1474.
+map out at 100% instead of fit, and one label pass follows the zoom (filed as T-1474). The browser tier then found the
+same effect in two more harnesses that adopt into the bare designer and click by screen position (T-293 endpoint
+reconnect, T-1345 nesting edits). Round 2 fixes it in the product, not per harness: `adoptImportedXml` drops a zoom the
+opening set (`_zoomFromOpen`) back to fit, so an adopted map starts where it always did and the caller's
+`openingZoom()` judges it; a zoom the person chose is kept. The `_t1256` pin of round 1 is removed; all four green.
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).

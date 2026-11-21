@@ -2,7 +2,7 @@
 id: T-1474
 name: "Labels: some label places depend on the zoom at render time (review-emission 'not found' x 'found?' 13.6 px apart when laid out at 100%, clear at fit)"
 description: >
-  Found by T-1472 (2026-11-21): with the bare designer opening its starter map at 100%, _t1256 label-clearance leg6 adopted review-emission at 100% instead of fit and found the flow labels 'not found' and 'found?' 13.6 px apart (< 30 px nearness), 0 near pairs at fit. A person zoomed to 100% who opens or re-renders that map sees it. T-1256's comment says label places stopped following the zoom; this shows one pass still does. Find which pass reads screen geometry (getBoundingClientRect / getScreenCTM) and make placement zoom-independent; then drop the setZoom(null) pin T-1472 added to _t1256's RUN, or measure at both zooms.
+  Found by T-1472 (2026-11-21): with the bare designer opening its starter map at 100%, _t1256 label-clearance leg6 adopted review-emission at 100% instead of fit and found the flow labels 'not found' and 'found?' 13.6 px apart (< 30 px nearness), 0 near pairs at fit. A person zoomed to 100% who opens or re-renders that map sees it. T-1256's comment says label places stopped following the zoom; this shows one pass still does. Find which pass reads screen geometry (getBoundingClientRect / getScreenCTM) and make placement zoom-independent; then add a _t1256 leg that adopts a map at a zoom the person chose (setZoom(1)) and requires the same near pairs as at fit. (T-1472's final fix made adoptImportedXml reset an opening-set zoom, so _t1256 measures at fit again without a pin; the dependence remains for a person's own zoom.)
 
 status: captured
 workflow_type: build
