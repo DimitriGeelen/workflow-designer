@@ -84,7 +84,12 @@ async function main() {
     const moved = await ev(cmd, dragOut);
     const drawnAfter = await ev(cmd, `+svg.querySelector('#g-pool > .pool-border').getAttribute('height')`);
     const floor = await ev(cmd, `poolHeight()`);
-    push('a node dragged below every lane does not stretch the drawn pool around it (T-1154 x T-1164)', drawnAfter <= floor + 8 && drawnAfter - drawnBefore <= 8, { drawnBefore, drawnAfter, savedHeight: floor });
+    // T-1465: the drawn pool may already be taller than the saved lanes before the drag (task-lifecycle's 'gate failed —
+    // rework' loop runs under the last lane and the drawn pool encloses it), so the measure is what the DRAG adds (<= 8)
+    // and that the dragged node stays outside the drawn pool, not the drawn height against the saved one.
+    const nodeTop = await ev(cmd, `(function(){ var s = window.__t1164; return state.nodes.filter(function(n){ return n.uid === s.uid; })[0].y; })()`);
+    const poolY = await ev(cmd, `POOL_Y`);
+    push('a node dragged below every lane does not stretch the drawn pool around it (T-1154 x T-1164)', drawnAfter - drawnBefore <= 8 && nodeTop > poolY + drawnAfter, { drawnBefore, drawnAfter, savedHeight: floor, nodeTop, poolY });
     const xmlBefore = await ev(cmd, `buildBpmnXml(state)`);
     await ev(cmd, `runCheck().then(function(){ return 1; })`); await sleep(300);
     let p = await ev(cmd, PROBE);
