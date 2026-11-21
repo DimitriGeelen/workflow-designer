@@ -23649,3 +23649,21 @@ task_id: T-1461
 payload:
   overall: CONFIRMED
   claim_count: 4
+---
+kind: scan_emitted
+timestamp: '2026-11-21T15:51:37Z'
+scan_id: R-d549f2e0
+task_id: T-1471
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-21T15:51:37Z'
+scan_id: R-d549f2e0
+task_id: T-1471
+payload:
+  task_file: .tasks/active/T-1471-toolbar-inside-aef-at-1920-px-the-save-b.md

@@ -1,0 +1,100 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1471: Toolbar: inside AEF at 1920 px the Save button wraps to a second toolbar row (AEF msg ab0a31c3, 0.45.0)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-21T15:51:43Z
+# ============================================================================
+
+task_id: T-1471
+task_name: "Toolbar: inside AEF at 1920 px the Save button wraps to a second toolbar row (AEF msg ab0a31c3, 0.45.0)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-21T12:36:04Z
+completed: 2026-11-21T15:51:20Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-21T16:25:47+01:00
+last_commit: 2026-11-21T16:26:58+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  header buttons 10 px side padding (was 12): the toolbar is one row down to ~1855 px again, so inside AEF's inline frame at a 1920 window (1894 px) Save no longer wraps; _t1176 measures 1894 and requires one row there (0.45.0 fails it). reviewer verdict
+
+# Key outcomes
+outcomes:
+  - 'Reproduced: the header of 0.45.0 (all 22 controls, served with the host-gated buttons) is one row down to 1910 px and two rows (75 px) from 1900 px; the inline frame inside a 1920 window is 1894 px wide (recorded in the header CSS since T-1241), so Save wraps there — AEF''s report. Our own Watchtower serves an older vendored designer (Load… instead of Import/Export), one row at 1920, so it could not show it'
+  - 'After the fix every toolbar control sits on one row at 1894 and 1920 (`_t1176` now measures 1894 and requires one row there; 0.45.0 fails it), and the toolbar-reach / person-sees gates stay green at 1024/1440/1920'
+  - 'If not reproduced here: AEF is asked for their window, zoom and page state — not needed, reproduced'
+  - 'The toolbar reads as well as before at every width, now on one row at 1894 and 1920'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1471/AC1-judge-t-1471-r3-268648cbd99c.md'
+  - '.context/reviews/evidence/T-1471/header-1024-after-judge-t-1471-r3-268648cbd99c.png'
+  - '.context/reviews/evidence/T-1471/header-1440-after-judge-t-1471-r3-268648cbd99c.png'
+  - '.context/reviews/evidence/T-1471/header-1894-after-judge-t-1471-r3-268648cbd99c.png'
+  - '.context/reviews/evidence/T-1471/header-1894-before-judge-t-1471-r3-268648cbd99c.png'
+  - '.context/reviews/evidence/T-1471/header-1920-after-judge-t-1471-r3-268648cbd99c.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1471-toolbar-inside-aef-at-1920-px-the-save-b.md'
+  - 'docs/reports/T-1471-shots/header-1024-after.png'
+  - 'docs/reports/T-1471-shots/header-1440-after.png'
+  - 'docs/reports/T-1471-shots/header-1894-after.png'
+  - 'docs/reports/T-1471-shots/header-1894-before.png'
+  - 'docs/reports/T-1471-shots/header-1920-after.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tools/_t1176-toolbar-reach-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-21T16:25:47'
+    action: 'T-1471: header buttons 10 px side padding (was 12): the toolbar is one row down to ~1855 px again, so inside AEF''s inline frame at a 1920 window (1894 px) Save no longer wraps; _t1176 measures 1894 and requires one row there (0.45.0 fails it)'
+  - time: '2026-11-21T16:26:58'
+    action: 'T-1471: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 195 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 195
+  commits: 3
+  files_changed: 23
+  lines_added: 582
+  lines_removed: 10
+  footprint_refreshed_at: '2026-11-21T15:51:49Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1471-toolbar-inside-aef-at-1920-px-the-save-b.md
+generated_by: context-agent-hybrid
