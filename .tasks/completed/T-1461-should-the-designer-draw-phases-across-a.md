@@ -8,19 +8,19 @@ description: >
   as phase bands: dividers through all lanes, a named bracket per phase, an optional
   second row, an optional tint), as Greenfield's owner asks?
 
-status: started-work
+status: work-completed
 workflow_type: inception
-current_node: frw_1_start
+current_node: frw_end_task
 owner: human
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
 waiting_on: agent
 revisit_at: 2026-11-27
 created: 2026-11-20T13:12:30Z
-last_update: 2026-11-21T12:04:07Z
-date_finished:
+last_update: 2026-11-21T15:15:46Z
+date_finished: 2026-11-21T15:15:46Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -187,15 +187,15 @@ vertical maps (the designer draws horizontal pools).
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Why you:** direction — whether the designer takes on phases (a new kind of thing on the map, asked by Greenfield's owner) is the operator's call
   **Steps:**
   1. Run: `fw task review T-XXX` (opens Watchtower with recommendation, assumptions, research artifacts)
@@ -262,7 +262,18 @@ maps AEF stores, so it waits for slice 1 on screen, AEF's view, and its own go.
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Phases fit standard BPMN: a `bpmn:group` per phase pointing at a `bpmn:categoryValue`, one `bpmn:category` per row, so
+a second row (Greenfield's Salesforce phases) is just a second category. The designer already keeps all of this
+unchanged on save (T-1327), so Greenfield's fallback question is already answered yes. Slice 1 only draws: divider
+lines through all lanes, a named bracket per phase above the pool, a second row, an optional tint. No map in the
+corpus has a group, so nothing changes for any existing map, on screen or on save. Not every group is a phase (the
+bpmn.io-style groups in our kitchen-sink fixture are boxes inside one lane), so a row is marked as phases by a small aef
+marker in the category, or recognised by spanning the pool's full height. Editing phases (slice 2) writes new XML into
+maps AEF stores, so it waits for slice 1 on screen, AEF's view, and its own go.
+
+**Date**: 2026-11-21T15:15:45Z
 
 ## Updates
 
@@ -271,3 +282,52 @@ maps AEF stores, so it waits for slice 1 on screen, AEF's view, and its own go.
 
 ### 2026-11-21T12:01:07Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-21T15:15:45Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Phases fit standard BPMN: a `bpmn:group` per phase pointing at a `bpmn:categoryValue`, one `bpmn:category` per row, so
+a second row (Greenfield's Salesforce phases) is just a second category. The designer already keeps all of this
+unchanged on save (T-1327), so Greenfield's fallback question is already answered yes. Slice 1 only draws: divider
+lines through all lanes, a named bracket per phase above the pool, a second row, an optional tint. No map in the
+corpus has a group, so nothing changes for any existing map, on screen or on save. Not every group is a phase (the
+bpmn.io-style groups in our kitchen-sink fixture are boxes inside one lane), so a row is marked as phases by a small aef
+marker in the category, or recognised by spanning the pool's full height. Editing phases (slice 2) writes new XML into
+maps AEF stores, so it waits for slice 1 on screen, AEF's view, and its own go.
+
+### 2026-11-21T15:15:46Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-0dff49a2
+- **Timestamp:** 2026-11-21T15:15:47Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 3
+
+**Verification-level findings:**
+
+  1. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-1
+     - evidence: `IW-1 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  2. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-2
+     - evidence: `IW-2 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  3. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-4
+     - evidence: `IW-4 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-ab1f046c
+- **Timestamp:** 2026-11-21T15:15:47Z
+- **Overall:** CONFIRMED
+- **Claims:** 4
+
+| Claim | Type | Status |
+|-------|------|--------|
+| `docs/reports/T-1461-phases.md` | file | ✓ pass |
+| `src/aef-workflow-designer.html` | file | ✓ pass |
+| `tests/fixtures/third-party/kitchen-sink.bpmn` | file | ✓ pass |
+| `T-1327` | task | ✓ pass |
