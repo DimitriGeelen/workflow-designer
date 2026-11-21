@@ -1,13 +1,21 @@
 ---
 id: T-1458
-name: "Labels: an id caption lands on a step's type tag, and caption placement changes with the window width (sal_6_opportunity)"
+name: "Labels: an id caption lands on a step's type tag, and caption placement changes
+  with the window width (sal_6_opportunity)"
 description: >
-  Split from T-1449 (repro report; T-1447 reviewer round 3). On the Greenfield fixture the caption sal_6_opportunity is placed ABOVE Opportunity Closed -> Won, over its type tag, at 1024 and 1920 wide, but BELOW it at 1440. Two defects: the type tag does not keep the caption off it, and label placement depends on the window width (probably text measured at the zoom scale flips a close choice). Expected: one placement at every width (placement measured in a scale-independent way), and a caption never on a type tag.
+  Split from T-1449 (repro report; T-1447 reviewer round 3). On the Greenfield fixture
+  the caption sal_6_opportunity is placed ABOVE Opportunity Closed -> Won, over its
+  type tag, at 1024 and 1920 wide, but BELOW it at 1440. Two defects: the type tag
+  does not keep the caption off it, and label placement depends on the window width
+  (probably text measured at the zoom scale flips a close choice). Expected: one placement
+  at every width (placement measured in a scale-independent way), and a caption never
+  on a type tag.
 
-status: captured
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: later
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-19T22:56:16Z
-last_update: 2026-11-20T10:09:41Z
-date_finished: null
+last_update: 2026-11-21T13:54:00Z
+date_finished: 2026-11-21T13:54:00Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +58,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-21T13:54:00Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=2 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1458: Labels: an id caption lands on a step's type tag, and caption placement changes with the window width (sal_6_opportunity)
@@ -78,8 +106,8 @@ gone and this task closes as not reproducible.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Reproduction attempted here: not reproduced in 13 states on two designer builds (2026-11-20, Context above)
+- [x] Greenfield's re-check on 0.45.0 does not find it: msg bfd033c1 (2026-11-21, 1700x1100: "NOT SEEN, id label sits beside the type tag") and msg 43a30b41 (2026-11-21, their T-450, windows 1024x800, 1440x900, 1920x1080, close-ups at scale 2: "T-1458 NOT SEEN at all three widths: sal_6_opportunity sits below the task, right of the outgoing line, and does not touch the '(task)' tag; same for sal_5_opportunity and sal_7_sales"). Closed as not reproducible; a new report reopens it with the state that shows it.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -265,6 +293,7 @@ gone and this task closes as not reproducible.
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+# verification: none — no code changed; closed as not reproducible on the reporter's own re-check at three widths (Greenfield msgs bfd033c1, 43a30b41)
 
 ## RCA
 
@@ -365,3 +394,20 @@ gone and this task closes as not reproducible.
 
 ### 2026-11-20T10:09:41Z — status-update [task-update-agent]
 - **Change:** horizon: next → later
+
+### 2026-11-21T13:53:59Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
+
+### 2026-11-21T13:54:00Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-d0ec62af
+- **Timestamp:** 2026-11-21T13:54:02Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none
