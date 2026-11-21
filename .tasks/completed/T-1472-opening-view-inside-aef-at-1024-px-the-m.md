@@ -6,13 +6,13 @@ description: >
   AEF (999) msg ab0a31c3 2026-11-21: 'at 1024 px the map opens small until zoomed'
   in their served /designer. Check the opening zoom against the host's canvas size.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -41,8 +41,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T12:36:05Z
-last_update: 2026-11-21T16:56:05Z
-date_finished:
+last_update: 2026-11-21T17:21:48Z
+date_finished: 2026-11-21T17:21:48Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -103,7 +103,7 @@ called at all on that path.
 - [x] Fixed: that path opens with the smallest drawn map text >= 9 px at 1024, a regression leg covers the no-query open, and the person-sees gate stays green
 
 ### Human
-- [ ] The starter map's opening view reads well at 1024, 1440 and 1920
+- [x] The starter map's opening view reads well at 1024, 1440 and 1920
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1472 --criterion 1`), who may escalate.
   **Steps:**
   1. `docs/reports/T-1472-shots/starter-{1024,1440,1920}-{before,after}.png`: before, the whole map at fit, text too small to read; after, 100% from the top-left corner
@@ -154,6 +154,7 @@ called at all on that path.
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261121-bcca48f5 — reviewer-judge-t-1472-r3-d670f01ec4fb:reviewer (rung rung-3-termlink-single-reviewer), digest b10ecd408bb4; dispatch judge-t-1472-r3-d670f01ec4fb; evidence: .context/reviews/evidence/T-1472/AC1-judge-t-1472-r3-d670f01ec4fb.md, .context/reviews/evidence/T-1472/starter-1024-before-judge-t-1472-r3-d670f01ec4fb.png, .context/reviews/evidence/T-1472/starter-1024-after-judge-t-1472-r3-d670f01ec4fb.png, .context/reviews/evidence/T-1472/starter-1440-before-judge-t-1472-r3-d670f01ec4fb.png, .context/reviews/evidence/T-1472/starter-1440-after-judge-t-1472-r3-d670f01ec4fb.png, .context/reviews/evidence/T-1472/starter-1920-before-judge-t-1472-r3-d670f01ec4fb.png, .context/reviews/evidence/T-1472/starter-1920-after-judge-t-1472-r3-d670f01ec4fb.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -420,3 +421,16 @@ opening set (`_zoomFromOpen`) back to fit, so an adopted map starts where it alw
 ### 2026-11-21T16:12:00Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-21T17:21:48Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-82aa75e2
+- **Timestamp:** 2026-11-21T17:21:58Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

@@ -1,0 +1,119 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1472: Opening view: inside AEF at 1024 px the map opens small until zoomed (AEF msg ab0a31c3, 0.45.0)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-21T17:22:08Z
+# ============================================================================
+
+task_id: T-1472
+task_name: "Opening view: inside AEF at 1024 px the map opens small until zoomed (AEF msg ab0a31c3, 0.45.0)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-21T12:36:05Z
+completed: 2026-11-21T17:21:48Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-21T17:32:52+01:00
+last_commit: 2026-11-21T17:57:35+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the starter map opens readable too (openingZoom after the Init render when no ?load= follows): AEF's /designer/app at 1024 opened it at fit with 2.7 px text; browser leg _t1472; _t1256 adopts each map at fit (its baselines), the zoom-dependent label pass it exposed is T-1474. reviewer verdict
+
+# Key outcomes
+outcomes:
+  - 'Reproduced: the default-map open (no query) at 1024 measured: zoom state and smallest drawn text in px; the hypothesis confirmed or replaced by the measured cause — 0.45.0: zoom null (fit), smallest text 2.7 px at 1024 (canvas 484 px), 5.1 at 1440, 7.8 at 1920. Cause (replaces the hypothesis): `openingZoom()` is called on every load path, not on the start-up render of the starter map, which is no load'
+  - 'Fixed: that path opens with the smallest drawn map text >= 9 px at 1024, a regression leg covers the no-query open, and the person-sees gate stays green'
+  - 'The starter map''s opening view reads well at 1024, 1440 and 1920'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1472/AC1-judge-t-1472-r3-d670f01ec4fb.md'
+  - '.context/reviews/evidence/T-1472/AC1-judge-t-1472-r3-fb04ac10ffd3.md'
+  - '.context/reviews/evidence/T-1472/starter-1024-after-judge-t-1472-r3-d670f01ec4fb.png'
+  - '.context/reviews/evidence/T-1472/starter-1024-after-judge-t-1472-r3-fb04ac10ffd3.png'
+  - '.context/reviews/evidence/T-1472/starter-1024-before-judge-t-1472-r3-d670f01ec4fb.png'
+  - '.context/reviews/evidence/T-1472/starter-1024-before-judge-t-1472-r3-fb04ac10ffd3.png'
+  - '.context/reviews/evidence/T-1472/starter-1440-after-judge-t-1472-r3-d670f01ec4fb.png'
+  - '.context/reviews/evidence/T-1472/starter-1440-after-judge-t-1472-r3-fb04ac10ffd3.png'
+  - '.context/reviews/evidence/T-1472/starter-1440-before-judge-t-1472-r3-d670f01ec4fb.png'
+  - '.context/reviews/evidence/T-1472/starter-1440-before-judge-t-1472-r3-fb04ac10ffd3.png'
+  - '.context/reviews/evidence/T-1472/starter-1920-after-judge-t-1472-r3-d670f01ec4fb.png'
+  - '.context/reviews/evidence/T-1472/starter-1920-after-judge-t-1472-r3-fb04ac10ffd3.png'
+  - '.context/reviews/evidence/T-1472/starter-1920-before-judge-t-1472-r3-d670f01ec4fb.png'
+  - '.context/reviews/evidence/T-1472/starter-1920-before-judge-t-1472-r3-fb04ac10ffd3.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1472-opening-view-inside-aef-at-1024-px-the-m.md'
+  - '.tasks/active/T-1474-labels-some-label-places-depend-on-the-z.md'
+  - 'docs/reports/T-1472-shots/starter-1024-after.png'
+  - 'docs/reports/T-1472-shots/starter-1024-before.png'
+  - 'docs/reports/T-1472-shots/starter-1440-after.png'
+  - 'docs/reports/T-1472-shots/starter-1440-before.png'
+  - 'docs/reports/T-1472-shots/starter-1920-after.png'
+  - 'docs/reports/T-1472-shots/starter-1920-before.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/shard-plan-browser-2.tsv'
+  - 'tests/shard-plan-browser-3.tsv'
+  - 'tests/shard-plan-browser-4.tsv'
+  - 'tests/shard-plan-browser-5.tsv'
+  - 'tests/shard-plan-browser-6.tsv'
+  - 'tests/shard-plan-browser-7.tsv'
+  - 'tools/_t1256-label-clearance-cdp.mjs'
+  - 'tools/_t1472-opening-zoom-default-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-21T17:32:52'
+    action: 'T-1472: the starter map opens readable too (openingZoom after the Init render when no ?load= follows): AEF''s /designer/app at 1024 opened it at fit with 2.7 px text; browser leg _t1472; _t1256 adopts each map at fit (its baselines), the zoom-dependent label pass it exposed is T-1474'
+  - time: '2026-11-21T17:34:43'
+    action: 'T-1472: reviewer verdict'
+  - time: '2026-11-21T17:57:35'
+    action: 'T-1472: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 285 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 285
+  commits: 4
+  files_changed: 41
+  lines_added: 1103
+  lines_removed: 10
+  footprint_refreshed_at: '2026-11-21T17:22:17Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1472-opening-view-inside-aef-at-1024-px-the-m.md
+generated_by: context-agent-hybrid
