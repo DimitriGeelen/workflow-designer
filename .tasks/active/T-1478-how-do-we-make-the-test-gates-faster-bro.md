@@ -17,7 +17,7 @@ related_tasks: []
 waiting_on: agent
 revisit_at: 2026-11-28
 created: 2026-11-21T21:22:39Z
-last_update: 2026-11-21T21:42:15Z
+last_update: 2026-11-21T21:42:43Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -112,9 +112,9 @@ losing what the gates catch. Findings, the options matrix and the outside consul
 We believe that measuring this machine's runs first, then re-balancing and splitting the pool tiers (browser on the
 fast workers, core on the slower ones, both at once) with fail-closed completeness and isolation checks,
 we will achieve a designer round whose pool part takes about 10 minutes instead of ~21, with nothing tested less.
-We will know that we are successful when we see, in `build/tiergate/tier-browser.runs.log` and
-`.context/working/prepush-core.runs.log`, three consecutive designer commits whose pool verdicts (browser and core,
-started to verdict) each arrive within 11 minutes, with no `build/tiergate/split-shadow/DIFFER-*` file for them.
+We will know that we are successful when we see 3 consecutive designer commits whose pool verdicts each arrive within 11 minutes
+(browser and core, started to verdict, read in `build/tiergate/tier-browser.runs.log` and
+`.context/working/prepush-core.runs.log`), with no `build/tiergate/split-shadow/DIFFER-*` file for them.
 
 ## Assumptions
 
