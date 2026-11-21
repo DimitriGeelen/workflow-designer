@@ -10,13 +10,13 @@ description: >
   add-lane strip (and any editor control drawn on the canvas), or the strip is kept
   clear of routes.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tools/_t1164-lane-findings-cdp.mjs]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -45,8 +45,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-20T16:00:36Z
-last_update: 2026-11-21T13:20:47Z
-date_finished:
+last_update: 2026-11-21T13:55:26Z
+date_finished: 2026-11-21T13:55:26Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -105,11 +105,11 @@ the strip sits below them; routes unchanged; saved bytes unchanged (lane.height 
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
 - [x] A browser harness `tools/_t1465-label-strip-cdp.mjs` measures every drawn flow label against the strip on every corpus map at 1024/1440/1920, and is red before the fix (task-lifecycle named; on 0.45.0 S1 3 and S2 9 cases, task-gate's two flows found by S2)
 - [x] After the fix it is green, and the label collision counts of the existing label harnesses do not rise (person-sees gate exit 0, label-clearance 0 errors)
-- [ ] The harness is a leg of the browser tier; the browser tier is green on the pool before push
+- [x] The harness is a leg of the browser tier; the browser tier is green on the pool before push (7591fa7e0: pool 4 shards 152 passed, here 152 passed, "pool and local both green")
 - [x] Screenshots of the changed maps before and after, measured and recorded in `## Visual Verification`
 
 ### Human
-- [ ] The maps read at least as well as before, and no flow or label sits on the "+ Add another lane" strip
+- [x] The maps read at least as well as before, and no flow or label sits on the "+ Add another lane" strip
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1465 --criterion 1`), who may escalate.
   **Steps:**
   1. `docs/reports/T-1465-shots/task-lifecycle-wide-{before,after}.png` (3000 px window, whole map): before, 'gate failed — rework' ran under the pool's bottom edge, over the strip, its label on the strip text; after, the route is the same, the drawn pool encloses it and its label, and the strip sits below
@@ -161,6 +161,7 @@ the strip sits below them; routes unchanged; saved bytes unchanged (lane.height 
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261121-237d6121 — reviewer-judge-t-1465-r3-f941b0d19a54:reviewer (rung rung-3-termlink-single-reviewer), digest 5eda7a29f0cb; dispatch judge-t-1465-r3-f941b0d19a54; evidence: .context/reviews/evidence/T-1465/AC1-judge-t-1465-r3-f941b0d19a54.md, .context/reviews/evidence/T-1465/task-lifecycle-before-crop-judge-t-1465-r3-f941b0d19a54.png, .context/reviews/evidence/T-1465/task-lifecycle-after-crop-judge-t-1465-r3-f941b0d19a54.png, .context/reviews/evidence/T-1465/task-gate-before-bottom-judge-t-1465-r3-f941b0d19a54.png, .context/reviews/evidence/T-1465/task-gate-after-bottom-judge-t-1465-r3-f941b0d19a54.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -427,3 +428,16 @@ label inside the drawn pool), on every corpus map at three widths; teeth: the 0.
 ### 2026-11-21T12:09:56Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-21T13:55:26Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-24391030
+- **Timestamp:** 2026-11-21T13:57:34Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

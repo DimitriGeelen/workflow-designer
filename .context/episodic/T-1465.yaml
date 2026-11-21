@@ -1,0 +1,126 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1465: Labels: a flow's label is placed on the '+ Add another lane' strip, under the button (task-lifecycle 'gate failed — rework')
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-21T13:57:41Z
+# ============================================================================
+
+task_id: T-1465
+task_name: "Labels: a flow's label is placed on the '+ Add another lane' strip, under the button (task-lifecycle 'gate failed — rework')"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-20T16:00:36Z
+completed: 2026-11-21T13:55:26Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-11-21T13:44:38+01:00
+last_commit: 2026-11-21T14:54:53+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  a loop-back bar outside the pool costs more than a foreign lane (90 vs 50), and when the best bar is still outside, every height inside the pool is scored; task-lifecycle 'gate failed — rework' and task-gate 're-issue'/'agent remediates' no longer run under the pool over the add-lane strip; browser leg _t1465 (S1 label on strip, S2 flow outside pool). reviewer verdict. _t1164's drag-out leg measures what the drag adds and that the node stays outside the drawn pool; task-lifecycle's drawn pool is taller than its saved lanes before the drag now (it encloses 'gate failed — rework'), which the old 'drawn <= saved + 8' clause read as a stretch (pool shard 2 red on 4f7412980)
+
+# Key outcomes
+outcomes:
+  - 'A browser harness `tools/_t1465-label-strip-cdp.mjs` measures every drawn flow label against the strip on every corpus map at 1024/1440/1920, and is red before the fix (task-lifecycle named; on 0.45.0 S1 3 and S2 9 cases, task-gate''s two flows found by S2)'
+  - 'After the fix it is green, and the label collision counts of the existing label harnesses do not rise (person-sees gate exit 0, label-clearance 0 errors)'
+  - 'The harness is a leg of the browser tier; the browser tier is green on the pool before push (7591fa7e0: pool 4 shards 152 passed, here 152 passed, "pool and local both green")'
+  - 'Screenshots of the changed maps before and after, measured and recorded in `## Visual Verification`'
+  - 'The maps read at least as well as before, and no flow or label sits on the "+ Add another lane" strip'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'a loop-back bar outside the pool costs more than a foreign lane (90 vs 50), and when the best bar is still outside, every height inside the pool is scored; task-lifecycle ''gate failed — rework'' and task-gate ''re-issue''/''agent remediates'' no longer run under the pool over the add-lane strip; browser leg _t1465 (S1 label on strip, S2 flow outside pool)'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1465/AC1-judge-t-1465-r3-4a1f2f84cf76.md'
+  - '.context/reviews/evidence/T-1465/AC1-judge-t-1465-r3-f941b0d19a54.md'
+  - '.context/reviews/evidence/T-1465/AC1-judge-t-1465-r3-f954e45b3a1e.md'
+  - '.context/reviews/evidence/T-1465/task-gate-after-band-judge-t-1465-r3-f954e45b3a1e.png'
+  - '.context/reviews/evidence/T-1465/task-gate-after-bottom-judge-t-1465-r3-4a1f2f84cf76.png'
+  - '.context/reviews/evidence/T-1465/task-gate-after-bottom-judge-t-1465-r3-f941b0d19a54.png'
+  - '.context/reviews/evidence/T-1465/task-gate-after-reissue-overlap-judge-t-1465-r3-f954e45b3a1e.png'
+  - '.context/reviews/evidence/T-1465/task-gate-after-zoom-judge-t-1465-r3-4a1f2f84cf76.png'
+  - '.context/reviews/evidence/T-1465/task-gate-before-band-judge-t-1465-r3-f954e45b3a1e.png'
+  - '.context/reviews/evidence/T-1465/task-gate-before-bottom-judge-t-1465-r3-4a1f2f84cf76.png'
+  - '.context/reviews/evidence/T-1465/task-gate-before-bottom-judge-t-1465-r3-f941b0d19a54.png'
+  - '.context/reviews/evidence/T-1465/task-lifecycle-after-bottom-judge-t-1465-r3-4a1f2f84cf76.png'
+  - '.context/reviews/evidence/T-1465/task-lifecycle-after-crop-judge-t-1465-r3-f941b0d19a54.png'
+  - '.context/reviews/evidence/T-1465/task-lifecycle-after-crop-judge-t-1465-r3-f954e45b3a1e.png'
+  - '.context/reviews/evidence/T-1465/task-lifecycle-before-bottom-judge-t-1465-r3-4a1f2f84cf76.png'
+  - '.context/reviews/evidence/T-1465/task-lifecycle-before-crop-judge-t-1465-r3-f941b0d19a54.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1465-labels-a-flows-label-is-placed-on-the--a.md'
+  - 'docs/reports/T-1465-shots/task-gate-wide-after.png'
+  - 'docs/reports/T-1465-shots/task-gate-wide-before.png'
+  - 'docs/reports/T-1465-shots/task-lifecycle-wide-after.png'
+  - 'docs/reports/T-1465-shots/task-lifecycle-wide-before.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/shard-plan-browser-2.tsv'
+  - 'tests/shard-plan-browser-3.tsv'
+  - 'tests/shard-plan-browser-4.tsv'
+  - 'tests/shard-plan-browser-5.tsv'
+  - 'tests/shard-plan-browser-6.tsv'
+  - 'tests/shard-plan-browser-7.tsv'
+  - 'tools/_t1164-lane-findings-cdp.mjs'
+  - 'tools/_t1465-label-strip-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-21T13:44:38'
+    action: 'T-1465: a loop-back bar outside the pool costs more than a foreign lane (90 vs 50), and when the best bar is still outside, every height inside the pool is scored; task-lifecycle ''gate failed — rework'' and task-gate ''re-issue''/''agent remediates'' no longer run under the pool over the add-lane strip; browser leg _t1465 (S1 label on strip, S2 flow outside pool)'
+  - time: '2026-11-21T13:48:15'
+    action: 'T-1465: reviewer verdict'
+  - time: '2026-11-21T14:02:28'
+    action: 'T-1465: reviewer verdict'
+  - time: '2026-11-21T14:20:47'
+    action: 'T-1465: _t1164''s drag-out leg measures what the drag adds and that the node stays outside the drawn pool; task-lifecycle''s drawn pool is taller than its saved lanes before the drag now (it encloses ''gate failed — rework''), which the old ''drawn <= saved + 8'' clause read as a stretch (pool shard 2 red on 4f7412980)'
+  - time: '2026-11-21T14:54:53'
+    action: 'T-1465: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 1314 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1314
+  commits: 6
+  files_changed: 41
+  lines_added: 580
+  lines_removed: 26
+  footprint_refreshed_at: '2026-11-21T13:57:55Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1465-labels-a-flows-label-is-placed-on-the--a.md
+generated_by: context-agent-hybrid
