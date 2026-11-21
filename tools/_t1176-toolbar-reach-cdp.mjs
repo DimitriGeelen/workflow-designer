@@ -9,7 +9,7 @@
 //   1. every VISIBLE control in <header> lies fully inside the window (left >= 0, right <= innerWidth), and the
 //      element at its centre is the control itself (nothing covers it: it can be clicked);
 //   2. the panels (palette, canvas, properties) start at or below the header's bottom edge (no overlap);
-//   3. at 1920 the header is still one 48px row (nothing changes where everything fitted).
+//   3. at 1920, and at 1894 (the inline frame inside a 1920 window, T-1471), the header is still one 48px row.
 // Writes .playwright-mcp/t1176-header-<width>.png per width for the visual review (CLAUDE.md, T-1174).
 // Exit 0 = pass. Exit 1 = a step failed. Exit 2 = harness could not run.
 import { makeProfileDir } from './_cdp-profile.mjs';
@@ -27,7 +27,7 @@ const REPO = join(HERE, '..');
 const SERVER = join(HERE, 'gallery-serve.py');
 const SHOTDIR = join(REPO, '.playwright-mcp');
 const MAP = 'audit-process';
-const WIDTHS = [1024, 1200, 1280, 1440, 1920];
+const WIDTHS = process.env.T1176_WIDTHS ? process.env.T1176_WIDTHS.split(',').map(Number) : [1024, 1200, 1280, 1440, 1894, 1920];   // T-1471: 1894 = the inline frame at a 1920 window
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 function findChrome() { const cache = join(homedir(), '.cache', 'ms-playwright'); const c = []; if (existsSync(cache)) for (const d of readdirSync(cache)) if (d.startsWith('chromium-')) c.push(join(cache, d, 'chrome-linux64', 'chrome')); c.sort().reverse(); for (const x of c) if (existsSync(x)) return x; throw new Error('no chromium'); }
@@ -91,7 +91,7 @@ async function main() {
       push(`${w}px: all ${m.shown} visible header controls inside the window and clickable`, m.bad.length === 0 && m.shown >= 15, m.bad.length ? m.bad : { shown: m.shown, headerH: m.headerH });
       push(`${w}px: the panels start below the header (no overlap)`, m.overlap.length === 0 && m.below.length >= 2, m.overlap.length ? m.overlap : m.below);
       push(`${w}px: the zoom group and the view group each stay on one row`, m.split.length === 0, m.split);
-      if (w === 1920) push('1920px: the header is still one 48px row', m.headerH === 48, m.headerH);
+      if (w >= 1894) push(`${w}px: the header is still one 48px row (T-1471: 1894 is the inline frame at a 1920 window)`, m.headerH === 48, m.headerH);
       // The XML panel is an overlay placed below the header; with a 2-row header a fixed 48px would cover row 2.
       const xp = await ev(cmd, `(function(){ document.getElementById('btn-xml').click();
         var p = document.getElementById('xml-panel').getBoundingClientRect(), h = document.querySelector('header').getBoundingClientRect();

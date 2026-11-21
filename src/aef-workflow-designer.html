@@ -316,6 +316,9 @@ font-family: 'Outfit';
   .lens-glyph { color: var(--text-dim); cursor: pointer; display: inline-flex; }
   #lens-select { font-size: 12px; background: var(--surface-2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%238b91a3'/%3E%3C/svg%3E") no-repeat right 5px center; color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 3px 16px 3px 5px; appearance: none; -webkit-appearance: none; cursor: pointer; }
   header .btn, header .btn-icon { white-space: nowrap; }   /* T-1176: "Pending refs…" wrapped to 2 lines and overflowed */
+  /* T-1471: 0.45.0's Import/Export menus left one row only down to ~1905 px, and the inline frame at a 1920 window is
+     1894 px: AEF saw Save on a second row. 10 px sides instead of 12 in the header frees ~50 px; the type is unchanged. */
+  header .btn { padding-left: 10px; padding-right: 10px; }
   .btn {
     font-family: var(--sans);
     font-size: 12px;
