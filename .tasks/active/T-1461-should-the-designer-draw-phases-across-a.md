@@ -1,11 +1,16 @@
 ---
 id: T-1461
-name: "Should the designer draw phases across a map (bpmn:group with categoryValueRef as phase bands: dividers through all lanes, a named bracket per phase, an optional second row, an optional tint), as Greenfield's owner asks?"
+name: "Should the designer draw phases across a map (bpmn:group with categoryValueRef
+  as phase bands: dividers through all lanes, a named bracket per phase, an optional
+  second row, an optional tint), as Greenfield's owner asks?"
 description: >
-  Inception: Should the designer draw phases across a map (bpmn:group with categoryValueRef as phase bands: dividers through all lanes, a named bracket per phase, an optional second row, an optional tint), as Greenfield's owner asks?
+  Inception: Should the designer draw phases across a map (bpmn:group with categoryValueRef
+  as phase bands: dividers through all lanes, a named bracket per phase, an optional
+  second row, an optional tint), as Greenfield's owner asks?
 
-status: captured
+status: started-work
 workflow_type: inception
+current_node: frw_1_start
 owner: human
 horizon: now
 tags: []
@@ -14,8 +19,8 @@ related_tasks: []
 waiting_on: agent
 revisit_at: 2026-11-27
 created: 2026-11-20T13:12:30Z
-last_update: 2026-11-20T13:12:30Z
-date_finished: null
+last_update: 2026-11-21T12:04:07Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -35,13 +40,40 @@ target_blast_radius: 3            # int 0..9. Anticipated component count of the
                                   # Guide: 0=docs only, 1=single file, 3=small subsystem (S), 5=cross-subsystem (M), 7=multi-arc (L), 9=framework-wide (XL).
 voi_score: 0.5                    # float 0..1. Value of Information — expected value of resolving this question,
                                   # independent of build cost. Higher when answer affects many tasks or unblocks a strategic decision. Required.
+bvp_scores_proposed:
+  - ts: '2026-11-21T12:01:08Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 1
+      D2: 1
+      D3: 1
+      D4: 1
+      F-RECALL: 1
+      F2: 1
+      F4: 1
+      F3: 1
+      F1: 1
+    rationale: D1=1 (voi:no-leverage-signal (measured low, not unassessed)); 
+      D2=1 (voi:no-leverage-signal (measured low, not unassessed)); D3=1 
+      (voi:no-leverage-signal (measured low, not unassessed)); D4=1 
+      (voi:no-leverage-signal (measured low, not unassessed)); F-RECALL=1 
+      (voi:no-leverage-signal (measured low, not unassessed)); F2=1 
+      (voi:no-leverage-signal (measured low, not unassessed)); F4=1 
+      (voi:no-leverage-signal (measured low, not unassessed)); F3=1 
+      (voi:no-leverage-signal (measured low, not unassessed)); F1=1 
+      (voi:no-leverage-signal (measured low, not unassessed))
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1461: Should the designer draw phases across a map (bpmn:group with categoryValueRef as phase bands: dividers through all lanes, a named bracket per phase, an optional second row, an optional tint), as Greenfield's owner asks?
 
 ## Problem Statement
 
-<!-- What problem are we exploring? For whom? Why now? -->
+Greenfield's owner (msg d5819d5e, 2026-11-20) wants a horizontal map divided into phases along the x axis: divider
+lines through all lanes, a named bracket per phase above the pool, an optional second row (their Salesforce phases
+over the Tacton steps), an optional tint. Order and lanes must not change. Today the designer keeps `bpmn:group`
+unchanged on save but draws nothing, so Greenfield draws phases themselves, outside the designer, from our DI.
+Findings: `docs/reports/T-1461-phases.md`.
 
 ## Hypothesis
 
@@ -83,13 +115,18 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
      correction is sticky — set `hypothesis_source: human` in the frontmatter and no
      automatic pass will ever overwrite it. -->
 
-We believe that <change>,
-we will achieve <outcome>.
-We will know that we are successful when we see <measurable signal>.
+We believe that drawing phases from standard `bpmn:group` + `bpmn:category` (a phase being a range of steps, its
+rectangle derived from them),
+we will achieve a map a workshop can read by phase inside the designer, with no change to any map that has no phases.
+We will know that we are successful when we see Greenfield's workshop map open with its 5 phases at the boundaries
+they drew (x 560/1016/1604/2080, within one step), a second row drawn, and every corpus map and byte-identity golden
+unchanged on save.
 
 ## Assumptions
 
-<!-- Key assumptions to test. Register with: fw assumption add "Statement" --task T-XXX -->
+- A1: no existing corpus map carries groups (checked: none; only the kitchen-sink fixture).
+- A2: Greenfield's phases are contiguous ranges of steps along x (their subtitle "stap 4-6"; their boundaries sit
+  between steps).
 
 ## Open Questions
 
@@ -109,21 +146,42 @@ We will know that we are successful when we see <measurable signal>.
      FW_SKIP_DISPOSITION_GATE=1 (env-var, T-1890 producer/consumer parity).
 -->
 
+- **IW-1: Can phases be stored as standard BPMN (bpmn:group with categoryValueRef) so that other tools and AEF read the same file, rather than as an aef: extension?**
+  confidence: 2
+  disposition: answered
+  rationale: yes — group + categoryValue per phase, one category per row; only a small aef marker in the category's extensionElements says "this row is phases" (report F2, F3)
+- **IW-2: Does the designer already keep groups byte-stable on save (T-1327), so that drawing them is a rendering change and not a model change?**
+  confidence: 3
+  disposition: answered
+  rationale: yes — captureProcessLevelKept keeps groups, their DI and named categories verbatim (src ~15890), pinned by the kitchen-sink golden; Greenfield's question 2 is already met (report F1)
+- **IW-3: How does a person create, rename, move and delete a phase, and how are two rows (e.g. phase and sub-phase) told apart in the file?**
+  confidence: 1
+  disposition: deferred
+  rationale: storage answered (a phase = a range of steps; a row = a category; report F4); the editing UI is slice 2, designed in its own build task after slice 1, with screenshots and review
+- **IW-4: Does drawing phases change saved bytes or routing of any existing corpus map (T-423)?**
+  confidence: 2
+  disposition: answered
+  rationale: no corpus map has a group (grep); bands sit above/behind the lanes and move no node; slice 1 writes kept groups unchanged (report F5)
+- **IW-5: Does AEF (the main consumer) want or object to phases in the maps it stores?**
+  confidence: 1
+  disposition: deferred
+  rationale: slice 1 changes no file AEF stores; AEF is asked with the exact XML before slice 2 writes new groups (report F6)
+
 ## Exploration Plan
 
-<!-- How will we validate assumptions? Spikes, prototypes, research? Time-box each. -->
+Desk research, 1 h: read the designer's group keep (T-1326/T-1327), the BPMN group/category model, the corpus and
+fixtures for existing groups, and Greenfield's request. No prototype before a decision.
 
 ## Technical Constraints
 
-<!-- What platform, browser, network, or hardware constraints apply?
-     For web apps: HTTPS requirements, browser API restrictions, CORS, device support.
-     For hardware APIs (mic, camera, GPS, Bluetooth): access requirements, permissions model.
-     For infrastructure: network topology, firewall rules, latency bounds.
-     Fill this BEFORE building. Discovering constraints after implementation wastes sessions. -->
+Single-file designer (src/aef-workflow-designer.html). T-423: saved bytes must not depend on the screen. Byte-identity
+goldens (T-358) must stay identical in slice 1. UI change: person-sees gate, screenshots at three widths, review.
 
 ## Scope Fence
 
-<!-- What's IN scope for this exploration? What's explicitly OUT? -->
+IN: whether and how phases are stored and drawn; what changes for existing maps; the slice plan.
+OUT: the editing UI's design (slice 2, its own task); drawing non-phase groups as plain boxes (a separate question);
+vertical maps (the designer draws horizontal pools).
 
 ## Acceptance Criteria
 
@@ -150,12 +208,13 @@ We will know that we are successful when we see <measurable signal>.
 
 <!-- Fill these BEFORE writing the recommendation. The placeholder detector will block review/decide if left empty. -->
 **GO if:**
-- Root cause identified with bounded fix path
-- Fix is scoped, testable, and reversible
+- Phases fit standard BPMN (groups + categories), so maps stay valid `.bpmn` for other tools and AEF
+- Drawing them changes nothing for maps without phases (saved bytes, routing, layout)
+- A first slice (draw only) is small and testable on Greenfield's own map
 
 **NO-GO if:**
-- Problem requires fundamental redesign or unbounded scope
-- Fix cost exceeds benefit given current evidence
+- Phases need an aef-only model other tools cannot read
+- Drawing them would move steps, change routing or change saved bytes of existing maps
 
 ## Verification
 
@@ -170,17 +229,25 @@ We will know that we are successful when we see <measurable signal>.
 
 ## Recommendation
 
-**Recommendation:** EXPLORING
+**Recommendation:** GO (slice 1 only: draw phases from the file; editing is a later, separate decision)
 
 **Rationale:**
 
-Greenfield msg d5819d5e (2026-11-20), their owner's wish, with their own rendering (workshop map ws-2026-11-06-offerte-tot-order, 5 phases at x 560/1016/1604/2080). bpmn:group is standard BPMN 2.0 (visual grouping, not a process element), and the designer already keeps groups and their category refs unchanged on save (T-1327) but does not draw them. Open: groups or an aef extension; how a person creates and edits a phase; how two rows are told apart; AEF's view.
+Phases fit standard BPMN: a `bpmn:group` per phase pointing at a `bpmn:categoryValue`, one `bpmn:category` per row, so
+a second row (Greenfield's Salesforce phases) is just a second category. The designer already keeps all of this
+unchanged on save (T-1327), so Greenfield's fallback question is already answered yes. Slice 1 only draws: divider
+lines through all lanes, a named bracket per phase above the pool, a second row, an optional tint. No map in the
+corpus has a group, so nothing changes for any existing map, on screen or on save. Not every group is a phase (the
+bpmn.io-style groups in our kitchen-sink fixture are boxes inside one lane), so a row is marked as phases by a small aef
+marker in the category, or recognised by spanning the pool's full height. Editing phases (slice 2) writes new XML into
+maps AEF stores, so it waits for slice 1 on screen, AEF's view, and its own go.
 
 **Evidence:**
 
-<!-- Add evidence bullets as exploration progresses (file paths,
-     commit hashes, test results). The filing-time recommendation
-     can be revised before fw inception decide. -->
+- `docs/reports/T-1461-phases.md` F1–F6
+- `src/aef-workflow-designer.html` `captureProcessLevelKept` (groups, DI and categories kept verbatim)
+- `grep -rlE '<(bpmn:)?group[ >]' --include=*.bpmn` finds only `tests/fixtures/third-party/kitchen-sink.bpmn`
+- kitchen-sink groups: bounds inside one lane (190..1400 × 120–150 in a lane 1160 high), not phases
 
 ## Decisions
 
@@ -201,3 +268,6 @@ Greenfield msg d5819d5e (2026-11-20), their owner's wish, with their own renderi
 
 <!-- Auto-populated by git mining at task completion.
      Manual entries optional during execution. -->
+
+### 2026-11-21T12:01:07Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
