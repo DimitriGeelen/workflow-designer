@@ -13,13 +13,13 @@ description: >
   ring20 to admit more workers for 832.bridge-browser; CLAUDE.md rule updated in the
   operator's words. Lever A (this machine's run) unchanged unless the operator says.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/pool/submit.sh, tools/pool/tier-gate.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -48,8 +48,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-20T20:36:51Z
-last_update: '2026-11-20T20:37:05Z'
-date_finished:
+last_update: 2026-11-21T11:20:22Z
+date_finished: 2026-11-21T11:20:22Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -104,13 +104,25 @@ adding a worker at ring20 shortens the gate without a code change.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `tier-gate.sh browser` splits into k shards (k = T1462_K, default the number of capable workers as configured
+- [x] `tier-gate.sh browser` splits into k shards (k = T1462_K, default the number of capable workers as configured
       in `tools/pool/workers`, falling back to 2), each with its time-balanced plan `tests/shard-plan-browser-<k>.tsv`
       (built by shard-plan.py from a whole run); green only if every shard is green; the shadow compare takes k shards.
-- [ ] `_t1462-split-gate-teeth.sh` covers k = 3 as well as 2 and stays green; the old gate still fails it.
-- [ ] Release jobs' browser step uses `tools/pool/tier-gate.sh browser` (the next release job's template, and the
+      Evidence: commit "T-1467: the full split"; plans k=2..7 from 832-browser-bce1f3c78a76 (146 legs); each shard and
+      the shadow pinned through tools/pool/workers (ring20's --node, T-2644).
+- [x] `_t1462-split-gate-teeth.sh` covers k = 3 as well as 2 and stays green; the old gate still fails it.
+      Evidence: 12/12 (k=3, the pins, T1467_POOL_ONLY green and red); the old gate fails the 4 new legs (8/12).
+- [x] Release jobs' browser step uses `tools/pool/tier-gate.sh browser` (the next release job's template, and the
       CLAUDE.md release rule updated in the operator's words).
-- [ ] ring20's answer on more workers recorded; k raised to the admitted count once they are, measured on a real run.
+      Evidence: job 175's browser step `T1467_POOL_ONLY=1 bash tools/pool/tier-gate.sh browser` (the operator's option
+      1); CLAUDE.md "Releases go through the same gates ... I want the full split now. I want us to use all pool workers".
+- [x] ring20's answer on more workers recorded; k raised to the admitted count once they are, measured on a real run.
+      Evidence: ring20 (conversation 832-pool-renderer-stall): pool-w1 and pool-w2 run 2 jobs each (4 fast slots);
+      pool-132 (1 slot, speed ~1.3) and live-huawei-one (2 shared, ~1.04) admitted 2026-11-20 but slow, so they take
+      the shadow and core, not shards (a gate waits for its slowest shard). k = 4. First real run (release 0.45.0,
+      d50fee662): shards 355/355/342/355 s on pool-w1 x2 + pool-w2 x2, 6 min 50 s submit to verdict (1 worker: 23 min;
+      here: 25-30 min); the unsplit shadow on pool-132 (1417 s) compared clean, C1-C4 146/146.
+      **Amended:** "k raised to the admitted count" became "k = the FAST slots": the admitted slow nodes would make the
+      slowest shard ~1.8-2.3x longer.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -297,6 +309,12 @@ adding a worker at ring20 shortens the gate without a code change.
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
 
+bash -n tools/pool/tier-gate.sh
+grep -q '^browser_shards=4' tools/pool/workers
+test -f tests/shard-plan-browser-4.tsv
+bash tools/_t1462-split-gate-teeth.sh
+grep -q 'T1467_POOL_ONLY' CLAUDE.md
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -396,3 +414,16 @@ adding a worker at ring20 shortens the gate without a code change.
 
 ### 2026-11-20T20:37:03Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-21T11:20:22Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-1f996003
+- **Timestamp:** 2026-11-21T11:21:04Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

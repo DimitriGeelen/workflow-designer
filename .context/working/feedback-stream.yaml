@@ -23533,3 +23533,39 @@ scan_id: R-844a6d8a
 task_id: T-1466
 payload:
   task_file: .tasks/active/T-1466-release-designer-0450-excel-pdf-pagesa3-.md
+---
+kind: scan_emitted
+timestamp: '2026-11-21T07:06:38Z'
+scan_id: R-1e519a22
+task_id: T-593
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-21T07:06:38Z'
+scan_id: R-1e519a22
+task_id: T-593
+payload:
+  task_file: .tasks/active/T-593-ewcr-handoff-envelope-records-an-operato.md
+---
+kind: scan_emitted
+timestamp: '2026-11-21T11:21:04Z'
+scan_id: R-1f996003
+task_id: T-1467
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-21T11:21:04Z'
+scan_id: R-1f996003
+task_id: T-1467
+payload:
+  task_file: .tasks/active/T-1467-full-split-release-jobs-browser-tier-thr.md

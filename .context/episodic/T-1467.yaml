@@ -1,0 +1,90 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1467: Full split: release jobs' browser tier through the split pool gate, and the browser tier split over every capable pool worker (k = workers)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-21T11:21:22Z
+# ============================================================================
+
+task_id: T-1467
+task_name: "Full split: release jobs' browser tier through the split pool gate, and the browser tier split over every capable pool worker (k = workers)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-20T20:36:51Z
+completed: 2026-11-21T11:20:22Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-11-20T22:06:02+01:00
+last_commit: 2026-11-20T22:06:02+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the full split (operator: 'I want the full split now. I want us to use all pool workers'; option 1 for the release) — tier-gate splits the browser tier into k shards, k and each shard's node from tools/pool/workers (k=4: pool-w1 x2, pool-w2 x2; the unsplit shadow pinned to pool-132, ring20 T-2644 --node via POOL_NODE in submit.sh); time-balanced plans for k=2..7 from the latest full run (k=4: 329 leg-s per shard); T1467_POOL_ONLY=1 runs the pool alone (releases: this desktop host loses a Chrome start now and then); CLAUDE.md release and browser-gate rules updated; _t1462 teeth 12 legs (k=3, pins, pool-only; the old gate fails the 4 new ones)
+
+# Key outcomes
+outcomes:
+  - '`tier-gate.sh browser` splits into k shards (k = T1462_K, default the number of capable workers as configured'
+  - '`_t1462-split-gate-teeth.sh` covers k = 3 as well as 2 and stays green; the old gate still fails it.'
+  - 'Release jobs'' browser step uses `tools/pool/tier-gate.sh browser` (the next release job''s template, and the'
+  - 'ring20''s answer on more workers recorded; k raised to the admitted count once they are, measured on a real run.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1467-full-split-release-jobs-browser-tier-thr.md'
+  - 'CLAUDE.md'
+  - 'tests/shard-plan-browser-2.tsv'
+  - 'tests/shard-plan-browser-3.tsv'
+  - 'tests/shard-plan-browser-4.tsv'
+  - 'tests/shard-plan-browser-5.tsv'
+  - 'tests/shard-plan-browser-6.tsv'
+  - 'tests/shard-plan-browser-7.tsv'
+  - 'tools/_t1462-split-gate-teeth.sh'
+  - 'tools/pool/submit.sh'
+  - 'tools/pool/tier-gate.sh'
+  - 'tools/pool/workers'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-20T22:06:02'
+    action: 'T-1467: the full split (operator: ''I want the full split now. I want us to use all pool workers''; option 1 for the release) — tier-gate splits the browser tier into k shards, k and each shard''s node from tools/pool/workers (k=4: pool-w1 x2, pool-w2 x2; the unsplit shadow pinned to pool-132, ring20 T-2644 --node via POOL_NODE in submit.sh); time-balanced plans for k=2..7 from the latest full run (k=4: 329 leg-s per shard); T1467_POOL_ONLY=1 runs the pool alone (releases: this desktop host loses a Chrome start now and then); CLAUDE.md release and browser-gate rules updated; _t1462 teeth 12 legs (k=3, pins, pool-only; the old gate fails the 4 new ones)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 883 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 883
+  commits: 2
+  files_changed: 15
+  lines_added: 1397
+  lines_removed: 180
+  footprint_refreshed_at: '2026-11-21T11:21:31Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1467-full-split-release-jobs-browser-tier-thr.md
+generated_by: context-agent-hybrid
