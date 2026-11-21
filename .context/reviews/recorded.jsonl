@@ -276,3 +276,4 @@
 {"ac":1,"outcome":"amber","task":"T-1456","ts":"2026-11-20T14:58:57Z","verdict_id":"V-20261120-9e2f4b37"}
 {"ac":1,"outcome":"amber","task":"T-1456","ts":"2026-11-20T16:03:59Z","verdict_id":"V-20261120-5a3bc2e9"}
 {"ac":1,"outcome":"green","task":"T-1456","ts":"2026-11-20T17:50:40Z","verdict_id":"V-20261120-b2a1757c"}
+{"ac":1,"outcome":"red","task":"T-1465","ts":"2026-11-21T12:48:14Z","verdict_id":"V-20261121-f182b2aa"}
