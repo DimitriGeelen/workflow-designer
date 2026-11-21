@@ -2274,6 +2274,19 @@ else
 fi
 }
 leg browser "test_t1472_opening_zoom_default" _leg_t1472
+_leg_t1470() {
+
+# ── T-1470 (Greenfield): an association between two steps that line up is drawn straight (Solution - Product ->
+# Product, Open Order -> Sales Order on the Greenfield fixture at 1024/1440/1920; 0.45.0 drew them diagonally). ~40 s.
+if node "$ROOT/tools/_t1470-assoc-straight-cdp.mjs" > "$TMP/leg-_t1470.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "An association between aligned steps is drawn diagonally (_t1470-assoc-straight-cdp.mjs; T1470_REPORT=1 prints every association; T-1470)"
+  show_output "$TMP/leg-_t1470.out" "_t1470-assoc-straight-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1470_assoc_straight" _leg_t1470
 _leg_t1447() {
 
 # ── T-1447: imported text annotations and associations drawn read-only (Greenfield's workshop map) ──

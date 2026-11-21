@@ -1,13 +1,18 @@
 ---
 id: T-1470
-name: "Notes: a dotted association between two vertically aligned nodes is drawn diagonally (Greenfield T-442 obs b)"
+name: "Notes: a dotted association between two vertically aligned nodes is drawn diagonally
+  (Greenfield T-442 obs b)"
 description: >
-  Greenfield msg bfd033c1 (2026-11-21): the dotted association Solution - Product -> Product (status: Needs Analysis) is drawn diagonally although both nodes have the same x in the DI; likewise Open Order -> Sales Order. Expected: a straight vertical line.
+  Greenfield msg bfd033c1 (2026-11-21): the dotted association Solution - Product
+  -> Product (status: Needs Analysis) is drawn diagonally although both nodes have
+  the same x in the DI; likewise Open Order -> Sales Order. Expected: a straight vertical
+  line.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T12:17:02Z
-last_update: 2026-11-21T12:17:02Z
-date_finished: null
+last_update: 2026-11-21T17:59:17Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +55,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-21T17:47:28Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1470: Notes: a dotted association between two vertically aligned nodes is drawn diagonally (Greenfield T-442 obs b)
@@ -77,11 +102,19 @@ bytes unchanged (associations are kept verbatim, T-1327).
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Measured: the two associations' drawn points and their steps' drawn boxes on the fixture; the hypothesis confirmed or replaced
-- [ ] Fixed: an association between two steps that overlap in x (or y) by at least a third of the narrower box is drawn as one vertical (horizontal) segment through the overlap's middle; a browser leg covers both Greenfield pairs and fails on 0.45.0
-- [ ] No other drawn association in the corpus and the fixture moves except ones that become straight; byte-identity goldens unchanged
+- [x] Measured: the two associations' drawn points and their steps' drawn boxes on the fixture; the hypothesis confirmed or replaced — replaced: the layout keeps the file's vertical waypoints (636,282 -> 636,178; boxes 571+110 drawn); `renderNotes`' clearBadge (T-1447, made for Greenfield's earlier "Solution -> Product" note) moved only the arrowhead end off the target's id badge, to 8 px from the corner (673), so the line turned diagonal; at 1024 `fitNoteEnds` then moved Open Order's source end alone too (1889 -> 1835)
+- [x] Fixed: a straight two-point line between steps that line up moves as a whole: clearBadge moves both ends when the new x is on the other step too; fitNoteEnds searches the overlap of both edges for a common clear place, and with none keeps the line straight; it starts from the rendered line (data-d0) on every pass. Browser leg `_t1470` covers both pairs at 1024/1440/1920 plus every aligned pair at 1440, and fails on 0.45.0 (7/7)
+- [ ] No other drawn association in the corpus and the fixture moves except ones that become straight; byte-identity goldens unchanged (the browser tier; associations are kept verbatim, T-1327)
 
 ### Human
+- [ ] The two associations read straight and clearly attached, and nothing nearby reads worse
+  **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1470 --criterion 1`), who may escalate.
+  **Steps:**
+  1. `docs/reports/T-1470-shots/pair1-1440-{before,after}.png`: Opportunity / Solution – Product -> Product (status: Needs Analysis)
+  2. `docs/reports/T-1470-shots/pair2-1440-{before,after}.png`: Open Order -> Sales Order (status: Open Order)
+  3. Judge: after, is each dotted line straight, clearly from one step to the other, its arrowhead visible and clear of the id caption; did any caption, label or other line get harder to read
+  **Expected:** both straight and clear; nothing worse.
+  **If not:** name the pair and what reads worse; the agent adjusts and re-measures.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -265,8 +298,28 @@ bytes unchanged (associations are kept verbatim, T-1327).
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+PATH=$HOME/.nvm/versions/node/v22.22.1/bin:$PATH timeout 300 node tools/_t1470-assoc-straight-cdp.mjs > /tmp/.t1470.out 2>&1 && grep -q "all legs passed" /tmp/.t1470.out
+PATH=$HOME/.nvm/versions/node/v22.22.1/bin:$PATH timeout 400 node tools/_t1447-notes-cdp.mjs > /tmp/.t1447.out 2>&1 && grep -q "all legs passed" /tmp/.t1447.out
+
+## Visual Verification
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| Greenfield fixture opened by ?load= | association Opportunity / Solution – Product -> Product | ok | ok | ok | one vertical segment at x 673, ends on both boxes (A1); `docs/reports/T-1470-shots/pair1-1440-{before,after}.png` |
+| same | association Open Order -> Sales Order | ok | ok | ok | one vertical segment at x 1889 (A1); `docs/reports/T-1470-shots/pair2-1440-{before,after}.png` |
+
+Read by the author (pair 1 at 1440): before, the dotted line slants from Opportunity's top up to Product's right corner;
+after, it runs straight up near the right edge of both steps, its arrowhead clear of the `sal_3_product` caption.
 
 ## RCA
+
+**Symptom:** two dotted associations between vertically aligned steps drawn diagonally (Greenfield, 0.45.0 re-check).
+**Root cause:** T-1447's clearBadge (round 4, for Greenfield's "Solution -> Product") moved the arrowhead end off the
+target's id badge, and only that end; fitNoteEnds could do the same to either end, and read its input from the path it
+had itself moved on an earlier render.
+**Why structurally allowed:** the T-1447 legs measured that ends are clear of captions, not that a straight line stays
+straight; the fix for one Greenfield note made the next one.
+**Prevention:** `_t1470` (A1 both pairs at three widths, A2 every aligned pair) in the browser tier beside `_t1447`.
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).
@@ -362,3 +415,7 @@ bytes unchanged (associations are kept verbatim, T-1327).
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1470-notes-a-dotted-association-between-two-v.md
 - **Context:** Initial task creation
+
+### 2026-11-21T17:47:27Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

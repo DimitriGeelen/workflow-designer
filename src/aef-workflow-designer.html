@@ -16414,18 +16414,29 @@ function renderNotes() {
   // An arrowhead that lands on a step's bottom edge sits under the step's id badge (badges paint above this layer) and is
   // hidden there (Greenfield's "Solution -> Product"). Move that end beside the badge, 8px in from the nearer corner, as
   // the documents layer does (T-1381).
-  const clearBadge = (pts, at, end) => {
+  const clearBadge = (pts, at, end, otherEnd) => {
     const n = end && end.node && byUid.get(end.node); if (!n) return pts;
     const d = dims(n), p = pts[at], cx = n.x + d.w / 2, half = displayIdOf(n).length * 3.2 + 4;
     if (Math.abs(p.y - (n.y + d.h)) > 3 || Math.abs(p.x - cx) > half) return pts;
     const q = pts.slice(); q[at] = { x: p.x < cx ? n.x + 8 : n.x + d.w - 8, y: n.y + d.h };
+    // T-1470 (Greenfield, 0.45.0 re-check): a straight vertical line between two steps that line up moves as a whole,
+    // so it stays straight (moving this end alone drew Solution -> Product diagonally), when the new x is on the other
+    // step too (8px in from its corners, as here).
+    const o = at === 0 ? 1 : 0, other = otherEnd && otherEnd.node && byUid.get(otherEnd.node);
+    if (pts.length === 2 && Math.abs(pts[o].x - p.x) <= 1 && other) {
+      const od = dims(other);
+      if (q[at].x >= other.x + 8 && q[at].x <= other.x + od.w - 8) q[o] = { x: q[at].x, y: pts[o].y };
+    }
     return q;
   };
   for (const l0 of L.links) {
     let l = l0;
-    if (l.dir === 'One' || l.dir === 'Both') l = { ...l, pts: clearBadge(l.pts, l.pts.length - 1, l.ends.targetRef) };
-    if (l.dir === 'Both') l = { ...l, pts: clearBadge(l.pts, 0, l.ends.sourceRef) };
-    const attrs = { d: 'M' + l.pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L'), fill: 'none',
+    if (l.dir === 'One' || l.dir === 'Both') l = { ...l, pts: clearBadge(l.pts, l.pts.length - 1, l.ends.targetRef, l.ends.sourceRef) };
+    if (l.dir === 'Both') l = { ...l, pts: clearBadge(l.pts, 0, l.ends.sourceRef, l.ends.targetRef) };
+    const d0 = 'M' + l.pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L');
+    // T-1470: data-d0 = the line as drawn here; fitNoteEnds starts from it on every pass (it runs on renders that do
+    // not redraw the notes, and a line it had moved one end of was no longer straight for its next pass)
+    const attrs = { d: d0, 'data-d0': d0, fill: 'none',
       stroke: 'var(--text-dim)', 'stroke-width': '1.2', 'stroke-dasharray': '2 3', 'data-note-assoc': l.id, 'data-dir': l.dir,
       ...(l.ends.sourceRef && l.ends.sourceRef.node ? { 'data-src-node': l.ends.sourceRef.node } : {}),
       ...(l.ends.targetRef && l.ends.targetRef.node ? { 'data-tgt-node': l.ends.targetRef.node } : {}) };
@@ -16457,9 +16468,40 @@ function fitNoteEnds() {
   const byUid = new Map(state.nodes.map(n => [n.uid, n]));
   const inCap = p => caps.find(c => p.x >= c.x1 && p.x <= c.x2 && p.y >= c.y1 && p.y <= c.y2);
   for (const p of g.querySelectorAll('path[data-note-assoc]')) {
-    const pts = [...String(p.getAttribute('d')).matchAll(/(-?[\d.]+),(-?[\d.]+)/g)].map(m => ({ x: +m[1], y: +m[2] }));
+    const pts = [...String(p.getAttribute('data-d0') || p.getAttribute('d')).matchAll(/(-?[\d.]+),(-?[\d.]+)/g)].map(m => ({ x: +m[1], y: +m[2] }));
     if (pts.length < 2) continue;
     let moved = false;
+    // T-1470 (Greenfield, 0.45.0 re-check): a straight line between two steps that line up (vertical between a bottom
+    // and a top edge, or horizontal between two sides) is moved as a whole, so it stays straight: the places in the
+    // overlap of both edges, 4px apart, nearest first, the first where neither end has a caption near it. Moving one
+    // end alone (below) turned Opportunity / Solution -> Product diagonal (end 636 -> 673, off Product's id caption).
+    if (pts.length === 2) {
+      const A = byUid.get(p.getAttribute('data-src-node')), Z = byUid.get(p.getAttribute('data-tgt-node'));
+      const vert = Math.abs(pts[0].x - pts[1].x) <= 1, horiz = Math.abs(pts[0].y - pts[1].y) <= 1;
+      if (A && Z && (vert || horiz)) {
+        const near = (end, other) => {
+          const dx = other.x - end.x, dy = other.y - end.y, L = Math.hypot(dx, dy) || 1, k = Math.min(30, L);
+          for (let s = 0; s <= k; s += 2) if (inCap({ x: end.x + dx / L * s, y: end.y + dy / L * s })) return true;
+          return false;
+        };
+        if (near(pts[0], pts[1]) || near(pts[1], pts[0])) {
+          const dA = dims(A), dZ = dims(Z);
+          const lo = vert ? Math.max(A.x, Z.x) + 8 : Math.max(A.y, Z.y) + 8;
+          const hi = vert ? Math.min(A.x + dA.w, Z.x + dZ.w) - 8 : Math.min(A.y + dA.h, Z.y + dZ.h) - 8;
+          const v = vert ? pts[0].x : pts[0].y, opts = [];
+          for (let t = lo; t <= hi; t += 4) opts.push(t);
+          opts.sort((a, b) => Math.abs(a - v) - Math.abs(b - v));
+          for (const t of opts) {
+            const a2 = vert ? { x: t, y: pts[0].y } : { x: pts[0].x, y: t }, z2 = vert ? { x: t, y: pts[1].y } : { x: pts[1].x, y: t };
+            if (!near(a2, z2) && !near(z2, a2)) { pts[0] = a2; pts[1] = z2; break; }
+          }
+        }
+        // straight it stays: with no common clear place it keeps its place rather than turn diagonal (the arrowhead
+        // under the target's id badge is already moved, both ends together, by renderNotes' clearBadge)
+        p.setAttribute('d', 'M' + pts.map(q => `${q.x.toFixed(1)},${q.y.toFixed(1)}`).join(' L'));
+        continue;
+      }
+    }
     for (const [at, attr] of [[0, 'data-src-node'], [pts.length - 1, 'data-tgt-node']]) {
       const n = byUid.get(p.getAttribute(attr)); if (!n) continue;
       const prev = pts[at === 0 ? 1 : pts.length - 2];
