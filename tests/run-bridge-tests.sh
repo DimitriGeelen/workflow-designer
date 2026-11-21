@@ -2009,6 +2009,21 @@ else
 fi
 }
 leg core "_t1462-split-gate" _leg_t1462
+_leg_t1486() {
+
+# ── T-1486 (T-1478 GO; T-1479): this machine's half of a gate runs as k shards at once, each in a clean clone of HEAD ──
+# The real tier-gate.sh in a scratch repo, pool off, the tier stubbed: three green shards -> green, each once as i/3 in its
+# own clone; a red shard or one with no GREEN line -> red; the clones removed; k=1 -> the old unsplit path. Control: the
+# old gate fails L1-L3. ~5 s.
+if bash "$ROOT/tools/_t1486-local-split-teeth.sh" > "$TMP/leg-_t1486.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the local split of a gate regressed: shards, clones, or a red/silent shard read as green (run 'bash tools/_t1486-local-split-teeth.sh'; T-1486)"
+  show_output "$TMP/leg-_t1486.out" "_t1486-local-split-teeth.sh"
+  fail=$((fail + 1))
+fi
+}
+leg core "_t1486-local-split" _leg_t1486
 _leg_235() {
 
 # ── T-1408: where the pre-push gate runs core ──

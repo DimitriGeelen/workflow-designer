@@ -4,3 +4,6 @@
 browser_shards=4
 shard_nodes="pool-w1 pool-w2 pool-w1 pool-w2"
 shadow_node=pool-132
+# T-1486: this machine's half of a gate as local_shards parallel shards, each in a clean clone of HEAD (k=1: unsplit,
+# as before). 3 to start: the host runs at load ~25 on 24 cores; raise only on zero infra-class failures over several runs.
+local_shards=3

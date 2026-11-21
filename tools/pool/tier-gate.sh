@@ -39,15 +39,55 @@ pick_node() {  # T-1409: the CDP harnesses need a global WebSocket (Node >= 22).
     return 1
 }
 
+# T-1486 (T-1478 GO; T-1479 measured: leg for leg this machine is 1.07x / 1.24x the pool, but it ran every leg one after
+# another on a 24-core host, 26 + 16 min): the tier here runs as LOCAL_K shards at once, each in its own clean clone of
+# HEAD (what the pool tests, and no shared files, ports or output paths between shards). LOCAL_K: T1486_LOCAL_K, else
+# tools/pool/workers local_shards=<k>, else 1 (unsplit, in the checkout, as before). The browser tier uses its time-
+# balanced plan tests/shard-plan-browser-<k>.tsv when there is one; otherwise every k-th leg (_t1288-tiers.sh).
+LOCAL_K=${T1486_LOCAL_K:-$(sed -n 's/^local_shards=//p' "$ROOT/tools/pool/workers" 2>/dev/null | head -1)}
+case "$LOCAL_K" in ''|*[!0-9]*) LOCAL_K=1 ;; esac
+local_split() {  # local_split <out>: LOCAL_K shards of the tier here, all at once; 0 only if every shard is green
+    local out=$1 base i plan="" rc=0 code
+    base=$(mktemp -d "${TMPDIR:-/tmp}/t1486-$TIER.XXXXXX") || return 1
+    [ -f "$ROOT/tests/shard-plan-$TIER-$LOCAL_K.tsv" ] && plan="tests/shard-plan-$TIER-$LOCAL_K.tsv"
+    echo "T-1288 $TIER: running the $TIER tier HERE as $LOCAL_K shards at once, each in a clean clone of ${HEAD_SHA:0:12}${plan:+ (plan $plan)} ..." >&2
+    : > "$out"
+    for i in $(seq 1 "$LOCAL_K"); do
+        if ! { git clone -q --shared "$ROOT" "$base/s$i" && git -C "$base/s$i" checkout -q "$HEAD_SHA"; } 2>>"$out"; then
+            echo "T-1288 $TIER: could not make clone $i of $LOCAL_K here — no verdict" >&2; rm -rf -- "$base"; return 1
+        fi
+    done
+    local pids=()
+    for i in $(seq 1 "$LOCAL_K"); do
+        ( cd "$base/s$i" || exit 1
+          export T1288_SHARD="$i/$LOCAL_K" T1288_LEGLOG="$WD/$PFX.local-s$i.legs.tsv"
+          [ -n "$plan" ] && export T1288_SHARD_PLAN="$base/s$i/$plan"
+          ${T1486_LOCAL_CMD:-bash tests/run-bridge-tests.sh} --tier "$TIER" ) </dev/null > "$WD/$PFX.local-s$i.log" 2>&1 8<&- &   # T1486_LOCAL_CMD: tests only
+        pids+=($!)
+    done
+    for i in $(seq 1 "$LOCAL_K"); do
+        wait "${pids[$((i - 1))]}"; code=$?
+        { echo "===== shard $i/$LOCAL_K (exit $code) ====="; cat "$WD/$PFX.local-s$i.log"; } >> "$out"
+        # a shard that printed no verdict line ran nothing it can vouch for: not a green
+        if [ "$code" -ne 0 ] || ! grep -qE "^tier $TIER +GREEN" "$WD/$PFX.local-s$i.log"; then rc=1; fi
+    done
+    rm -rf -- "$base"
+    return "$rc"
+}
+
 local_run() {  # the tier here; 0 green, 1 red (a red run's log is kept, newest five)
     if ! pick_node && [ "$TIER" = browser ]; then   # core does not need it, so core runs on regardless
         echo "T-1288 $TIER: CANNOT RUN here — no Node with a global WebSocket (>= 22) on PATH or under ~/.nvm; the CDP legs would all fail without measuring" >&2
         return 4
     fi
-    echo "T-1288 $TIER: running the $TIER tier HERE (tests/run-bridge-tests.sh --tier $TIER) ..." >&2
     local out="$WD/$PFX.log" rc red
-    ( cd "$ROOT" && bash tests/run-bridge-tests.sh --tier "$TIER" ) </dev/null > "$out" 2>&1 8<&-
-    rc=$?
+    if [ "$LOCAL_K" -ge 2 ]; then
+        local_split "$out"; rc=$?
+    else
+        echo "T-1288 $TIER: running the $TIER tier HERE (tests/run-bridge-tests.sh --tier $TIER) ..." >&2
+        ( cd "$ROOT" && bash tests/run-bridge-tests.sh --tier "$TIER" ) </dev/null > "$out" 2>&1 8<&-
+        rc=$?
+    fi
     grep -E "^tier $TIER " "$out" >&2
     if [ "$rc" -ne 0 ]; then
         # T-1405: keep each red run's log under its own name (newest five); $PFX.log is overwritten by the next run.
