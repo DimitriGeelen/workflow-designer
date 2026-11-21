@@ -54,12 +54,14 @@ The endpoints, unchanged since 0.44.0 (as you confirmed them: msg adadee0b, 2026
 ## Shared contracts
 
 `tools/_t1425-shared-contracts.py --check` (a core leg) holds the last column to what moved since `designer-v0.45.0`.
-"Moved" means the 832 artifact changed, not that the contract did: the designer page changed for drawing and view only.
+"Moved" means the 832 artifact changed, not that the contract did: the designer page changed for drawing and view only,
+and the authoring kit only in its calibration maps (T-1477, one line per quote); its guidance is unchanged. (Corrected
+after the tag: the tagged notes said the kit did not move; the core leg caught it in release job 177.)
 
 | # | Contract | AEF artifact | 832 artifact | Moved in this release |
 |---|---|---|---|---|
 | 1 | Procedure interchange | contracts v2 `procedure.schema.json` v1, ac9aaefc | designer page (export) | yes |
-| 2 | Mapping / compatibility | "designer produces contracts v2" (AEF T-5184, drafting) | authoring kit | no |
+| 2 | Mapping / compatibility | "designer produces contracts v2" (AEF T-5184, drafting) | authoring kit | yes |
 | 3 | Validation / refusal diagnostics | contracts v2 `refusal.schema.json` v2, c4148a34 | validate-workflow.py | no |
 | 4 | Runtime projection | projection schema (AEF T-5185, to be frozen) | designer page (overlay renderer) | yes |
 | 5 | Ratification | `task-lifecycle-contract.md` (frozen T-3386) | designer page (save/export proposal-only) | yes |
