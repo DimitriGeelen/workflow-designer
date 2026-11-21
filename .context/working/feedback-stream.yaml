@@ -23685,3 +23685,21 @@ scan_id: R-82aa75e2
 task_id: T-1472
 payload:
   task_file: .tasks/active/T-1472-opening-view-inside-aef-at-1024-px-the-m.md
+---
+kind: scan_emitted
+timestamp: '2026-11-21T18:24:35Z'
+scan_id: R-0b7f3672
+task_id: T-1470
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-21T18:24:35Z'
+scan_id: R-0b7f3672
+task_id: T-1470
+payload:
+  task_file: .tasks/active/T-1470-notes-a-dotted-association-between-two-v.md

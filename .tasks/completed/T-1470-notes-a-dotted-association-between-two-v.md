@@ -8,13 +8,13 @@ description: >
   the same x in the DI; likewise Open Order -> Sales Order. Expected: a straight vertical
   line.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -43,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T12:17:02Z
-last_update: 2026-11-21T17:59:17Z
-date_finished:
+last_update: 2026-11-21T18:24:23Z
+date_finished: 2026-11-21T18:24:23Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -104,10 +104,10 @@ bytes unchanged (associations are kept verbatim, T-1327).
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
 - [x] Measured: the two associations' drawn points and their steps' drawn boxes on the fixture; the hypothesis confirmed or replaced — replaced: the layout keeps the file's vertical waypoints (636,282 -> 636,178; boxes 571+110 drawn); `renderNotes`' clearBadge (T-1447, made for Greenfield's earlier "Solution -> Product" note) moved only the arrowhead end off the target's id badge, to 8 px from the corner (673), so the line turned diagonal; at 1024 `fitNoteEnds` then moved Open Order's source end alone too (1889 -> 1835)
 - [x] Fixed: a straight two-point line between steps that line up moves as a whole: clearBadge moves both ends when the new x is on the other step too; fitNoteEnds searches the overlap of both edges for a common clear place, and with none keeps the line straight; it starts from the rendered line (data-d0) on every pass. Browser leg `_t1470` covers both pairs at 1024/1440/1920 plus every aligned pair at 1440, and fails on 0.45.0 (7/7)
-- [ ] No other drawn association in the corpus and the fixture moves except ones that become straight; byte-identity goldens unchanged (the browser tier; associations are kept verbatim, T-1327)
+- [x] No other drawn association in the corpus and the fixture moves except ones that become straight; byte-identity goldens unchanged (the browser tier; associations are kept verbatim, T-1327) — browser tier green on the pool and here at 8ebda3a22 (154/154, byte-identity legs included); `_t1447` notes legs green; the moved code acts only on two-point straight lines (clearBadge, fitNoteEnds' first block); data-d0 makes fitNoteEnds start from the rendered line, as its first pass on a render always did
 
 ### Human
-- [ ] The two associations read straight and clearly attached, and nothing nearby reads worse
+- [x] The two associations read straight and clearly attached, and nothing nearby reads worse
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1470 --criterion 1`), who may escalate.
   **Steps:**
   1. `docs/reports/T-1470-shots/pair1-1440-{before,after}.png`: Opportunity / Solution – Product -> Product (status: Needs Analysis)
@@ -159,6 +159,7 @@ bytes unchanged (associations are kept verbatim, T-1327).
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261121-e1f6e41d — reviewer-judge-t-1470-r3-7cfafa026455:reviewer (rung rung-3-termlink-single-reviewer), digest ec1efcaebe49; dispatch judge-t-1470-r3-7cfafa026455; evidence: .context/reviews/evidence/T-1470/AC1-judge-t-1470-r3-7cfafa026455.md, .context/reviews/evidence/T-1470/pair1-1440-after-judge-t-1470-r3-7cfafa026455.png, .context/reviews/evidence/T-1470/pair2-1440-after-judge-t-1470-r3-7cfafa026455.png, .context/reviews/evidence/T-1470/pair1-arrow-zoom-judge-t-1470-r3-7cfafa026455.png, .context/reviews/evidence/T-1470/pair2-arrow-zoom-judge-t-1470-r3-7cfafa026455.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -419,3 +420,16 @@ straight; the fix for one Greenfield note made the next one.
 ### 2026-11-21T17:47:27Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-21T18:24:23Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-0b7f3672
+- **Timestamp:** 2026-11-21T18:24:35Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

@@ -1,0 +1,105 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1470: Notes: a dotted association between two vertically aligned nodes is drawn diagonally (Greenfield T-442 obs b)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-21T18:24:41Z
+# ============================================================================
+
+task_id: T-1470
+task_name: "Notes: a dotted association between two vertically aligned nodes is drawn diagonally (Greenfield T-442 obs b)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-21T12:17:02Z
+completed: 2026-11-21T18:24:23Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-21T18:59:17+01:00
+last_commit: 2026-11-21T19:00:45+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  a straight association between steps that line up stays straight: clearBadge moves both ends off the target's id badge, fitNoteEnds moves such a line as a whole or not at all and starts from the rendered line (data-d0); Greenfield's Solution - Product -> Product and Open Order -> Sales Order no longer diagonal; browser leg _t1470. reviewer verdict
+
+# Key outcomes
+outcomes:
+  - 'Measured: the two associations'' drawn points and their steps'' drawn boxes on the fixture; the hypothesis confirmed or replaced — replaced: the layout keeps the file''s vertical waypoints (636,282 -> 636,178; boxes 571+110 drawn); `renderNotes`'' clearBadge (T-1447, made for Greenfield''s earlier "Solution -> Product" note) moved only the arrowhead end off the target''s id badge, to 8 px from the corner (673), so the line turned diagonal; at 1024 `fitNoteEnds` then moved Open Order''s source end alone too (1889 -> 1835)'
+  - 'Fixed: a straight two-point line between steps that line up moves as a whole: clearBadge moves both ends when the new x is on the other step too; fitNoteEnds searches the overlap of both edges for a common clear place, and with none keeps the line straight; it starts from the rendered line (data-d0) on every pass. Browser leg `_t1470` covers both pairs at 1024/1440/1920 plus every aligned pair at 1440, and fails on 0.45.0 (7/7)'
+  - 'No other drawn association in the corpus and the fixture moves except ones that become straight; byte-identity goldens unchanged (the browser tier; associations are kept verbatim, T-1327) — browser tier green on the pool and here at 8ebda3a22 (154/154, byte-identity legs included); `_t1447` notes legs green; the moved code acts only on two-point straight lines (clearBadge, fitNoteEnds'' first block); data-d0 makes fitNoteEnds start from the rendered line, as its first pass on a render always did'
+  - 'The two associations read straight and clearly attached, and nothing nearby reads worse'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1470/AC1-judge-t-1470-r3-7cfafa026455.md'
+  - '.context/reviews/evidence/T-1470/pair1-1440-after-judge-t-1470-r3-7cfafa026455.png'
+  - '.context/reviews/evidence/T-1470/pair1-arrow-zoom-judge-t-1470-r3-7cfafa026455.png'
+  - '.context/reviews/evidence/T-1470/pair2-1440-after-judge-t-1470-r3-7cfafa026455.png'
+  - '.context/reviews/evidence/T-1470/pair2-arrow-zoom-judge-t-1470-r3-7cfafa026455.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1470-notes-a-dotted-association-between-two-v.md'
+  - 'docs/reports/T-1470-shots/pair1-1440-after.png'
+  - 'docs/reports/T-1470-shots/pair1-1440-before.png'
+  - 'docs/reports/T-1470-shots/pair2-1440-after.png'
+  - 'docs/reports/T-1470-shots/pair2-1440-before.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/shard-plan-browser-2.tsv'
+  - 'tests/shard-plan-browser-3.tsv'
+  - 'tests/shard-plan-browser-4.tsv'
+  - 'tests/shard-plan-browser-5.tsv'
+  - 'tests/shard-plan-browser-6.tsv'
+  - 'tests/shard-plan-browser-7.tsv'
+  - 'tools/_t1470-assoc-straight-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-21T18:59:17'
+    action: 'T-1470: a straight association between steps that line up stays straight: clearBadge moves both ends off the target''s id badge, fitNoteEnds moves such a line as a whole or not at all and starts from the rendered line (data-d0); Greenfield''s Solution - Product -> Product and Open Order -> Sales Order no longer diagonal; browser leg _t1470'
+  - time: '2026-11-21T19:00:45'
+    action: 'T-1470: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 367 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 367
+  commits: 4
+  files_changed: 29
+  lines_added: 1142
+  lines_removed: 22
+  footprint_refreshed_at: '2026-11-21T18:25:09Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1470-notes-a-dotted-association-between-two-v.md
+generated_by: context-agent-hybrid
