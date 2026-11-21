@@ -275,6 +275,12 @@ decision; it is not decided by this GO.
 - **Change:** status: started-work → work-completed
 - **Reason:** Inception decision: GO
 
+### 2026-11-21T22:30:00Z — build tasks filed [agent]
+- The GO ships in T-1479 (measure this machine's runs), T-1480 (re-balance, fail-closed completeness), T-1481 (core
+  split on pool-132 and live-huawei-one), T-1482 (both tiers at once), T-1483 (split the two longest browser legs),
+  T-1484 (browser reuse trial), T-1485 (content-addressed tree refs). ring20 asked to route 832 to live-huawei-one.
+  Not in this GO: whether this machine's run keeps blocking (the operator's separate decision).
+
 ## Reviewer Verdict (v1.5)
 
 - **Scan ID:** R-e555b021
