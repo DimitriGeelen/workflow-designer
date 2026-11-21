@@ -19,7 +19,8 @@ Two sections, runme first so a failing mail check can never hide it:
   5. Stale [REVIEW] documents (T-1152, OBS-291): an open [REVIEW] criterion that asks someone to read a docs/
      document older than its task's content. One line from tools/_t1152-stale-review-doc.py naming the
      tasks; informational too.
-  6. Browser tier (T-1355): the browser tier's last run from tests/.run-history.tsv, via
+  6. Browser tier (T-1355): the browser tier's last run from tests/.run-history.tsv or the browser gate's verdicts
+     (build/tiergate/tier-browser.runs.log, T-1468: releases run it on the pool only), via
      tools/_t1355-browser-tier-age.py: OK, RED, or STALE when the vendored framework changed since or it is over
      7 days old. Pushes run only the core tier, so this is where a red or unrun browser tier shows. Informational.
 

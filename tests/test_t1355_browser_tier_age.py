@@ -34,11 +34,16 @@ def repo_with_framework_commit(at, corpus_at=None):
     return d
 
 
-def run(rows, fw_at, now, corpus_at=None):
+def run(rows, fw_at, now, corpus_at=None, gate=None):
     h = tempfile.NamedTemporaryFile("w", suffix=".tsv", delete=False)
     h.write("".join("\t".join(r) + "\n" for r in rows))
     h.close()
-    env = dict(os.environ, T1355_HISTORY=h.name, T1355_REPO=repo_with_framework_commit(fw_at, corpus_at), T1355_NOW=now)
+    # T-1468: the gate log is always the test's own (a missing file when `gate` is None), never build/tiergate's
+    g = os.path.join(tempfile.mkdtemp(prefix="t1355-gate-"), "tier-browser.runs.log")
+    if gate is not None:
+        open(g, "w").write("".join("\t".join(r) + "\n" for r in gate))
+    env = dict(os.environ, T1355_HISTORY=h.name, T1355_GATE_LOG=g, T1355_REPO=repo_with_framework_commit(fw_at, corpus_at),
+               T1355_NOW=now)
     r = subprocess.run([sys.executable, TOOL], capture_output=True, text=True, env=env, timeout=60)
     return r.returncode, r.stdout.strip()
 
@@ -70,6 +75,29 @@ if "the corpus (examples/aef-processes)" not in got[1] or "framework" in got[1]:
     fails.append("the corpus STALE line does not name the corpus alone: %s" % got[1][:160])
 case("the latest browser row wins over an older red one", run([red, ["2026-11-01T11:00:00Z"] + green[1:]], FW_OLD, NOW), 0, "OK")
 case("no browser run recorded is NOT CHECKED, not OK", run([core], FW_OLD, NOW), 3, "NOT CHECKED")
+
+# T-1468: the browser gate's verdict lines count too (releases run the browser tier on the pool only since T-1467)
+LATER = "2026-11-01T11:30:00Z"
+gstart = [LATER, "fffffffffaaa", "T1467_POOL_ONLY=1: browser runs on the pool only (operator's choice for releases, 2026-11-20)"]
+grule = [LATER, "fffffffffaaa", "high-risk change (src/x): browser runs on the pool AND here, side by side; both must be green"]
+ggreen = [LATER, "fffffffffaaa", "pool only: green"]
+gboth = [LATER, "fffffffffaaa", "high-risk change: pool and local both green"]
+grefused = [LATER, "fffffffffaaa", "REFUSED — browser is red on the pool and here"]
+galone = [LATER, "fffffffffaaa", "high-risk change: the pool gave no result; local alone (red) — ONE run, not the two the rule asks for"]
+gended = [LATER, "fffffffffaaa", "ENDED without a verdict (exit 130: interrupted or failed before deciding)"]
+got = run([red], FW_OLD, NOW, gate=[gstart, ggreen])
+case("a gate green after a local red run is OK (job 174 then job 175)", got, 0, "OK")
+if "pool only: green" not in got[1] or "fffffffff" not in got[1]:
+    fails.append("the OK line does not name the gate verdict and its sha: %s" % got[1][:160])
+case("pool and local both green counts", run([red], FW_OLD, NOW, gate=[gboth]), 0, "OK")
+case("a gate REFUSED after a local green run is RED", run([green], FW_OLD, NOW, gate=[grefused]), 1, "RED")
+case("local alone (red) is RED", run([green], FW_OLD, NOW, gate=[galone]), 1, "RED")
+case("a start note alone is not a verdict (the rule text 'must be green' included)", run([red], FW_OLD, NOW, gate=[gstart, grule]), 1, "RED")
+case("ENDED without a verdict is not a verdict", run([red], FW_OLD, NOW, gate=[gended]), 1, "RED")
+case("an older gate green does not hide a newer local red",
+     run([["2026-11-01T11:45:00Z"] + red[1:]], FW_OLD, NOW, gate=[ggreen]), 1, "RED")
+case("no browser run and only a gate verdict: the verdict decides", run([core], FW_OLD, NOW, gate=[ggreen]), 0, "OK")
+case("a gate green is STALE when the framework moved after it", run([core], "2026-11-01T11:40:00Z", NOW, gate=[ggreen]), 1, "STALE")
 
 print("T-1355: %s — %d case(s) failed" % ("RED" if fails else "GREEN", len(fails)))
 sys.exit(1 if fails else 0)
