@@ -1,11 +1,16 @@
 ---
 id: T-1479
-name: "Gates 1/7: measure where this machine's browser (22-30 min) and core (15-21 min) runs spend their time (per leg, start-up, waits, CPU/RAM), the input for steps 2-7"
+name: "Gates 1/7: measure where this machine's browser (22-30 min) and core (15-21
+  min) runs spend their time (per leg, start-up, waits, CPU/RAM), the input for steps
+  2-7"
 description: >
-  T-1478 GO (operator, 60a4304d7); design and consultation: docs/reports/T-1478-test-acceleration.md. Both consultants: measure the desktop first. Output: a per-leg table and the 10 slowest causes.
+  T-1478 GO (operator, 60a4304d7); design and consultation: docs/reports/T-1478-test-acceleration.md.
+  Both consultants: measure the desktop first. Output: a per-leg table and the 10
+  slowest causes.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
 horizon: now
 tags: []
@@ -38,8 +43,8 @@ related_tasks: [T-1478]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T21:55:55Z
-last_update: 2026-11-21T21:56:01Z
-date_finished: null
+last_update: 2026-11-21T22:59:21Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +55,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-21T22:11:34Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1479: Gates 1/7: measure where this machine's browser (22-30 min) and core (15-21 min) runs spend their time (per leg, start-up, waits, CPU/RAM), the input for steps 2-7
@@ -57,20 +82,25 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** T-1478 GO (operator, 60a4304d7), step 1 of 7; both outside consultants (codex, GLM-5.3) said
+to measure this machine's runs before anything else (`docs/reports/T-1478-test-acceleration.md`).
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** this machine takes 22-30 min (browser) and 15-21 min (core) for what the pool runs in 1456
+and 794 leg-seconds; where the extra time goes (slower legs, Chrome start-up, waits, contention with the desktop's
+own load) is not known.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** a per-leg comparison of this machine against the pool for the same tree, with the causes of the largest gaps.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** `docs/reports/T-1479-desktop-timing.md`: the 15 legs that lose most time here, here-vs-pool
+seconds for each, and the share of the total they explain; one line each on why (measured, not guessed).
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Per-leg seconds here and on the pool for the same tree, both tiers, from existing run records (no new run needed if they exist), in the report — none existed here (only the pool sets T1288_LEGLOG); one run made: `build/t1479/`, browser 149 legs, core 213/212 in common
+- [x] The 15 largest here-minus-pool gaps listed with their share of the total difference — `docs/reports/T-1479-desktop-timing.md` (browser top 15 = 67 %, core top 15 = 83 %)
+- [x] For the top 5, the cause measured (Chrome start-up count and time, fixed waits, CPU or RAM contention), or marked "not measured" with why — measured: not build/ (walk 0.0 s); load 25.5 avg on 24 cores; two candidates for the tree-walking legs not yet separated (untracked files vs CPU load), the leg-alone run that separates them named; the main finding: per leg this machine is 1.07× (browser) / 1.24× (core) the pool, the wall-time gap is that it runs legs one after another
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -256,6 +286,8 @@ date_finished: null
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+grep -q "Leg for leg, this machine is about as fast as the pool" docs/reports/T-1479-desktop-timing.md
+grep -q "_t1221-guards" docs/reports/T-1479-desktop-timing.md
 
 ## RCA
 
@@ -356,3 +388,6 @@ date_finished: null
 
 ### 2026-11-21T21:56:01Z — status-update [task-update-agent]
 - **Change:** related_tasks: +T-1478
+
+### 2026-11-21T22:11:33Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
