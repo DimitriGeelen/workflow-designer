@@ -23569,3 +23569,21 @@ scan_id: R-1f996003
 task_id: T-1467
 payload:
   task_file: .tasks/active/T-1467-full-split-release-jobs-browser-tier-thr.md
+---
+kind: scan_emitted
+timestamp: '2026-11-21T12:09:25Z'
+scan_id: R-78f44c11
+task_id: T-1468
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-21T12:09:25Z'
+scan_id: R-78f44c11
+task_id: T-1468
+payload:
+  task_file: .tasks/active/T-1468-session-start-browser-tier-line-reads-th.md

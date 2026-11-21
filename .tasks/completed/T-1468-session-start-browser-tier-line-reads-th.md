@@ -4,12 +4,13 @@ name: "Session-start browser-tier line reads the pool gate's verdicts too (job 1
 description: >
   Session-start browser-tier line reads the pool gate's verdicts too (job 175's pool-only green was shown as RED from job 174's local run)
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/test_t1355_browser_tier_age.py, tools/_t1355-browser-tier-age.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T12:06:58Z
-last_update: 2026-11-21T12:09:20Z
-date_finished: null
+last_update: 2026-11-21T12:09:22Z
+date_finished: 2026-11-21T12:09:22Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -370,3 +371,21 @@ reader to the gate's log; while releases still ran locally, the history happened
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1468-session-start-browser-tier-line-reads-th.md
 - **Context:** Initial task creation
+
+### 2026-11-21T12:09:22Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-78f44c11
+- **Timestamp:** 2026-11-21T12:09:25Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — `_t1355` also reads the gate's verdict lines (`build/tiergate/tier-browser.runs.log`, env `T1355_GATE_LOG`): a green verdict ("... green", not "red") or a `REFUSED` counts as a browser run at that tim
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=build/tiergate/tier-browser.runs in: `_t1355` also reads the gate's verdict lines (`build/tiergate/tier-browser.runs.log`, env `T1355_GATE_LOG`): a green verdict ("... green", not "red") `

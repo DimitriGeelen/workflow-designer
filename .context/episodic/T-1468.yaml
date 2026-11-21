@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1468: Session-start browser-tier line reads the pool gate's verdicts too (job 175's pool-only green was shown as RED from job 174's local run)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-21T12:09:33Z
+# ============================================================================
+
+task_id: T-1468
+task_name: "Session-start browser-tier line reads the pool gate's verdicts too (job 175's pool-only green was shown as RED from job 174's local run)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-21T12:06:58Z
+completed: 2026-11-21T12:09:22Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-11-21T13:09:21+01:00
+last_commit: 2026-11-21T13:09:21+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the session-start browser-tier line reads the pool gate's verdicts too (job 175's pool-only green showed as RED from job 174's local run); 9 new cases, hint points at tools/pool/tier-gate.sh
+
+# Key outcomes
+outcomes:
+  - '`_t1355` also reads the gate''s verdict lines (`build/tiergate/tier-browser.runs.log`, env `T1355_GATE_LOG`): a green verdict ("... green", not "red") or a `REFUSED` counts as a browser run at that time and sha; start notes and "ENDED without a verdict" do not'
+  - 'The newest of the two sources decides; the line names where it ran (local, or the gate''s verdict text)'
+  - 'Tests in `tests/test_t1355_browser_tier_age.py` cover: gate green after local red → OK; gate REFUSED after local green → RED; a gate start note alone is ignored; a missing gate log changes nothing'
+  - 'Live: the session-start line no longer reads RED for job 174''s run (2026-11-21: "OK: last browser gate run 0.6d ago at d50fee662 (pool only: green)")'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1468-session-start-browser-tier-line-reads-th.md'
+  - 'tests/test_t1355_browser_tier_age.py'
+  - 'tools/_t1355-browser-tier-age.py'
+  - 'tools/session-start-alerts.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-21T13:09:21'
+    action: 'T-1468: the session-start browser-tier line reads the pool gate''s verdicts too (job 175''s pool-only green showed as RED from job 174''s local run); 9 new cases, hint points at tools/pool/tier-gate.sh'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2
+  commits: 2
+  files_changed: 7
+  lines_added: 580
+  lines_removed: 15
+  footprint_refreshed_at: '2026-11-21T12:09:40Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1468-session-start-browser-tier-line-reads-th.md
+generated_by: context-agent-hybrid
