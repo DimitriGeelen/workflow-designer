@@ -44,7 +44,10 @@ pick_node() {  # T-1409: the CDP harnesses need a global WebSocket (Node >= 22).
 # HEAD (what the pool tests, and no shared files, ports or output paths between shards). LOCAL_K: T1486_LOCAL_K, else
 # tools/pool/workers local_shards=<k>, else 1 (unsplit, in the checkout, as before). The browser tier uses its time-
 # balanced plan tests/shard-plan-browser-<k>.tsv when there is one; otherwise every k-th leg (_t1288-tiers.sh).
-LOCAL_K=${T1486_LOCAL_K:-$(sed -n 's/^local_shards=//p' "$ROOT/tools/pool/workers" 2>/dev/null | head -1)}
+# Per tier: local_shards_browser / local_shards_core. Core stays 1 for now: split, its legs that run the suite or the gate
+# inside themselves inherit T1288_SHARD, and its hook and memory legs need the pool's clone set-up (hooks installed,
+# tags, branch) — T-1481 makes core shardable (measured 2026-11-22: k=3 core here, 13 legs red; browser k=3 green).
+LOCAL_K=${T1486_LOCAL_K:-$(sed -n "s/^local_shards_$TIER=//p" "$ROOT/tools/pool/workers" 2>/dev/null | head -1)}
 case "$LOCAL_K" in ''|*[!0-9]*) LOCAL_K=1 ;; esac
 local_split() {  # local_split <out>: LOCAL_K shards of the tier here, all at once; 0 only if every shard is green
     local out=$1 base i plan="" rc=0 code
@@ -62,7 +65,9 @@ local_split() {  # local_split <out>: LOCAL_K shards of the tier here, all at on
         ( cd "$base/s$i" || exit 1
           export T1288_SHARD="$i/$LOCAL_K" T1288_LEGLOG="$WD/$PFX.local-s$i.legs.tsv"
           [ -n "$plan" ] && export T1288_SHARD_PLAN="$base/s$i/$plan"
-          ${T1486_LOCAL_CMD:-bash tests/run-bridge-tests.sh} --tier "$TIER" ) </dev/null > "$WD/$PFX.local-s$i.log" 2>&1 8<&- &   # T1486_LOCAL_CMD: tests only
+          # the framework's pointers name this checkout; cleared so every leg acts on the clone (as tools/pool/run-tier.sh)
+          exec env -u PROJECT_ROOT -u FRAMEWORK_ROOT -u CONTEXT_DIR -u TASKS_DIR -u FW_ROUTED_FROM \
+              ${T1486_LOCAL_CMD:-bash tests/run-bridge-tests.sh} --tier "$TIER" ) </dev/null > "$WD/$PFX.local-s$i.log" 2>&1 8<&- &   # T1486_LOCAL_CMD: tests only
         pids+=($!)
     done
     for i in $(seq 1 "$LOCAL_K"); do

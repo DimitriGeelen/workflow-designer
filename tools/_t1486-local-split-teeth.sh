@@ -17,7 +17,7 @@ leg() { if [ "$1" = 0 ]; then echo "PASS  $2"; else echo "FAIL  $2${3:+  — $3}
 R="$S/repo"; mkdir -p "$R/tools/pool" "$R/tests" "$R/build/tiergate"
 cp "${T1486_TIERGATE:-$ROOT/tools/pool/tier-gate.sh}" "$R/tools/pool/tier-gate.sh" || exit 2
 cp "$ROOT/tools/pool/high-risk.re" "$R/tools/pool/" 2>/dev/null
-printf 'browser_shards=2\nlocal_shards=3\n' > "$R/tools/pool/workers"
+printf 'browser_shards=2\nlocal_shards_browser=3\nlocal_shards_core=1\n' > "$R/tools/pool/workers"
 # the unsplit path (L5) runs tests/run-bridge-tests.sh in the repo itself: a stub that says so
 cat > "$R/tests/run-bridge-tests.sh" <<'EOF'
 #!/usr/bin/env bash
