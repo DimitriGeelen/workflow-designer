@@ -6870,6 +6870,11 @@ function orthoLoopBack(spA, spB, dirA, dirB, src, tgt, edge) {
   const LANE_MARGIN = 12 + routeMargin;     // distance from the lane border to the detour line
   let belowMin, belowMax, aboveMin, aboveMax;
   let topY = -Infinity, botY = Infinity;   // T-1456: the lanes the flow connects (no lane info: unbounded)
+  let poolTopY = -Infinity, poolBotY = Infinity;   // T-1465: all lanes (no lanes: unbounded)
+  if (state.lanes.length) {
+    poolTopY = Math.min(...state.lanes.map(l => laneTop(l.id)));
+    poolBotY = Math.max(...state.lanes.map(l => laneTop(l.id) + l.height));
+  }
   const laneA = findLane(src.lane), laneB = findLane(tgt.lane);
   if (laneA && laneB) {
     topY = Math.min(laneTop(src.lane), laneTop(tgt.lane));
@@ -6934,7 +6939,7 @@ function orthoLoopBack(spA, spB, dirA, dirB, src, tgt, edge) {
 
   let best = candidates[0];
   let bestScore = Infinity;
-  for (const c of candidates) {
+  const scoreOf = c => {
     const crossings = loopPathCrossings(spA, spB, c.y, src, tgt);
     // Interior bars (corridor content on both sides) read as body cuts even
     // when they touch nothing — steer toward true periphery when one exists.
@@ -6948,11 +6953,28 @@ function orthoLoopBack(spA, spB, dirA, dirB, src, tgt, edge) {
     // lie outside the lanes the flow connects. Leaving those lanes cost nothing, so a bar through a FOREIGN lane
     // (nothing below it: no interior penalty) beat every bar inside the lane (Greenfield 'wel', corpus: blocked,
     // re-issue, dry-run). It now costs more than an interior bar and less than cutting a step.
-    const foreignLane = (c.y < topY || c.y > botY) ? 50 : 0;
+    // T-1465: a bar above the first lane or below the last is outside the pool altogether: below it runs over the
+    // "+ Add another lane" strip and its label sits there. It costs more than a foreign lane, less than cutting a step.
+    const foreignLane = (c.y < poolTopY || c.y > poolBotY) ? 90 : (c.y < topY || c.y > botY) ? 50 : 0;
     // T-1456 round 2: running along another flow is worse than leaving the lane (an ambiguous route reads worse)
     const alongside = barRunsAlongFlows(c.y, spA.x, spB.x, edge) * 60;
-    const score = crossings * 100 + alongside + foreignLane + interiorPenalty + closenessPenalty + (c.kind === 'above' ? 0.05 : 0);
+    return crossings * 100 + alongside + foreignLane + interiorPenalty + closenessPenalty + (c.kind === 'above' ? 0.05 : 0);
+  };
+  for (const c of candidates) {
+    const score = scoreOf(c);
     if (score < bestScore) { bestScore = score; best = c; }
+  }
+  // T-1465: the band rules can leave no candidate inside the pool but cutting ones (task-lifecycle 'gate failed —
+  // rework': the only height below its steps was under the last lane, every one above cut a step; task-gate 'agent
+  // remediates' and 're-issue' the same), so the bar ran outside the pool, over the add-lane strip. Only then, every
+  // height inside the pool, 4 px apart, is scored the same way; the best of them is taken when it scores better.
+  if (best.y < poolTopY || best.y > poolBotY) {
+    const lo = poolTopY + LANE_MARGIN, hi = poolBotY - LANE_MARGIN;
+    for (let y = lo; y <= hi; y += 4) {
+      const c = { y, kind: y >= lowestBottom ? 'below' : 'above' };
+      const score = scoreOf(c);
+      if (score < bestScore) { bestScore = score; best = c; }
+    }
   }
 
   const detourY = best.y;

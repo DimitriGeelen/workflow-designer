@@ -145,3 +145,4 @@ test_t315_lane_grow_on_import	5
 test_t961_designer_validate_reach	6
 test_t962_findings_on_map	6
 test_typed_events	3
+test_t1465_label_strip	7

@@ -1,13 +1,20 @@
 ---
 id: T-1465
-name: "Labels: a flow's label is placed on the '+ Add another lane' strip, under the button (task-lifecycle 'gate failed — rework')"
+name: "Labels: a flow's label is placed on the '+ Add another lane' strip, under the
+  button (task-lifecycle 'gate failed — rework')"
 description: >
-  Seen in T-1456's shots (task-lifecycle at 1440, present before T-1456 too): the loop 'gate failed — rework' runs under the last lane, and its label sits on the '+ Add another lane' strip, over the button (the button text reads '+ Add a…'). Label placement treats that strip as free space. Expected: a flow label avoids the add-lane strip (and any editor control drawn on the canvas), or the strip is kept clear of routes.
+  Seen in T-1456's shots (task-lifecycle at 1440, present before T-1456 too): the
+  loop 'gate failed — rework' runs under the last lane, and its label sits on the
+  '+ Add another lane' strip, over the button (the button text reads '+ Add a…').
+  Label placement treats that strip as free space. Expected: a flow label avoids the
+  add-lane strip (and any editor control drawn on the canvas), or the strip is kept
+  clear of routes.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +45,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-20T16:00:36Z
-last_update: 2026-11-20T16:00:36Z
-date_finished: null
+last_update: 2026-11-21T12:44:37Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +57,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-21T12:09:57Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=2 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L2:keyword=editor)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1465: Labels: a flow's label is placed on the '+ Add another lane' strip, under the button (task-lifecycle 'gate failed — rework')
@@ -57,22 +84,37 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** found during T-1456's screenshot review (2026-11-20): on task-lifecycle the label of flow
+"gate failed — rework" is drawn on the "+ Add another lane" strip below the pool, under the button text.
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** `edgeLabelPos` puts a label above the longest horizontal segment, and the later collision
+pass (`adjustEdgeLabelPlacements`, T-082) counts edges, nodes, node labels and other flow labels as obstacles, but
+not the add-lane strip, so a flow running along the pool's bottom keeps a label on (or pushed onto) the strip.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** no flow label lies on the add-lane strip; labels stay inside the pool, next to their flow.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** task-lifecycle's "gate failed — rework" label sits clear of the strip at every width; no other
+corpus label moves where it did not touch the strip; saved bytes unchanged (labels are not saved, T-423).
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] A browser harness `tools/_t1465-label-strip-cdp.mjs` measures every drawn flow label against the strip on every corpus map at 1024/1440/1920, and is red before the fix (task-lifecycle named; on 0.45.0 S1 3 and S2 9 cases, task-gate's two flows found by S2)
+- [x] After the fix it is green, and the label collision counts of the existing label harnesses do not rise (person-sees gate exit 0, label-clearance 0 errors)
+- [ ] The harness is a leg of the browser tier; the browser tier is green on the pool before push
+- [x] Screenshots of the changed maps before and after, measured and recorded in `## Visual Verification`
 
 ### Human
+- [ ] [REVIEW] The changed routes read at least as well as before, and no label sits on the "+ Add another lane" strip
+  **Why you:** taste — whether a route inside the pool through a busier band reads better than one under the pool (reviewer-judged; may escalate)
+  **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1465 --criterion 1`), who may escalate.
+  **Steps:**
+  1. `docs/reports/T-1465-shots/task-lifecycle-wide-{before,after}.png` (3000 px window, whole map): 'gate failed — rework' ran under the pool, over the strip, its label on the strip; after, it runs along the top of lane Framework and its label is above it
+  2. `docs/reports/T-1465-shots/task-gate-wide-{before,after}.png`: 're-issue' and 'agent remediates' ran under the pool over the strip; after, they run inside lane Framework
+  3. For each changed flow: can it be followed from source to target, is its label next to it and readable, did other flows or labels get harder to read
+  **Expected:** after reads at least as well as before in each pair; nothing on the strip.
+  **If not:** name the map, the flow and what reads worse; the agent changes the rule (for example: grow the lane so the bar under the steps fits inside it) and re-measures.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -256,8 +298,29 @@ date_finished: null
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+PATH=$HOME/.nvm/versions/node/v22.22.1/bin:$PATH timeout 900 node tools/_t1465-label-strip-cdp.mjs > /tmp/.t1465.out 2>&1 && grep -q "all legs passed" /tmp/.t1465.out
+bash -n tests/run-bridge-tests.sh
+
+## Visual Verification
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| task-lifecycle opening view | flow 'gate failed — rework' and its label | ok | ok | ok | label off the strip at all three widths (S1, measured); bar inside the pool (S2); wide shot `docs/reports/T-1465-shots/task-lifecycle-wide-after.png`: bar along the top of lane Framework, label above it near the Human/Framework border |
+| task-gate opening view | flows 're-issue', 'agent remediates' | ok | ok | ok | bars inside lane Framework (S2); wide shot `docs/reports/T-1465-shots/task-gate-wide-after.png`: they cross more verticals than before, which is the reviewer's question |
+| all 24 corpus maps + Greenfield fixture | "+ Add another lane" strip | ok | ok | ok | no label on it (S1: 417 labels measured per width set); person-sees gate exit 0 (label-clearance 0 errors), `build/tiergate/t1465-psg.out` |
+
+Read by the author: before, task-lifecycle's label "gate failed — rework" printed over the strip text ("+ Add | gate failed — rework"), and task-gate's two flows ran along the strip. After, the strip reads "+ Add another lane" alone on both maps.
 
 ## RCA
+
+**Symptom:** task-lifecycle's flow label "gate failed — rework" drawn on the "+ Add another lane" strip, under its text.
+**Root cause:** the flow itself ran under the pool. In `orthoLoopBack` the only bar height below the steps was outside the
+lanes (the band rule leaves none inside when the lower step is near the lane bottom), every height above cut a step,
+and a bar outside the pool cost the same as one through a foreign lane (50), so it won. Same for task-gate's two flows.
+**Why structurally allowed:** no check measured flows against the pool's own bounds, only against lanes (T-1456's C1
+counts same-lane flows), and the strip is UI chrome no label pass treats as an obstacle.
+**Prevention:** `_t1465-label-strip-cdp.mjs` in the browser tier: S1 (no label on the strip) and S2 (no automatically
+routed flow outside the pool), on every corpus map at three widths; teeth: the 0.45.0 designer fails both.
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).
@@ -353,3 +416,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1465-labels-a-flows-label-is-placed-on-the--a.md
 - **Context:** Initial task creation
+
+### 2026-11-21T12:09:56Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

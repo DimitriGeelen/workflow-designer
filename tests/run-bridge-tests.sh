@@ -2247,6 +2247,20 @@ else
 fi
 }
 leg browser "test_t1456_routing_lanes_sides" _leg_t1456
+_leg_t1465() {
+
+# ── T-1465: no flow label on the "+ Add another lane" strip, and no automatically routed flow outside the pool ──
+# On the drawn labels and paths of the 24 corpus maps + the Greenfield fixture at 1024/1440/1920 (task-lifecycle's
+# 'gate failed — rework' and task-gate's 're-issue' / 'agent remediates' ran under the pool, over the strip). ~4 min.
+if node "$ROOT/tools/_t1465-label-strip-cdp.mjs" > "$TMP/leg-_t1465.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "A flow label on the add-lane strip, or a flow routed outside the pool (_t1465-label-strip-cdp.mjs; T1465_REPORT=1 prints the router's scores; T-1465)"
+  show_output "$TMP/leg-_t1465.out" "_t1465-label-strip-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1465_label_strip" _leg_t1465
 _leg_t1447() {
 
 # ── T-1447: imported text annotations and associations drawn read-only (Greenfield's workshop map) ──
