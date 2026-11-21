@@ -9,13 +9,13 @@ description: >
   tier on the pool split (T1467_POOL_ONLY=1, the operator's option 1 for 0.45.0),
   core tier, push; then AEF and Greenfield are told.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T18:00:22Z
-last_update: 2026-11-21T22:00:41Z
-date_finished:
+last_update: 2026-11-21T22:10:36Z
+date_finished: 2026-11-21T22:10:36Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -98,9 +98,9 @@ Operator, 2026-11-21: "proceed as you suggest" on the plan "T-1472 and T-1470, t
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Release notes `docs/releases/RELEASE-NOTES-0.46.0.md` committed, naming the four changes, "nothing a save writes changes", the five endpoints and AEF's status of each
-- [ ] Runme job 176 written from job 173/175's steps (pool-split browser tier), dry-run passed, committed, handed to the operator with the watcher armed
-- [ ] After the operator's run: the tag on origin, AEF told (version, tag, sha256, bytes, what it brings, nothing stored changes) and Greenfield told
+- [x] Release notes `docs/releases/RELEASE-NOTES-0.46.0.md` committed, naming the four changes, "nothing a save writes changes", the five endpoints and AEF's status of each — plus T-1477's kit fixture fix and the shared-contracts table (corrected after the tag: row 2, the kit moved)
+- [x] Runme job 176 written from job 173/175's steps (pool-split browser tier), dry-run passed, committed, handed to the operator with the watcher armed — 176 stopped at step 3 (GLM-5.3 rightly failed the calibration maps → T-1477, operator option 1); 177 resumed (both reviewers PASS, cut, tag, browser 154/154 on the pool) and stopped at step 8 (notes table row); 178 pushed (done rc=0, 22:09:45Z); 176 and 177 retired with reasons
+- [x] After the operator's run: the tag on origin, AEF told (version, tag, sha256, bytes, what it brings, nothing stored changes) and Greenfield told — `designer-v0.46.0` on origin (82877cca); sha256 7f5f41f5…af7dd, 1439884 B; AEF msg d7048659 (asks their task id), Greenfield msg b8931611
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -286,6 +286,9 @@ Operator, 2026-11-21: "proceed as you suggest" on the plan "T-1472 and T-1470, t
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+git ls-remote --exit-code --tags origin designer-v0.46.0
+python3 tools/_t1425-shared-contracts.py --check
+test -f dist/aef-workflow-designer-0.46.0.html
 
 ## RCA
 
@@ -386,3 +389,16 @@ Operator, 2026-11-21: "proceed as you suggest" on the plan "T-1472 and T-1470, t
 
 ### 2026-11-21T18:01:12Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-21T22:10:36Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-79f22442
+- **Timestamp:** 2026-11-21T22:10:38Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

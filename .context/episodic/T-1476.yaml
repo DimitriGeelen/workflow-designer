@@ -1,0 +1,124 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1476: Release designer 0.46.0 (T-1465 strip, T-1470 straight associations, T-1471 toolbar in AEF's frame, T-1472 starter map readable)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-21T22:10:47Z
+# ============================================================================
+
+task_id: T-1476
+task_name: "Release designer 0.46.0 (T-1465 strip, T-1470 straight associations, T-1471 toolbar in AEF's frame, T-1472 starter map readable)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-21T18:00:22Z
+completed: 2026-11-21T22:10:36Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-21T19:25:12+01:00
+last_commit: 2026-11-21T23:00:41+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  release notes for designer 0.46.0 (T-1465, T-1470, T-1471, T-1472; nothing a save writes changes). 0.46.0 notes carry the shared-contracts table (T-1425 core leg); _t1470's review crop listed in the T-1429 clip census with its reason — both red in the push gate on pool and here. runme job 176 — release designer 0.46.0 (job 173's steps, job 175's pool-split browser tier); dry-run passed. 0.46.0 — VERSION and APP_VERSION bumped by the release job (parity ok). runme job 177 — the 0.46.0 release resumed after job 176's step 3 (GLM-5.3 rightly failed the old calibration maps; fixed by T-1477): both reviewers calibrate the corrected kit, then cut, tag, browser tier on the pool, core, push; job 176 retired; dry-run passed. release designer 0.46.0 — toolbar fits AEF's frame, starter map opens readable, nothing on the add-lane strip, straight associations; kit calibrated on its bytes. 0.46.0 notes — the authoring kit moved (T-1477's calibration maps), so shared-contracts row 2 says yes; job 177's core step was red on it (pool and here), the tagged notes said no. runme job 178 — the 0.46.0 push (core cached green, push branch and tag); job 177 retired after its step 8 (notes table row corrected); dry-run passed
+
+# Key outcomes
+outcomes:
+  - 'Release notes `docs/releases/RELEASE-NOTES-0.46.0.md` committed, naming the four changes, "nothing a save writes changes", the five endpoints and AEF''s status of each — plus T-1477''s kit fixture fix and the shared-contracts table (corrected after the tag: row 2, the kit moved)'
+  - 'Runme job 176 written from job 173/175''s steps (pool-split browser tier), dry-run passed, committed, handed to the operator with the watcher armed — 176 stopped at step 3 (GLM-5.3 rightly failed the calibration maps → T-1477, operator option 1); 177 resumed (both reviewers PASS, cut, tag, browser 154/154 on the pool) and stopped at step 8 (notes table row); 178 pushed (done rc=0, 22:09:45Z); 176 and 177 retired with reasons'
+  - 'After the operator''s run: the tag on origin, AEF told (version, tag, sha256, bytes, what it brings, nothing stored changes) and Greenfield told — `designer-v0.46.0` on origin (82877cca); sha256 7f5f41f5…af7dd, 1439884 B; AEF msg d7048659 (asks their task id), Greenfield msg b8931611'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'runme job 177 — the 0.46.0 release resumed after job 176''s step 3 (GLM-5.3 rightly failed the old calibration maps; fixed by T-1477): both reviewers calibrate the corrected kit, then cut, tag, browser tier on the pool, core, push; job 176 retired; dry-run passed'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/176-release-designer-0.46.0/dryrun.ok'
+  - '.context/runme/176-release-designer-0.46.0/job.sh'
+  - '.context/runme/176-release-designer-0.46.0/retired'
+  - '.context/runme/177-release-designer-0.46.0-resume/dryrun.ok'
+  - '.context/runme/177-release-designer-0.46.0-resume/job.sh'
+  - '.context/runme/177-release-designer-0.46.0-resume/retired'
+  - '.context/runme/178-release-designer-0.46.0-push/dryrun.ok'
+  - '.context/runme/178-release-designer-0.46.0-push/job.sh'
+  - '.tasks/active/T-1476-release-designer-0460-t-1465-strip-t-147.md'
+  - 'VERSION'
+  - 'dist/MANIFEST.yaml'
+  - 'dist/aef-authoring-kit-0.46.0/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.46.0/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.46.0/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.46.0/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.46.0/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.46.0/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.46.0/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.46.0/SKILL.md'
+  - 'dist/aef-authoring-kit-0.46.0/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.46.0/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.46.0/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.46.0/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.46.0/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.46.0/loop.sh'
+  - 'dist/aef-authoring-kit-0.46.0/validate-workflow.py'
+  - 'dist/aef-authoring-kit-0.46.0/verify-findings.py'
+  - 'dist/aef-workflow-designer-0.46.0.html'
+  - 'docs/authoring-kit/calibration-records/0.46.0.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.46.0.md'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/test_t1429_clip_shot_census.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-21T19:25:12'
+    action: 'T-1476: release notes for designer 0.46.0 (T-1465, T-1470, T-1471, T-1472; nothing a save writes changes)'
+  - time: '2026-11-21T19:42:34'
+    action: 'T-1476: 0.46.0 notes carry the shared-contracts table (T-1425 core leg); _t1470''s review crop listed in the T-1429 clip census with its reason — both red in the push gate on pool and here'
+  - time: '2026-11-21T19:59:40'
+    action: 'T-1476: runme job 176 — release designer 0.46.0 (job 173''s steps, job 175''s pool-split browser tier); dry-run passed'
+  - time: '2026-11-21T20:07:08'
+    action: 'T-1476: 0.46.0 — VERSION and APP_VERSION bumped by the release job (parity ok)'
+  - time: '2026-11-21T20:26:57'
+    action: 'T-1476: runme job 177 — the 0.46.0 release resumed after job 176''s step 3 (GLM-5.3 rightly failed the old calibration maps; fixed by T-1477): both reviewers calibrate the corrected kit, then cut, tag, browser tier on the pool, core, push; job 176 retired; dry-run passed'
+  - time: '2026-11-21T20:41:53'
+    action: 'T-1476: release designer 0.46.0 — toolbar fits AEF''s frame, starter map opens readable, nothing on the add-lane strip, straight associations; kit calibrated on its bytes'
+  - time: '2026-11-21T22:21:25'
+    action: 'T-1476: 0.46.0 notes — the authoring kit moved (T-1477''s calibration maps), so shared-contracts row 2 says yes; job 177''s core step was red on it (pool and here), the tagged notes said no'
+  - time: '2026-11-21T23:00:41'
+    action: 'T-1476: runme job 178 — the 0.46.0 push (core cached green, push branch and tag); job 177 retired after its step 8 (notes table row corrected); dry-run passed'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 8 commit(s), 250 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 250
+  commits: 9
+  files_changed: 35
+  lines_added: 23312
+  lines_removed: 28
+  footprint_refreshed_at: '2026-11-21T22:10:59Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1476-release-designer-0460-t-1465-strip-t-147.md
+generated_by: context-agent-hybrid
