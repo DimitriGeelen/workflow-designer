@@ -1,0 +1,88 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1478: How do we make the test gates faster (browser and core, pool and this machine) without losing what they catch?
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-21T21:55:37Z
+# ============================================================================
+
+task_id: T-1478
+task_name: "How do we make the test gates faster (browser and core, pool and this machine) without losing what they catch?"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-21T21:22:39Z
+completed: 2026-11-21T21:55:29Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-21T22:41:44+01:00
+last_commit: 2026-11-21T22:55:31+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  faster test gates — options matrix (O1-O10, gain, risk, mitigation), outside consultation (codex, GLM-5.3, ring20 msg 08fa79b9) and recommendation GO for a measured sequence; the blocking desktop run stays as is, its future is the operator's separate decision. the hypothesis's success clause names the run logs it is read from. success clause with its number on the line the hypothesis gate reads. inception decision GO (via Watchtower)
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/human-ac-ticks.jsonl'
+  - 'docs/reports/T-1478-test-acceleration.md'
+  - '.tasks/active/T-1478-how-do-we-make-the-test-gates-faster-bro.md'
+  - '.tasks/completed/T-1478-how-do-we-make-the-test-gates-faster-bro.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-21T22:41:44'
+    action: 'T-1478: faster test gates — options matrix (O1-O10, gain, risk, mitigation), outside consultation (codex, GLM-5.3, ring20 msg 08fa79b9) and recommendation GO for a measured sequence; the blocking desktop run stays as is, its future is the operator''s separate decision'
+  - time: '2026-11-21T22:42:15'
+    action: 'T-1478: the hypothesis''s success clause names the run logs it is read from'
+  - time: '2026-11-21T22:42:43'
+    action: 'T-1478: success clause with its number on the line the hypothesis gate reads'
+  - time: '2026-11-21T22:55:31'
+    action: 'T-1478: inception decision GO (via Watchtower)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 32 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 32
+  commits: 5
+  files_changed: 6
+  lines_added: 591
+  lines_removed: 17
+  footprint_refreshed_at: '2026-11-21T21:55:40Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1478-how-do-we-make-the-test-gates-faster-bro.md
+generated_by: context-agent-hybrid

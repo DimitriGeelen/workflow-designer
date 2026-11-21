@@ -23721,3 +23721,29 @@ scan_id: R-e382561b
 task_id: T-1477
 payload:
   task_file: .tasks/active/T-1477-kit-calibration-maps-source-quotes-keep-.md
+---
+kind: scan_emitted
+timestamp: '2026-11-21T21:55:30Z'
+scan_id: R-e555b021
+task_id: T-1478
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-21T21:55:30Z'
+scan_id: R-e555b021
+task_id: T-1478
+payload:
+  task_file: .tasks/active/T-1478-how-do-we-make-the-test-gates-faster-bro.md
+---
+kind: recommendation_claims_verdict
+timestamp: '2026-11-21T21:55:30Z'
+scan_id: RC-6f095ced
+task_id: T-1478
+payload:
+  overall: CONFIRMED
+  claim_count: 1
