@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1479: Gates 1/7: measure where this machine's browser (22-30 min) and core (15-21 min) runs spend their time (per leg, start-up, waits, CPU/RAM), the input for steps 2-7
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-21T22:59:30Z
+# ============================================================================
+
+task_id: T-1479
+task_name: "Gates 1/7: measure where this machine's browser (22-30 min) and core (15-21 min) runs spend their time (per leg, start-up, waits, CPU/RAM), the input for steps 2-7"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-21T21:55:55Z
+completed: 2026-11-21T22:59:22Z
+duration_days: 0
+updates_count: 4
+first_commit: 2026-11-21T23:59:21+01:00
+last_commit: 2026-11-21T23:59:21+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  this machine leg for leg is 1.07x (browser) / 1.24x (core) the pool; its 26 + 16 min come from running legs one after another on a 24-core, 96 GB host at load 25; the largest per-leg gaps listed with causes measured or named
+
+# Key outcomes
+outcomes:
+  - 'Per-leg seconds here and on the pool for the same tree, both tiers, from existing run records (no new run needed if they exist), in the report — none existed here (only the pool sets T1288_LEGLOG); one run made: `build/t1479/`, browser 149 legs, core 213/212 in common'
+  - 'The 15 largest here-minus-pool gaps listed with their share of the total difference — `docs/reports/T-1479-desktop-timing.md` (browser top 15 = 67 %, core top 15 = 83 %)'
+  - 'For the top 5, the cause measured (Chrome start-up count and time, fixed waits, CPU or RAM contention), or marked "not measured" with why — measured: not build/ (walk 0.0 s); load 25.5 avg on 24 cores; two candidates for the tree-walking legs not yet separated (untracked files vs CPU load), the leg-alone run that separates them named; the main finding: per leg this machine is 1.07× (browser) / 1.24× (core) the pool, the wall-time gap is that it runs legs one after another'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1479-gates-17-measure-where-this-machines-bro.md'
+  - 'docs/reports/T-1479-desktop-timing.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-21T23:59:21'
+    action: 'T-1479: this machine leg for leg is 1.07x (browser) / 1.24x (core) the pool; its 26 + 16 min come from running legs one after another on a 24-core, 96 GB host at load 25; the largest per-leg gaps listed with causes measured or named'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 63 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 63
+  commits: 2
+  files_changed: 5
+  lines_added: 232
+  lines_removed: 16
+  footprint_refreshed_at: '2026-11-21T22:59:36Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1479-gates-17-measure-where-this-machines-bro.md
+generated_by: context-agent-hybrid
