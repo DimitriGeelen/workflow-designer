@@ -299,6 +299,10 @@ maps AEF stores, so it waits for slice 1 on screen, AEF's view, and its own go.
 - **Change:** status: started-work → work-completed
 - **Reason:** Inception decision: GO
 
+### 2026-11-21T15:40:00Z — build task filed [agent]
+- The GO (slice 1, draw only) ships in **T-1473** (Phases slice 1: draw phases from the file). Editing phases (slice 2)
+  is not authorised by this GO; it gets its own decision after slice 1 is on screen and AEF has answered.
+
 ## Reviewer Verdict (v1.5)
 
 - **Scan ID:** R-0dff49a2
