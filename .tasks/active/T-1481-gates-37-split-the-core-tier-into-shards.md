@@ -57,7 +57,14 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** T-1478 GO step 3. Found by T-1486 (2026-11-22): core run here as 3 shards in clean clones
+went 13 legs red (green unsplit). Two causes to solve here, for the pool and for this machine: (1) legs that run the
+suite or the gate inside themselves (tier engine, `_t1462`, `_t1408`/`_t1409` gate legs, runme launcher/dry-run)
+inherit `T1288_SHARD`/`T1288_SHARD_PLAN`/`T1288_LEGLOG` from the shard's environment; (2) hook and memory legs
+(`_t1000`/`_t1161` install-hook, `_t567` episodic, `_t675`/`_t849` budget) need the clone prepared as
+`tools/pool/run-tier.sh` does (hooks installed, tags fetched, branch checked out, framework pointers cleared).
+ring20 (msg e63a0ff7): live-huawei-one already admits 832 core; a job may pin its node. Logs of the red run:
+`.context/working/prepush-core.local-s{1,2,3}.log`.
 
 **Problem / hypothesis:** <what we think is wrong and why>
 

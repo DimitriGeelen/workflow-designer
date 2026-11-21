@@ -44,7 +44,7 @@ related_tasks: [T-1478, T-1479]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T23:08:16Z
-last_update: 2026-11-21T23:35:46Z
+last_update: 2026-11-21T23:46:44Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -101,10 +101,10 @@ unsplit run.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `local_run` runs LOCAL_K shards at once, each in its own `git clone --shared` of HEAD, the browser tier with its time-balanced plan when one exists; the clones are removed afterwards; LOCAL_K=1 is the old path
-- [ ] A shard that exits non-zero, or prints no `tier <tier> GREEN` line, makes the local verdict red (a test with a forced-red shard)
-- [ ] Measured: both tiers here at k=3, wall time and the shard legs' total against T-1479's unsplit run; every leg ran exactly once (the union of the shards' leg logs equals the unsplit leg set)
-- [ ] The gate's own core legs (`_t1462-split-gate` and friends) stay green
+- [x] `local_run` runs LOCAL_K shards at once, each in its own `git clone --shared` of HEAD, the browser tier with its time-balanced plan when one exists; the clones are removed afterwards; LOCAL_K=1 is the old path — per tier (`local_shards_browser=3`, `local_shards_core=1`), framework pointers cleared as the pool's; `_t1486` L1/L4/L5
+- [x] A shard that exits non-zero, or prints no `tier <tier> GREEN` line, makes the local verdict red (a test with a forced-red shard) — `_t1486` L2/L3; control: the old gate fails L1-L3
+- [x] Measured: both tiers here at k=3, wall time and the shard legs' total against T-1479's unsplit run; every leg ran exactly once (the union of the shards' leg logs equals the unsplit leg set) — browser 665 s and 623 s (unsplit 1562 s), green both times, 149/149 legs exactly once; core at k=3 went 13 legs red (legs that nest the suite inherit T1288_SHARD; hook/memory legs need the pool's clone set-up), so core stays unsplit here and the causes are recorded in T-1481
+- [x] The gate's own core legs (`_t1462-split-gate` and friends) stay green — `_t1462` 12/12, `_t1486` 5/5
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -290,6 +290,9 @@ unsplit run.
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+bash tools/_t1486-local-split-teeth.sh > /tmp/.t1486.out 2>&1 && grep -q "T-1486: GREEN" /tmp/.t1486.out
+bash tools/_t1462-split-gate-teeth.sh > /tmp/.t1462.out 2>&1 && grep -q "12 passed, 0 failed" /tmp/.t1462.out
+grep -q '^local_shards_browser=3' tools/pool/workers
 
 ## RCA
 
