@@ -45,7 +45,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-20T16:00:36Z
-last_update: 2026-11-21T12:44:37Z
+last_update: 2026-11-21T13:00:01Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -91,10 +91,13 @@ bvp_scores_proposed:
 pass (`adjustEdgeLabelPlacements`, T-082) counts edges, nodes, node labels and other flow labels as obstacles, but
 not the add-lane strip, so a flow running along the pool's bottom keeps a label on (or pushed onto) the strip.
 
-**Goal:** no flow label lies on the add-lane strip; labels stay inside the pool, next to their flow.
+Measured (round 1): the label follows its flow, and the flow itself runs under the last lane — the loop-back router's
+only height below the steps lies there (task-lifecycle, and task-gate's 're-issue' and 'agent remediates').
 
-**Expected outcome:** task-lifecycle's "gate failed — rework" label sits clear of the strip at every width; no other
-corpus label moves where it did not touch the strip; saved bytes unchanged (labels are not saved, T-423).
+**Goal:** no flow or flow label lies on the add-lane strip; the drawn pool encloses every flow between its steps.
+
+**Expected outcome:** the drawn pool grows (drawn only, like T-1154's label pad) to enclose such a bar and its label, so
+the strip sits below them; routes unchanged; saved bytes unchanged (lane.height is what is saved).
 
 ## Acceptance Criteria
 
@@ -106,15 +109,14 @@ corpus label moves where it did not touch the strip; saved bytes unchanged (labe
 - [x] Screenshots of the changed maps before and after, measured and recorded in `## Visual Verification`
 
 ### Human
-- [ ] [REVIEW] The changed routes read at least as well as before, and no label sits on the "+ Add another lane" strip
-  **Why you:** taste — whether a route inside the pool through a busier band reads better than one under the pool (reviewer-judged; may escalate)
+- [ ] The maps read at least as well as before, and no flow or label sits on the "+ Add another lane" strip
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1465 --criterion 1`), who may escalate.
   **Steps:**
-  1. `docs/reports/T-1465-shots/task-lifecycle-wide-{before,after}.png` (3000 px window, whole map): 'gate failed — rework' ran under the pool, over the strip, its label on the strip; after, it runs along the top of lane Framework and its label is above it
-  2. `docs/reports/T-1465-shots/task-gate-wide-{before,after}.png`: 're-issue' and 'agent remediates' ran under the pool over the strip; after, they run inside lane Framework
-  3. For each changed flow: can it be followed from source to target, is its label next to it and readable, did other flows or labels get harder to read
+  1. `docs/reports/T-1465-shots/task-lifecycle-wide-{before,after}.png` (3000 px window, whole map): before, 'gate failed — rework' ran under the pool's bottom edge, over the strip, its label on the strip text; after, the route is the same, the drawn pool encloses it and its label, and the strip sits below
+  2. `docs/reports/T-1465-shots/task-gate-wide-{before,after}.png`: 're-issue' and 'agent remediates', same: routes unchanged, now inside the drawn pool, strip below
+  3. Round 1 (`*-after-round1-rerouted.png`) re-routed these flows inside the lanes instead; judged red (V-20261121, 're-issue' lay on the start event's outgoing flow). Round 2 changes no route.
   **Expected:** after reads at least as well as before in each pair; nothing on the strip.
-  **If not:** name the map, the flow and what reads worse; the agent changes the rule (for example: grow the lane so the bar under the steps fits inside it) and re-measures.
+  **If not:** name the map, the flow and what reads worse; the agent adjusts and re-measures.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -305,22 +307,27 @@ bash -n tests/run-bridge-tests.sh
 
 | state | control | 1024 | 1440 | 1920 | note |
 |-------|---------|------|------|------|------|
-| task-lifecycle opening view | flow 'gate failed — rework' and its label | ok | ok | ok | label off the strip at all three widths (S1, measured); bar inside the pool (S2); wide shot `docs/reports/T-1465-shots/task-lifecycle-wide-after.png`: bar along the top of lane Framework, label above it near the Human/Framework border |
-| task-gate opening view | flows 're-issue', 'agent remediates' | ok | ok | ok | bars inside lane Framework (S2); wide shot `docs/reports/T-1465-shots/task-gate-wide-after.png`: they cross more verticals than before, which is the reviewer's question |
-| all 24 corpus maps + Greenfield fixture | "+ Add another lane" strip | ok | ok | ok | no label on it (S1: 417 labels measured per width set); person-sees gate exit 0 (label-clearance 0 errors), `build/tiergate/t1465-psg.out` |
+| task-lifecycle opening view | flow 'gate failed — rework' and its label | ok | ok | ok | label off the strip at all three widths (S1); flow and label inside the drawn pool (S2); wide shot `docs/reports/T-1465-shots/task-lifecycle-wide-after.png`: same route as before, the Agent lane drawn ~20 px taller around it, label under the bar, strip below |
+| task-gate opening view | flows 're-issue', 'agent remediates' | ok | ok | ok | same routes as before, inside the drawn pool (S2); wide shot `docs/reports/T-1465-shots/task-gate-wide-after.png`: labels above their bars inside the Agent lane, strip below |
+| all 24 corpus maps + Greenfield fixture | "+ Add another lane" strip | ok | ok | ok | nothing on it (S1: 417 labels measured per width set; S2: no flow outside the drawn pool); person-sees gate `build/tiergate/t1465-psg2.out` |
 
-Read by the author: before, task-lifecycle's label "gate failed — rework" printed over the strip text ("+ Add | gate failed — rework"), and task-gate's two flows ran along the strip. After, the strip reads "+ Add another lane" alone on both maps.
+Read by the author: before, task-lifecycle's label "gate failed — rework" printed over the strip text ("+ Add | gate failed — rework"), and task-gate's two flows ran along the strip. After (round 2), the routes are unchanged, the pool's bottom edge runs below them, and the strip reads "+ Add another lane" alone on both maps. Other maps: unchanged (the pad is 0 where no flow runs below the lanes).
 
 ## RCA
 
 **Symptom:** task-lifecycle's flow label "gate failed — rework" drawn on the "+ Add another lane" strip, under its text.
 **Root cause:** the flow itself ran under the pool. In `orthoLoopBack` the only bar height below the steps was outside the
 lanes (the band rule leaves none inside when the lower step is near the lane bottom), every height above cut a step,
-and a bar outside the pool cost the same as one through a foreign lane (50), so it won. Same for task-gate's two flows.
-**Why structurally allowed:** no check measured flows against the pool's own bounds, only against lanes (T-1456's C1
-counts same-lane flows), and the strip is UI chrome no label pass treats as an obstacle.
-**Prevention:** `_t1465-label-strip-cdp.mjs` in the browser tier: S1 (no label on the strip) and S2 (no automatically
-routed flow outside the pool), on every corpus map at three widths; teeth: the 0.45.0 designer fails both.
+and a bar outside the lanes cost the same as one through a foreign lane (50), so it won. Same for task-gate's two flows.
+The drawn pool (`fitPoolToLabels`, T-1154) grew for node labels only, never for flows, so the bar and its label ended
+up below the pool's edge, where the strip is drawn.
+**Fix (round 2):** `fitPoolToLabels` also encloses every drawn flow (and its label) between two steps inside the lanes;
+drawn only. Round 1 re-routed the bar inside the lanes instead; the reviewer judged it red (task-gate 're-issue' then lay
+on the start event's outgoing flow, entering against its direction), so it was reverted: routes are as before.
+**Why structurally allowed:** no check measured flows against the drawn pool, only against lanes (T-1456's C1 counts
+same-lane flows), and the strip is UI chrome no label pass treats as an obstacle.
+**Prevention:** `_t1465-label-strip-cdp.mjs` in the browser tier: S1 (no label on the strip) and S2 (every flow and its
+label inside the drawn pool), on every corpus map at three widths; teeth: the 0.45.0 designer fails both.
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).

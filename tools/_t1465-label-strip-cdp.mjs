@@ -4,8 +4,9 @@
 // load (T-1456's lesson).
 //
 //   S1 [every corpus map and the Greenfield fixture, 1024/1440/1920] no flow label overlaps the strip; at least one label measured.
-//   S2 [same] no automatically routed flow leaves the pool vertically (the cause on task-lifecycle: its loop bar ran
-//      below the last lane, over the strip); routes the author set are listed, not counted.
+//   S2 [same] every flow and its label is drawn inside the drawn pool (rect.pool-border): on task-lifecycle and task-gate
+//      the router puts a loop bar under the last lane; the drawn pool now encloses it (fitPoolToLabels). Routes the
+//      author set are listed, not counted.
 // Teeth: T1465_EDITOR=<the 0.45.0 designer> fails S1 and S2 on task-lifecycle.
 import { readFileSync, writeFileSync, mkdirSync, mkdtempSync, copyFileSync, existsSync, readdirSync, rmSync } from 'node:fs';
 import { join, dirname, resolve } from 'node:path';
@@ -22,7 +23,6 @@ const EDITOR = process.env.T1465_EDITOR || join(ROOT, 'src', 'aef-workflow-desig
 const RENDERED = join(ROOT, 'examples', 'aef-processes', 'rendered');
 const FIXTURE = join(ROOT, 'tests', 'fixtures', 'greenfield', 'nooteboom-offerte-tot-order-with-notes.bpmn');
 const CORPUS = process.env.T1465_MAPS ? process.env.T1465_MAPS.split(',') : readdirSync(RENDERED).filter(f => f.endsWith('.bpmn')).sort();
-const REPORT = !!process.env.T1465_REPORT;
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 let fails = 0;
 const leg = (ok, name, detail) => { console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}${detail ? '  ' + detail : ''}`); if (!ok) fails++; };
@@ -61,15 +61,16 @@ const MEASURE = `(function(){
       hits.push((t.textContent || '').slice(0, 40) + ' [' + t.dataset.el + '] label y ' + Math.round(L.y) + '-' + Math.round(L.y + L.h) + ', strip y ' + Math.round(S.y) + '-' + Math.round(S.y + S.h)
         + (function(){ const g = document.querySelector('#g-edges g.edge[data-id="' + t.dataset.el + '"] path.edge-path'); return g ? '; flow ' + polylineFromPath(g.getAttribute('d')).map(q => Math.round(q.x) + ',' + Math.round(q.y)).join(' ') : ''; })());
   }
-  // S2: a flow routed automatically (no waypoints, routing hints or detour height of the author's) stays between the
-  // first lane's top and the last lane's bottom
+  // S2: every flow (and its label) is drawn inside the drawn pool (rect.pool-border); a route the author set is listed
   const out = [], excused = [];
-  if (state.lanes.length) {
-    const top = Math.min(...state.lanes.map(l => laneTop(l.id))), bot = Math.max(...state.lanes.map(l => laneTop(l.id) + l.height));
+  const pb = document.querySelector('#g-pool rect.pool-border, rect.pool-border');
+  if (pb) {
+    const pbb = pb.getBBox(), top = pbb.y, bot = pbb.y + pbb.height;
     for (const g of document.querySelectorAll('#g-edges g.edge[data-id]')) {
       const e = state.edges.find(x => x.id === g.dataset.id), p = g.querySelector('path.edge-path');
       if (!e || !p) continue;
-      const ys = polylineFromPath(p.getAttribute('d')).map(q => q.y).filter(y => y < top - 1 || y > bot + 1);
+      const lab = g.querySelector('text.edge-label'); let lb = null; try { lb = lab && lab.getBBox(); } catch (err) {}
+      const ys = polylineFromPath(p.getAttribute('d')).map(q => q.y).concat(lb ? [lb.y, lb.y + lb.height] : []).filter(y => y < top - 1 || y > bot + 1);
       if (!ys.length) continue;
       const what = e.id + ' ' + (e.name || '').slice(0, 30) + ' y ' + ys.map(Math.round).join(',') + ' pool ' + Math.round(top) + '-' + Math.round(bot);
       const authored = (e.waypoints && e.waypoints.length) || (e.routingHints && Object.keys(e.routingHints).length) || typeof e.detourY === 'number';
@@ -77,24 +78,6 @@ const MEASURE = `(function(){
     }
   }
   return { strip: S, hits, labels: n, out, excused };
-})()`;
-// T1465_REPORT=1: for each flow whose label is on the strip, the loop-back router's scores per bar height inside the
-// pool (a diagnostic, not a leg).
-const PROBE = `(function(){
-  const out = [];
-  for (const t of document.querySelectorAll('#g-edges text.edge-label')) {
-    const e = state.edges.find(x => x.id === t.dataset.el); if (!e) continue;
-    const g = document.querySelector('#g-edges g.edge[data-id="' + e.id + '"] path.edge-path'); if (!g) continue;
-    const pl = polylineFromPath(g.getAttribute('d')); if (pl.length < 4) continue;
-    const strip = document.querySelector('rect.pool-add-lane-strip-bg').getBBox();
-    if (!pl.some(q => q.y >= strip.y - 12)) continue;
-    const src = state.nodes.find(n => n.id === e.source), tgt = state.nodes.find(n => n.id === e.target);
-    const a = pl[1], b = pl[pl.length - 2], rows = [];
-    for (let y = 100; y <= strip.y + 20; y += 8) rows.push(y + ':' + loopPathCrossings(a, b, y, src, tgt) + '/' + barRunsAlongFlows(y, a.x, b.x, e));
-    let direct = null; try { direct = orthoLoopBack(a, b, 'S', 'S', src, tgt, e).detourY; } catch (err) { direct = String(err).slice(0, 80); }
-    out.push({ direct, detourY: e.detourY, hints: e.routingHints || null, edge: e.id, lanes: state.lanes.map(l => l.name + ' ' + Math.round(laneTop(l.id)) + '-' + Math.round(laneTop(l.id) + l.height)), src: src.lane, tgt: tgt.lane, rows: rows.join(' ') });
-  }
-  return out;
 })()`;
 // T-1257: removeProfileDir also removes Chrome's own per-launch org.chromium.Chromium.* dir (found through the
 // profile's SingletonSocket link); a plain rmSync of the profile left one behind per load (_t1257 red, 2026-11-20).
@@ -151,12 +134,11 @@ try {
           writeFileSync(join(process.env.T1465_SHOTS, `${map.replace('.bpmn', '')}-wide.png`), Buffer.from(wide.data, 'base64'));
         }
       }
-      if (REPORT && m.hits.length && W === 1440) console.log('      probe ' + map + ': ' + JSON.stringify(await ev(PROBE)));
     }
   }
   leg(sum === 0 && labels > 0, `S1 [${CORPUS.length} corpus maps + the Greenfield fixture @1024/1440/1920] no flow label lies on the "+ Add another lane" strip (T-1465)`,
       `${labels} labels measured; on the strip: ${sum ? sum + ': ' + per.join(' | ') : 'none'}`);
-  leg(outN === 0, `S2 [same] no automatically routed flow leaves the pool (above the first lane or below the last)`,
+  leg(outN === 0, `S2 [same] every flow and its label is drawn inside the drawn pool`,
       `${outN ? outN + ': ' + outs.join(' | ') : 'none'}; routes the author set, outside the pool: ${exc.length ? exc.join(' | ') : 'none'}`);
 } catch (e) {
   leg(false, 'harness error', `${String(e && e.message || e).slice(0, 300)} (during: ${step})`);
