@@ -160,9 +160,13 @@ const MEASURE = `window.__t1256measure = function(){
 };`;
 
 // One map: adopt it, then measure each config. bytes: buildBpmnXml before and after every render.
+// T-1472: each map is adopted at fit, the view its baselines were taken at. Since T-1472 the bare designer opens its
+// starter map at a readable zoom (100% where fit draws text under 9 px), and a map adopted then is laid out at that
+// zoom: some label places depend on the zoom at render time (review-emission 'not found' x 'found?' 13.6 px at 100%,
+// filed as its own task). This leg measures placement at fit, as before; the zoom dependence is that task's.
 const RUN = `(async function(args){
   var res = { cfg: {}, bytesChanged: [] };
-  adoptImportedXml(args.xml, { userImport: true }); renderAll();
+  if (typeof setZoom === 'function' && typeof zoomFactor !== 'undefined' && zoomFactor != null) setZoom(null); adoptImportedXml(args.xml, { userImport: true }); renderAll();
   var base = buildBpmnXml(state);
   for (var i = 0; i < args.cfgs.length; i++) {
     var c = args.cfgs[i];
@@ -186,7 +190,7 @@ const OPEN_CFGS = `(async function(args){
     if (typeof setLens === 'function') setLens(c.lens); else if (c.lens !== 'all') continue;
     labelPrefs.showIds = c.ids;
     if (args.xml) {   // as T-1241's lens-shot script opens it: adopt, render, opening zoom, lens
-      adoptImportedXml(args.xml, { userImport: true }); renderAll();
+      if (typeof setZoom === 'function' && typeof zoomFactor !== 'undefined' && zoomFactor != null) setZoom(null); adoptImportedXml(args.xml, { userImport: true }); renderAll();
       if (typeof openingZoom === 'function') openingZoom();
       if (typeof setLens === 'function') setLens(c.lens);
     }
@@ -204,7 +208,7 @@ const OPEN_CFGS = `(async function(args){
 // selected), lens all with ids on, measured as drawn; bytes compared before and after.
 const SHOT_MAP = `(async function(args){
   labelPrefs.showIds = true;
-  adoptImportedXml(args.xml, { userImport: true }); renderAll();
+  if (typeof setZoom === 'function' && typeof zoomFactor !== 'undefined' && zoomFactor != null) setZoom(null); adoptImportedXml(args.xml, { userImport: true }); renderAll();
   var base = buildBpmnXml(state);
   if (typeof openingZoom === 'function') openingZoom();
   if (typeof setLens === 'function') setLens('all');

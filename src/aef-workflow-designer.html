@@ -17657,6 +17657,11 @@ function showRestoredToast(s) {
 refreshDisplayIds();
 renderAll();
 setMode('select');
+// T-1472: the starter map opens readable too. Every load path called openingZoom() (T-1256) but this first render,
+// where no load happens: AEF's /designer/app at 1024 opened "investigate" at fit with 2.7 px text. Only when no ?load=
+// follows: a map loaded at a zoom this call set lays out some labels differently (label-clearance leg6, review-emission:
+// two labels 13.6 px apart; their placement depends on the zoom at render time). A restored autosave re-judges it.
+if (!currentLoadSrc()) openingZoom();
 // T-141: capture the pristine seed's PROCESSED BPMN now — refreshDisplayIds()+renderAll()
 // above have populated node refs, `state` is still the untouched seed (autoLoadStored below
 // may replace it), and every buildBpmnXml dependency (e.g. TYPE_TAG) is initialized at this

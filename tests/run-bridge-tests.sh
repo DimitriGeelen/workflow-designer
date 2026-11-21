@@ -2261,6 +2261,19 @@ else
 fi
 }
 leg browser "test_t1465_label_strip" _leg_t1465
+_leg_t1472() {
+
+# ── T-1472 (AEF): the starter map opens readable too: /designer with no query, empty storage, at 1024/1440/1920 the
+# smallest drawn map text is >= OPEN_MIN_TEXT_PX (0.45.0 opened it at fit: 2.7 px at 1024). ~30 s.
+if node "$ROOT/tools/_t1472-opening-zoom-default-cdp.mjs" > "$TMP/leg-_t1472.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "The starter map (no query) opens with its text below the readable floor (_t1472-opening-zoom-default-cdp.mjs; T-1472)"
+  show_output "$TMP/leg-_t1472.out" "_t1472-opening-zoom-default-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1472_opening_zoom_default" _leg_t1472
 _leg_t1447() {
 
 # ── T-1447: imported text annotations and associations drawn read-only (Greenfield's workshop map) ──
