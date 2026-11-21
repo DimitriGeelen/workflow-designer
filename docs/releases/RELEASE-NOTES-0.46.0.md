@@ -22,6 +22,11 @@
   drawn diagonally: moving its arrowhead off the target's id caption (0.45.0, T-1447) moved that end only. The line now
   moves as a whole and stays straight. Guard: browser leg `test_t1470_assoc_straight`.
 
+- **Authoring kit: the calibration maps follow the kit's own rule (T-1477).** The two maps the kit calibrates its
+  reviewers on wrote their source quotes with the source's own line breaks, so each raised 5 `W-XML-DOC-PREFIX`
+  warnings that AUTHORING.md section 5 does not allow; GLM-5.3 rightly flagged it during this release's calibration.
+  Each quote is now one line, its words unchanged; no other finding moved. The kit's guidance is unchanged.
+
 ## What changes in stored maps
 
 Nothing. All four changes are drawing or view only: no element, id, name, attribute or waypoint a save writes changes

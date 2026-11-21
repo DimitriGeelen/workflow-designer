@@ -23,9 +23,7 @@
         <bpmn:flowNodeRef>credit-limit-exceeded</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_manager" name="Sales manager">
-        <bpmn:documentation>source: "If the limit is exceeded, the sales
-manager decides whether to accept the order anyway; a rejected order is closed and the
-customer is told."</bpmn:documentation>
+        <bpmn:documentation>source: "If the limit is exceeded, the sales manager decides whether to accept the order anyway; a rejected order is closed and the customer is told."</bpmn:documentation>
         <bpmn:extensionElements>
           <aef:laneMeta authority="sovereignty" />
         </bpmn:extensionElements>
@@ -43,8 +41,7 @@ customer is told."</bpmn:documentation>
       </bpmn:lane>
       <bpmn:lane id="Lane_warehouse" name="Warehouse">
         <bpmn:documentation>source: "For accepted orders the warehouse picks the parts, packs the order and books a carrier."
-source: "The warehouse also does quality inspection and labelling for each order, but nobody could
-say whether those happen before or after packing, or in which order relative to each other."</bpmn:documentation>
+source: "The warehouse also does quality inspection and labelling for each order, but nobody could say whether those happen before or after packing, or in which order relative to each other."</bpmn:documentation>
         <bpmn:extensionElements>
           <aef:laneMeta authority="authority" />
         </bpmn:extensionElements>
@@ -63,8 +60,7 @@ say whether those happen before or after packing, or in which order relative to 
         <bpmn:flowNodeRef>deliver-parcel-to-customer</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_erp" name="ERP">
-        <bpmn:documentation>source: "After shipment the ERP
-generates and sends the invoice automatically."</bpmn:documentation>
+        <bpmn:documentation>source: "After shipment the ERP generates and sends the invoice automatically."</bpmn:documentation>
         <bpmn:extensionElements>
           <aef:laneMeta authority="authority" />
         </bpmn:extensionElements>
@@ -91,25 +87,19 @@ generates and sends the invoice automatically."</bpmn:documentation>
       </bpmn:extensionElements>
       <bpmn:incoming>enter-order-into-erp--check-customer-credit-limit</bpmn:incoming><bpmn:outgoing>check-customer-credit-limit--credit-limit-exceeded</bpmn:outgoing></bpmn:task>
     <bpmn:exclusiveGateway id="credit-limit-exceeded" name="Credit limit exceeded?" default="credit-limit-exceeded--pick-parts">
-      <bpmn:documentation>source: "If the limit is exceeded, the sales
-manager decides whether to accept the order anyway; a rejected order is closed and the
-customer is told."</bpmn:documentation>
+      <bpmn:documentation>source: "If the limit is exceeded, the sales manager decides whether to accept the order anyway; a rejected order is closed and the customer is told."</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="credit-limit-exceeded" />
       </bpmn:extensionElements>
       <bpmn:incoming>check-customer-credit-limit--credit-limit-exceeded</bpmn:incoming><bpmn:outgoing>credit-limit-exceeded--decide-whether-to-accept-order-anyway</bpmn:outgoing><bpmn:outgoing>credit-limit-exceeded--pick-parts</bpmn:outgoing></bpmn:exclusiveGateway>
     <bpmn:task id="decide-whether-to-accept-order-anyway" name="Decide whether to accept order anyway">
-      <bpmn:documentation>source: "If the limit is exceeded, the sales
-manager decides whether to accept the order anyway; a rejected order is closed and the
-customer is told."</bpmn:documentation>
+      <bpmn:documentation>source: "If the limit is exceeded, the sales manager decides whether to accept the order anyway; a rejected order is closed and the customer is told."</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="decide-whether-to-accept-order-anyway" />
       </bpmn:extensionElements>
       <bpmn:incoming>credit-limit-exceeded--decide-whether-to-accept-order-anyway</bpmn:incoming><bpmn:outgoing>decide-whether-to-accept-order-anyway--accept-order-anyway</bpmn:outgoing></bpmn:task>
     <bpmn:exclusiveGateway id="accept-order-anyway" name="Accept order anyway?">
-      <bpmn:documentation>source: "If the limit is exceeded, the sales
-manager decides whether to accept the order anyway; a rejected order is closed and the
-customer is told."</bpmn:documentation>
+      <bpmn:documentation>source: "If the limit is exceeded, the sales manager decides whether to accept the order anyway; a rejected order is closed and the customer is told."</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="accept-order-anyway" />
       </bpmn:extensionElements>
@@ -127,8 +117,7 @@ customer is told."</bpmn:documentation>
       </bpmn:extensionElements>
       <bpmn:incoming>close-rejected-order--tell-customer</bpmn:incoming><bpmn:outgoing>tell-customer--order-rejected</bpmn:outgoing></bpmn:task>
     <bpmn:endEvent id="order-rejected" name="Order rejected; customer told">
-      <bpmn:documentation>source: "a rejected order is closed and the
-customer is told."</bpmn:documentation>
+      <bpmn:documentation>source: "a rejected order is closed and the customer is told."</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="order-rejected" />
       </bpmn:extensionElements>
@@ -167,8 +156,7 @@ customer is told."</bpmn:documentation>
       </bpmn:extensionElements>
       <bpmn:incoming>collect-parcel--deliver-parcel-to-customer</bpmn:incoming><bpmn:outgoing>deliver-parcel-to-customer--accepted-order-fulfilled</bpmn:outgoing></bpmn:task>
     <bpmn:serviceTask id="generate-and-send-invoice" name="Generate and send invoice automatically">
-      <bpmn:documentation>source: "After shipment the ERP
-generates and sends the invoice automatically."</bpmn:documentation>
+      <bpmn:documentation>source: "After shipment the ERP generates and sends the invoice automatically."</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="generate-and-send-invoice" />
       </bpmn:extensionElements>
@@ -182,15 +170,13 @@ generates and sends the invoice automatically."</bpmn:documentation>
       <bpmn:incoming>send-payment-reminder--accepted-order-fulfilled</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:task id="quality-inspection" name="Quality inspection">
-      <bpmn:documentation>source: "The warehouse also does quality inspection and labelling for each order, but nobody could
-say whether those happen before or after packing, or in which order relative to each other."</bpmn:documentation>
+      <bpmn:documentation>source: "The warehouse also does quality inspection and labelling for each order, but nobody could say whether those happen before or after packing, or in which order relative to each other."</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="quality-inspection" />
       </bpmn:extensionElements>
     <bpmn:incoming>pick-parts--quality-inspection</bpmn:incoming><bpmn:outgoing>quality-inspection--pack-order</bpmn:outgoing></bpmn:task>
     <bpmn:task id="labelling" name="Labelling">
-      <bpmn:documentation>source: "The warehouse also does quality inspection and labelling for each order, but nobody could
-say whether those happen before or after packing, or in which order relative to each other."</bpmn:documentation>
+      <bpmn:documentation>source: "The warehouse also does quality inspection and labelling for each order, but nobody could say whether those happen before or after packing, or in which order relative to each other."</bpmn:documentation>
       <bpmn:extensionElements>
         <aef:uid value="labelling" />
       </bpmn:extensionElements>
