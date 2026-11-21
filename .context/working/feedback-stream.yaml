@@ -23783,3 +23783,21 @@ scan_id: R-ebfd2d8b
 task_id: T-1479
 payload:
   task_file: .tasks/active/T-1479-gates-17-measure-where-this-machines-bro.md
+---
+kind: scan_emitted
+timestamp: '2026-11-21T23:47:26Z'
+scan_id: R-942a640e
+task_id: T-1486
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-21T23:47:26Z'
+scan_id: R-942a640e
+task_id: T-1486
+payload:
+  task_file: .tasks/active/T-1486-gates-1b7-split-this-machines-own-browse.md

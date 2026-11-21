@@ -9,13 +9,13 @@ description: >
   legs one after another on a 24-core host. Operator 2026-11-22: 'Proceed as suggested'.
   Start at k=3, raise only on zero infra-class failures over several runs.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/pool/tier-gate.sh]
 related_tasks: [T-1478, T-1479]
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -45,7 +45,7 @@ related_tasks: [T-1478, T-1479]
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T23:08:16Z
 last_update: 2026-11-21T23:46:44Z
-date_finished:
+date_finished: 2026-11-21T23:46:44Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -396,3 +396,16 @@ grep -q '^local_shards_browser=3' tools/pool/workers
 
 ### 2026-11-21T23:08:54Z — status-update [task-update-agent]
 - **Change:** related_tasks: +T-1478, T-1479
+
+### 2026-11-21T23:46:44Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-942a640e
+- **Timestamp:** 2026-11-21T23:47:26Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

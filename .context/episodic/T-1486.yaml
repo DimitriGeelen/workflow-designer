@@ -1,0 +1,88 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1486: Gates 1b/7: split this machine's own browser and core runs into k parallel shards, each in a clean clone of the commit (as the pool runs them), k capped for the host's load
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-21T23:47:32Z
+# ============================================================================
+
+task_id: T-1486
+task_name: "Gates 1b/7: split this machine's own browser and core runs into k parallel shards, each in a clean clone of the commit (as the pool runs them), k capped for the host's load"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-21T23:08:16Z
+completed: 2026-11-21T23:46:44Z
+duration_days: 0
+updates_count: 4
+first_commit: 2026-11-22T00:12:27+01:00
+last_commit: 2026-11-22T00:46:44+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  this machine's half of a gate runs as local_shards=3 shards at once, each in a clean clone of HEAD (T-1479: it ran every leg one after another on a 24-core host); a red or silent shard makes it red; k=1 is the old path; core leg _t1486-local-split (control: the old gate fails L1-L3). split this machine's browser half only (local_shards_browser=3); core stays unsplit here until T-1481 makes core shardable (k=3 core: 13 legs red — legs that run the suite inside themselves inherit T1288_SHARD, hook/memory legs need the pool's clone set-up); clones run with the framework pointers cleared, as the pool's. criteria with evidence (browser here 1562 s -> 623 s, 149/149 legs once); T-1481 carries the core-shard findings
+
+# Key outcomes
+outcomes:
+  - '`local_run` runs LOCAL_K shards at once, each in its own `git clone --shared` of HEAD, the browser tier with its time-balanced plan when one exists; the clones are removed afterwards; LOCAL_K=1 is the old path — per tier (`local_shards_browser=3`, `local_shards_core=1`), framework pointers cleared as the pool''s; `_t1486` L1/L4/L5'
+  - 'A shard that exits non-zero, or prints no `tier <tier> GREEN` line, makes the local verdict red (a test with a forced-red shard) — `_t1486` L2/L3; control: the old gate fails L1-L3'
+  - 'Measured: both tiers here at k=3, wall time and the shard legs'' total against T-1479''s unsplit run; every leg ran exactly once (the union of the shards'' leg logs equals the unsplit leg set) — browser 665 s and 623 s (unsplit 1562 s), green both times, 149/149 legs exactly once; core at k=3 went 13 legs red (legs that nest the suite inherit T1288_SHARD; hook/memory legs need the pool''s clone set-up), so core stays unsplit here and the causes are recorded in T-1481'
+  - 'The gate''s own core legs (`_t1462-split-gate` and friends) stay green — `_t1462` 12/12, `_t1486` 5/5'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1481-gates-37-split-the-core-tier-into-shards.md'
+  - '.tasks/active/T-1486-gates-1b7-split-this-machines-own-browse.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1486-local-split-teeth.sh'
+  - 'tools/pool/tier-gate.sh'
+  - 'tools/pool/workers'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-22T00:12:27'
+    action: 'T-1486: this machine''s half of a gate runs as local_shards=3 shards at once, each in a clean clone of HEAD (T-1479: it ran every leg one after another on a 24-core host); a red or silent shard makes it red; k=1 is the old path; core leg _t1486-local-split (control: the old gate fails L1-L3)'
+  - time: '2026-11-22T00:35:46'
+    action: 'T-1486: split this machine''s browser half only (local_shards_browser=3); core stays unsplit here until T-1481 makes core shardable (k=3 core: 13 legs red — legs that run the suite inside themselves inherit T1288_SHARD, hook/memory legs need the pool''s clone set-up); clones run with the framework pointers cleared, as the pool''s'
+  - time: '2026-11-22T00:46:44'
+    action: 'T-1486: criteria with evidence (browser here 1562 s -> 623 s, 149/149 legs once); T-1481 carries the core-shard findings'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 38 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 38
+  commits: 4
+  files_changed: 9
+  lines_added: 673
+  lines_removed: 20
+  footprint_refreshed_at: '2026-11-21T23:47:38Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1486-gates-1b7-split-this-machines-own-browse.md
+generated_by: context-agent-hybrid
