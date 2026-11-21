@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1477: Kit calibration maps: source quotes keep the source's line breaks, so clean.bpmn and planted.bpmn each raise 5 W-XML-DOC-PREFIX that AUTHORING.md §5 does not allow (GLM-5.3 calibration FAIL, release 0.46.0 step 3)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-21T19:25:43Z
+# ============================================================================
+
+task_id: T-1477
+task_name: "Kit calibration maps: source quotes keep the source's line breaks, so clean.bpmn and planted.bpmn each raise 5 W-XML-DOC-PREFIX that AUTHORING.md §5 does not allow (GLM-5.3 calibration FAIL, release 0.46.0 step 3)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-21T19:22:27Z
+completed: 2026-11-21T19:25:32Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-21T20:24:59+01:00
+last_commit: 2026-11-21T20:24:59+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the kit's calibration maps write each source quote on one line (words unchanged): both raised 5 W-XML-DOC-PREFIX that AUTHORING.md section 5 does not allow, which GLM-5.3 rightly flagged in job 176's calibration; no other finding moved; noted in expected.json and the 0.46.0 notes
+
+# Key outcomes
+outcomes:
+  - 'Both calibration maps raise 0 W-XML-DOC-PREFIX; every other finding of the validator on each map is unchanged (counts by code before and after) — diff of `uniq -c` before/after: only `5 W-XML-DOC-PREFIX` removed, on each map'
+  - 'Each changed quote''s words are unchanged (whitespace-normalised text before = after) and still found in SOURCE.md — 10 documentation elements joined per map, the script asserts the normalised text equal; clean 25/25 quotes in SOURCE.md, planted 25/26 (the 26th is planted defect 1, the invented reminder citation, missing by design)'
+  - 'The kit''s own checks pass (the core legs that read the calibration fixture; `tools/kit-calibration-gate.py kit-hash` builds) — kit-hash builds (0097b719…); test_t983 18/18; test_t974 20/22, the same 2 as with the fixture unchanged (8a/8b: the release script refuses while the 0.46.0 record holds job 176''s calibration of the old kit — cleared by job 177''s recalibration)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the kit''s calibration maps write each source quote on one line (words unchanged): both raised 5 W-XML-DOC-PREFIX that AUTHORING.md section 5 does not allow, which GLM-5.3 rightly flagged in job 176''s calibration; no other finding moved; noted in expected.json and the 0.46.0 notes'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1477-kit-calibration-maps-source-quotes-keep-.md'
+  - 'docs/authoring-kit/calibration/clean.bpmn'
+  - 'docs/authoring-kit/calibration/expected.json'
+  - 'docs/authoring-kit/calibration/planted.bpmn'
+  - 'docs/releases/RELEASE-NOTES-0.46.0.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-21T20:24:59'
+    action: 'T-1477: the kit''s calibration maps write each source quote on one line (words unchanged): both raised 5 W-XML-DOC-PREFIX that AUTHORING.md section 5 does not allow, which GLM-5.3 rightly flagged in job 176''s calibration; no other finding moved; noted in expected.json and the 0.46.0 notes'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 3
+  commits: 2
+  files_changed: 8
+  lines_added: 549
+  lines_removed: 56
+  footprint_refreshed_at: '2026-11-21T19:25:49Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1477-kit-calibration-maps-source-quotes-keep-.md
+generated_by: context-agent-hybrid

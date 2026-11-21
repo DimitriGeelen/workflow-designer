@@ -23703,3 +23703,21 @@ scan_id: R-0b7f3672
 task_id: T-1470
 payload:
   task_file: .tasks/active/T-1470-notes-a-dotted-association-between-two-v.md
+---
+kind: scan_emitted
+timestamp: '2026-11-21T19:25:37Z'
+scan_id: R-e382561b
+task_id: T-1477
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-21T19:25:37Z'
+scan_id: R-e382561b
+task_id: T-1477
+payload:
+  task_file: .tasks/active/T-1477-kit-calibration-maps-source-quotes-keep-.md

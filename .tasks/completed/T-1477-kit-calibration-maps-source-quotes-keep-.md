@@ -11,11 +11,11 @@ description: >
   raise 5 each. Fix: each quote on one line, wording verbatim; the planted defects
   unchanged; recalibrate both reviewers on the new kit (job 177).
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -46,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T19:22:27Z
-last_update: 2026-11-21T19:24:59Z
-date_finished:
+last_update: 2026-11-21T19:25:32Z
+date_finished: 2026-11-21T19:25:32Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -290,8 +290,9 @@ planted defects and `expected.json` still agree; the clean map raises only §5's
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
-out=$(python3 tools/validate-workflow.py docs/authoring-kit/calibration/clean.bpmn 2>&1); ! grep -q W-XML-DOC-PREFIX <<<"$out"
-out=$(python3 tools/validate-workflow.py docs/authoring-kit/calibration/planted.bpmn 2>&1); ! grep -q W-XML-DOC-PREFIX <<<"$out"
+git show 6c1ae0c7a^:docs/authoring-kit/calibration/clean.bpmn > /tmp/.t1477-old-clean.bpmn && out=$(python3 tools/validate-workflow.py /tmp/.t1477-old-clean.bpmn 2>&1); grep -q W-XML-DOC-PREFIX <<<"$out"
+out=$(python3 tools/validate-workflow.py docs/authoring-kit/calibration/clean.bpmn 2>&1); grep -q W-LANE-NO-OWNER <<<"$out" && grep -q W-XML-GW-AMBIGUOUS <<<"$out" && ! grep -q W-XML-DOC-PREFIX <<<"$out"
+out=$(python3 tools/validate-workflow.py docs/authoring-kit/calibration/planted.bpmn 2>&1); grep -q W-LANE-NO-OWNER <<<"$out" && grep -q W-XML-GW-AMBIGUOUS <<<"$out" && ! grep -q W-XML-DOC-PREFIX <<<"$out"
 python3 -c "import json; json.load(open('docs/authoring-kit/calibration/expected.json'))"
 python3 tests/test_t983_review_loop_kit.py > /tmp/.t1477.out 2>&1 && grep -q "18/18 passed" /tmp/.t1477.out
 
@@ -394,3 +395,21 @@ python3 tests/test_t983_review_loop_kit.py > /tmp/.t1477.out 2>&1 && grep -q "18
 
 ### 2026-11-21T19:22:47Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-21T19:25:32Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-e382561b
+- **Timestamp:** 2026-11-21T19:25:37Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#3 (Agent)** — The kit's own checks pass (the core legs that read the calibration fixture; `tools/kit-calibration-gate.py kit-hash` builds) — kit-hash builds (0097b719…); test_t983 18/18; test_t974 20/22, the same 2
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/kit-calibration-gate.py in: The kit's own checks pass (the core legs that read the calibration fixture; `tools/kit-calibration-gate.py kit-hash` builds) — kit-hash builds (0097b7`
