@@ -3,8 +3,10 @@
 # shadow_node = where the unsplit shadow run goes (so it takes no fast slot).
 # T-1481 (ring20 msg e8ca7711, 2026-11-22): browser max 7 for 832 (w1 2, w2 2, huawei 2, pool-132 1); huawei limit_max 2 for core AND
 # browser together, fine while the gates run one after the other. 6 shards + the shadow on pool-132 = 7. No more until ring20 measures.
-browser_shards=6
-shard_nodes="pool-w1 pool-w2 pool-w1 pool-w2 live-huawei-one live-huawei-one"
+# T-1488 (ring20 msgs 14e80ac5, e32ee17c, 2026-11-22): pool-w1 retired as a runner (host out of memory; ring20 T-2844);
+# without it 832 has core 5 / browser 5 (pool-w2 2/2, pool-132 1/1, live-huawei-one 2/2). pool-w2 follows later, announced.
+browser_shards=4
+shard_nodes="pool-w2 live-huawei-one pool-w2 live-huawei-one"
 shadow_node=pool-132
 # T-1486: this machine's half of a gate as local_shards_<tier> parallel shards, each in a clean clone of HEAD (k=1: unsplit,
 # as before). 3 to start; 4 from 2026-11-22 (operator: "the working machine is underutilized"; measured with 3 core shards running: 29-34% CPU idle, 61 GB free, no I/O wait). Back to 3 on any infra-class failure.
@@ -16,5 +18,5 @@ local_shards_core=4
 # pool-132 x1; core there is ~1.2x slower than on pool-w1 (measured 2026-11-22, 391/398 s for 322 leg-s). The unsplit
 # shadow goes where the pool puts it (no core_shadow_node line), queued behind the shards. Re-split when browser and core
 # run at once (T-1482). Remove core_shards to run core unsplit on the pool again.
-core_shards=7
-core_shard_nodes="pool-w1 pool-w2 pool-w1 pool-w2 live-huawei-one live-huawei-one pool-132"
+core_shards=5
+core_shard_nodes="pool-w2 live-huawei-one pool-w2 live-huawei-one pool-132"
