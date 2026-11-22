@@ -88,5 +88,19 @@ rc=$(T1467_POOL_ONLY=1 STUB_RC_1=0 STUB_RC_2=0 STUB_RC_3=0 gate); shadow_done 6
 leg $? "T1467_POOL_ONLY=1: green on the pool alone, the local tier never started (rc $rc)"
 rc=$(T1467_POOL_ONLY=1 STUB_RC_1=0 STUB_RC_2=1 STUB_RC_3=0 gate); shadow_done 7
 [ "$rc" = 1 ] && [ ! -f local-ran ]; leg $? "T1467_POOL_ONLY=1 with a red shard: refused, still no local run (rc $rc)"
+# 8 (T-1481) core: unsplit on the pool with no core_shards line; split and pinned from core_shards / core_shard_nodes
+cp "$ROOT/tests/shard-plan-core-2.tsv" tests/ && git add -A && git -c user.name=t -c user.email=t@invalid commit -qm coreplan
+rm -f stub-nodes.log build/pool/last-core*.result
+rc=$(T1467_POOL_ONLY=1 STUB_RC_W=0 bash tools/pool/tier-gate.sh core > "$S/gate.out" 2>&1; echo $?)
+[ "$rc" = 0 ] && grep -qx 'whole|' stub-nodes.log && [ "$(wc -l < stub-nodes.log)" = 1 ]
+leg $? "core with no core_shards line: one unsplit pool job, as before (rc $rc; $(tr '\n' ' ' < stub-nodes.log))"
+printf 'core_shards=2\ncore_shard_nodes="w-s1 w-s2"\n' >> tools/pool/workers
+git add -A && git -c user.name=t -c user.email=t@invalid commit -qm coreworkers
+rm -f stub-nodes.log; n0=$(ls build/tiergate/split-shadow/*.compare 2>/dev/null | wc -l)
+rc=$(T1467_POOL_ONLY=1 STUB_RC_1=0 STUB_RC_2=0 STUB_RC_W=0 bash tools/pool/tier-gate.sh core > "$S/gate.out" 2>&1; echo $?); shadow_done $((n0 + 1))
+c=$(ls -t build/tiergate/split-shadow/core-*.compare 2>/dev/null | head -1)
+[ "$rc" = 0 ] && grep -q 'core tier on ring20.s POOL as 2 shards' gate.out && grep -q 'shard-coverage: ok' gate.out \
+  && grep -qx '1/2|w-s1' stub-nodes.log && grep -qx '2/2|w-s2' stub-nodes.log && grep -qx 'whole|' stub-nodes.log && [ -n "$c" ] && grep -q '^PASS  C1' "$c"
+leg $? "core_shards=2: 2 shards pinned to the core nodes, coverage ok, the core shadow compares clean (rc $rc; $(tr '\n' ' ' < stub-nodes.log))"
 echo "=== $pass passed, $fail failed ==="
 [ "$fail" -eq 0 ]

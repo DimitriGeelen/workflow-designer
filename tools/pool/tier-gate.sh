@@ -160,17 +160,25 @@ SHADOW_DIR="$ROOT/build/tiergate/split-shadow"
 # T-1467 (operator 2026-11-20: "I want the full split now. I want us to use all pool workers"): k shards, k = the
 # number of capable workers. T1462_K, else tools/pool/workers (browser_shards=<k>, what ring20 admits), else 2; the
 # time-balanced plan tests/shard-plan-browser-<k>.tsv must exist (shard-plan.py builds it from a whole run).
-K=${T1462_K:-$(sed -n 's/^browser_shards=//p' "$ROOT/tools/pool/workers" 2>/dev/null | head -1)}
+# T-1481: core splits on the pool the same way, from its own lines (core_shards, core_shard_nodes, core_shadow_node):
+# pinned to the slower nodes so the core shards take no fast browser slot. No core_shards line: core runs unsplit.
+wline() { sed -n "s/^$1=//p" "$ROOT/tools/pool/workers" 2>/dev/null | head -1 | tr -d '"'; }
+if [ "$TIER" = browser ]; then WP=""; else WP="${TIER}_"; fi
+K=${T1462_K:-$(wline "${TIER}_shards")}
 case "$K" in ''|*[!0-9]*) K=2 ;; esac
-[ "$K" -ge 2 ] && [ -f "$ROOT/tests/shard-plan-browser-$K.tsv" ] || K=2
+[ "$K" -ge 2 ] && [ -f "$ROOT/tests/shard-plan-$TIER-$K.tsv" ] || K=2
 # Which node runs each shard and the shadow (ring20 T-2644 pin; tools/pool/workers: shard_nodes="pool-w1 pool-w2 ...",
 # shadow_node=pool-132). The shards on the fast slots, the unsplit shadow on the slow node so it takes no fast slot.
-SHARD_NODES=$(sed -n 's/^shard_nodes=//p' "$ROOT/tools/pool/workers" 2>/dev/null | head -1 | tr -d '"')
-SHADOW_NODE=$(sed -n 's/^shadow_node=//p' "$ROOT/tools/pool/workers" 2>/dev/null | head -1 | tr -d '"')
+SHARD_NODES=$(wline "${WP}shard_nodes")
+SHADOW_NODE=$(wline "${WP}shadow_node")
 node_of() { echo "$SHARD_NODES" | awk -v i="$1" '{print $i}'; }
-split_ok() { [ "$TIER" = browser ] && [ "${T1462_SPLIT:-1}" != 0 ] && [ -f "$ROOT/tests/shard-plan-browser-$K.tsv" ]; }
+split_ok() {
+    [ "${T1462_SPLIT:-1}" != 0 ] && [ -f "$ROOT/tests/shard-plan-$TIER-$K.tsv" ] || return 1
+    [ "$TIER" = browser ] || [ -n "${T1462_K:-}" ] || [ -n "$(wline "${TIER}_shards")" ]
+}
 shadow_start() {  # the unsplit job, detached from this gate; writes its rc and the comparison when it ends
     mkdir -p "$SHADOW_DIR"; local tag="${HEAD_SHA:0:12}-$(date -u +%Y%m%dT%H%M%SZ)"
+    [ "$TIER" = browser ] || tag="$TIER-$tag"   # T-1481: core and browser gates may run at once (browser names kept)
     SHADOW_RC="$SHADOW_DIR/$tag.rc"
     ( trap '' HUP; cd "$ROOT"
       pool_job "" ".shadow-$tag" 2>> "$SHADOW_DIR/$tag.log"; echo $? > "$SHADOW_RC.tmp"; mv "$SHADOW_RC.tmp" "$SHADOW_RC"

@@ -8,3 +8,8 @@ shadow_node=pool-132
 # as before). 3 to start: the host runs at load ~25 on 24 cores; raise only on zero infra-class failures over several runs.
 local_shards_browser=3
 local_shards_core=3
+# T-1481: the pool half of core as core_shards shards, pinned to the slower nodes (pool-132, live-huawei-one; ring20 msg
+# e63a0ff7: huawei admits 832 core) so they take no fast browser slot; the unsplit shadow where the pool puts it (no
+# core_shadow_node line). Remove core_shards to run core unsplit on the pool again.
+core_shards=2
+core_shard_nodes="pool-132 live-huawei-one"
