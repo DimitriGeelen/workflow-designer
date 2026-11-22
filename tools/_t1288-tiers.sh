@@ -249,6 +249,11 @@ _t1288_run() {
     # T-1452: one line per leg attempt (tier, name, attempt, passes, fails, seconds) when asked, so two runs can be
     # compared leg by leg (a shard against the whole tier) and shards balanced by time. Unset: nothing is written.
     [ -n "${T1288_LEGLOG:-}" ] && printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$tier" "$name" "$attempt" "$dp" "$df" "$((SECONDS - t0))" >> "$T1288_LEGLOG" 2>/dev/null
+    # T-1482 (operator's option 2): a red browser attempt whose cause is the infrastructure (timeout, no DevTools port)
+    # is ALSO named in <leglog>.infra, so the split/shadow comparison can tell "did not run" from "a different verdict".
+    if [ -n "${T1288_LEGLOG:-}" ] && [ "$df" -gt 0 ] && [ "$tier" = browser ] && _t1288_retryable "$out" "$stamp"; then
+        printf '%s\t%s\t%s\n' "$tier" "$name" "$attempt" >> "$T1288_LEGLOG.infra" 2>/dev/null
+    fi
     if [ "$df" -gt 0 ] && [ -n "${_T1288_Q_OWNER[$name]:-}" ] && [ -z "${_T1288_Q_EXPIRED[$name]:-}" ]; then
         fail=$((fail - df))
         T1288_QUAR[$tier]=$(( ${T1288_QUAR[$tier]} + 1 ))
@@ -273,10 +278,13 @@ _t1288_run() {
 # during this run) says the browser did not open a DevTools port.
 _t1288_retryable() {
     local out="$1" stamp="$2" f
+    # T-1482: the harnesses word it two ways; "no devtools port" (waitPortFile, person-sees' NOT RUN line) was missed,
+    # so a Chrome start failure on pool-132 went unretried and left a DIFFER marker (2026-11-22, label-clearance).
+    local re='did not open a DevTools port|no devtools port'
     [ -e "$_T1288_TO_MARK" ] && return 0
-    grep -q 'did not open a DevTools port' "$out" 2>/dev/null && return 0
+    grep -qiE "$re" "$out" 2>/dev/null && return 0
     while IFS= read -r f; do
-        grep -q 'did not open a DevTools port' "$f" 2>/dev/null && return 0
+        grep -qiE "$re" "$f" 2>/dev/null && return 0
     done < <(find "$TMP" -maxdepth 1 -type f -name 'leg-*.out' -newer "$stamp" 2>/dev/null)
     return 1
 }

@@ -41,7 +41,7 @@ related_tasks: [T-1478]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T21:55:56Z
-last_update: 2026-11-22T22:29:46Z
+last_update: 2026-11-22T22:46:50Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -99,9 +99,10 @@ the cache.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `tools/pool/round.sh` starts the browser gate and the core push gate together, each unchanged; exit 0 only when both are green; a red gate stops the other (its process group) and the round reports which was red and which was stopped; a test with stub gates proves green/green, browser-red-stops-core, core-red-stops-browser (core leg)
+- [x] `tools/pool/round.sh` starts the browser gate and the core push gate together, each unchanged; exit 0 only when both are green; a red gate stops the other (its process group) and the round reports which was red and which was stopped; a test with stub gates proves green/green, browser-red-stops-core, core-red-stops-browser (core leg) — `_t1482-round` R1-R3; a naive round (waits for both, stops nothing) fails R2/R3. First real round (323be23fe): the browser gate refused at once on a DIFFER marker and the round stopped core after 2 s, as designed.
+- [x] (operator 2026-11-22, option 2) A split/shadow difference whose red side did not run (Chrome start failure, timeout) is a non-blocking note counted per node, not a DIFFER marker; the retry recognises "no devtools port" — the marker (DIFFER-474a956c2704-…): person-sees-label-clearance RED in the unsplit shadow on pool-132 = "NOT RUN … no devtools port"; read, then removed on the operator's word. Root cause: `_t1288_retryable` matched only "did not open a DevTools port", while waitPortFile and person-sees say "no devtools port". Now: both wordings retry; the engine names such red attempts in `<leglog>.infra`; compare-shards prints `NOTE  C3i <leg>: did not run on <node>` instead of a C3 FAIL; the gate appends (date, commit, tier, node, leg) to build/tiergate/split-shadow/infra-notes.tsv. Tests: `_t1482-infra-legs` I1/I2 (the old engine fails both), `_t1462` case 4b (note, no marker, next gate not refused).
 - [ ] A real round green on a high-risk tree, measured: each gate's time and the round's total against the two run one after the other; this machine's load with both local halves at once recorded (any infra-class failure: back the local split down)
-- [ ] CLAUDE.md's browser-tier rule names round.sh as the way to run both before a push
+- [x] CLAUDE.md's browser-tier rule names round.sh as the way to run both before a push
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.

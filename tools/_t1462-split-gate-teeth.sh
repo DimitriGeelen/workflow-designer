@@ -38,7 +38,8 @@ name="stub-$TIER$suf-$$"; last="$ROOT/build/pool/last-$TIER$suf.result"; rm -f "
 [ "$rc" = none ] && { echo "POOL REFUSED on stub: no capable node"; exit 1; }
 d="$ROOT/build/pool/results/$name"; mkdir -p "$d"
 echo "{\"commit\": \"$HEAD\", \"node\": \"stub\", \"duration_s\": 1, \"exit_code\": $rc}" > "$d/result.json"
-for l in $legs; do f=0; [ -z "$suf" ] && [ "$l" = "${STUB_W_FAILS:-}" ] && f=1; printf '%s\t%s\tfirst\t%s\t%s\t1\n' "$TIER" "$l" $((1 - f)) "$f" >> "$d/legs.tsv"; done
+for l in $legs; do f=0; [ -z "$suf" ] && [ "$l" = "${STUB_W_FAILS:-}" ] && f=1; printf '%s\t%s\tfirst\t%s\t%s\t1\n' "$TIER" "$l" $((1 - f)) "$f" >> "$d/legs.tsv"
+  [ "$f" = 1 ] && [ -n "${STUB_W_INFRA:-}" ] && printf '%s\t%s\tfirst\n' "$TIER" "$l" >> "$d/legs.tsv.infra"; done
 printf 'name=%s\ncommit=%s\nexit_code=%s\nnode=stub\nresult_line=tier %s stub rc %s\ntier_log=%s\nerror=\n' "$name" "$HEAD" "$rc" "$TIER" "$rc" "$d/tier.log" > "$last"
 exit "$rc"
 STUB
@@ -67,6 +68,14 @@ ls build/tiergate/split-shadow/DIFFER-* >/dev/null 2>&1; leg $? "the shadow fail
 rc=$(STUB_RC_1=0 STUB_RC_2=0 gate)
 [ "$rc" = 1 ] && grep -q 'disagreed with its unsplit shadow' gate.out; leg $? "the next gate refuses until the marker is removed (rc $rc)"
 rm -f build/tiergate/split-shadow/DIFFER-*
+# 4b (T-1482, operator's option 2): the shadow's red leg did not run (named in its legs.tsv.infra): a note, no marker
+n0=$(ls build/tiergate/split-shadow/*.compare 2>/dev/null | wc -l)
+rc=$(STUB_RC_1=0 STUB_RC_2=0 STUB_W_FAILS=L3 STUB_W_INFRA=1 gate); shadow_done $((n0 + 1))
+c=$(ls -t build/tiergate/split-shadow/*.compare 2>/dev/null | head -1)
+! ls build/tiergate/split-shadow/DIFFER-* >/dev/null 2>&1 && grep -q '^NOTE  C3i L3: did not run on stub' "$c" && grep -qP '\tbrowser\tstub\tL3$' build/tiergate/split-shadow/infra-notes.tsv
+leg $? "the shadow's red leg did not run (infrastructure): a NOTE and an infra-notes.tsv row, no DIFFER marker"
+rc=$(STUB_RC_1=0 STUB_RC_2=0 gate)
+[ "$rc" = 0 ]; leg $? "and the next gate is not refused (rc $rc)"
 # 5
 rm -f build/pool/last-browser-shard*.result
 rc=$(T1462_SPLIT=0 STUB_RC_W=0 gate)

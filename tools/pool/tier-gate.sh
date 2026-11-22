@@ -78,7 +78,7 @@ local_split() {  # local_split <out>: LOCAL_K shards of the tier here, all at on
             || echo "T-1288 $TIER: hook install in clone $i failed (see ${out#"$ROOT"/})" >&2
     done
     local pids=()
-    for i in $(seq 1 "$LOCAL_K"); do : > "$WD/$PFX.local-s$i.legs.tsv"; done   # T-1480: a log appended across runs counts every leg twice
+    for i in $(seq 1 "$LOCAL_K"); do : > "$WD/$PFX.local-s$i.legs.tsv"; rm -f "$WD/$PFX.local-s$i.legs.tsv.infra"; done   # T-1480: a log appended across runs counts every leg twice
     for i in $(seq 1 "$LOCAL_K"); do
         ( cd "$base/s$i" || exit 1
           export T1288_SHARD="$i/$LOCAL_K" T1288_LEGLOG="$WD/$PFX.local-s$i.legs.tsv"
@@ -192,6 +192,11 @@ shadow_start() {  # the unsplit job, detached from this gate; writes its rc and 
               cp "$SHADOW_DIR/$tag.compare.tmp" "$SHADOW_DIR/DIFFER-$tag"
               printf '%s\t%s\t%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "${HEAD_SHA:0:12}" "SPLIT SHADOW DISAGREES: $SHADOW_DIR/DIFFER-$tag" >> "$RUNS"
           fi
+          # T-1482 (operator's option 2): a leg that did not run on one side (infrastructure) is a note, not a marker;
+          # counted per node in infra-notes.tsv (date, commit, tier, node, leg), so a node that keeps failing shows
+          sed -n 's/^NOTE  C3i \([^:]*\): did not run on \([^ ]*\) .*/\2\t\1/p' "$SHADOW_DIR/$tag.compare.tmp" | while IFS=$'\t' read -r nd lg; do
+              printf '%s\t%s\t%s\t%s\t%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "${HEAD_SHA:0:12}" "$TIER" "$nd" "$lg" >> "$SHADOW_DIR/infra-notes.tsv"
+          done
           mv "$SHADOW_DIR/$tag.compare.tmp" "$SHADOW_DIR/$tag.compare"
       else echo "no comparison: whole='$whole' shards='${shards[*]}' (of $K)" > "$SHADOW_DIR/$tag.compare.tmp"; mv "$SHADOW_DIR/$tag.compare.tmp" "$SHADOW_DIR/$tag.compare"; fi
     ) </dev/null > /dev/null 2>&1 &

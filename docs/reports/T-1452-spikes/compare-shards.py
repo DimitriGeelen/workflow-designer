@@ -21,12 +21,21 @@ def load(job):
     d = os.path.join(ROOT, 'build/pool/results', job)
     res = json.load(open(os.path.join(d, 'result.json')))
     legs = {}
+    infra = set()   # T-1482: (leg, attempt) whose red was the infrastructure's (legs.tsv.infra, written by the tier engine)
+    try:
+        for line in open(os.path.join(d, 'legs.tsv.infra'), encoding='utf-8'):
+            p = line.rstrip('\n').split('\t')
+            if len(p) == 3:
+                infra.add((p[1], p[2]))
+    except FileNotFoundError:
+        pass
     try:
         for line in open(os.path.join(d, 'legs.tsv'), encoding='utf-8'):
             p = line.rstrip('\n').split('\t')
             if len(p) == 6:
                 tier, name, attempt, dp, df, secs = p
-                legs[name] = {'ok': int(df) == 0, 'secs': int(secs), 'attempt': attempt}
+                legs[name] = {'ok': int(df) == 0, 'secs': int(secs), 'attempt': attempt,
+                              'infra': (name, attempt) in infra, 'node': res.get('node')}
     except FileNotFoundError:
         pass
     return res, legs
@@ -57,8 +66,16 @@ def main(argv):
           f'{len(full)} in full, {len(union)} in shards; missing {missing[:5]}, extra {extra[:5]}')
     check(not seen_twice, 'C2 no leg ran in two shards', str(seen_twice[:5]))
     differ = [n for n in full if n in union and full[n]['ok'] != union[n]['ok']]
-    check(not differ, 'C3 every leg has the same outcome in its shard as in the full run',
-          ', '.join(f"{n}: full {'green' if full[n]['ok'] else 'RED'} / shard {'green' if union[n]['ok'] else 'RED'}" for n in differ[:6]))
+    # T-1482 (operator's option 2): a difference whose red side did not run (its last attempt red by timeout or no
+    # DevTools port) is a NOTE, counted per node, not a disagreement; every other difference stays a C3 FAIL.
+    red_side = lambda n: full[n] if not full[n]['ok'] else union[n]
+    not_run = [n for n in differ if red_side(n)['infra']]
+    real = [n for n in differ if n not in not_run]
+    check(not real, 'C3 every leg has the same outcome in its shard as in the full run',
+          ', '.join(f"{n}: full {'green' if full[n]['ok'] else 'RED'} / shard {'green' if union[n]['ok'] else 'RED'}" for n in real[:6]))
+    for n in not_run:
+        r = red_side(n)
+        print(f"NOTE  C3i {n}: did not run on {r['node']} ({'full run' if r is full[n] else 'shard'}: timeout or no DevTools port), green on the other side")
     commits = {full_res.get('commit')} | {r.get('commit') for _, r, _ in shards}
     check(len(commits) == 1 and None not in commits, 'C4 every job is for the same commit', str(commits))
     print(f"full: compute {full_res.get('duration_s')} s on {full_res.get('node')}, {len(full)} legs, leg-seconds {sum(v['secs'] for v in full.values())}")

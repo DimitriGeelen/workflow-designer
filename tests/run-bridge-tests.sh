@@ -2063,6 +2063,17 @@ else
 fi
 }
 leg core "_t1482-round" _leg_t1482
+_leg_t1482i() {
+# ── T-1482 (operator's option 2): "no devtools port" is retryable; a Chrome-start red is named in <leglog>.infra ──
+if bash "$ROOT/tests/test_t1482_infra_legs.sh" > "$TMP/leg-_t1482i.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the tier engine no longer retries a 'no devtools port' browser failure, or no longer names it in legs.tsv.infra (run 'bash tests/test_t1482_infra_legs.sh'; T-1482)"
+  show_output "$TMP/leg-_t1482i.out" "test_t1482_infra_legs.sh"
+  fail=$((fail + 1))
+fi
+}
+leg core "_t1482-infra-legs" _leg_t1482i
 _leg_235() {
 
 # ── T-1408: where the pre-push gate runs core ──
