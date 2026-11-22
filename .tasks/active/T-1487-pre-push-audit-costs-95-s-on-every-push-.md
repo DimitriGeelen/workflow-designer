@@ -4,10 +4,10 @@ name: "Pre-push audit costs ~95 s on every push after the core gate: measure whe
 description: >
   Pre-push audit costs ~95 s on every push after the core gate: measure where, make it cheaper or move it off the push path
 
-status: started-work
+status: captured
 workflow_type: build
 owner: agent
-horizon: now
+horizon: next
 tags: []
 components: []
 related_tasks: []
@@ -38,7 +38,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-22T18:44:02Z
-last_update: 2026-11-22T18:53:07Z
+last_update: 2026-11-22T18:54:12Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -78,7 +78,7 @@ the cron audit); the push audit under ~30 s once AEF ships it (or a supported kn
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
 - [x] Per-check timing of `audit.sh --section structure` measured here and written to docs/reports/T-1487-prepush-audit-timing.md (the slowest checks named, with seconds) — 131 s; `lib/verdict_ledger.py audit` 84.9 s alone (history_fault: 56,151 git calls for 285 rows), `human_ac_ticks.py audit` 15.1 s, every other check <= 4 s
 - [x] A proposal sent to AEF over TermLink naming the slow checks and a fix that keeps the push-time protection (message id recorded here), or a supported framework knob applied with its effect measured — no knob exists (in-process cache only); proposal sent 2026-11-22, msg fefb2041-3208-4ea8-948a-38f4a43ff385 (persistent per-row cache keyed by row hash + last commit of the task file, or skip at pre-push when the range touches no ledger/task file)
-- [ ] AEF's fix vendored here and the push audit measured again (target under ~30 s); AEF's task id recorded
+- [ ] AEF's fix vendored here and the push audit measured again (target under ~30 s); AEF's task id recorded — AEF filed it as **T-5366** (msg 50a06767, 2026-11-22: both proposals, commit to be posted on the conversation)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -361,3 +361,7 @@ the cron audit); the push audit under ~30 s once AEF ships it (or a supported kn
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1487-pre-push-audit-costs-95-s-on-every-push-.md
 - **Context:** Initial task creation
+
+### 2026-11-22T18:54:12Z — status-update [task-update-agent]
+- **Change:** horizon: now → next
+- **Change:** status: started-work → captured (auto-sync)
