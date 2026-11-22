@@ -1,13 +1,16 @@
 ---
 id: T-1481
-name: "Gates 3/7: split the core tier into shards on pool-132 and live-huawei-one, with a path-isolation census and a reverse-order unsplit shadow"
+name: "Gates 3/7: split the core tier into shards on pool-132 and live-huawei-one,
+  with a path-isolation census and a reverse-order unsplit shadow"
 description: >
-  T-1478 GO (operator, 60a4304d7); design and consultation: docs/reports/T-1478-test-acceleration.md. O3 with GLM's M3; ring20 to route 832 to live-huawei-one (asked on this GO).
+  T-1478 GO (operator, 60a4304d7); design and consultation: docs/reports/T-1478-test-acceleration.md.
+  O3 with GLM's M3; ring20 to route 832 to live-huawei-one (asked on this GO).
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: [T-1478]
@@ -38,8 +41,8 @@ related_tasks: [T-1478]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T21:55:56Z
-last_update: 2026-11-21T21:56:02Z
-date_finished: null
+last_update: 2026-11-22T00:40:55Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +53,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-22T00:38:59Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=pool); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=0 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1481: Gates 3/7: split the core tier into shards on pool-132 and live-huawei-one, with a path-isolation census and a reverse-order unsplit shadow
@@ -66,18 +89,24 @@ inherit `T1288_SHARD`/`T1288_SHARD_PLAN`/`T1288_LEGLOG` from the shard's environ
 ring20 (msg e63a0ff7): live-huawei-one already admits 832 core; a job may pin its node. Logs of the red run:
 `.context/working/prepush-core.local-s{1,2,3}.log`.
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** core legs can be sharded once (1) the suite stops exporting its shard variables to the legs
+it runs (it reads them once at start), and (2) a shard's clone is prepared as the pool prepares its own (hooks, tags,
+branch, framework pointers cleared). Then core runs as k shards on the pool's slower nodes and here, with the same
+coverage check and an unsplit shadow, like the browser tier.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** the core tier split, pool and here, every leg exactly once, green where the unsplit run is green.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** core here in ~5-6 min instead of ~16 (k=3); on the pool as shards pinned to pool-132 /
+live-huawei-one, not competing with the browser shards; a designer round ~8-10 min.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] The suite reads T1288_SHARD / T1288_SHARD_PLAN / T1288_LEGLOG once and does not export them to its legs (a leg that runs the suite inside itself starts unsharded); a core leg proves it
+- [ ] A local shard's clone is prepared as the pool's (hooks installed, tags, branch checked out, framework pointers cleared)
+- [ ] Core here at k=3 green on a tree where unsplit core is green, coverage ok (every core leg once); measured wall time
+- [ ] The pool runs core as k shards pinned to the slower nodes with an unsplit shadow, coverage ok; measured wall time; local_shards_core raised from 1
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -363,3 +392,7 @@ ring20 (msg e63a0ff7): live-huawei-one already admits 832 core; a job may pin it
 
 ### 2026-11-21T21:56:02Z — status-update [task-update-agent]
 - **Change:** related_tasks: +T-1478
+
+### 2026-11-22T00:38:58Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

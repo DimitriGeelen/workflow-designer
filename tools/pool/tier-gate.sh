@@ -18,6 +18,7 @@ TIER="${1:-}"
 case "$TIER" in core|browser) ;; *) echo "usage: tier-gate.sh core|browser" >&2; exit 2 ;; esac
 ROOT=$(git rev-parse --show-toplevel) || exit 2
 HEAD_SHA=$(cd "$ROOT" && git rev-parse HEAD)
+BRANCH=$(cd "$ROOT" && git rev-parse --abbrev-ref HEAD); [ "$BRANCH" = HEAD ] && BRANCH=detached-t1481   # T-1481: clones check out the branch
 if [ "$TIER" = core ]; then WD="$ROOT/.context/working"; PFX="prepush-core"; else WD="$ROOT/build/tiergate"; PFX="tier-browser"; fi
 mkdir -p "$WD"
 RUNS="$WD/$PFX.runs.log"
@@ -63,9 +64,14 @@ local_split() {  # local_split <out>: LOCAL_K shards of the tier here, all at on
     echo "T-1288 $TIER: running the $TIER tier HERE as $LOCAL_K shards at once, each in a clean clone of ${HEAD_SHA:0:12}${plan:+ (plan $plan)} ..." >&2
     : > "$out"
     for i in $(seq 1 "$LOCAL_K"); do
-        if ! { git clone -q --shared "$ROOT" "$base/s$i" && git -C "$base/s$i" checkout -q "$HEAD_SHA"; } 2>>"$out"; then
+        if ! { git clone -q --shared "$ROOT" "$base/s$i" && git -C "$base/s$i" checkout -q -B "$BRANCH" "$HEAD_SHA"; } 2>>"$out"; then
             echo "T-1288 $TIER: could not make clone $i of $LOCAL_K here — no verdict" >&2; rm -rf -- "$base"; return 1
         fi
+        # T-1481: prepared as tools/pool/run-tier.sh prepares the pool's clone: .git/hooks is not cloned, so the framework's
+        # hooks go in first, then 832's gates (T-1000, T-1161); the framework pointers cleared so both act on the clone
+        ( cd "$base/s$i" && env -u PROJECT_ROOT -u FRAMEWORK_ROOT -u CONTEXT_DIR -u TASKS_DIR -u FW_ROUTED_FROM \
+            sh -c '.agentic-framework/bin/fw git install-hooks && bash tools/_t1000-install-hook.sh' ) >> "$out" 2>&1 \
+            || echo "T-1288 $TIER: hook install in clone $i failed (see ${out#"$ROOT"/})" >&2
     done
     local pids=()
     for i in $(seq 1 "$LOCAL_K"); do : > "$WD/$PFX.local-s$i.legs.tsv"; done   # T-1480: a log appended across runs counts every leg twice

@@ -2024,6 +2024,19 @@ else
 fi
 }
 leg core "_t1486-local-split" _leg_t1486
+_leg_t1481() {
+
+# ── T-1481: the tier engine does not export its shard variables to the legs it runs (a leg that runs the suite inside
+# itself starts unsharded). Control: the engine before T-1481 fails E2. <1 s.
+if bash "$ROOT/tests/test_t1481_shard_env.sh" > "$TMP/leg-_t1481.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the tier engine exports T1288_SHARD / T1288_SHARD_PLAN / T1288_LEGLOG to its legs again (run 'bash tests/test_t1481_shard_env.sh'; T-1481)"
+  show_output "$TMP/leg-_t1481.out" "test_t1481_shard_env.sh"
+  fail=$((fail + 1))
+fi
+}
+leg core "_t1481-shard-env" _leg_t1481
 _leg_235() {
 
 # ── T-1408: where the pre-push gate runs core ──

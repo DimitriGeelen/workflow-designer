@@ -159,6 +159,10 @@ if [ -n "${T1288_SHARD:-}" ]; then
     fi
     echo "T-1452: shard $T1288_SHARD — every ${T1288_SHARD#*/}th leg of the tier from the ${T1288_SHARD%/*}th (shadow; not a run of the suite)" >&2
 fi
+# T-1481: read once, above; kept as this shell's variables, no longer exported to the legs. A leg that runs the suite or
+# a gate inside itself (the tier engine's own test, the gate legs, runme) otherwise inherited them and ran as a shard of
+# the shard (core at k=3 here, 2026-11-22: 13 legs red that are green unsplit).
+export -n T1288_SHARD T1288_SHARD_PLAN T1288_LEGLOG 2>/dev/null
 _T1288_RETRY=()          # "tier<TAB>name<TAB>fn<TAB>args..." of legs waiting for their one retry
 _T1288_PENDING_FAIL=0    # fails held back while a retry is pending (added back if the run dies first)
 T1288_FLAKY_LIST=()
