@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1488: pool-w1 retired by ring20 (msg e32ee17c): stop pinning to it, core 5 + browser 4 shards on pool-w2 / live-huawei-one / pool-132
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-22T20:31:12Z
+# ============================================================================
+
+task_id: T-1488
+task_name: "pool-w1 retired by ring20 (msg e32ee17c): stop pinning to it, core 5 + browser 4 shards on pool-w2 / live-huawei-one / pool-132"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-22T20:11:03Z
+completed: 2026-11-22T20:31:03Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-11-22T21:12:06+01:00
+last_commit: 2026-11-22T21:12:06+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  stop pinning to pool-w1 (ring20 retired it as a runner, msgs 14e80ac5/e32ee17c): core 5 shards (pool-w2 x2, live-huawei-one x2, pool-132; plan shard-plan-core-5.tsv, 129 leg-s each), browser 4 shards (pool-w2 x2, live-huawei-one x2) + shadow on pool-132 — ring20's core 5 / browser 5
+
+# Key outcomes
+outcomes:
+  - 'tools/pool/workers names pool-w1 nowhere in a shard or shadow line; core_shards=5 with plan tests/shard-plan-core-5.tsv; browser_shards=4 (the re-made 4-shard plan); total pinned slots within ring20''s core 5 / browser 5 — core: pool-w2 x2, live-huawei-one x2, pool-132; browser: pool-w2 x2, live-huawei-one x2 + shadow pool-132 (pool-w1 only in comments); ring20 told (msg 3f92df94)'
+  - 'A core gate and a browser gate green on the new pins, coverage ok, wall time measured — browser 620 s (pool 396-414 s, local 440-467 s), core 445 s (pool 146-199 s, local 171-210 s), coverage ok on every split. Down from 386 / 311 s with pool-w1. Of each total, ~150-240 s is outside the legs (staging the repo to the pool, waiting): T-1485''s target.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1488-pool-w1-retired-by-ring20-msg-e32ee17c-s.md'
+  - 'tests/shard-plan-core-5.tsv'
+  - 'tools/pool/workers'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-22T21:12:06'
+    action: 'T-1488: stop pinning to pool-w1 (ring20 retired it as a runner, msgs 14e80ac5/e32ee17c): core 5 shards (pool-w2 x2, live-huawei-one x2, pool-132; plan shard-plan-core-5.tsv, 129 leg-s each), browser 4 shards (pool-w2 x2, live-huawei-one x2) + shadow on pool-132 — ring20''s core 5 / browser 5'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 20 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 20
+  commits: 2
+  files_changed: 6
+  lines_added: 690
+  lines_removed: 10
+  footprint_refreshed_at: '2026-11-22T20:31:19Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1488-pool-w1-retired-by-ring20-msg-e32ee17c-s.md
+generated_by: context-agent-hybrid
