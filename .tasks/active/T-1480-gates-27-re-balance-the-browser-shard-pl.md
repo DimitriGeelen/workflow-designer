@@ -42,7 +42,7 @@ related_tasks: [T-1478]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T21:55:55Z
-last_update: 2026-11-22T00:11:06Z
+last_update: 2026-11-22T00:19:55Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -100,7 +100,7 @@ every split result (pool shards and this machine's), a missing / extra / doubled
 - [x] `tests/shard-plan-browser-{2..7}.tsv` regenerated from measured leg times of a whole browser run on the pool (the four shards of 1fb5dc76a joined), planned shard seconds within 10 % of each other for k=4 — k=4: 364/364/364/364 s; k>=5 floor 304 s (person-sees-gate); every plan names exactly the 149 `--list-legs` browser legs
 - [x] `tools/pool/shard-coverage.py`: 0 when the shard leg logs cover the tier's `--list-legs` exactly once, 1 naming missing / extra / doubled legs, 2 when it cannot measure; checked on real pool and local shard logs, and a control with one shard left out reads red — pool 1fb5dc76a: ok 149/149; control (2 of 3 local shards): RED, 54 missing; it also caught a real fault: this machine's shard leg logs were appended across runs (every leg twice), now emptied before each run
 - [x] The gate runs it on every all-green split result (pool and local); a coverage red makes that half red; `_t1462`/`_t1486` legs prove it (a stub shard that skips a leg) — `_t1462` 12/12 (stub legs L1-L6 as the expected set), `_t1486` L6 (a green shard whose leg never ran: red); control: the gate without coverage fails L6
-- [ ] Measured on the pool after the change: the four browser shards' wall times (one gate run)
+- [x] Measured on the pool after the change: the four browser shards' wall times (one gate run) — afd7c2bd3, 2026-11-22 00:11-00:19Z: pool 356/373/349/394 s (spread 45 s, was 115 s), this machine's 3 shards 457/476/483 s, coverage ok on both halves (149 legs once each); the whole high-risk browser gate 8 min 18 s (was 26-30 min)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -286,6 +286,9 @@ every split result (pool shards and this machine's), a missing / extra / doubled
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+bash tools/_t1486-local-split-teeth.sh > /tmp/.t1480a.out 2>&1 && grep -q "T-1486: GREEN" /tmp/.t1480a.out
+bash tools/_t1462-split-gate-teeth.sh > /tmp/.t1480b.out 2>&1 && grep -q "12 passed, 0 failed" /tmp/.t1480b.out
+python3 tools/pool/shard-coverage.py browser build/tiergate/tier-browser.local-s1.legs.tsv build/tiergate/tier-browser.local-s2.legs.tsv build/tiergate/tier-browser.local-s3.legs.tsv > /tmp/.t1480c.out 2>&1 && grep -q "exactly once" /tmp/.t1480c.out
 
 ## RCA
 
