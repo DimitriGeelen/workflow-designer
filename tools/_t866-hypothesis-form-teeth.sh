@@ -142,7 +142,11 @@ mk "$WORK/vague.md" "$FULL_VAGUE"
 out=$(run_gate "$WORK/vague.md" go)
 if grep -q 'RC=1' <<<"$out" && grep -q 'nothing anyone could go and look at' <<<"$out"; then
     ok vague_success_refused
-else bad vague_success_refused "THE REAL POPULATION passed — a sincere vague clause is the failure that actually occurs: $(printf '%s' "$out" | tr '\n' '/')"; fi
+else bad vague_success_refused "THE REAL POPULATION passed — a sincere vague clause is the failure that actually occurs: $(printf '%s' "$out" | tr '\n' '/')"
+     # T-1481: once (core shard 2/3 here, 2026-11-22) the gate said "missing: 'we will achieve'" of this very file, and
+     # 1,980 re-runs did not repeat it; a repeat must show what was read and how a second look goes.
+     echo "       file as written ($(wc -c < "$WORK/vague.md") bytes): $(tr '\n' '/' < "$WORK/vague.md")"
+     echo "       second look: $(run_gate "$WORK/vague.md" go | tr '\n' '/')"; fi
 
 # A refusal that does not tell the author what to do is a warning with a worse
 # exit code, which is precisely T-624's failure.
