@@ -1,0 +1,91 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1480: Gates 2/7: re-balance the browser shard plans from measured leg times; shard completeness (every leg exactly once, no unknown leg) fails the gate instead of warning
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-22T00:20:40Z
+# ============================================================================
+
+task_id: T-1480
+task_name: "Gates 2/7: re-balance the browser shard plans from measured leg times; shard completeness (every leg exactly once, no unknown leg) fails the gate instead of warning"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-21T21:55:55Z
+completed: 2026-11-22T00:19:56Z
+duration_days: 1
+updates_count: 4
+first_commit: 2026-11-22T01:11:06+01:00
+last_commit: 2026-11-22T01:19:55+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  browser shard plans re-timed from the pool's measured legs (k=4: 364 s each; k>=5 floors at 304 s); a split verdict counts only when the shards ran each of the tier's legs exactly once (tools/pool/shard-coverage.py, pool and local); this machine's shard leg logs emptied before each run (they doubled every leg). measured — high-risk browser gate 8 min 18 s, pool shards 349-394 s, coverage ok on both halves
+
+# Key outcomes
+outcomes:
+  - '`tests/shard-plan-browser-{2..7}.tsv` regenerated from measured leg times of a whole browser run on the pool (the four shards of 1fb5dc76a joined), planned shard seconds within 10 % of each other for k=4 — k=4: 364/364/364/364 s; k>=5 floor 304 s (person-sees-gate); every plan names exactly the 149 `--list-legs` browser legs'
+  - '`tools/pool/shard-coverage.py`: 0 when the shard leg logs cover the tier''s `--list-legs` exactly once, 1 naming missing / extra / doubled legs, 2 when it cannot measure; checked on real pool and local shard logs, and a control with one shard left out reads red — pool 1fb5dc76a: ok 149/149; control (2 of 3 local shards): RED, 54 missing; it also caught a real fault: this machine''s shard leg logs were appended across runs (every leg twice), now emptied before each run'
+  - 'The gate runs it on every all-green split result (pool and local); a coverage red makes that half red; `_t1462`/`_t1486` legs prove it (a stub shard that skips a leg) — `_t1462` 12/12 (stub legs L1-L6 as the expected set), `_t1486` L6 (a green shard whose leg never ran: red); control: the gate without coverage fails L6'
+  - 'Measured on the pool after the change: the four browser shards'' wall times (one gate run) — afd7c2bd3, 2026-11-22 00:11-00:19Z: pool 356/373/349/394 s (spread 45 s, was 115 s), this machine''s 3 shards 457/476/483 s, coverage ok on both halves (149 legs once each); the whole high-risk browser gate 8 min 18 s (was 26-30 min)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1480-gates-27-re-balance-the-browser-shard-pl.md'
+  - 'tests/shard-plan-browser-2.tsv'
+  - 'tests/shard-plan-browser-3.tsv'
+  - 'tests/shard-plan-browser-4.tsv'
+  - 'tests/shard-plan-browser-5.tsv'
+  - 'tests/shard-plan-browser-6.tsv'
+  - 'tests/shard-plan-browser-7.tsv'
+  - 'tools/_t1462-split-gate-teeth.sh'
+  - 'tools/_t1486-local-split-teeth.sh'
+  - 'tools/pool/shard-coverage.py'
+  - 'tools/pool/tier-gate.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-22T01:11:06'
+    action: 'T-1480: browser shard plans re-timed from the pool''s measured legs (k=4: 364 s each; k>=5 floors at 304 s); a split verdict counts only when the shards ran each of the tier''s legs exactly once (tools/pool/shard-coverage.py, pool and local); this machine''s shard leg logs emptied before each run (they doubled every leg)'
+  - time: '2026-11-22T01:19:55'
+    action: 'T-1480: measured — high-risk browser gate 8 min 18 s, pool shards 349-394 s, coverage ok on both halves'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 144 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 144
+  commits: 3
+  files_changed: 14
+  lines_added: 920
+  lines_removed: 662
+  footprint_refreshed_at: '2026-11-22T00:20:46Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1480-gates-27-re-balance-the-browser-shard-pl.md
+generated_by: context-agent-hybrid
