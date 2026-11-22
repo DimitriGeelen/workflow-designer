@@ -27,5 +27,11 @@ run "bash -c 'sleep 4; touch $W/browser-finished; sleep 20'" "bash -c 'sleep 1; 
 sleep 5
 [ "$rc" = 1 ] && [ "$secs" -lt 8 ] && [ ! -e "$W/browser-finished" ] && grep -q 'browser STOPPED' <<<"$out" && grep -q 'core    RED' <<<"$out" \
   && ok "R3 core red: exit 1 in ${secs}s, browser stopped before it finished" || bad "R3 rc=$rc ${secs}s marker=$([ -e "$W/browser-finished" ] && echo yes || echo no): $out"
+# R4: the gates do not inherit an ignored SIGINT/SIGQUIT (bash ignores both in a background job; the first real round
+# failed _t1286's SIGINT case under round.sh). The stub prints its ignored-signal mask; bits 2 and 3 must be clear.
+run "bash -c 'grep SigIgn /proc/self/status > $W/mask'" "bash -c 'exit 0'"
+mask=$(awk '{print $2}' "$W/mask" 2>/dev/null)
+[ -n "$mask" ] && [ $(( 0x$mask & 0x6 )) = 0 ] && ok "R4 a gate starts with SIGINT and SIGQUIT not ignored (SigIgn $mask)" \
+  || bad "R4 a gate inherits ignored SIGINT/SIGQUIT (SigIgn ${mask:-?})"
 [ "$fails" = 0 ] && echo "T-1482 round: GREEN" || echo "T-1482 round: RED"
 exit "$fails"

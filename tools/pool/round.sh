@@ -15,9 +15,12 @@ OUT="$ROOT/build/tiergate/round"; mkdir -p "$OUT" || exit 2
 BCMD=${T1482_BROWSER_CMD:-bash "$ROOT/tools/pool/tier-gate.sh" browser}
 CCMD=${T1482_CORE_CMD:-bash "$ROOT/tools/_t1288-prepush-gate.sh"}
 T0=$(date +%s)
-# each gate in its own process group (setsid), so stopping one stops all it started here and nothing else
-setsid bash -c "cd '$ROOT' && exec $BCMD" > "$OUT/browser.out" 2>&1 < /dev/null & bpid=$!
-setsid bash -c "cd '$ROOT' && exec $CCMD" > "$OUT/core.out" 2>&1 < /dev/null & cpid=$!
+# each gate in its own process group (setsid), so stopping one stops all it started here and nothing else.
+# env --default-signal: bash starts a background job with SIGINT and SIGQUIT IGNORED (no job control), and an ignored
+# signal is inherited by everything under it; the first real round failed _t1286 case 7 (a SIGINT mid-step was never
+# delivered) for exactly that reason. The gates must see the signals a terminal run would.
+setsid env --default-signal=INT,QUIT bash -c "cd '$ROOT' && exec $BCMD" > "$OUT/browser.out" 2>&1 < /dev/null & bpid=$!
+setsid env --default-signal=INT,QUIT bash -c "cd '$ROOT' && exec $CCMD" > "$OUT/core.out" 2>&1 < /dev/null & cpid=$!
 echo "round: browser and core gates started together at $(git -C "$ROOT" rev-parse --short HEAD) (logs: ${OUT#"$ROOT"/}/)" >&2
 stop() { kill -TERM -- "-$1" 2>/dev/null; sleep 2; kill -KILL -- "-$1" 2>/dev/null; }
 trap 'stop $bpid; stop $cpid; exit 130' INT TERM HUP
