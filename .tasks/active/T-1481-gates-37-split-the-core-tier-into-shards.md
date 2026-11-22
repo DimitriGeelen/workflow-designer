@@ -41,7 +41,7 @@ related_tasks: [T-1478]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T21:55:56Z
-last_update: 2026-11-22T13:48:57Z
+last_update: 2026-11-22T13:56:11Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -106,7 +106,7 @@ live-huawei-one, not competing with the browser shards; a designer round ~8-10 m
 - [x] The suite reads T1288_SHARD / T1288_SHARD_PLAN / T1288_LEGLOG once and does not export them to its legs (a leg that runs the suite inside itself starts unsharded); a core leg proves it — un-exported only while each leg runs (`_t1288_run`), exported again after; `_t1481-shard-env` E1 (the leg's child sees none) and E2 (the engine still exports them; a first fix that un-exported them for good made every shard run every leg, caught by measurement); control fails E1
 - [x] A local shard's clone is prepared as the pool's (hooks installed, tags, branch checked out, framework pointers cleared) — plus this checkout's remote-tracking refs and tags fetched (a clone of a clone missed T-1383's commit: `_t567` 1 mismatch)
 - [x] Core here at k=3 green on a tree where unsplit core is green, coverage ok (every core leg once); measured wall time — push gate at d0d1ab6de: 243/276/300 s with the time-balanced plan `tests/shard-plan-core-3.tsv` (was 980 s unsplit), coverage ok 201/201; the pool's unsplit core 643 s now decides the gate. (Runs with T1408_POOL=0 / T1486_LOCAL_K=3 set in the environment went red on the gate legs: those variables leak into the nested gate tests; a real gate run sets neither.)
-- [ ] The pool runs core as k shards pinned to the slower nodes with an unsplit shadow, coverage ok; measured wall time; local_shards_core raised from 1 — local_shards_core=3 done; the POOL split is NOT built yet (next session): generalise `split_ok`/`pool_run` from browser-only to core (plan `tests/shard-plan-core-<k>.tsv` from a pool core run, nodes pinned via a `core_shard_nodes=` line in tools/pool/workers to pool-132 / live-huawei-one, shadow and compare-shards for core, coverage as for browser)
+- [x] The pool runs core as k shards pinned to the slower nodes with an unsplit shadow, coverage ok; measured wall time; local_shards_core raised from 1 — built (cf38653b8): tier-gate reads `<tier>_shards` / `<tier>_shard_nodes` / `<tier>_shadow_node`, core shadow tagged by tier, `_t1462` teeth case 8 (control fails). k=2 on pool-132 + live-huawei-one: 391/398 s, coverage ok. Operator 2026-11-22 ("use all capacity in the pool within reasonable risk"): k=7 over every 832 core slot (ring20 msg e8ca7711: core max 7 = w1 2, w2 2, huawei 2, pool-132 1; the gates run one after the other, so the fast slots are free while core runs): 95-129 s, coverage ok 7 shards, twice. Local 4 shards (operator: desktop underutilized; 29-34 % CPU idle at 3): 197-237 s. Core gate 13 min -> 5 min 11 s. Browser on the pool 4 -> 6 shards (+ shadow on pool-132 = ring20's 7): 214-296 s; browser gate 8 min 18 s -> 6 min 26 s. Floor now: person-sees-gate alone 296 s (T-1483).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
