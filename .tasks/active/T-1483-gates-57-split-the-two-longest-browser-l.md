@@ -41,7 +41,7 @@ related_tasks: [T-1478]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T21:55:56Z
-last_update: 2026-11-22T19:03:03Z
+last_update: 2026-11-22T20:07:25Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -98,9 +98,9 @@ place them on different shards, with no change to what is checked.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The suite runs each of the six person-sees checks as its own browser leg (`person-sees-<check>`, through `person-sees-gate.sh --only <check>`); `person-sees-gate` is no longer a leg; a test proves the six legs together name exactly the gate's CHECKS list (none lost, none twice)
-- [ ] Shard plans re-made for the new legs; a browser gate green on the pool split and here, coverage ok; the slowest pool browser shard measured before and after
-- [ ] `_t358-laneless-render` (224 s) looked at the same way: split into parts if it is several independent runs, or recorded here why not
+- [x] The suite runs each of the six person-sees checks as its own browser leg (`person-sees-<check>`, through `person-sees-gate.sh --only <check>`); `person-sees-gate` is no longer a leg; a test proves the six legs together name exactly the gate's CHECKS list (none lost, none twice) — core leg `_t1483-person-sees-legs` (P1; control with the old single leg RED). Found on the way: `--only <no such check>` ran nothing and exited 0; now exit 2 NOT RUN (P2; the old gate fails P2). Local times: label-clearance 135, sweep 93, name-fit 43, note-box 29, project-browser 17, toolbar-reach 12 s
+- [x] Shard plans re-made for the new legs; a browser gate green on the pool split and here, coverage ok; the slowest pool browser shard measured before and after — plans k=2..7 from the 6-shard run with the new legs' measured times (158 legs). Gate at e362aa492: green, coverage ok (6 pool shards, 4 here). Slowest pool shard 296 s (person-sees alone) -> 298 s, range 214-296 -> 269-298 s: the shards are now even, at the floor of work / slots (~1,590 leg-s / 6), so no gain until more slots (ring20 T-2842); the single-leg floor is gone (largest leg now label-clearance ~121 s). The run's wall time (53 min) was pool-w1 queueing ~43 min (reported to ring20, msg f00223f9), not the split.
+- [x] `_t358-laneless-render` (224 s) looked at the same way: split into parts if it is several independent runs, or recorded here why not — it was the live run plus four poison arms in a row; now `_t358-laneless-render` (live, 45 s) and `_t358-laneless-render-poison-{A,B,C,D}` (`--poison <arm>`, ~48 s each; an unknown arm is exit 2); `--self-test` still runs all five
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -286,6 +286,9 @@ place them on different shards, with no change to what is checked.
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+python3 tests/test_t1483_person_sees_legs.py
+bash tests/run-bridge-tests.sh --list-legs | grep -qx 'browser _t358-laneless-render-poison-D'
+test "$(bash tests/run-bridge-tests.sh --list-legs | grep -c '^browser person-sees-')" -eq 6
 
 ## RCA
 
