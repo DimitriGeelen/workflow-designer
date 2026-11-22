@@ -1,13 +1,16 @@
 ---
 id: T-1483
-name: "Gates 5/7: split the two longest browser legs (person-sees-gate 304 s, _t358-laneless-render 224 s) into parts, a census proving each part runs exactly once"
+name: "Gates 5/7: split the two longest browser legs (person-sees-gate 304 s, _t358-laneless-render
+  224 s) into parts, a census proving each part runs exactly once"
 description: >
-  T-1478 GO (operator, 60a4304d7); design and consultation: docs/reports/T-1478-test-acceleration.md. O2.
+  T-1478 GO (operator, 60a4304d7); design and consultation: docs/reports/T-1478-test-acceleration.md.
+  O2.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: [T-1478]
@@ -38,8 +41,8 @@ related_tasks: [T-1478]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T21:55:56Z
-last_update: 2026-11-21T21:56:03Z
-date_finished: null
+last_update: 2026-11-22T19:03:03Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +53,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-22T18:54:31Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=0 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1483: Gates 5/7: split the two longest browser legs (person-sees-gate 304 s, _t358-laneless-render 224 s) into parts, a census proving each part runs exactly once
@@ -57,20 +80,27 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** T-1478 GO, O2. After T-1481 (2026-11-22) the browser pool half runs as 6 shards, and its
+slowest shard is ONE leg: `person-sees-gate` alone took 296 s (shard 1/6), while the other shards took 214-282 s. The
+leg runs six render harnesses one after another (`tools/person-sees-gate.sh`), so the sharder cannot divide it.
+`_t358-laneless-render` (224 s) is the next such leg.
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** a leg is the sharder's unit; a leg that is six independent harnesses in a row sets the floor of
+every split. Registering each harness as its own leg (`person-sees-gate.sh --only <check>`, which exists) lets the plan
+place them on different shards, with no change to what is checked.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** the browser split no longer waits on one 300 s leg, with every check still run exactly once.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** six `person-sees-<check>` browser legs replace `person-sees-gate` in the suite; the standalone
+`tools/person-sees-gate.sh` (run before UI reviews) is unchanged; the slowest browser shard drops toward ~240 s.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] The suite runs each of the six person-sees checks as its own browser leg (`person-sees-<check>`, through `person-sees-gate.sh --only <check>`); `person-sees-gate` is no longer a leg; a test proves the six legs together name exactly the gate's CHECKS list (none lost, none twice)
+- [ ] Shard plans re-made for the new legs; a browser gate green on the pool split and here, coverage ok; the slowest pool browser shard measured before and after
+- [ ] `_t358-laneless-render` (224 s) looked at the same way: split into parts if it is several independent runs, or recorded here why not
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -356,3 +386,7 @@ date_finished: null
 
 ### 2026-11-21T21:56:03Z — status-update [task-update-agent]
 - **Change:** related_tasks: +T-1478
+
+### 2026-11-22T18:54:30Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

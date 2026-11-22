@@ -1877,15 +1877,19 @@ _leg_227() {
 # canvas, every node within the pool's height (the pool used to collapse to its header without lanes), and the save
 # writes no laneSet, no 'sovereignty', and the laneProvenance marker. Self-test: the fabrication put back (L1/L3 red) and
 # the no-lane pool height removed (L2 red).
-if node "$ROOT/tools/_t358-laneless-render-cdp.mjs" --self-test > "$TMP/leg-_t358r.out" 2>&1; then
+# T-1483 (T-1478 O2): the live run and each of the four poison arms are separate legs (--poison <arm>), so the sharder
+# can place the five runs apart (as one --self-test leg they ran in a row, 224-240 s). Together they are --self-test.
+local arm=${1:-}
+if node "$ROOT/tools/_t358-laneless-render-cdp.mjs" ${arm:+--poison "$arm"} > "$TMP/leg-_t358r$arm.out" 2>&1; then
   pass=$((pass + 1))
 else
-  report FAIL "a map that declares no lanes gained lanes again, its nodes fall outside the pool, or its save asserts sovereignty or lost the laneProvenance marker (run 'node tools/_t358-laneless-render-cdp.mjs --self-test'; T-358)"
-  show_output "$TMP/leg-_t358r.out" "_t358-laneless-render-cdp.mjs"
+  report FAIL "a map that declares no lanes gained lanes again, its nodes fall outside the pool, or its save asserts sovereignty or lost the laneProvenance marker${arm:+, or poison arm $arm was not caught} (run 'node tools/_t358-laneless-render-cdp.mjs ${arm:+--poison $arm}'; T-358, T-1483)"
+  show_output "$TMP/leg-_t358r$arm.out" "_t358-laneless-render-cdp.mjs${arm:+ --poison $arm}"
   fail=$((fail + 1))
 fi
 }
 leg browser "_t358-laneless-render" _leg_227
+for _t358_arm in A B C D; do leg browser "_t358-laneless-render-poison-$_t358_arm" _leg_227 "$_t358_arm"; done
 _leg_228() {
 
 # ── T-1392: every control in Settings can be reached ──
@@ -2037,6 +2041,17 @@ else
 fi
 }
 leg core "_t1481-shard-env" _leg_t1481
+_leg_t1483() {
+# ── T-1483: the person-sees browser legs name exactly the gate's checks; --only that names none is no pass ──
+if python3 "$ROOT/tests/test_t1483_person_sees_legs.py" > "$TMP/leg-_t1483.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the person-sees-<check> legs no longer match the gate's checks, or --only can pass by running nothing (run 'python3 tests/test_t1483_person_sees_legs.py'; T-1483)"
+  show_output "$TMP/leg-_t1483.out" "test_t1483_person_sees_legs.py"
+  fail=$((fail + 1))
+fi
+}
+leg core "_t1483-person-sees-legs" _leg_t1483
 _leg_235() {
 
 # ── T-1408: where the pre-push gate runs core ──
@@ -2093,15 +2108,21 @@ _leg_072() {
 # growth), _t1176 (toolbar reach) and _t1282 (project browser: last card reachable, hover preview inside the window).
 # It replaces the T-1274/T-1276/T-1278 loop (T-1279): the same harnesses, the same exit-0 rule, plus a per-check
 # timeout; any harness not run is exit 2, never a pass. Red on designer-v0.25.0 (T-1287). Literal path (T-451).
-if bash "$ROOT/tools/person-sees-gate.sh" > "$TMP/leg-person-sees-gate.out" 2>&1; then
+# T-1483 (T-1478 GO, O2): one leg PER CHECK (`--only <check>`), so the sharder can place them apart: as one leg the six
+# harnesses ran in a row (296 s) and set the floor of every browser split. The standalone gate is unchanged; the legs
+# below must name exactly its CHECKS list (tests/test_t1483_person_sees_legs.py).
+local check=$1
+if bash "$ROOT/tools/person-sees-gate.sh" --only "$check" > "$TMP/leg-person-sees-$check.out" 2>&1; then
   pass=$((pass + 1))
 else
-  report FAIL "the what-a-person-sees gate is red or could not run a check: one of label clearance, task-name fit, the codex sweep items, Note box, toolbar reach, project browser (run 'bash tools/person-sees-gate.sh'; T-1287)"
-  show_output "$TMP/leg-person-sees-gate.out" "person-sees-gate.sh"
+  report FAIL "the what-a-person-sees gate's $check check is red or could not run (run 'bash tools/person-sees-gate.sh --only $check'; T-1287, T-1483)"
+  show_output "$TMP/leg-person-sees-$check.out" "person-sees-gate.sh --only $check"
   fail=$((fail + 1))
 fi
 }
-leg browser "person-sees-gate" _leg_072
+for _psg_check in label-clearance name-fit sweep note-box toolbar-reach project-browser; do
+  leg browser "person-sees-$_psg_check" _leg_072 "$_psg_check"
+done
 _leg_073() {
 
 

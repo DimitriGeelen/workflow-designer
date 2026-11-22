@@ -130,9 +130,12 @@ const report = legs => { for (const l of legs) console.log(`${l.ok ? 'ok  ' : 'F
 async function main() {
   if (!MAPS.length) { console.log('SETUP BROKEN: no lane-less fixture in tests/fixtures/third-party'); process.exit(2); }
   console.log(`lane-less fixtures: ${MAPS.map(f => f.split('/').pop()).join(', ')}; with a lane (T-1386): ${LANED.map(f => f.split('/').pop()).join(', ')}`);
-  const live = judge(await run(SRC, 'live'));
-  const ok = report(live);
-  if (!selfTest) { console.log(ok ? `\nPASS — ${live.length} legs` : `\nFAIL — ${live.filter(l => !l.ok).length} leg(s)`); process.exit(ok ? 0 : 1); }
+  // T-1483: --poison <A|B|C|D> runs that ONE poison arm alone (no live run), so the suite can shard the five runs as
+  // separate legs; exit 0 only when it is caught. --self-test still runs the live run and all four, as before.
+  const onlyPoison = opt('--poison');
+  const live = onlyPoison ? [] : judge(await run(SRC, 'live'));
+  const ok = onlyPoison ? true : report(live);
+  if (!selfTest && !onlyPoison) { console.log(ok ? `\nPASS — ${live.length} legs` : `\nFAIL — ${live.filter(l => !l.ok).length} leg(s)`); process.exit(ok ? 0 : 1); }
   const html = readFileSync(SRC, 'utf8');
   const POISON = {
     'A (the fabrication is back)': ["  const carriedLaneProv = aefMetaEl && aefMetaEl.getAttribute('laneProvenance');",
@@ -145,7 +148,9 @@ async function main() {
       "  const px = POOL_X, py = POOL_Y;", /^L2 /],
   };
   let caught = 0;
-  for (const [name, [a, b, want]] of Object.entries(POISON)) {
+  const arms = Object.entries(POISON).filter(([name]) => !onlyPoison || name.startsWith(onlyPoison + ' '));
+  if (onlyPoison && arms.length !== 1) { console.log(`SETUP BROKEN: --poison ${onlyPoison} names no arm (A-D)`); process.exit(2); }
+  for (const [name, [a, b, want]] of arms) {
     if (!html.includes(a)) { console.log(`SETUP BROKEN: poison ${name} anchor not found`); process.exit(2); }
     const p = join(mkTmp('t358r-poison-'), 'designer.html'); writeFileSync(p, html.replace(a, b));
     const legs = judge(await run(p, 'poison'));
@@ -153,6 +158,7 @@ async function main() {
     console.log(`poison ${name}: ${red.length ? `caught (${red.length} ${want.source.replace(/[\^\\[\] ]/g, '')} leg(s) red)` : 'NOT caught'}`);
     if (red.length) caught++;
   }
+  if (onlyPoison) { console.log(caught ? `\nPASS — poison arm ${onlyPoison} caught` : `\nFAIL — poison arm ${onlyPoison} NOT caught`); process.exit(caught ? 0 : 1); }
   const all = ok && caught === Object.keys(POISON).length;  // T-358 pool half: three arms
   console.log(all ? `\nPASS — ${live.length} legs, and all ${caught} poison arms caught` : `\nFAIL — live ${ok ? 'green' : 'red'}, ${caught}/${Object.keys(POISON).length} poison arms caught`);
   process.exit(all ? 0 : 1);

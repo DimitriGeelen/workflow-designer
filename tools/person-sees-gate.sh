@@ -16,11 +16,12 @@
 #        passed to every harness through its own override variable). PERSON_SEES_TIMEOUT=<s> per check (default 900).
 set -uo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SRC="" ONLY="" TMO="${PERSON_SEES_TIMEOUT:-900}"
+SRC="" ONLY="" LIST=0 TMO="${PERSON_SEES_TIMEOUT:-900}"
 while [ $# -gt 0 ]; do
   case "$1" in
     --src) SRC="$(realpath "$2")"; shift 2 ;;
     --only) ONLY=",$2,"; shift 2 ;;
+    --list) LIST=1; shift ;;   # T-1483: the check names, one per line (the suite's per-check legs are tested against it)
     -h|--help) sed -n '2,16p' "$0"; exit 0 ;;
     *) echo "person-sees-gate: unknown argument $1" >&2; exit 2 ;;
   esac
@@ -69,16 +70,19 @@ sys.exit(1)
 PY
 }
 
-T0=$(date +%s); worst=0
+if [ "$LIST" = 1 ]; then for c in "${CHECKS[@]}"; do echo "${c%%|*}"; done; exit 0; fi
+T0=$(date +%s); worst=0; ran=0
 for c in "${CHECKS[@]}"; do
   IFS='|' read -r name harness var <<< "$c"
   case "$ONLY" in ''|*",$name,"*) ;; *) continue ;; esac
-  t=$(date +%s)
+  ran=$((ran + 1)); t=$(date +%s)
   if [ -n "$SRC" ]; then env "$var=$SRC" timeout "$TMO" nice -n 19 node "$ROOT/$harness" > "$OUT/$name.out" 2>&1; rc=$?
   else timeout "$TMO" nice -n 19 node "$ROOT/$harness" > "$OUT/$name.out" 2>&1; rc=$?; fi
   line=$(summarise "$name" "$rc" "$OUT/$name.out"); v=$?
   printf '%s  [%ss]\n' "$(head -1 <<< "$line")" "$(( $(date +%s) - t ))"; tail -n +2 <<< "$line"
   if [ "$v" -eq 2 ]; then worst=2; elif [ "$v" -eq 1 ] && [ "$worst" -eq 0 ]; then worst=1; fi
 done
+# T-1483: --only that names no check ran nothing; that is no verdict, never a pass
+if [ "$ran" -eq 0 ]; then echo "NOT RUN: --only '${ONLY//,/ }' names no check (see --list)"; worst=2; fi
 echo "person-sees-gate: ${SRC:-src/aef-workflow-designer.html}: total $(( $(date +%s) - T0 ))s, exit $worst"
 exit "$worst"
