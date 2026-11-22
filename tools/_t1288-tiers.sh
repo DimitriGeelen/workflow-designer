@@ -159,10 +159,6 @@ if [ -n "${T1288_SHARD:-}" ]; then
     fi
     echo "T-1452: shard $T1288_SHARD — every ${T1288_SHARD#*/}th leg of the tier from the ${T1288_SHARD%/*}th (shadow; not a run of the suite)" >&2
 fi
-# T-1481: read once, above; kept as this shell's variables, no longer exported to the legs. A leg that runs the suite or
-# a gate inside itself (the tier engine's own test, the gate legs, runme) otherwise inherited them and ran as a shard of
-# the shard (core at k=3 here, 2026-11-22: 13 legs red that are green unsplit).
-export -n T1288_SHARD T1288_SHARD_PLAN T1288_LEGLOG 2>/dev/null
 _T1288_RETRY=()          # "tier<TAB>name<TAB>fn<TAB>args..." of legs waiting for their one retry
 _T1288_PENDING_FAIL=0    # fails held back while a retry is pending (added back if the run dies first)
 T1288_FLAKY_LIST=()
@@ -234,6 +230,12 @@ _t1288_run() {
     # written in the same tick as a fresh stamp is not "newer", so a no-DevTools-port failure was missed (core run,
     # 2026-10-24, TMP on disk; the same class as T-1280's _t568 tmpfs tick).
     rm -f "$_T1288_TO_MARK"; : > "$stamp"; touch -d "@$(( $(date +%s) - 1 ))" "$stamp"
+    # T-1481: while a leg runs, the shard variables are not exported: a leg that runs the suite or a gate inside itself
+    # (the tier engine's own test, the gate legs, runme) inherited them and ran as a shard of the shard (core at k=3,
+    # 2026-11-22: 13 legs red). Only for the leg's call: this shell keeps them, and the next leg is placed as before.
+    local _t1481_x=""; for _t1481_v in T1288_SHARD T1288_SHARD_PLAN T1288_LEGLOG; do
+        [[ $(declare -p "$_t1481_v" 2>/dev/null) == "declare -x"* ]] && { _t1481_x="$_t1481_x $_t1481_v"; export -n "$_t1481_v"; }
+    done
     if [ "$tier" = browser ]; then
         # captured so a DevTools-port failure can be recognised, then shown as it would have been
         "$fn" "$@" > "$out" 2>&1
@@ -241,6 +243,7 @@ _t1288_run() {
     else
         "$fn" "$@"
     fi
+    for _t1481_v in $_t1481_x; do export "$_t1481_v"; done
     local dp=$((pass - p0)) df=$((fail - f0))
     T1288_SECS[$tier]=$(( ${T1288_SECS[$tier]} + SECONDS - t0 ))
     # T-1452: one line per leg attempt (tier, name, attempt, passes, fails, seconds) when asked, so two runs can be
