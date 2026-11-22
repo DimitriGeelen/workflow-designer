@@ -7,7 +7,7 @@ description: >
 status: captured
 workflow_type: build
 owner: agent
-horizon: next
+horizon: later
 tags: []
 components: []
 related_tasks: [T-1478]
@@ -38,7 +38,7 @@ related_tasks: [T-1478]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T21:55:57Z
-last_update: 2026-11-21T21:56:04Z
+last_update: 2026-11-22T23:50:29Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -58,6 +58,12 @@ date_finished: null
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
 **Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+
+**Measured 2026-11-23 (round at 5fa5fcaba, T-1482), before asking ring20 for a format:** a pool job's setup on the
+node (rebuilding the repo from the bundle chain) is 13-27 s; the time outside the node (staging, queue, delivery) is
+~36-38 s per gate (browser gate 553 s vs its slowest job 515 s; core 396 s vs 360 s). So this task saves at most
+~20-40 s of a ~9 min round. An earlier estimate of 2.5-4 min (T-1488's notes) counted queueing on live-huawei-one as
+staging: wrong. Deprioritised (horizon later) until the round's other costs are smaller.
 
 **Problem / hypothesis:** <what we think is wrong and why>
 
@@ -356,3 +362,6 @@ date_finished: null
 
 ### 2026-11-21T21:56:04Z — status-update [task-update-agent]
 - **Change:** related_tasks: +T-1478
+
+### 2026-11-22T23:50:29Z — status-update [task-update-agent]
+- **Change:** horizon: next → later
