@@ -49,6 +49,13 @@ pick_node() {  # T-1409: the CDP harnesses need a global WebSocket (Node >= 22).
 # tags, branch) — T-1481 makes core shardable (measured 2026-11-22: k=3 core here, 13 legs red; browser k=3 green).
 LOCAL_K=${T1486_LOCAL_K:-$(sed -n "s/^local_shards_$TIER=//p" "$ROOT/tools/pool/workers" 2>/dev/null | head -1)}
 case "$LOCAL_K" in ''|*[!0-9]*) LOCAL_K=1 ;; esac
+coverage_ok() {  # coverage_ok "<legs.tsv per line>": T-1480, the shards together ran each of the tier's legs exactly once
+    local files=() f
+    while IFS= read -r f; do [ -n "$f" ] && files+=("$f"); done <<< "$1"
+    local msg; msg=$(cd "$ROOT" && ${T1480_COVERAGE_CMD:-python3 tools/pool/shard-coverage.py} "$TIER" "${files[@]}" 2>&1); local c=$?
+    echo "T-1288 $TIER: $msg" >&2
+    [ "$c" = 0 ]
+}
 local_split() {  # local_split <out>: LOCAL_K shards of the tier here, all at once; 0 only if every shard is green
     local out=$1 base i plan="" rc=0 code
     base=$(mktemp -d "${TMPDIR:-/tmp}/t1486-$TIER.XXXXXX") || return 1
@@ -61,6 +68,7 @@ local_split() {  # local_split <out>: LOCAL_K shards of the tier here, all at on
         fi
     done
     local pids=()
+    for i in $(seq 1 "$LOCAL_K"); do : > "$WD/$PFX.local-s$i.legs.tsv"; done   # T-1480: a log appended across runs counts every leg twice
     for i in $(seq 1 "$LOCAL_K"); do
         ( cd "$base/s$i" || exit 1
           export T1288_SHARD="$i/$LOCAL_K" T1288_LEGLOG="$WD/$PFX.local-s$i.legs.tsv"
@@ -77,6 +85,8 @@ local_split() {  # local_split <out>: LOCAL_K shards of the tier here, all at on
         if [ "$code" -ne 0 ] || ! grep -qE "^tier $TIER +GREEN" "$WD/$PFX.local-s$i.log"; then rc=1; fi
     done
     rm -rf -- "$base"
+    # T-1480: green only if the shards, together, ran each of the tier's legs exactly once
+    if [ "$rc" = 0 ] && ! coverage_ok "$(for i in $(seq 1 "$LOCAL_K"); do echo "$WD/$PFX.local-s$i.legs.tsv"; done)"; then rc=1; fi
     return "$rc"
 }
 
@@ -184,7 +194,16 @@ pool_run() {  # the tier on ring20's pool; 0 green, 1 red, 3 no result for THIS 
         cp "$ROOT/build/pool/last-$TIER-shard${i}of$K.result" "$SHADOW_DIR/$SHADOW_TAG.shard$i" 2>/dev/null
     done
     for r in "${rcs[@]}"; do [ "$r" = 0 ] || allgreen=0; [ "$r" = 1 ] && anyred=1; done
-    if [ "$allgreen" = 1 ]; then return 0; fi
+    if [ "$allgreen" = 1 ]; then
+        # T-1480: the shards' leg logs (beside each result's tier.log) must cover the tier exactly once
+        local logs="" tl
+        for i in $(seq 1 "$K"); do
+            tl=$(sed -n 's/^tier_log=//p' "$ROOT/build/pool/last-$TIER-shard${i}of$K.result" 2>/dev/null)
+            logs="$logs${tl:+$(dirname "$tl")/legs.tsv}"$'\n'
+        done
+        coverage_ok "$logs" || return 1
+        return 0
+    fi
     if [ "$anyred" = 1 ]; then return 1; fi
     # a shard gave no result: the unsplit shadow decides for the pool (waited for, up to its own limit)
     echo "T-1288 $TIER: a shard gave no result (rc per shard: ${rcs[*]}): waiting for the unsplit run instead ..." >&2

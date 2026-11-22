@@ -7,6 +7,7 @@
 #   L3 one shard prints no "tier <tier> GREEN" line and exits 0: red (no verdict is not a green)
 #   L4 the clones are removed afterwards
 #   L5 T1486_LOCAL_K=1: the old unsplit path (the stub is not used, no shard logs)
+#   L6 T-1480: a shard that says green but whose leg never ran: red (the shards must cover the tier's legs)
 # Exit 0 = all legs pass.
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 S=$(mktemp -d "${TMPDIR:-/tmp}/t1486.XXXXXX") || exit 2
@@ -17,6 +18,8 @@ leg() { if [ "$1" = 0 ]; then echo "PASS  $2"; else echo "FAIL  $2${3:+  — $3}
 R="$S/repo"; mkdir -p "$R/tools/pool" "$R/tests" "$R/build/tiergate"
 cp "${T1486_TIERGATE:-$ROOT/tools/pool/tier-gate.sh}" "$R/tools/pool/tier-gate.sh" || exit 2
 cp "$ROOT/tools/pool/high-risk.re" "$R/tools/pool/" 2>/dev/null
+cp "$ROOT/tools/pool/shard-coverage.py" "$R/tools/pool/" 2>/dev/null   # T-1480
+printf 'L1\nL2\nL3\n' > "$S/expected-legs"; export T1480_EXPECTED="$S/expected-legs"   # one leg per stub shard
 printf 'browser_shards=2\nlocal_shards_browser=3\nlocal_shards_core=1\n' > "$R/tools/pool/workers"
 # the unsplit path (L5) runs tests/run-bridge-tests.sh in the repo itself: a stub that says so
 cat > "$R/tests/run-bridge-tests.sh" <<'EOF'
@@ -34,7 +37,9 @@ echo "$T1288_SHARD $PWD" >> "${T1486_REC:?}"
 case "${T1486_CASE:-green}:$T1288_SHARD" in
   red:2/3) echo "tier $2 RED: 0 passed, 1 failed"; exit 1 ;;
   silent:3/3) exit 0 ;;
+  skipped:2/3) echo "tier $2 GREEN: 0 passed, 0 failed"; exit 0 ;;   # T-1480: green, but its leg never ran
 esac
+printf '%s\tL%s\tfirst\t1\t0\t1\n' "$2" "${T1288_SHARD%/*}" >> "${T1288_LEGLOG:?}"
 echo "tier $2 GREEN: 5 passed, 0 failed"
 EOF
 chmod +x "$STUB"
@@ -57,6 +62,9 @@ run red; rc=$?
 leg "$([ "$rc" != 0 ] && echo 0 || echo 1)" "L2 a shard that exits 1 makes the local verdict red" "rc=$rc"
 run silent; rc=$?
 leg "$([ "$rc" != 0 ] && echo 0 || echo 1)" "L3 a shard with no GREEN line (exit 0) makes the local verdict red" "rc=$rc"
+run skipped; rc=$?
+leg "$([ "$rc" != 0 ] && grep -q 'shard-coverage: RED' "$S/out" && echo 0 || echo 1)" \
+    "L6 a green shard whose leg never ran makes the local verdict red (T-1480 coverage)" "rc=$rc"
 run green T1486_LOCAL_K=1; rc=$?
 leg "$([ "$rc" = 0 ] && grep -q "^unsplit $R\$" "$S/rec" && ! grep -q '/3 ' "$S/rec" && echo 0 || echo 1)" \
     "L5 T1486_LOCAL_K=1 runs the old unsplit path in the repo" "rc=$rc rec=$(tr '\n' '|' < "$S/rec")"

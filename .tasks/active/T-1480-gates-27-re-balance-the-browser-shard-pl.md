@@ -1,13 +1,17 @@
 ---
 id: T-1480
-name: "Gates 2/7: re-balance the browser shard plans from measured leg times; shard completeness (every leg exactly once, no unknown leg) fails the gate instead of warning"
+name: "Gates 2/7: re-balance the browser shard plans from measured leg times; shard
+  completeness (every leg exactly once, no unknown leg) fails the gate instead of
+  warning"
 description: >
-  T-1478 GO (operator, 60a4304d7); design and consultation: docs/reports/T-1478-test-acceleration.md. O1 with codex's fail-closed completeness.
+  T-1478 GO (operator, 60a4304d7); design and consultation: docs/reports/T-1478-test-acceleration.md.
+  O1 with codex's fail-closed completeness.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: [T-1478]
@@ -38,8 +42,8 @@ related_tasks: [T-1478]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T21:55:55Z
-last_update: 2026-11-21T21:56:02Z
-date_finished: null
+last_update: 2026-11-22T00:11:06Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +54,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-22T00:07:02Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1480: Gates 2/7: re-balance the browser shard plans from measured leg times; shard completeness (every leg exactly once, no unknown leg) fails the gate instead of warning
@@ -57,20 +81,26 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** T-1478 GO step 2 (O1, with codex's "missing-leg warnings must become gate failures"). The
+browser plans date from T-1452 (run bce1f3c78a76); three legs were added by hand on 2026-11-21 (T-1465/1470/1472) and
+pool shard 4 now takes 438 s against 323-348 s for the others.
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** an unbalanced plan wastes the parallel slots; and nothing checks that the shards of a split
+run together ran exactly the tier's legs (a leg dropped from every shard would pass unseen until the shadow compare).
 
-**Goal:** <what we are trying to achieve>
+**Goal:** plans re-timed from measured leg times; a split verdict counts only when every leg ran exactly once.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** pool browser shards within ~10 % of each other; `tools/pool/shard-coverage.py` run by the gate on
+every split result (pool shards and this machine's), a missing / extra / doubled leg making the verdict red.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `tests/shard-plan-browser-{2..7}.tsv` regenerated from measured leg times of a whole browser run on the pool (the four shards of 1fb5dc76a joined), planned shard seconds within 10 % of each other for k=4 — k=4: 364/364/364/364 s; k>=5 floor 304 s (person-sees-gate); every plan names exactly the 149 `--list-legs` browser legs
+- [x] `tools/pool/shard-coverage.py`: 0 when the shard leg logs cover the tier's `--list-legs` exactly once, 1 naming missing / extra / doubled legs, 2 when it cannot measure; checked on real pool and local shard logs, and a control with one shard left out reads red — pool 1fb5dc76a: ok 149/149; control (2 of 3 local shards): RED, 54 missing; it also caught a real fault: this machine's shard leg logs were appended across runs (every leg twice), now emptied before each run
+- [x] The gate runs it on every all-green split result (pool and local); a coverage red makes that half red; `_t1462`/`_t1486` legs prove it (a stub shard that skips a leg) — `_t1462` 12/12 (stub legs L1-L6 as the expected set), `_t1486` L6 (a green shard whose leg never ran: red); control: the gate without coverage fails L6
+- [ ] Measured on the pool after the change: the four browser shards' wall times (one gate run)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -356,3 +386,7 @@ date_finished: null
 
 ### 2026-11-21T21:56:02Z — status-update [task-update-agent]
 - **Change:** related_tasks: +T-1478
+
+### 2026-11-22T00:07:01Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

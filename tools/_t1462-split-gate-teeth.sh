@@ -19,6 +19,8 @@ cd "$S" || exit 2
 git init -q && mkdir -p tools/pool tests docs/reports/T-1452-spikes build/pool || exit 2
 cp "${T1462_TIERGATE:-$ROOT/tools/pool/tier-gate.sh}" tools/pool/tier-gate.sh || exit 2   # T1462_TIERGATE: control runs
 cp "$ROOT/tools/pool/high-risk.re" tools/pool/ 2>/dev/null
+cp "$ROOT/tools/pool/shard-coverage.py" tools/pool/ 2>/dev/null   # T-1480: the gate checks the shards' legs cover the tier
+printf 'L1\nL2\nL3\nL4\nL5\nL6\n' > "$S/expected-legs"; export T1480_EXPECTED="$S/expected-legs"   # the stub's six legs
 cp "$ROOT/docs/reports/T-1452-spikes/compare-shards.py" docs/reports/T-1452-spikes/ || exit 2
 cp "$ROOT/tests/shard-plan-browser-2.tsv" "$ROOT/tests/shard-plan-browser-3.tsv" tests/ || exit 2
 printf '#!/bin/bash\ntouch "$(git rev-parse --show-toplevel)/local-ran"\necho "tier browser GREEN: 6 passed, 0 failed"\nexit 0\n' > tests/run-bridge-tests.sh
