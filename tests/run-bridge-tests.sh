@@ -2052,6 +2052,17 @@ else
 fi
 }
 leg core "_t1483-person-sees-legs" _leg_t1483
+_leg_t1482() {
+# ── T-1482: round.sh runs both gates together; a red gate stops the other ──
+if bash "$ROOT/tests/test_t1482_round.sh" > "$TMP/leg-_t1482.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "tools/pool/round.sh no longer runs the browser and core gates together, or a red gate no longer stops the other (run 'bash tests/test_t1482_round.sh'; T-1482)"
+  show_output "$TMP/leg-_t1482.out" "test_t1482_round.sh"
+  fail=$((fail + 1))
+fi
+}
+leg core "_t1482-round" _leg_t1482
 _leg_235() {
 
 # ── T-1408: where the pre-push gate runs core ──

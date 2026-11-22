@@ -152,6 +152,8 @@ refuses the push on red.
   `tools/pool/workers`, each with its time-balanced plan `tests/shard-plan-browser-<k>.tsv`), the unsplit run as a
   non-gating shadow compared when it ends; a disagreement leaves `build/tiergate/split-shadow/DIFFER-*`, and every later
   gate refuses until a person has read it and removed the marker. `T1462_SPLIT=0` runs one unsplit job.
+  **Run both gates at once with `bash tools/pool/round.sh`** (T-1482): the browser gate and the core push gate side by
+  side, each under its own rules; a red one stops the other; a green core run is cached, so the push then passes at once.
   The hook runs only core, and the browser legs
   (byte-identity goldens, the CDP harnesses) are where a designer change shows. The designer's Check runs the
   validator, so CDP harnesses assert its exact findings too. T-1377 was pushed on core alone and its new warning turned

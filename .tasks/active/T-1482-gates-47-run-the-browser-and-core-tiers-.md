@@ -1,13 +1,16 @@
 ---
 id: T-1482
-name: "Gates 4/7: run the browser and core tiers at the same time (browser on the fast workers, core on the others); a red tier cancels the other's pending jobs"
+name: "Gates 4/7: run the browser and core tiers at the same time (browser on the
+  fast workers, core on the others); a red tier cancels the other's pending jobs"
 description: >
-  T-1478 GO (operator, 60a4304d7); design and consultation: docs/reports/T-1478-test-acceleration.md. O4; depends on 3/7.
+  T-1478 GO (operator, 60a4304d7); design and consultation: docs/reports/T-1478-test-acceleration.md.
+  O4; depends on 3/7.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: [T-1478]
@@ -38,8 +41,8 @@ related_tasks: [T-1478]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T21:55:56Z
-last_update: 2026-11-21T21:56:03Z
-date_finished: null
+last_update: 2026-11-22T22:29:46Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +53,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-22T22:26:02Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1482: Gates 4/7: run the browser and core tiers at the same time (browser on the fast workers, core on the others); a red tier cancels the other's pending jobs
@@ -57,20 +80,28 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** T-1478 GO, O4. A designer change runs the browser gate (`tools/pool/tier-gate.sh browser`,
+CLAUDE.md T-1374) and then the push gate (core, in the pre-push hook): one after the other, ~10.3 + ~7.4 min after
+T-1488 (2026-11-22). ring20 (msg e8ca7711): 832's core and browser caps are separate per-entry limits (now 5 + 5), so the
+two tiers' pool shards do not compete for slots.
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** the round's time is the SUM of the two gates; run together it is about the longer one. The
+push gate caches a green core run by tree, so a core gate run beside the browser gate makes the later `git push` pass at
+once. Risk: this machine runs both local halves at once (4 + 4 shards) on a busy desktop.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** one command that runs both gates together, each under its own unchanged rules, and stops the other when one
+is red.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** `tools/pool/round.sh`; a designer round ~10.5 min instead of ~18; the push afterwards passes from
+the cache.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] `tools/pool/round.sh` starts the browser gate and the core push gate together, each unchanged; exit 0 only when both are green; a red gate stops the other (its process group) and the round reports which was red and which was stopped; a test with stub gates proves green/green, browser-red-stops-core, core-red-stops-browser (core leg)
+- [ ] A real round green on a high-risk tree, measured: each gate's time and the round's total against the two run one after the other; this machine's load with both local halves at once recorded (any infra-class failure: back the local split down)
+- [ ] CLAUDE.md's browser-tier rule names round.sh as the way to run both before a push
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -356,3 +387,7 @@ date_finished: null
 
 ### 2026-11-21T21:56:03Z — status-update [task-update-agent]
 - **Change:** related_tasks: +T-1478
+
+### 2026-11-22T22:26:00Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
