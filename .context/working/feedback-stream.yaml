@@ -23873,3 +23873,21 @@ scan_id: R-ae2f4f7c
 task_id: T-1488
 payload:
   task_file: .tasks/active/T-1488-pool-w1-retired-by-ring20-msg-e32ee17c-s.md
+---
+kind: scan_emitted
+timestamp: '2026-11-22T23:46:57Z'
+scan_id: R-8e238693
+task_id: T-1482
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-22T23:46:57Z'
+scan_id: R-8e238693
+task_id: T-1482
+payload:
+  task_file: .tasks/active/T-1482-gates-47-run-the-browser-and-core-tiers-.md

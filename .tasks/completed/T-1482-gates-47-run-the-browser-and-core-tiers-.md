@@ -6,13 +6,13 @@ description: >
   T-1478 GO (operator, 60a4304d7); design and consultation: docs/reports/T-1478-test-acceleration.md.
   O4; depends on 3/7.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/pool/tier-gate.sh]
 related_tasks: [T-1478]
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -41,8 +41,8 @@ related_tasks: [T-1478]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T21:55:56Z
-last_update: 2026-11-22T23:00:54Z
-date_finished:
+last_update: 2026-11-22T23:46:36Z
+date_finished: 2026-11-22T23:46:36Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -101,7 +101,7 @@ the cache.
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
 - [x] `tools/pool/round.sh` starts the browser gate and the core push gate together, each unchanged; exit 0 only when both are green; a red gate stops the other (its process group) and the round reports which was red and which was stopped; a test with stub gates proves green/green, browser-red-stops-core, core-red-stops-browser (core leg) — `_t1482-round` R1-R3; a naive round (waits for both, stops nothing) fails R2/R3. First real round (323be23fe): the browser gate refused at once on a DIFFER marker and the round stopped core after 2 s, as designed.
 - [x] (operator 2026-11-22, option 2) A split/shadow difference whose red side did not run (Chrome start failure, timeout) is a non-blocking note counted per node, not a DIFFER marker; the retry recognises "no devtools port" — the marker (DIFFER-474a956c2704-…): person-sees-label-clearance RED in the unsplit shadow on pool-132 = "NOT RUN … no devtools port"; read, then removed on the operator's word. Root cause: `_t1288_retryable` matched only "did not open a DevTools port", while waitPortFile and person-sees say "no devtools port". Now: both wordings retry; the engine names such red attempts in `<leglog>.infra`; compare-shards prints `NOTE  C3i <leg>: did not run on <node>` instead of a C3 FAIL; the gate appends (date, commit, tier, node, leg) to build/tiergate/split-shadow/infra-notes.tsv. Tests: `_t1482-infra-legs` I1/I2 (the old engine fails both), `_t1462` case 4b (note, no marker, next gate not refused).
-- [ ] A real round green on a high-risk tree, measured: each gate's time and the round's total against the two run one after the other; this machine's load with both local halves at once recorded (any infra-class failure: back the local split down)
+- [x] A real round green on a high-risk tree, measured: each gate's time and the round's total against the two run one after the other; this machine's load with both local halves at once recorded (any infra-class failure: back the local split down) — round at 5fa5fcaba: browser green 553 s (pool 430-488, here 436-469), core green 396 s (pool 152-336, here 272-302), coverage ok all four splits, no retry, no note, no marker; total **553 s** against 620 + 445 = 1065 s one after the other (T-1488). Load here (43 samples, another project busy too): CPU idle avg 15 %, min 0, load max 47; no infra-class failure, so 4 + 4 local shards stay. live-huawei-one runs core and browser at once now (core 331-336 s there vs 152-173 on pool-w2): the next imbalance. The push afterwards passed from the cache. The round before failed _t1286 case 7: round.sh passed an ignored SIGINT to the gates (fixed, R4).
 - [x] CLAUDE.md's browser-tier rule names round.sh as the way to run both before a push
 
 ### Human
@@ -288,6 +288,9 @@ the cache.
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+bash tests/test_t1482_round.sh
+bash tests/test_t1482_infra_legs.sh
+grep -q 'tools/pool/round.sh' CLAUDE.md
 
 ## RCA
 
@@ -392,3 +395,21 @@ the cache.
 ### 2026-11-22T22:26:00Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-22T23:46:36Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-8e238693
+- **Timestamp:** 2026-11-22T23:46:57Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — (operator 2026-11-22, option 2) A split/shadow difference whose red side did not run (Chrome start failure, timeout) is a non-blocking note counted per node, not a DIFFER marker; the retry recognises 
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=build/tiergate/split-shadow/infra-notes.tsv in: (operator 2026-11-22, option 2) A split/shadow difference whose red side did not run (Chrome start failure, timeout) is a non-blocking note counted pe`

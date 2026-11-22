@@ -1,0 +1,92 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1482: Gates 4/7: run the browser and core tiers at the same time (browser on the fast workers, core on the others); a red tier cancels the other's pending jobs
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-22T23:47:04Z
+# ============================================================================
+
+task_id: T-1482
+task_name: "Gates 4/7: run the browser and core tiers at the same time (browser on the fast workers, core on the others); a red tier cancels the other's pending jobs"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-21T21:55:56Z
+completed: 2026-11-22T23:46:36Z
+duration_days: 1
+updates_count: 4
+first_commit: 2026-11-22T23:29:47+01:00
+last_commit: 2026-11-23T00:00:55+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  tools/pool/round.sh runs the browser gate and the core push gate at the same time (each unchanged; a red one stops the other's process group; a green core run is cached, so the push then passes at once); core leg _t1482-round (R1 together, R2/R3 a red gate stops the other; a naive round fails R2/R3); CLAUDE.md names it. operator's option 2 — a split/shadow difference whose red side did not run (Chrome start, timeout) is a NOTE counted per node (infra-notes.tsv), not a DIFFER marker; the retry now also matches 'no devtools port' (the wording waitPortFile and person-sees use: the miss turned one Chrome start failure on pool-132 into a marker that blocked every gate); tests _t1482-infra-legs (old engine fails) and _t1462 case 4b. round.sh starts each gate with SIGINT/SIGQUIT at their defaults (env --default-signal): bash ignores both in a background job and the ignore is inherited, so the first measured round failed _t1286 case 7 (SIGINT mid-step never delivered); test R4 (the old round.sh fails it, SigIgn 0x6)
+
+# Key outcomes
+outcomes:
+  - '`tools/pool/round.sh` starts the browser gate and the core push gate together, each unchanged; exit 0 only when both are green; a red gate stops the other (its process group) and the round reports which was red and which was stopped; a test with stub gates proves green/green, browser-red-stops-core, core-red-stops-browser (core leg) — `_t1482-round` R1-R3; a naive round (waits for both, stops nothing) fails R2/R3. First real round (323be23fe): the browser gate refused at once on a DIFFER marker and the round stopped core after 2 s, as designed.'
+  - '(operator 2026-11-22, option 2) A split/shadow difference whose red side did not run (Chrome start failure, timeout) is a non-blocking note counted per node, not a DIFFER marker; the retry recognises "no devtools port" — the marker (DIFFER-474a956c2704-…): person-sees-label-clearance RED in the unsplit shadow on pool-132 = "NOT RUN … no devtools port"; read, then removed on the operator''s word. Root cause: `_t1288_retryable` matched only "did not open a DevTools port", while waitPortFile and person-sees say "no devtools port". Now: both wordings retry; the engine names such red attempts in `<leglog>.infra`; compare-shards prints `NOTE  C3i <leg>: did not run on <node>` instead of a C3 FAIL; the gate appends (date, commit, tier, node, leg) to build/tiergate/split-shadow/infra-notes.tsv. Tests: `_t1482-infra-legs` I1/I2 (the old engine fails both), `_t1462` case 4b (note, no marker, next gate not refused).'
+  - 'A real round green on a high-risk tree, measured: each gate''s time and the round''s total against the two run one after the other; this machine''s load with both local halves at once recorded (any infra-class failure: back the local split down) — round at 5fa5fcaba: browser green 553 s (pool 430-488, here 436-469), core green 396 s (pool 152-336, here 272-302), coverage ok all four splits, no retry, no note, no marker; total **553 s** against 620 + 445 = 1065 s one after the other (T-1488). Load here (43 samples, another project busy too): CPU idle avg 15 %, min 0, load max 47; no infra-class failure, so 4 + 4 local shards stay. live-huawei-one runs core and browser at once now (core 331-336 s there vs 152-173 on pool-w2): the next imbalance. The push afterwards passed from the cache. The round before failed _t1286 case 7: round.sh passed an ignored SIGINT to the gates (fixed, R4).'
+  - 'CLAUDE.md''s browser-tier rule names round.sh as the way to run both before a push'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1482-gates-47-run-the-browser-and-core-tiers-.md'
+  - 'CLAUDE.md'
+  - 'docs/reports/T-1452-spikes/compare-shards.py'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_t1482_infra_legs.sh'
+  - 'tests/test_t1482_round.sh'
+  - 'tools/_t1288-tiers.sh'
+  - 'tools/_t1462-split-gate-teeth.sh'
+  - 'tools/pool/round.sh'
+  - 'tools/pool/tier-gate.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-22T23:29:47'
+    action: 'T-1482: tools/pool/round.sh runs the browser gate and the core push gate at the same time (each unchanged; a red one stops the other''s process group; a green core run is cached, so the push then passes at once); core leg _t1482-round (R1 together, R2/R3 a red gate stops the other; a naive round fails R2/R3); CLAUDE.md names it'
+  - time: '2026-11-22T23:46:50'
+    action: 'T-1482: operator''s option 2 — a split/shadow difference whose red side did not run (Chrome start, timeout) is a NOTE counted per node (infra-notes.tsv), not a DIFFER marker; the retry now also matches ''no devtools port'' (the wording waitPortFile and person-sees use: the miss turned one Chrome start failure on pool-132 into a marker that blocked every gate); tests _t1482-infra-legs (old engine fails) and _t1462 case 4b'
+  - time: '2026-11-23T00:00:55'
+    action: 'T-1482: round.sh starts each gate with SIGINT/SIGQUIT at their defaults (env --default-signal): bash ignores both in a background job and the ignore is inherited, so the first measured round failed _t1286 case 7 (SIGINT mid-step never delivered); test R4 (the old round.sh fails it, SigIgn 0x6)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 1550 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1550
+  commits: 4
+  files_changed: 13
+  lines_added: 366
+  lines_removed: 33
+  footprint_refreshed_at: '2026-11-22T23:47:11Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1482-gates-47-run-the-browser-and-core-tiers-.md
+generated_by: context-agent-hybrid
