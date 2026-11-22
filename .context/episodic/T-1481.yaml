@@ -1,0 +1,109 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1481: Gates 3/7: split the core tier into shards on pool-132 and live-huawei-one, with a path-isolation census and a reverse-order unsplit shadow
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-22T13:57:27Z
+# ============================================================================
+
+task_id: T-1481
+task_name: "Gates 3/7: split the core tier into shards on pool-132 and live-huawei-one, with a path-isolation census and a reverse-order unsplit shadow"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-21T21:55:56Z
+completed: 2026-11-22T13:56:36Z
+duration_days: 1
+updates_count: 4
+first_commit: 2026-11-22T01:40:55+01:00
+last_commit: 2026-11-22T14:56:11+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the tier engine no longer exports its shard variables to its legs (export -n; core leg _t1481-shard-env, control fails E2); local shard clones prepared as the pool's (branch checked out, hooks installed, pointers cleared). the shard variables are un-exported only while a leg runs, then exported again (the first fix un-exported them for good and every shard ran every leg); _t1481-shard-env checks both: the leg's child sees none, the engine still exports them after. local shard clones also get this checkout's remote-tracking refs and tags (as the pool's bundle fetch): _t567 missed T-1383's commit in a clone of a clone; local_shards_core=3. time-balanced core plan for k=3 from T-1479's measured core legs (~330 s per shard planned), aligned to the 201 core legs. progress — core here split in 3 (980 s -> 300 s, green, 201/201 legs once); the pool core split is the remaining criterion, its plan written down. the pool half of core splits too — tier-gate reads <tier>_shards / <tier>_shard_nodes / <tier>_shadow_node (browser lines unchanged); core_shards=2 pinned to pool-132 + live-huawei-one, plan shard-plan-core-2.tsv from the pool's whole core run (322/321 leg-s); core shadow tags carry the tier; _t1462 teeth 8 (core unsplit without the line, split and pinned with it; control fails). core on the pool over all 7 slots (operator: use all pool capacity within reasonable risk) — core_shards=7 on pool-w1/w2 x2, live-huawei-one x2, pool-132, plan shard-plan-core-7.tsv (92 leg-s each); local k=3 plan re-timed from this machine's measured legs (345/380/411 -> 379 planned); _t866 vague case prints the file and a second look if it fails again (one unexplained red in local shard 2/3, not repeated in 1,980 runs). this machine's half of each gate as 4 shards instead of 3 (operator: the desktop is underutilized; 29-34% CPU idle and 61 GB free while 3 core shards ran); core plan shard-plan-core-4.tsv from this machine's measured legs (284 leg-s each); browser uses the existing 4-shard plan. the pool's browser half as 6 shards (w1 x2, w2 x2, live-huawei-one x2) with the shadow on pool-132: 7 of ring20's 7 browser slots for 832 (msg e8ca7711); measure huawei's browser speed on this run. last criterion met — core split on the pool over all 7 core slots (95-129 s), local 4 shards (197-237 s), browser 6 pool shards (214-296 s); core gate 5 min 11 s, browser gate 6 min 26 s; verification commands
+
+# Key outcomes
+outcomes:
+  - 'The suite reads T1288_SHARD / T1288_SHARD_PLAN / T1288_LEGLOG once and does not export them to its legs (a leg that runs the suite inside itself starts unsharded); a core leg proves it — un-exported only while each leg runs (`_t1288_run`), exported again after; `_t1481-shard-env` E1 (the leg''s child sees none) and E2 (the engine still exports them; a first fix that un-exported them for good made every shard run every leg, caught by measurement); control fails E1'
+  - 'A local shard''s clone is prepared as the pool''s (hooks installed, tags, branch checked out, framework pointers cleared) — plus this checkout''s remote-tracking refs and tags fetched (a clone of a clone missed T-1383''s commit: `_t567` 1 mismatch)'
+  - 'Core here at k=3 green on a tree where unsplit core is green, coverage ok (every core leg once); measured wall time — push gate at d0d1ab6de: 243/276/300 s with the time-balanced plan `tests/shard-plan-core-3.tsv` (was 980 s unsplit), coverage ok 201/201; the pool''s unsplit core 643 s now decides the gate. (Runs with T1408_POOL=0 / T1486_LOCAL_K=3 set in the environment went red on the gate legs: those variables leak into the nested gate tests; a real gate run sets neither.)'
+  - 'The pool runs core as k shards pinned to the slower nodes with an unsplit shadow, coverage ok; measured wall time; local_shards_core raised from 1 — built (cf38653b8): tier-gate reads `<tier>_shards` / `<tier>_shard_nodes` / `<tier>_shadow_node`, core shadow tagged by tier, `_t1462` teeth case 8 (control fails). k=2 on pool-132 + live-huawei-one: 391/398 s, coverage ok. Operator 2026-11-22 ("use all capacity in the pool within reasonable risk"): k=7 over every 832 core slot (ring20 msg e8ca7711: core max 7 = w1 2, w2 2, huawei 2, pool-132 1; the gates run one after the other, so the fast slots are free while core runs): 95-129 s, coverage ok 7 shards, twice. Local 4 shards (operator: desktop underutilized; 29-34 % CPU idle at 3): 197-237 s. Core gate 13 min -> 5 min 11 s. Browser on the pool 4 -> 6 shards (+ shadow on pool-132 = ring20''s 7): 214-296 s; browser gate 8 min 18 s -> 6 min 26 s. Floor now: person-sees-gate alone 296 s (T-1483).'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the shard variables are un-exported only while a leg runs, then exported again (the first fix un-exported them for good and every shard ran every leg); _t1481-shard-env checks both: the leg''s child sees none, the engine still exports them after'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1481-gates-37-split-the-core-tier-into-shards.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/shard-plan-core-2.tsv'
+  - 'tests/shard-plan-core-3.tsv'
+  - 'tests/shard-plan-core-4.tsv'
+  - 'tests/shard-plan-core-7.tsv'
+  - 'tests/test_t1481_shard_env.sh'
+  - 'tools/_t1288-tiers.sh'
+  - 'tools/_t1462-split-gate-teeth.sh'
+  - 'tools/_t866-hypothesis-form-teeth.sh'
+  - 'tools/pool/tier-gate.sh'
+  - 'tools/pool/workers'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-22T01:40:55'
+    action: 'T-1481: the tier engine no longer exports its shard variables to its legs (export -n; core leg _t1481-shard-env, control fails E2); local shard clones prepared as the pool''s (branch checked out, hooks installed, pointers cleared)'
+  - time: '2026-11-22T02:01:49'
+    action: 'T-1481: the shard variables are un-exported only while a leg runs, then exported again (the first fix un-exported them for good and every shard ran every leg); _t1481-shard-env checks both: the leg''s child sees none, the engine still exports them after'
+  - time: '2026-11-22T02:20:03'
+    action: 'T-1481: local shard clones also get this checkout''s remote-tracking refs and tags (as the pool''s bundle fetch): _t567 missed T-1383''s commit in a clone of a clone; local_shards_core=3'
+  - time: '2026-11-22T02:32:13'
+    action: 'T-1481: time-balanced core plan for k=3 from T-1479''s measured core legs (~330 s per shard planned), aligned to the 201 core legs'
+  - time: '2026-11-22T02:46:04'
+    action: 'T-1481: progress — core here split in 3 (980 s -> 300 s, green, 201/201 legs once); the pool core split is the remaining criterion, its plan written down'
+  - time: '2026-11-22T11:50:58'
+    action: 'T-1481: the pool half of core splits too — tier-gate reads <tier>_shards / <tier>_shard_nodes / <tier>_shadow_node (browser lines unchanged); core_shards=2 pinned to pool-132 + live-huawei-one, plan shard-plan-core-2.tsv from the pool''s whole core run (322/321 leg-s); core shadow tags carry the tier; _t1462 teeth 8 (core unsplit without the line, split and pinned with it; control fails)'
+  - time: '2026-11-22T14:27:56'
+    action: 'T-1481: core on the pool over all 7 slots (operator: use all pool capacity within reasonable risk) — core_shards=7 on pool-w1/w2 x2, live-huawei-one x2, pool-132, plan shard-plan-core-7.tsv (92 leg-s each); local k=3 plan re-timed from this machine''s measured legs (345/380/411 -> 379 planned); _t866 vague case prints the file and a second look if it fails again (one unexplained red in local shard 2/3, not repeated in 1,980 runs)'
+  - time: '2026-11-22T14:35:21'
+    action: 'T-1481: this machine''s half of each gate as 4 shards instead of 3 (operator: the desktop is underutilized; 29-34% CPU idle and 61 GB free while 3 core shards ran); core plan shard-plan-core-4.tsv from this machine''s measured legs (284 leg-s each); browser uses the existing 4-shard plan'
+  - time: '2026-11-22T14:48:57'
+    action: 'T-1481: the pool''s browser half as 6 shards (w1 x2, w2 x2, live-huawei-one x2) with the shadow on pool-132: 7 of ring20''s 7 browser slots for 832 (msg e8ca7711); measure huawei''s browser speed on this run'
+  - time: '2026-11-22T14:56:11'
+    action: 'T-1481: last criterion met — core split on the pool over all 7 core slots (95-129 s), local 4 shards (197-237 s), browser 6 pool shards (214-296 s); core gate 5 min 11 s, browser gate 6 min 26 s; verification commands'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 10 commit(s), 960 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 960
+  commits: 11
+  files_changed: 15
+  lines_added: 1296
+  lines_removed: 216
+  footprint_refreshed_at: '2026-11-22T13:57:34Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1481-gates-37-split-the-core-tier-into-shards.md
+generated_by: context-agent-hybrid

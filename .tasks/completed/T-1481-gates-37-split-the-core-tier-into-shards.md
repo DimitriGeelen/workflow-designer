@@ -6,13 +6,13 @@ description: >
   T-1478 GO (operator, 60a4304d7); design and consultation: docs/reports/T-1478-test-acceleration.md.
   O3 with GLM's M3; ring20 to route 832 to live-huawei-one (asked on this GO).
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t866-hypothesis-form-teeth.sh, tools/pool/tier-gate.sh]
 related_tasks: [T-1478]
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -41,8 +41,8 @@ related_tasks: [T-1478]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T21:55:56Z
-last_update: 2026-11-22T13:56:11Z
-date_finished:
+last_update: 2026-11-22T13:56:36Z
+date_finished: 2026-11-22T13:56:36Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -292,6 +292,11 @@ live-huawei-one, not competing with the browser shards; a designer round ~8-10 m
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+bash tests/test_t1481_shard_env.sh
+env -u T1408_POOL -u T1486_LOCAL_K bash tools/_t1462-split-gate-teeth.sh
+env -u T1408_POOL -u T1486_LOCAL_K bash tools/_t1486-local-split-teeth.sh
+grep -qx 'core_shards=7' tools/pool/workers
+test -f tests/shard-plan-core-7.tsv -a -f tests/shard-plan-core-4.tsv
 
 ## RCA
 
@@ -396,3 +401,21 @@ live-huawei-one, not competing with the browser shards; a designer round ~8-10 m
 ### 2026-11-22T00:38:58Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-22T13:56:36Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-31cdd805
+- **Timestamp:** 2026-11-22T13:57:20Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#3 (Agent)** — Core here at k=3 green on a tree where unsplit core is green, coverage ok (every core leg once); measured wall time — push gate at d0d1ab6de: 243/276/300 s with the time-balanced plan `tests/shard-pla
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/shard-plan-core-3.tsv in: Core here at k=3 green on a tree where unsplit core is green, coverage ok (every core leg once); measured wall time — push gate at d0d1ab6de: 243/276/`
