@@ -64,7 +64,11 @@ local_split() {  # local_split <out>: LOCAL_K shards of the tier here, all at on
     echo "T-1288 $TIER: running the $TIER tier HERE as $LOCAL_K shards at once, each in a clean clone of ${HEAD_SHA:0:12}${plan:+ (plan $plan)} ..." >&2
     : > "$out"
     for i in $(seq 1 "$LOCAL_K"); do
-        if ! { git clone -q --shared "$ROOT" "$base/s$i" && git -C "$base/s$i" checkout -q -B "$BRANCH" "$HEAD_SHA"; } 2>>"$out"; then
+        # T-1481: this checkout's remote-tracking refs and tags too, as tools/pool/run-tier.sh fetches them from its bundle
+        # (a clone of a clone has only the first's branches: _t567 then missed T-1383's commit, reachable via a remote ref)
+        if ! { git clone -q --shared "$ROOT" "$base/s$i" \
+               && git -C "$base/s$i" fetch -q "$ROOT" '+refs/remotes/*:refs/remotes/*' '+refs/tags/*:refs/tags/*' \
+               && git -C "$base/s$i" checkout -q -B "$BRANCH" "$HEAD_SHA"; } 2>>"$out"; then
             echo "T-1288 $TIER: could not make clone $i of $LOCAL_K here — no verdict" >&2; rm -rf -- "$base"; return 1
         fi
         # T-1481: prepared as tools/pool/run-tier.sh prepares the pool's clone: .git/hooks is not cloned, so the framework's
