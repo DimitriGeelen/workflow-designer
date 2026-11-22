@@ -5,9 +5,9 @@ browser_shards=4
 shard_nodes="pool-w1 pool-w2 pool-w1 pool-w2"
 shadow_node=pool-132
 # T-1486: this machine's half of a gate as local_shards_<tier> parallel shards, each in a clean clone of HEAD (k=1: unsplit,
-# as before). 3 to start: the host runs at load ~25 on 24 cores; raise only on zero infra-class failures over several runs.
-local_shards_browser=3
-local_shards_core=3
+# as before). 3 to start; 4 from 2026-11-22 (operator: "the working machine is underutilized"; measured with 3 core shards running: 29-34% CPU idle, 61 GB free, no I/O wait). Back to 3 on any infra-class failure.
+local_shards_browser=4
+local_shards_core=4
 # T-1481: the pool half of core as core_shards shards over EVERY pool slot (operator 2026-11-22: "use all capacity in the
 # pool ... within reasonable risks"): the browser gate and the push gate run one after the other, so the fast slots are
 # free while core runs. 7 slots: pool-w1 x2, pool-w2 x2, live-huawei-one x2 (ring20 msg e63a0ff7: admits 832 core),
