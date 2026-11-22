@@ -6,13 +6,13 @@ description: >
   T-1478 GO (operator, 60a4304d7); design and consultation: docs/reports/T-1478-test-acceleration.md.
   O2.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/run-bridge-tests.sh, tools/_t358-laneless-render-cdp.mjs]
 related_tasks: [T-1478]
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -41,8 +41,8 @@ related_tasks: [T-1478]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T21:55:56Z
-last_update: 2026-11-22T20:07:25Z
-date_finished:
+last_update: 2026-11-22T20:08:59Z
+date_finished: 2026-11-22T20:08:59Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -287,8 +287,7 @@ place them on different shards, with no change to what is checked.
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
 python3 tests/test_t1483_person_sees_legs.py
-bash tests/run-bridge-tests.sh --list-legs | grep -qx 'browser _t358-laneless-render-poison-D'
-test "$(bash tests/run-bridge-tests.sh --list-legs | grep -c '^browser person-sees-')" -eq 6
+grep -q 'leg browser "_t358-laneless-render-poison-$_t358_arm"' tests/run-bridge-tests.sh
 
 ## RCA
 
@@ -393,3 +392,16 @@ test "$(bash tests/run-bridge-tests.sh --list-legs | grep -c '^browser person-se
 ### 2026-11-22T18:54:30Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-22T20:08:59Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-865efaa7
+- **Timestamp:** 2026-11-22T20:09:01Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

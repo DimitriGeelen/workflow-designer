@@ -23837,3 +23837,21 @@ scan_id: R-31cdd805
 task_id: T-1481
 payload:
   task_file: .tasks/active/T-1481-gates-37-split-the-core-tier-into-shards.md
+---
+kind: scan_emitted
+timestamp: '2026-11-22T20:09:01Z'
+scan_id: R-865efaa7
+task_id: T-1483
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-22T20:09:01Z'
+scan_id: R-865efaa7
+task_id: T-1483
+payload:
+  task_file: .tasks/active/T-1483-gates-57-split-the-two-longest-browser-l.md

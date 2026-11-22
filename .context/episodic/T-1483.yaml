@@ -1,0 +1,90 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1483: Gates 5/7: split the two longest browser legs (person-sees-gate 304 s, _t358-laneless-render 224 s) into parts, a census proving each part runs exactly once
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-22T20:09:08Z
+# ============================================================================
+
+task_id: T-1483
+task_name: "Gates 5/7: split the two longest browser legs (person-sees-gate 304 s, _t358-laneless-render 224 s) into parts, a census proving each part runs exactly once"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-21T21:55:56Z
+completed: 2026-11-22T20:08:59Z
+duration_days: 1
+updates_count: 4
+first_commit: 2026-11-22T20:03:03+01:00
+last_commit: 2026-11-22T21:07:25+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the two longest browser legs split — person-sees-gate as six person-sees-<check> legs (--only), _t358-laneless-render as the live run plus four --poison <arm> legs; person-sees-gate --only with no matching check is now exit 2 (was a silent pass), --list prints the checks; core leg _t1483-person-sees-legs (legs = the gate's checks, each once; controls fail); browser plans k=2..7 re-made (k=6: 265 s per shard, was 304 max). measured — pool browser shards now even (269-298 s, was 214-296 with person-sees alone at 296): at the work/slots floor, the single-leg floor gone; verification commands
+
+# Key outcomes
+outcomes:
+  - 'The suite runs each of the six person-sees checks as its own browser leg (`person-sees-<check>`, through `person-sees-gate.sh --only <check>`); `person-sees-gate` is no longer a leg; a test proves the six legs together name exactly the gate''s CHECKS list (none lost, none twice) — core leg `_t1483-person-sees-legs` (P1; control with the old single leg RED). Found on the way: `--only <no such check>` ran nothing and exited 0; now exit 2 NOT RUN (P2; the old gate fails P2). Local times: label-clearance 135, sweep 93, name-fit 43, note-box 29, project-browser 17, toolbar-reach 12 s'
+  - 'Shard plans re-made for the new legs; a browser gate green on the pool split and here, coverage ok; the slowest pool browser shard measured before and after — plans k=2..7 from the 6-shard run with the new legs'' measured times (158 legs). Gate at e362aa492: green, coverage ok (6 pool shards, 4 here). Slowest pool shard 296 s (person-sees alone) -> 298 s, range 214-296 -> 269-298 s: the shards are now even, at the floor of work / slots (~1,590 leg-s / 6), so no gain until more slots (ring20 T-2842); the single-leg floor is gone (largest leg now label-clearance ~121 s). The run''s wall time (53 min) was pool-w1 queueing ~43 min (reported to ring20, msg f00223f9), not the split.'
+  - '`_t358-laneless-render` (224 s) looked at the same way: split into parts if it is several independent runs, or recorded here why not — it was the live run plus four poison arms in a row; now `_t358-laneless-render` (live, 45 s) and `_t358-laneless-render-poison-{A,B,C,D}` (`--poison <arm>`, ~48 s each; an unknown arm is exit 2); `--self-test` still runs all five'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1483-gates-57-split-the-two-longest-browser-l.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/shard-plan-browser-2.tsv'
+  - 'tests/shard-plan-browser-3.tsv'
+  - 'tests/shard-plan-browser-4.tsv'
+  - 'tests/shard-plan-browser-5.tsv'
+  - 'tests/shard-plan-browser-6.tsv'
+  - 'tests/shard-plan-browser-7.tsv'
+  - 'tests/test_t1483_person_sees_legs.py'
+  - 'tools/_t358-laneless-render-cdp.mjs'
+  - 'tools/person-sees-gate.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-22T20:03:03'
+    action: 'T-1483: the two longest browser legs split — person-sees-gate as six person-sees-<check> legs (--only), _t358-laneless-render as the live run plus four --poison <arm> legs; person-sees-gate --only with no matching check is now exit 2 (was a silent pass), --list prints the checks; core leg _t1483-person-sees-legs (legs = the gate''s checks, each once; controls fail); browser plans k=2..7 re-made (k=6: 265 s per shard, was 304 max)'
+  - time: '2026-11-22T21:07:25'
+    action: 'T-1483: measured — pool browser shards now even (269-298 s, was 214-296 with person-sees alone at 296): at the work/slots floor, the single-leg floor gone; verification commands'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 1333 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1333
+  commits: 3
+  files_changed: 14
+  lines_added: 1005
+  lines_removed: 714
+  footprint_refreshed_at: '2026-11-22T20:09:27Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1483-gates-57-split-the-two-longest-browser-l.md
+generated_by: context-agent-hybrid
