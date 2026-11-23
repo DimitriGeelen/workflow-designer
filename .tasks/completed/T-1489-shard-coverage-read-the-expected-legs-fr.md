@@ -1,15 +1,18 @@
 ---
 id: T-1489
-name: "Shard coverage read the expected legs from the working tree, not the commit tested: an uncommitted leg turned a green split red"
+name: "Shard coverage read the expected legs from the working tree, not the commit
+  tested: an uncommitted leg turned a green split red"
 description: >
-  Shard coverage read the expected legs from the working tree, not the commit tested: an uncommitted leg turned a green split red
+  Shard coverage read the expected legs from the working tree, not the commit tested:
+  an uncommitted leg turned a green split red
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/pool/tier-gate.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +41,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-23T12:52:50Z
-last_update: 2026-11-23T12:57:23Z
-date_finished: null
+last_update: 2026-11-23T14:47:16Z
+date_finished: 2026-11-23T14:47:16Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +53,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-23T14:44:15Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=pool); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=2 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L2:keyword=export)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1489: Shard coverage read the expected legs from the working tree, not the commit tested: an uncommitted leg turned a green split red
@@ -74,8 +97,10 @@ the gate passes its HEAD_SHA (T1480_REF).
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] shard-coverage.py lists the expected legs from T1480_REF (default HEAD) exported, not the working tree; tier-gate passes HEAD_SHA; a core leg proves an uncommitted extra leg does not count (C1) while a missing HEAD leg is still RED (C2); the old script fails C1 — `_t1489-coverage-ref`; the 66f80f993 round's shard logs re-checked at that commit: "ok — 159 of 159"
-- [ ] The split-gate teeth (`_t1462`, `_t1486`) still green
+- [x] shard-coverage.py lists the expected legs from T1480_REF (default HEAD) exported, not the working tree; tier-gate passes HEAD_SHA; a core leg proves an uncommitted extra leg does not count (C1) while a missing HEAD leg is still RED (C2); the old script fails C1 — `_t1489-coverage-ref`; the 66f80f993 round's shard logs re-checked at that commit: "ok — 159 of 159"
+- [x] The split-gate teeth (`_t1462`, `_t1486`) still green
+  Evidence (2026-11-23, at b8a1d6c42): test_t1489_coverage_ref.sh GREEN (C1, C2); _t1462 16 passed 0 failed; _t1486 GREEN;
+  `T1480_REF=66f80f993 shard-coverage.py browser <4 shard legs.tsv of that round>` → "ok — 4 shard(s) ran each of the 159 browser legs exactly once".
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -261,6 +286,10 @@ the gate passes its HEAD_SHA (T1480_REF).
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+bash tests/test_t1489_coverage_ref.sh > /tmp/.t1489.out 2>&1 && grep -q "C1" /tmp/.t1489.out
+bash tools/_t1462-split-gate-teeth.sh > /tmp/.t1462.out 2>&1
+bash tools/_t1486-local-split-teeth.sh > /tmp/.t1486.out 2>&1
+grep -q 'T1480_REF="\$HEAD_SHA"' tools/pool/tier-gate.sh
 
 ## RCA
 
@@ -358,3 +387,16 @@ the gate passes its HEAD_SHA (T1480_REF).
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1489-shard-coverage-read-the-expected-legs-fr.md
 - **Context:** Initial task creation
+
+### 2026-11-23T14:47:16Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-b8beaec6
+- **Timestamp:** 2026-11-23T14:48:06Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

@@ -23909,3 +23909,39 @@ scan_id: R-00d5c3cb
 task_id: T-1484
 payload:
   task_file: .tasks/active/T-1484-gates-67-trial-browser-reuse-in-the-one-.md
+---
+kind: scan_emitted
+timestamp: '2026-11-23T14:48:06Z'
+scan_id: R-b8beaec6
+task_id: T-1489
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-23T14:48:06Z'
+scan_id: R-b8beaec6
+task_id: T-1489
+payload:
+  task_file: .tasks/active/T-1489-shard-coverage-read-the-expected-legs-fr.md
+---
+kind: scan_emitted
+timestamp: '2026-11-23T14:52:27Z'
+scan_id: R-3946a529
+task_id: T-1475
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-23T14:52:27Z'
+scan_id: R-3946a529
+task_id: T-1475
+payload:
+  task_file: .tasks/active/T-1475-display-ids-steps-at-the-same-x-in-one-l.md
