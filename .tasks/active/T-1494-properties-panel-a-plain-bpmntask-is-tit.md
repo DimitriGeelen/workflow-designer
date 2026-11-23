@@ -8,7 +8,7 @@ description: >
 
 status: started-work
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_3_run
 owner: agent
 horizon: now
 tags: [designer, greenfield, panel, bug]
@@ -116,17 +116,20 @@ its own task).
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] On a fixture with a plain bpmn:task, selecting it titles the panel with the plain kind (not 'serviceTask'); a
+- [x] On a fixture with a plain bpmn:task, selecting it titles the panel with the plain kind (not 'serviceTask'); a
   real serviceTask still reads as a service task — a browser leg, failed by 0.46.0
-- [ ] The save writes bpmn:task back for it (checked and recorded first; a different finding gets its own task), and the
+- [x] The save writes bpmn:task back for it (checked and recorded first; a different finding gets its own task), and the
   byte-identity goldens and the browser tier are green on a round
+  Evidence (2026-11-23): _t1494 K1-K3 PASS; 0.46.0 fails K1 only (K3 passes there: the save was already right). Round at
+  283d914b5 (high-risk): browser "pool and local both green", 163/163 legs incl. test_t1494_plain_task_title and
+  _t358-byteid-thirdparty; core "pool and local both green".
 
 **Finding (2026-11-23, checked before the fix):** a plain bpmn:task imports as type serviceTask with `foreignTag: 'task'`
 (T-337) and buildBpmnXml writes `n.foreignTag || TYPE_TAG[n.type]`, so the save already writes <bpmn:task> back:
 _t1494 K3 passes on 0.46.0 too (21 of 21). Only the panel header read n.type. No second bug, no further task.
 
 ### Human
-- [ ] A plain task's panel is headed by its own kind and still looks like a task's panel
+- [x] A plain task's panel is headed by its own kind and still looks like a task's panel
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1494 --criterion 1`), who may escalate.
   **Steps:**
   1. `docs/reports/T-1494-shots/plain-task-panel-{1024,1440,1920}.png`: Greenfield's sample, the plain task 'Opportunity aanmaken' selected
@@ -177,6 +180,7 @@ _t1494 K3 passes on 0.46.0 too (21 of 21). Only the panel header read n.type. No
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261123-0c70cf92 — reviewer-judge-t-1494-r3-26f2e83e8c86:reviewer (rung rung-3-termlink-single-reviewer), digest 95a12fb9bde4; dispatch judge-t-1494-r3-26f2e83e8c86; evidence: .context/reviews/evidence/T-1494/AC1-judge-t-1494-r3-26f2e83e8c86.md, .context/reviews/evidence/T-1494/plain-task-panel-1024-judge-t-1494-r3-26f2e83e8c86.png, .context/reviews/evidence/T-1494/plain-task-panel-1440-judge-t-1494-r3-26f2e83e8c86.png, .context/reviews/evidence/T-1494/plain-task-panel-1920-judge-t-1494-r3-26f2e83e8c86.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -343,6 +347,19 @@ nothing else in the panel changed (the Lane field's id is T-1493, next).
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+**Symptom:** Greenfield (msg 2e879869, 2b): selecting a plain bpmn:task titled the panel 'serviceTask', while the canvas
+captioned the same step "(task)".
+
+**Root cause:** T-337 made an element of a kind the designer does not edit natively a real node: type serviceTask, its
+own tag kept as `foreignTag` and written back verbatim. The canvas caption and the save were taught to read
+`foreignTag`; the panel header was not, and kept printing `n.type`, the designer's internal stand-in.
+
+**Why structurally allowed:** `foreignTag` has no single "kind this element is" accessor; each place that shows a
+node's kind decides for itself whether to look at it, and no test selected a foreign-tagged node and read the panel.
+Designer-written maps have no foreign tags, so the corpus never showed it; only third-party files do.
+
+**Prevention:** browser leg test_t1494_plain_task_title (K1 header, K2 a real service task unchanged, K3 the save
+writes bpmn:task back), on Greenfield's sample; 0.46.0 fails K1.
 
 ## Evolution
 
