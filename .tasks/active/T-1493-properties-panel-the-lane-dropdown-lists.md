@@ -96,18 +96,22 @@ stores the id.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] On an imported map whose lanes have ids and names that differ, the Lane dropdown's option texts are the names and
+- [x] On an imported map whose lanes have ids and names that differ, the Lane dropdown's option texts are the names and
   its option values the ids; choosing an option moves the step to that lane as before; two lanes with the same name are
   told apart — a browser leg, failed by 0.46.0
-- [ ] Saved bytes unchanged for an unedited map: byte-identity goldens and the browser tier green on a round
+- [x] Saved bytes unchanged for an unedited map: byte-identity goldens and the browser tier green on a round
+  Evidence (2026-11-23): _t1493 L1-L4 PASS (L4: the sample's save identical after opening every step's panel); 0.46.0
+  fails L1. Round at bce9e3032 (high-risk): browser "pool and local both green", 164/164 legs incl.
+  test_t1493_lane_names and _t358-byteid-thirdparty; core "pool and local both green".
 
 ### Human
 - [ ] A step's Lane field reads the lane's name, as the canvas does
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1493 --criterion 1`), who may escalate.
   **Steps:**
-  1. `docs/reports/T-1493-shots/lane-field-{1024,1440,1920}.png`: Greenfield's sample, the step 'Opportunity – Solution (doorgestreept) – onder water' (lane Tacton) selected
-  2. Judge: does the Lane field read 'Tacton' (the canvas's lane name), not 'Lane_Tacton', unclipped at each width; is anything else in the panel changed
-  **Expected:** 'Tacton' at all three widths; the rest of the panel as before.
+  1. `docs/reports/T-1493-shots/lane-field-{1024,1440,1920}.png` (this release) and `lane-field-before-{1024,1440,1920}.png` (0.46.0, the same step and widths): Greenfield's sample, the step 'Opportunity – Solution (doorgestreept) – onder water' (lane Tacton) selected
+     (first judgement, amber: no before images to confirm the rest of the panel; added)
+  2. Judge: does the Lane field read 'Tacton' (the canvas's lane name), not 'Lane_Tacton', unclipped at each width; are the other panel fields (Name, Slug, Display ID, UID, Owner, the empty-fields row, the I/O contract) the same as before
+  **Expected:** 'Tacton' at all three widths; those fields identical to the before images. Two differences are expected and not this task's: the header reads 'task' (was 'serviceTask', T-1494), and the canvas shows the phases (T-1473).
   **If not:** say what reads wrong; the agent adjusts.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
