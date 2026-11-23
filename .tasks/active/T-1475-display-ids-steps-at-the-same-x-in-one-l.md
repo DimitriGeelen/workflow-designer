@@ -1,13 +1,23 @@
 ---
 id: T-1475
-name: "Display ids: steps at the same x in one lane are numbered in random order (uids from Math.random break the tie), so the starter map's stacked search tasks change ids per page load"
+name: "Display ids: steps at the same x in one lane are numbered in random order (uids
+  from Math.random break the tie), so the starter map's stacked search tasks change
+  ids per page load"
 description: >
-  Found by the T-1472 reviewer (V-20261121, evidence .context/reviews/evidence/T-1472/): the starter map's three stacked search tasks read agt_2_search / agt_4_search differently across shots. computeDisplayId sorts a lane's steps by x, then uid; generateUid is Math.random, so equal-x steps get a per-load order. A map without its own file ids (the starter, a new map) can save different ids on first save, and the canvas captions change between reloads. Fix: break the tie by y (then name), never by uid; check byte-identity goldens and the corpus for equal-x steps first (saved bytes of maps that keep their file ids must not move).
+  Found by the T-1472 reviewer (V-20261121, evidence .context/reviews/evidence/T-1472/):
+  the starter map's three stacked search tasks read agt_2_search / agt_4_search differently
+  across shots. computeDisplayId sorts a lane's steps by x, then uid; generateUid
+  is Math.random, so equal-x steps get a per-load order. A map without its own file
+  ids (the starter, a new map) can save different ids on first save, and the canvas
+  captions change between reloads. Fix: break the tie by y (then name), never by uid;
+  check byte-identity goldens and the corpus for equal-x steps first (saved bytes
+  of maps that keep their file ids must not move).
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +48,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T16:35:54Z
-last_update: 2026-11-21T16:35:54Z
-date_finished: null
+last_update: 2026-11-23T12:38:11Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +60,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-23T12:35:50Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=2 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L2:keyword=canvas)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1475: Display ids: steps at the same x in one lane are numbered in random order (uids from Math.random break the tie), so the starter map's stacked search tasks change ids per page load
@@ -57,20 +87,26 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** found during T-1472/T-1470 (2026-11-21/22): the starter map's stacked search tasks (same x, one
+lane) get different display ids on different page loads.
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** `computeDisplayId` orders a lane's steps by x, then by uid. Imported maps have deterministic
+uids (from the file, or `deriveUid` = a hash of the element id), but the starter map is built in code and its migration
+mints every uid with `generateUid` (Math.random), so the tie between equal-x steps falls randomly each load.
+Changing the tie-break itself (e.g. to y) would renumber imported maps with stacked steps, i.e. change node ids AEF
+stores: rejected.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** the starter map numbers the same way on every load, without changing any imported or saved map's ids.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** the starter's uids are derived from its fixed code ids (the importer's hash), so its display ids
+are stable; imported maps byte-identical as before.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] The starter map's node and edge uids are derived deterministically from its code ids (no Math.random), unique within the map; its display ids are identical across page loads — a browser leg loads the designer three times and compares the starter's full display-id list (control: the old designer gives different lists)
+- [ ] No imported or saved map changes: the byte-identity goldens and the browser tier green on a high-risk round
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -353,3 +389,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1475-display-ids-steps-at-the-same-x-in-one-l.md
 - **Context:** Initial task creation
+
+### 2026-11-23T12:35:48Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

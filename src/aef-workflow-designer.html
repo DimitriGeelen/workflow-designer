@@ -2982,9 +2982,20 @@ function getInvestigateWorkflow() {
   // the uid (so existing code that does `n.id` / `e.id` continues to work as
   // a stable reference key). The `slug` and computed displayId are new.
   const oldIdToUid = new Map();
+  // T-1475: the starter's uids are DERIVED from its fixed code ids (the importer's FNV-1a hash, salted on a clash), not
+  // minted from Math.random: display ids order equal-x steps by uid, so random uids renumbered the stacked search tasks
+  // on every page load. Imported maps were already deterministic (uid from the file, or deriveUid of the element id).
+  const starterUids = new Set();
+  const starterUid = (prefix, seed) => {
+    const h = s => { let x = 0x811c9dc5; for (let i = 0; i < s.length; i++) { x ^= s.charCodeAt(i); x = Math.imul(x, 0x01000193) >>> 0; } return x.toString(16).padStart(8, '0'); };
+    let uid = `${prefix}_${h(seed)}`;
+    for (let salt = 1; starterUids.has(uid); salt++) uid = `${prefix}_${h(`${seed}#${salt}`)}`;
+    starterUids.add(uid);
+    return uid;
+  };
   for (const node of result.nodes) {
     const oldId = node.id;
-    node.uid = generateUid('n');
+    node.uid = starterUid('n', oldId);
     // Slug derives from the display name — first significant word, lowercased.
     // Consistent with the runtime deriveSlug() used for renames.
     node.slug = deriveSlug(node.name);
@@ -3004,7 +3015,7 @@ function getInvestigateWorkflow() {
     slugCounts.set(key, seen + 1);
   }
   for (const edge of result.edges) {
-    edge.uid = generateUid('e');
+    edge.uid = starterUid('e', edge.id);
     edge.source = oldIdToUid.get(edge.source) || edge.source;
     edge.target = oldIdToUid.get(edge.target) || edge.target;
     edge.id = edge.uid;

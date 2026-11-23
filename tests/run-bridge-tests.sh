@@ -2345,6 +2345,19 @@ else
 fi
 }
 leg browser "test_t1472_opening_zoom_default" _leg_t1472
+_leg_t1475() {
+
+# ── T-1475: the starter map numbers the same on every load (its uids derived from its code ids, not Math.random; display
+# ids order equal-x steps by uid, and the stacked search tasks renumbered per load). 3 fresh loads compared. ~15 s.
+if node "$ROOT/tools/_t1475-starter-ids-stable-cdp.mjs" > "$TMP/leg-_t1475.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "The starter map's display ids differ between page loads again (_t1475-starter-ids-stable-cdp.mjs; T-1475)"
+  show_output "$TMP/leg-_t1475.out" "_t1475-starter-ids-stable-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1475_starter_ids_stable" _leg_t1475
 _leg_t1470() {
 
 # ── T-1470 (Greenfield): an association between two steps that line up is drawn straight (Solution - Product ->
