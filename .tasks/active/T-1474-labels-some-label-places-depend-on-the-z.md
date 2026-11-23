@@ -50,7 +50,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T16:27:27Z
-last_update: 2026-11-23T13:31:31Z
+last_update: 2026-11-23T13:53:36Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -111,9 +111,17 @@ renders every corpus map at fit, 100% and 200% and finds every flow label in the
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
 - [ ] A browser leg: every corpus map rendered at fit, 100% and 200%: each flow label at the same place (control: 0.46.0 differs, 16 labels); the person-sees gate and the browser tier green on a round (node text measured unhinted may move a label at fit, judged there)
-- [ ] Screenshots of two affected maps (context-memory, cross-host-dispatch) at 1024/1440/1920 read, and judged by a reviewer, as CLAUDE.md asks for a render change
+- [x] Screenshots read by the agent — `docs/reports/T-1474-shots/{new,v046}-{verification-gate,review-emission,task-lifecycle}-{1024,1440,1920}.png` (maps opened as a person opens them: opening zoom, lens all). verification-gate 1440 new vs 0.46.0: identical (it opens at 100%, where 0.46.0 already used these places; the 16 moves vs 0.46.0 show at "fit" only, which now matches 100%). review-emission 1440: "not found" now right of its drop, clear of the gateway name "Task file found?" (was 7-11 px from "found?", the pair label-clearance flagged). Also changed on the way (found by the round at 6855f6882): a third, wider side offset (32) beside a vertical drop, since unhinted measurement left that label no place clear of the name.
 
 ### Human
+- [ ] [REVIEW] Flow labels read as well or better, and the moved "not found" label still reads as its flow's
+  **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1474 --criterion 1`), who may escalate.
+  **Steps:**
+  1. `docs/reports/T-1474-shots/{v046,new}-review-emission-{1024,1440,1920}.png`: the flow from the gateway "Task file found?" down to "return 1 — no task file", labelled "not found"
+  2. `docs/reports/T-1474-shots/{v046,new}-verification-gate-1440.png` and `{v046,new}-task-lifecycle-1440.png`: every flow label
+  3. Judge: new vs v046, does "not found" still read as the label of its drop (not of another line), clear of the gateway name; does any other flow label read worse
+  **Expected:** "not found" clearly belongs to its drop and no longer runs on with "found?"; nothing else reads worse.
+  **If not:** name the label and what reads worse; the agent adjusts and re-measures.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
