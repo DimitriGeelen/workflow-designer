@@ -290,3 +290,4 @@
 {"ac":1,"outcome":"amber","task":"T-1473","ts":"2026-11-23T15:23:01Z","verdict_id":"V-20261123-a07902ea"}
 {"ac":1,"outcome":"green","task":"T-1473","ts":"2026-11-23T15:25:23Z","verdict_id":"V-20261123-82dc9545"}
 {"ac":1,"outcome":"green","task":"T-1494","ts":"2026-11-23T15:38:28Z","verdict_id":"V-20261123-0c70cf92"}
+{"ac":1,"outcome":"amber","task":"T-1493","ts":"2026-11-23T15:51:44Z","verdict_id":"V-20261123-cf5485ab"}
