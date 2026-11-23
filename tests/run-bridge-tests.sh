@@ -2424,6 +2424,19 @@ else
 fi
 }
 leg browser "test_t1494_plain_task_title" _leg_t1494
+_leg_t1493() {
+
+# ── T-1493 (Greenfield msg 2e879869, 2a): the panel's Lane dropdown shows lane names (as the canvas), the id still the
+# value; choosing moves the step; same-named lanes told apart; the save unchanged by opening panels. ~10 s.
+if node "$ROOT/tools/_t1493-lane-names-cdp.mjs" > "$TMP/leg-_t1493.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "The Lane dropdown shows lane ids again, or no longer stores the id (_t1493-lane-names-cdp.mjs; T-1493)"
+  show_output "$TMP/leg-_t1493.out" "_t1493-lane-names-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1493_lane_names" _leg_t1493
 _leg_t1470() {
 
 # ── T-1470 (Greenfield): an association between two steps that line up is drawn straight (Solution - Product ->

@@ -6,10 +6,11 @@ description: >
   Greenfield (T-449, msg 2e879869 point 2a). selectField('Lane', n.lane, getLanes().map(l
   => l.id)) shows ids.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [designer, greenfield, panel, bug]
 components: []
 related_tasks: []
@@ -40,7 +41,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-23T14:43:53Z
-last_update: '2026-11-23T14:44:17Z'
+last_update: 2026-11-23T15:38:00Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -101,6 +102,13 @@ stores the id.
 - [ ] Saved bytes unchanged for an unedited map: byte-identity goldens and the browser tier green on a round
 
 ### Human
+- [ ] A step's Lane field reads the lane's name, as the canvas does
+  **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1493 --criterion 1`), who may escalate.
+  **Steps:**
+  1. `docs/reports/T-1493-shots/lane-field-{1024,1440,1920}.png`: Greenfield's sample, the step 'Opportunity – Solution (doorgestreept) – onder water' (lane Tacton) selected
+  2. Judge: does the Lane field read 'Tacton' (the canvas's lane name), not 'Lane_Tacton', unclipped at each width; is anything else in the panel changed
+  **Expected:** 'Tacton' at all three widths; the rest of the panel as before.
+  **If not:** say what reads wrong; the agent adjusts.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -284,6 +292,17 @@ stores the id.
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+node tools/_t1493-lane-names-cdp.mjs > /tmp/.t1493.out 2>&1
+grep -q 'leg browser "test_t1493_lane_names"' tests/run-bridge-tests.sh
+
+## Visual Verification
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| step selected | Lane field | ok | ok | ok | 'Tacton' (was 'Lane_Tacton') |
+
+Shots: docs/reports/T-1493-shots/lane-field-{1024,1440,1920}.png, read at 1024: Lane 'Tacton', header 'task' (T-1494),
+the rest of the panel unchanged.
 
 ## RCA
 
@@ -300,6 +319,18 @@ stores the id.
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+**Symptom:** Greenfield (msg 2e879869, 2a): a step's Lane dropdown listed Lane_Salesforce, Lane_Tacton … where the
+canvas shows Salesforce, Tacton.
+
+**Root cause:** selectField took a flat list of strings and used each as both the stored value and the shown text; the
+Lane field passed the lane ids, which are right as values and wrong as labels.
+
+**Why structurally allowed:** the designer's own lanes have ids that read like names (agent, human, framework), so the
+corpus and the starter map never showed the difference; only an imported file with technical ids does.
+
+**Prevention:** selectField accepts { value, label } options; browser leg test_t1493_lane_names (L1 names shown and ids
+stored, L2 choosing moves the step, L3 same-named lanes told apart, L4 save unchanged) on Greenfield's sample; 0.46.0
+fails L1.
 
 ## Evolution
 
@@ -381,3 +412,7 @@ stores the id.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1493-properties-panel-the-lane-dropdown-lists.md
 - **Context:** Initial task creation
+
+### 2026-11-23T15:38:00Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

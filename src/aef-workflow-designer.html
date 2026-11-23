@@ -8734,7 +8734,14 @@ function _renderPropsInto(props, details) {
   uidField.appendChild(uidValue);
   sBpmn.appendChild(uidField);
 
-  sBpmn.appendChild(selectField('Lane', n.lane, getLanes().map(l => l.id), v => {
+  // T-1493 (Greenfield msg 2e879869, 2a): each lane shown by its name, as on the canvas, its id still the value; a lane
+  // without a name shows its id, and two lanes sharing a name are told apart by their ids.
+  const laneOpts = (() => {
+    const ls = getLanes(), seen = {};
+    for (const l of ls) { const k = (l.name || '').trim(); if (k) seen[k] = (seen[k] || 0) + 1; }
+    return ls.map(l => { const k = (l.name || '').trim(); return { value: l.id, label: !k ? l.id : seen[k] > 1 ? `${k} (${l.id})` : k }; });
+  })();
+  sBpmn.appendChild(selectField('Lane', n.lane, laneOpts, v => {
     n.lane = v;
     // snap to the new lane's row line nearest the node's current centre —
     // in a tall lane the centre can sit BETWEEN rows (T-079)
@@ -9315,11 +9322,12 @@ function selectField(label, value, options, onInput, hint) {
   wrap.appendChild(lbl);
   const sel = document.createElement('select');
   sel.className = 'field-select';
-  for (const o of options) {
+  for (const o of options) {   // T-1493: an option is a value, or { value, label } where the shown text differs
     const opt = document.createElement('option');
-    opt.value = o;
-    opt.textContent = o;
-    if (o === value) opt.selected = true;
+    const v = (o && typeof o === 'object') ? o.value : o;
+    opt.value = v;
+    opt.textContent = (o && typeof o === 'object') ? o.label : o;
+    if (v === value) opt.selected = true;
     sel.appendChild(opt);
   }
   sel.addEventListener('change', e => { onInput(e.target.value); renderProperties(); });
