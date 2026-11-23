@@ -2410,6 +2410,20 @@ else
 fi
 }
 leg browser "test_t1473_phases" _leg_t1473
+_leg_t1494() {
+
+# ── T-1494 (Greenfield msg 2e879869, 2b): a plain bpmn:task is headed 'task' in the properties panel, not 'serviceTask'
+# (its kept foreignTag, as the canvas caption); a real serviceTask still reads serviceTask; the save writes every plain
+# task back as <bpmn:task>. ~10 s.
+if node "$ROOT/tools/_t1494-plain-task-title-cdp.mjs" > "$TMP/leg-_t1494.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "A plain bpmn:task is titled by the designer's internal type again, or saved as another kind (_t1494-plain-task-title-cdp.mjs; T-1494)"
+  show_output "$TMP/leg-_t1494.out" "_t1494-plain-task-title-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1494_plain_task_title" _leg_t1494
 _leg_t1470() {
 
 # ── T-1470 (Greenfield): an association between two steps that line up is drawn straight (Solution - Product ->

@@ -8658,8 +8658,12 @@ function _renderPropsInto(props, details) {
   // actually is — the underlying n.type is unchanged and still exports as
   // <bpmn:intermediateCatchEvent>.
   // T-1366: a plain event with a marked native kind (conditional, signal) is headed by that kind.
-  props.appendChild(propsHeader(PLAIN_KIND_TYPE[plainEventKind(n)] || (isBareCatchEvent(n) ? 'intermediateEvent' : n.type), lensDeco('ids') ? displayIdOf(n) : '',
-    details ? null : () => deleteNode(n.id)));   // T-1127: no delete from inside the details view
+  // T-1494 (Greenfield msg 2e879869, 2b): an element of a kind the designer does not edit natively (a plain bpmn:task,
+  // a manualTask, …) is held as a serviceTask with its own tag kept as foreignTag, written back verbatim (T-337). The
+  // header names the kind the file says, as the canvas caption does; the badge keeps the shape the canvas draws.
+  const headType = n.foreignTag || PLAIN_KIND_TYPE[plainEventKind(n)] || (isBareCatchEvent(n) ? 'intermediateEvent' : n.type);
+  props.appendChild(propsHeader(headType, lensDeco('ids') ? displayIdOf(n) : '',
+    details ? null : () => deleteNode(n.id), n.foreignTag ? n.type : undefined));   // T-1127: no delete from inside the details view
   if (!details) {   // T-1127: every element can open its full details (a handoff's double-click jumps instead)
     const all = document.createElement('button');
     all.type = 'button';
@@ -9120,12 +9124,12 @@ const LENS_TYPE_WORD = {
   eventError: 'Error event', eventTimer: 'Timer event', eventMessage: 'Message event', intermediateEvent: 'Event',
   conditionalEvent: 'Conditional event', signalEvent: 'Signal event',   // T-1366: plain events with a marked kind
 };
-function propsHeader(typeName, id, onDelete) {
+function propsHeader(typeName, id, onDelete, badgeType) {
   const h = document.createElement('div');
   h.className = 'props-header';
   const badge = document.createElement('div');
   badge.className = 'props-type-badge';
-  badge.innerHTML = typeBadgeSvg(typeName);
+  badge.innerHTML = typeBadgeSvg(badgeType || typeName);
   const info = document.createElement('div');
   info.className = 'props-type-info';
   const name = document.createElement('div');
