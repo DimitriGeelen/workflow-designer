@@ -1,13 +1,17 @@
 ---
 id: T-1484
-name: "Gates 6/7: trial browser reuse in the one-browser-per-map harnesses (fresh browser context per map, per-map watchdog, fall back to a fresh browser for a leg that hangs twice), measured on the pool"
+name: "Gates 6/7: trial browser reuse in the one-browser-per-map harnesses (fresh
+  browser context per map, per-map watchdog, fall back to a fresh browser for a leg
+  that hangs twice), measured on the pool"
 description: >
-  T-1478 GO (operator, 60a4304d7); design and consultation: docs/reports/T-1478-test-acceleration.md. O6 with GLM's watchdog and codex's bounded reuse batches.
+  T-1478 GO (operator, 60a4304d7); design and consultation: docs/reports/T-1478-test-acceleration.md.
+  O6 with GLM's watchdog and codex's bounded reuse batches.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: [T-1478]
@@ -38,8 +42,8 @@ related_tasks: [T-1478]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T21:55:57Z
-last_update: 2026-11-21T21:56:04Z
-date_finished: null
+last_update: 2026-11-23T12:29:10Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +54,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-23T12:24:09Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=pool); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=0 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1484: Gates 6/7: trial browser reuse in the one-browser-per-map harnesses (fresh browser context per map, per-map watchdog, fall back to a fresh browser for a leg that hangs twice), measured on the pool
@@ -57,20 +81,26 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** T-1478 GO, O6. After T-1482 (2026-11-23) a designer round is ~9 min, bounded by the browser
+tier's total work (~1,590 leg-s over 4 pool slots; this machine's 4 shards take as long). Splitting spreads work; only
+making the legs cheaper lowers the floor on both halves. 61 of 180 harnesses start Chrome themselves, some once per
+map (and per width).
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** a large share of browser leg time is Chrome start/stop rather than the checks; harnesses that
+open one browser per map pay it many times per leg. Reusing one browser per harness run, with a fresh browser context
+per map (isolated storage, as a new profile would be), keeps each map independent and removes most starts.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** know the share first; build the reuse only where the measurement says it pays, without weakening isolation.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** a measured count and cost of Chrome starts per browser tier run, per harness; if they are a large
+share, a reuse trial on the top harnesses measured on the pool; if not, the finding recorded and the task closed.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Measured: Chrome starts per browser tier run, per harness, and the cost of one start/stop here and on the pool; the share of the tier's leg-seconds they take, written to docs/reports/T-1484-chrome-starts.md — here: start 0.18-0.62 s, stop 0.10-0.23 s; label-clearance 22 starts (one per map) in 103 s, sweep 3 in 83 s; tier ~180-200 starts = ~60-150 s of ~1,590 leg-s = 4-9 %. **Pool not measured directly**: a pool job runs only the tier, there is no probe access to the workers; the browser shards' suite times on pool-w2 (430-433 s) match this machine's (436-469 s), so the per-start cost there is taken as similar, not shown.
+- [x] Decided from that number: if the starts are >= ~15 % of the tier's leg-seconds, a reuse trial (one browser per harness run, a fresh browser context per map, a per-map watchdog, a fresh browser for a map that hangs twice) on the harnesses with the most starts, green, with the leg time before/after on the pool; if below, recorded as not worth it and the task closed — 4-9 %, below the bar: not built (it would change up to 61 harnesses' launch code and share a browser process across maps for a few percent). Revisit only if the pool shows starts several times slower.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -256,6 +286,8 @@ date_finished: null
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+grep -q '4-9 %' docs/reports/T-1484-chrome-starts.md
+grep -q 'Closed without building' docs/reports/T-1484-chrome-starts.md
 
 ## RCA
 
@@ -356,3 +388,7 @@ date_finished: null
 
 ### 2026-11-21T21:56:04Z — status-update [task-update-agent]
 - **Change:** related_tasks: +T-1478
+
+### 2026-11-23T12:24:08Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
