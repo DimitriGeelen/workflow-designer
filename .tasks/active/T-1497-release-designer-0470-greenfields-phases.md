@@ -107,11 +107,14 @@ summary says so, and running the job is the operator's decision on it.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Release notes `docs/releases/RELEASE-NOTES-0.47.0.md` committed: the six changes, what changes in stored maps
+- [x] Release notes `docs/releases/RELEASE-NOTES-0.47.0.md` committed: the six changes, what changes in stored maps
   (nothing a save writes, except that a starter map saved fresh now gets deterministic uids, T-1475), the five
   endpoints and AEF's status of each, and the shared-contracts table
-- [ ] A runme job written from job 176's steps, dry-run passed (its rehearsal included), committed and handed to the
+- [x] A runme job written from job 176's steps, dry-run passed (its rehearsal included), committed and handed to the
   operator with the watcher armed
+  Evidence: notes ecb78155a (`_t1425 --version 0.47.0 --check`: "shared-contract table agrees"); job
+  179-release-designer-0.47.0 committed 50124f065, dry-run passed (all checks ok, step 1 rehearsed in a clone, real repo
+  unchanged, sha ad037feeb1db); runme watcher pid 3160323 alive.
 - [ ] After the operator's run: the tag on origin, AEF told (version, tag, sha256, bytes, what it brings) and Greenfield
   told
 
