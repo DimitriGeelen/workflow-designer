@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1484: Gates 6/7: trial browser reuse in the one-browser-per-map harnesses (fresh browser context per map, per-map watchdog, fall back to a fresh browser for a leg that hangs twice), measured on the pool
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-23T12:29:19Z
+# ============================================================================
+
+task_id: T-1484
+task_name: "Gates 6/7: trial browser reuse in the one-browser-per-map harnesses (fresh browser context per map, per-map watchdog, fall back to a fresh browser for a leg that hangs twice), measured on the pool"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-21T21:55:57Z
+completed: 2026-11-23T12:29:11Z
+duration_days: 2
+updates_count: 4
+first_commit: 2026-11-23T13:29:11+01:00
+last_commit: 2026-11-23T13:29:11+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  measured before building — a Chrome start/stop is 0.3-0.8 s, ~180-200 per browser tier run = 4-9 % of its leg-seconds, below the 15 % bar: browser reuse not built (61 harnesses' launch code and shared-process isolation for a few percent); report docs/reports/T-1484-chrome-starts.md
+
+# Key outcomes
+outcomes:
+  - 'Measured: Chrome starts per browser tier run, per harness, and the cost of one start/stop here and on the pool; the share of the tier''s leg-seconds they take, written to docs/reports/T-1484-chrome-starts.md — here: start 0.18-0.62 s, stop 0.10-0.23 s; label-clearance 22 starts (one per map) in 103 s, sweep 3 in 83 s; tier ~180-200 starts = ~60-150 s of ~1,590 leg-s = 4-9 %. **Pool not measured directly**: a pool job runs only the tier, there is no probe access to the workers; the browser shards'' suite times on pool-w2 (430-433 s) match this machine''s (436-469 s), so the per-start cost there is taken as similar, not shown.'
+  - 'Decided from that number: if the starts are >= ~15 % of the tier''s leg-seconds, a reuse trial (one browser per harness run, a fresh browser context per map, a per-map watchdog, a fresh browser for a map that hangs twice) on the harnesses with the most starts, green, with the leg time before/after on the pool; if below, recorded as not worth it and the task closed — 4-9 %, below the bar: not built (it would change up to 61 harnesses'' launch code and share a browser process across maps for a few percent). Revisit only if the pool shows starts several times slower.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1484-gates-67-trial-browser-reuse-in-the-one-.md'
+  - 'docs/reports/T-1484-chrome-starts.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-23T13:29:11'
+    action: 'T-1484: measured before building — a Chrome start/stop is 0.3-0.8 s, ~180-200 per browser tier run = 4-9 % of its leg-seconds, below the 15 % bar: browser reuse not built (61 harnesses'' launch code and shared-process isolation for a few percent); report docs/reports/T-1484-chrome-starts.md'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2313 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2313
+  commits: 2
+  files_changed: 5
+  lines_added: 202
+  lines_removed: 17
+  footprint_refreshed_at: '2026-11-23T12:29:25Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1484-gates-67-trial-browser-reuse-in-the-one-.md
+generated_by: context-agent-hybrid

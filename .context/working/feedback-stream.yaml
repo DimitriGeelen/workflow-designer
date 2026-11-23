@@ -23891,3 +23891,21 @@ scan_id: R-8e238693
 task_id: T-1482
 payload:
   task_file: .tasks/active/T-1482-gates-47-run-the-browser-and-core-tiers-.md
+---
+kind: scan_emitted
+timestamp: '2026-11-23T12:29:13Z'
+scan_id: R-00d5c3cb
+task_id: T-1484
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-23T12:29:13Z'
+scan_id: R-00d5c3cb
+task_id: T-1484
+payload:
+  task_file: .tasks/active/T-1484-gates-67-trial-browser-reuse-in-the-one-.md
