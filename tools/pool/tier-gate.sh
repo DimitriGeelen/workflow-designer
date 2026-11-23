@@ -53,7 +53,7 @@ case "$LOCAL_K" in ''|*[!0-9]*) LOCAL_K=1 ;; esac
 coverage_ok() {  # coverage_ok "<legs.tsv per line>": T-1480, the shards together ran each of the tier's legs exactly once
     local files=() f
     while IFS= read -r f; do [ -n "$f" ] && files+=("$f"); done <<< "$1"
-    local msg; msg=$(cd "$ROOT" && ${T1480_COVERAGE_CMD:-python3 tools/pool/shard-coverage.py} "$TIER" "${files[@]}" 2>&1); local c=$?
+    local msg; msg=$(cd "$ROOT" && T1480_REF="$HEAD_SHA" ${T1480_COVERAGE_CMD:-python3 tools/pool/shard-coverage.py} "$TIER" "${files[@]}" 2>&1); local c=$?
     echo "T-1288 $TIER: $msg" >&2
     [ "$c" = 0 ]
 }

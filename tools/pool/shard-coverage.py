@@ -12,8 +12,10 @@ T1480_EXPECTED=<file>: the expected leg names, one per line, instead of --list-l
 """
 import collections
 import os
+import shutil
 import subprocess
 import sys
+import tempfile
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 
@@ -21,8 +23,21 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 def expected(tier):
     if os.environ.get('T1480_EXPECTED'):
         return {l.strip() for l in open(os.environ['T1480_EXPECTED'], encoding='utf-8') if l.strip()}
-    r = subprocess.run(['bash', os.path.join(ROOT, 'tests/run-bridge-tests.sh'), '--list-legs'],
-                       capture_output=True, text=True, cwd=ROOT, timeout=300)
+    # T-1489: the list comes from the COMMIT the shards tested (T1480_REF, the gate's HEAD; default HEAD), exported, not
+    # from the working tree: an uncommitted new leg made a green split read "missing 2" (2026-11-23), and an uncommitted
+    # removal would hide a missing one.
+    ref = os.environ.get('T1480_REF') or 'HEAD'
+    tmp = tempfile.mkdtemp(prefix='t1480-legs-')
+    try:
+        arch = subprocess.run(['git', '-C', ROOT, 'archive', ref, 'tests', 'tools', 'examples'], capture_output=True, timeout=120)
+        if arch.returncode != 0:
+            return set()
+        if subprocess.run(['tar', '-x', '-C', tmp], input=arch.stdout, capture_output=True, timeout=120).returncode != 0:
+            return set()
+        r = subprocess.run(['bash', os.path.join(tmp, 'tests/run-bridge-tests.sh'), '--list-legs'],
+                           capture_output=True, text=True, cwd=tmp, timeout=300)
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
     legs = set()
     for line in r.stdout.splitlines():
         p = line.split(None, 1)
