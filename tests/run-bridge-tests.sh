@@ -2395,6 +2395,21 @@ else
 fi
 }
 leg browser "test_t1474_label_places_zoom_free" _leg_t1474
+_leg_t1473() {
+
+# ── T-1473 (T-1461 GO, slice 1): phases drawn read-only from the file's bpmn:group + bpmn:category on Greenfield's
+# sample: 5 row-1 brackets and 4 dividers through the lanes, 6 row-2 brackets above, at 1024/1440/1920; names readable
+# at the opening zoom and clear of each other; the save byte-identical with the layer suppressed; maps without groups
+# draw nothing; the import notice no longer calls drawn phases "not shown yet". ~20 s.
+if node "$ROOT/tools/_t1473-phases-cdp.mjs" > "$TMP/leg-_t1473.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "Phases from the file are no longer drawn as they were (_t1473-phases-cdp.mjs; T-1473)"
+  show_output "$TMP/leg-_t1473.out" "_t1473-phases-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1473_phases" _leg_t1473
 _leg_t1470() {
 
 # ── T-1470 (Greenfield): an association between two steps that line up is drawn straight (Solution - Product ->
