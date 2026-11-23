@@ -105,7 +105,7 @@ stores the id.
   test_t1493_lane_names and _t358-byteid-thirdparty; core "pool and local both green".
 
 ### Human
-- [ ] A step's Lane field reads the lane's name, as the canvas does
+- [x] A step's Lane field reads the lane's name, as the canvas does
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1493 --criterion 1`), who may escalate.
   **Steps:**
   1. `docs/reports/T-1493-shots/lane-field-{1024,1440,1920}.png` (this release) and `lane-field-before-{1024,1440,1920}.png` (0.46.0, the same step and widths): Greenfield's sample, the step 'Opportunity – Solution (doorgestreept) – onder water' (lane Tacton) selected
@@ -157,6 +157,7 @@ stores the id.
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261123-9386ea18 — reviewer-judge-t-1493-r3-2b8dc74b8657:reviewer (rung rung-3-termlink-single-reviewer), digest 446b3625cd05; dispatch judge-t-1493-r3-2b8dc74b8657; evidence: .context/reviews/evidence/T-1493/AC1-judge-t-1493-r3-2b8dc74b8657.md, .context/reviews/evidence/T-1493/lane-field-1024-judge-t-1493-r3-2b8dc74b8657.png, .context/reviews/evidence/T-1493/lane-field-1440-judge-t-1493-r3-2b8dc74b8657.png, .context/reviews/evidence/T-1493/lane-field-1920-judge-t-1493-r3-2b8dc74b8657.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
