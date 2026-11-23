@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aef="http://anchorpoint.framework/aef/extensions" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_Nooteboom" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Claude" exporterVersion="1.0">
+<bpmn:category id="Category_fase" name="Fase"><bpmn:categoryValue id="CategoryValue_f1" value="Opportunity"/><bpmn:categoryValue id="CategoryValue_f2" value="Configuratie"/><bpmn:categoryValue id="CategoryValue_f3" value="Offerte &amp; onderhandeling"/><bpmn:categoryValue id="CategoryValue_f4" value="Order"/><bpmn:categoryValue id="CategoryValue_f5" value="Productie &amp; service"/></bpmn:category>
+<bpmn:category id="Category_sf" name="Fase in Salesforce"><bpmn:categoryValue id="CategoryValue_s1" value="1 Qualification"/><bpmn:categoryValue id="CategoryValue_s2" value="2 Needs Analysis (blijft tot Proposal)"/><bpmn:categoryValue id="CategoryValue_s3" value="3 Proposal"/><bpmn:categoryValue id="CategoryValue_s4" value="4 Negotiation"/><bpmn:categoryValue id="CategoryValue_s5" value="5 Closed Won"/><bpmn:categoryValue id="CategoryValue_s6" value="Sales Order: Open Order → Complete + Download"/></bpmn:category>
+<bpmn:collaboration id="Collaboration_1"><bpmn:participant id="Participant_1" name="[WS-OTO] Workshop 6-11-2026 — offerte tot order: Salesforce, Tacton, Novis en NAV" processRef="Process_Nooteboom"/></bpmn:collaboration>
+<bpmn:process id="Process_Nooteboom" name="[WS-OTO] Workshop 6-11-2026 — offerte tot order: Salesforce, Tacton, Novis en NAV" isExecutable="false">
+<bpmn:laneSet id="LaneSet_1">
+<bpmn:lane id="Lane_Salesforce" name="Salesforce"><bpmn:flowNodeRef>StartEvent_start</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_opp</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_knop</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_prod</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_prop</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_neg</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_won</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_so1</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_so2</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_osend</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_oprod</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_svc</bpmn:flowNodeRef><bpmn:flowNodeRef>EndEvent_end</bpmn:flowNodeRef></bpmn:lane>
+<bpmn:lane id="Lane_Tacton" name="Tacton"><bpmn:flowNodeRef>Activity_oppsol</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_sol</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_offer</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_firm</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_send</bpmn:flowNodeRef><bpmn:flowNodeRef>Gateway_rd</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_oo</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_oc</bpmn:flowNodeRef></bpmn:lane>
+<bpmn:lane id="Lane_Novis" name="Novis + 98/97"><bpmn:flowNodeRef>Activity_vo</bpmn:flowNodeRef><bpmn:flowNodeRef>Activity_voc</bpmn:flowNodeRef></bpmn:lane>
+<bpmn:lane id="Lane_NAV" name="NAV"><bpmn:flowNodeRef>Activity_po</bpmn:flowNodeRef></bpmn:lane>
+</bpmn:laneSet>
+<bpmn:startEvent id="StartEvent_start" name="Start"><bpmn:outgoing>Flow_0</bpmn:outgoing></bpmn:startEvent>
+<bpmn:task id="Activity_opp" name="Opportunity aanmaken"><bpmn:incoming>Flow_0</bpmn:incoming><bpmn:outgoing>Flow_1</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_knop" name="Knop “Tacton” (status: Needs Analysis)"><bpmn:incoming>Flow_1</bpmn:incoming><bpmn:outgoing>Flow_2</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_oppsol" name="Opportunity – Solution (doorgestreept) – onder water"><bpmn:incoming>Flow_2</bpmn:incoming><bpmn:outgoing>Flow_3</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_sol" name="Solution – Product"><bpmn:incoming>Flow_3</bpmn:incoming><bpmn:incoming>Flow_11</bpmn:incoming><bpmn:outgoing>Flow_4</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_prod" name="Product (status: Needs Analysis)"></bpmn:task>
+<bpmn:task id="Activity_offer" name="Create Offer"><bpmn:incoming>Flow_4</bpmn:incoming><bpmn:outgoing>Flow_5</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_firm" name="Firm Ready"><bpmn:incoming>Flow_5</bpmn:incoming><bpmn:outgoing>Flow_6</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_send" name="Send Proposal ? (“onder water”)"><bpmn:incoming>Flow_6</bpmn:incoming><bpmn:outgoing>Flow_7</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_prop" name="Opportunity (Proposal + doc. sturen)"><bpmn:incoming>Flow_7</bpmn:incoming><bpmn:outgoing>Flow_8</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_neg" name="Opportunity (status: Negotiation)"><bpmn:incoming>Flow_8</bpmn:incoming><bpmn:outgoing>Flow_9</bpmn:outgoing></bpmn:task>
+<bpmn:exclusiveGateway id="Gateway_rd" name="Redesign?"><bpmn:incoming>Flow_9</bpmn:incoming><bpmn:outgoing>Flow_10</bpmn:outgoing><bpmn:outgoing>Flow_11</bpmn:outgoing></bpmn:exclusiveGateway>
+<bpmn:task id="Activity_won" name="Opportunity Closed → Won"><bpmn:incoming>Flow_10</bpmn:incoming><bpmn:outgoing>Flow_12</bpmn:outgoing><bpmn:outgoing>Flow_13</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_oo" name="Open Order"><bpmn:incoming>Flow_12</bpmn:incoming><bpmn:outgoing>Flow_14</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_so1" name="Sales Order (status: Open Order)"><bpmn:incoming>Flow_13</bpmn:incoming></bpmn:task>
+<bpmn:task id="Activity_vo" name="Open VO (verkooporder)"><bpmn:incoming>Flow_14</bpmn:incoming><bpmn:outgoing>Flow_15</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_voc" name="Verkooporder compleet"><bpmn:incoming>Flow_15</bpmn:incoming><bpmn:outgoing>Flow_16</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_oc" name="Order compleet"><bpmn:incoming>Flow_16</bpmn:incoming><bpmn:outgoing>Flow_17</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_so2" name="Sales Order (Complete + Download)"><bpmn:incoming>Flow_17</bpmn:incoming><bpmn:outgoing>Flow_18</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_osend" name="Order send"><bpmn:incoming>Flow_18</bpmn:incoming><bpmn:outgoing>Flow_19</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_oprod" name="Order productie"><bpmn:incoming>Flow_19</bpmn:incoming><bpmn:outgoing>Flow_20</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_po" name="Productieorder"><bpmn:incoming>Flow_20</bpmn:incoming><bpmn:outgoing>Flow_21</bpmn:outgoing></bpmn:task>
+<bpmn:task id="Activity_svc" name="Service artikel"><bpmn:incoming>Flow_21</bpmn:incoming><bpmn:outgoing>Flow_22</bpmn:outgoing></bpmn:task>
+<bpmn:endEvent id="EndEvent_end" name="Afgerond"><bpmn:incoming>Flow_22</bpmn:incoming></bpmn:endEvent>
+<bpmn:sequenceFlow id="Flow_0" sourceRef="StartEvent_start" targetRef="Activity_opp"/>
+<bpmn:sequenceFlow id="Flow_1" sourceRef="Activity_opp" targetRef="Activity_knop"/>
+<bpmn:sequenceFlow id="Flow_2" name="trigger" sourceRef="Activity_knop" targetRef="Activity_oppsol"/>
+<bpmn:sequenceFlow id="Flow_3" sourceRef="Activity_oppsol" targetRef="Activity_sol"/>
+<bpmn:sequenceFlow id="Flow_4" sourceRef="Activity_sol" targetRef="Activity_offer"/>
+<bpmn:sequenceFlow id="Flow_5" sourceRef="Activity_offer" targetRef="Activity_firm"/>
+<bpmn:sequenceFlow id="Flow_6" sourceRef="Activity_firm" targetRef="Activity_send"/>
+<bpmn:sequenceFlow id="Flow_7" sourceRef="Activity_send" targetRef="Activity_prop"/>
+<bpmn:sequenceFlow id="Flow_8" sourceRef="Activity_prop" targetRef="Activity_neg"/>
+<bpmn:sequenceFlow id="Flow_9" sourceRef="Activity_neg" targetRef="Gateway_rd"/>
+<bpmn:sequenceFlow id="Flow_10" name="niet" sourceRef="Gateway_rd" targetRef="Activity_won"></bpmn:sequenceFlow>
+<bpmn:sequenceFlow id="Flow_11" name="wel" sourceRef="Gateway_rd" targetRef="Activity_sol"></bpmn:sequenceFlow>
+<bpmn:sequenceFlow id="Flow_12" sourceRef="Activity_won" targetRef="Activity_oo"/>
+<bpmn:sequenceFlow id="Flow_13" sourceRef="Activity_won" targetRef="Activity_so1"/>
+<bpmn:sequenceFlow id="Flow_14" sourceRef="Activity_oo" targetRef="Activity_vo"/>
+<bpmn:sequenceFlow id="Flow_15" sourceRef="Activity_vo" targetRef="Activity_voc"/>
+<bpmn:sequenceFlow id="Flow_16" sourceRef="Activity_voc" targetRef="Activity_oc"/>
+<bpmn:sequenceFlow id="Flow_17" sourceRef="Activity_oc" targetRef="Activity_so2"/>
+<bpmn:sequenceFlow id="Flow_18" sourceRef="Activity_so2" targetRef="Activity_osend"/>
+<bpmn:sequenceFlow id="Flow_19" sourceRef="Activity_osend" targetRef="Activity_oprod"/>
+<bpmn:sequenceFlow id="Flow_20" sourceRef="Activity_oprod" targetRef="Activity_po"/>
+<bpmn:sequenceFlow id="Flow_21" sourceRef="Activity_po" targetRef="Activity_svc"/>
+<bpmn:sequenceFlow id="Flow_22" sourceRef="Activity_svc" targetRef="EndEvent_end"/>
+<bpmn:association id="Association_3" associationDirection="One" sourceRef="Activity_sol" targetRef="Activity_prod"/>
+<bpmn:association id="Association_13" associationDirection="One" sourceRef="Activity_oo" targetRef="Activity_so1"/>
+<bpmn:group id="Group_f1" categoryValueRef="CategoryValue_f1"/>
+<bpmn:group id="Group_f2" categoryValueRef="CategoryValue_f2"/>
+<bpmn:group id="Group_f3" categoryValueRef="CategoryValue_f3"/>
+<bpmn:group id="Group_f4" categoryValueRef="CategoryValue_f4"/>
+<bpmn:group id="Group_f5" categoryValueRef="CategoryValue_f5"/>
+<bpmn:group id="Group_s1" categoryValueRef="CategoryValue_s1"/>
+<bpmn:group id="Group_s2" categoryValueRef="CategoryValue_s2"/>
+<bpmn:group id="Group_s3" categoryValueRef="CategoryValue_s3"/>
+<bpmn:group id="Group_s4" categoryValueRef="CategoryValue_s4"/>
+<bpmn:group id="Group_s5" categoryValueRef="CategoryValue_s5"/>
+<bpmn:group id="Group_s6" categoryValueRef="CategoryValue_s6"/>
+</bpmn:process>
+<bpmndi:BPMNDiagram id="BPMNDiagram_1"><bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1">
+<bpmndi:BPMNShape id="Participant_1_di" bpmnElement="Participant_1" isHorizontal="true"><dc:Bounds x="20" y="60" width="2814" height="680"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Lane_Salesforce_di" bpmnElement="Lane_Salesforce" isHorizontal="true"><dc:Bounds x="50" y="60" width="2784" height="170"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Lane_Tacton_di" bpmnElement="Lane_Tacton" isHorizontal="true"><dc:Bounds x="50" y="230" width="2784" height="170"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Lane_Novis_di" bpmnElement="Lane_Novis" isHorizontal="true"><dc:Bounds x="50" y="400" width="2784" height="170"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Lane_NAV_di" bpmnElement="Lane_NAV" isHorizontal="true"><dc:Bounds x="50" y="570" width="2784" height="170"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="StartEvent_start_di" bpmnElement="StartEvent_start"><dc:Bounds x="162" y="127" width="36" height="36"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_opp_di" bpmnElement="Activity_opp"><dc:Bounds x="267" y="112" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_knop_di" bpmnElement="Activity_knop"><dc:Bounds x="419" y="112" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_oppsol_di" bpmnElement="Activity_oppsol"><dc:Bounds x="571" y="282" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_sol_di" bpmnElement="Activity_sol"><dc:Bounds x="723" y="282" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_prod_di" bpmnElement="Activity_prod"><dc:Bounds x="723" y="112" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_offer_di" bpmnElement="Activity_offer"><dc:Bounds x="875" y="282" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_firm_di" bpmnElement="Activity_firm"><dc:Bounds x="1027" y="282" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_send_di" bpmnElement="Activity_send"><dc:Bounds x="1179" y="282" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_prop_di" bpmnElement="Activity_prop"><dc:Bounds x="1331" y="112" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_neg_di" bpmnElement="Activity_neg"><dc:Bounds x="1483" y="112" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Gateway_rd_di" bpmnElement="Gateway_rd" isMarkerVisible="true"><dc:Bounds x="1674" y="289" width="52" height="52"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_won_di" bpmnElement="Activity_won"><dc:Bounds x="1787" y="112" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_oo_di" bpmnElement="Activity_oo"><dc:Bounds x="1939" y="282" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_so1_di" bpmnElement="Activity_so1"><dc:Bounds x="1939" y="112" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_vo_di" bpmnElement="Activity_vo"><dc:Bounds x="1939" y="452" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_voc_di" bpmnElement="Activity_voc"><dc:Bounds x="2091" y="452" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_oc_di" bpmnElement="Activity_oc"><dc:Bounds x="2091" y="282" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_so2_di" bpmnElement="Activity_so2"><dc:Bounds x="2091" y="112" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_osend_di" bpmnElement="Activity_osend"><dc:Bounds x="2243" y="112" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_oprod_di" bpmnElement="Activity_oprod"><dc:Bounds x="2395" y="112" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_po_di" bpmnElement="Activity_po"><dc:Bounds x="2395" y="622" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Activity_svc_di" bpmnElement="Activity_svc"><dc:Bounds x="2547" y="112" width="130" height="66"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="EndEvent_end_di" bpmnElement="EndEvent_end"><dc:Bounds x="2746" y="127" width="36" height="36"/></bpmndi:BPMNShape>
+<bpmndi:BPMNEdge id="Flow_0_di" bpmnElement="Flow_0"><di:waypoint x="198" y="145"/><di:waypoint x="267" y="145"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1"><di:waypoint x="397" y="145"/><di:waypoint x="419" y="145"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2"><di:waypoint x="484" y="178"/><di:waypoint x="484" y="315"/><di:waypoint x="571" y="315"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3"><di:waypoint x="701" y="315"/><di:waypoint x="723" y="315"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Association_3_di" bpmnElement="Association_3"><di:waypoint x="788" y="282"/><di:waypoint x="788" y="178"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4"><di:waypoint x="853" y="315"/><di:waypoint x="875" y="315"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5"><di:waypoint x="1005" y="315"/><di:waypoint x="1027" y="315"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6"><di:waypoint x="1157" y="315"/><di:waypoint x="1179" y="315"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_7_di" bpmnElement="Flow_7"><di:waypoint x="1309" y="315"/><di:waypoint x="1396" y="315"/><di:waypoint x="1396" y="178"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_8_di" bpmnElement="Flow_8"><di:waypoint x="1461" y="145"/><di:waypoint x="1483" y="145"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_9_di" bpmnElement="Flow_9"><di:waypoint x="1613" y="145"/><di:waypoint x="1700" y="145"/><di:waypoint x="1700" y="289"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_10_di" bpmnElement="Flow_10"><di:waypoint x="1726" y="315"/><di:waypoint x="1770" y="315"/><di:waypoint x="1770" y="145"/><di:waypoint x="1787" y="145"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_11_di" bpmnElement="Flow_11"><di:waypoint x="1700" y="341"/><di:waypoint x="1700" y="378"/><di:waypoint x="788" y="378"/><di:waypoint x="788" y="348"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_12_di" bpmnElement="Flow_12"><di:waypoint x="1852" y="178"/><di:waypoint x="1852" y="260"/><di:waypoint x="1915" y="260"/><di:waypoint x="1915" y="315"/><di:waypoint x="1939" y="315"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_13_di" bpmnElement="Flow_13"><di:waypoint x="1917" y="145"/><di:waypoint x="1939" y="145"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Association_13_di" bpmnElement="Association_13"><di:waypoint x="2004" y="282"/><di:waypoint x="2004" y="178"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_14_di" bpmnElement="Flow_14"><di:waypoint x="2004" y="348"/><di:waypoint x="2004" y="452"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_15_di" bpmnElement="Flow_15"><di:waypoint x="2069" y="485"/><di:waypoint x="2091" y="485"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_16_di" bpmnElement="Flow_16"><di:waypoint x="2156" y="452"/><di:waypoint x="2156" y="348"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_17_di" bpmnElement="Flow_17"><di:waypoint x="2156" y="282"/><di:waypoint x="2156" y="178"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_18_di" bpmnElement="Flow_18"><di:waypoint x="2221" y="145"/><di:waypoint x="2243" y="145"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_19_di" bpmnElement="Flow_19"><di:waypoint x="2373" y="145"/><di:waypoint x="2395" y="145"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_20_di" bpmnElement="Flow_20"><di:waypoint x="2460" y="178"/><di:waypoint x="2460" y="622"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_21_di" bpmnElement="Flow_21"><di:waypoint x="2525" y="655"/><di:waypoint x="2612" y="655"/><di:waypoint x="2612" y="178"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNEdge id="Flow_22_di" bpmnElement="Flow_22"><di:waypoint x="2677" y="145"/><di:waypoint x="2746" y="145"/></bpmndi:BPMNEdge>
+<bpmndi:BPMNShape id="Group_f1_di" bpmnElement="Group_f1"><dc:Bounds x="50" y="60" width="510" height="680"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Group_f2_di" bpmnElement="Group_f2"><dc:Bounds x="560" y="60" width="608" height="680"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Group_f3_di" bpmnElement="Group_f3"><dc:Bounds x="1168" y="60" width="588" height="680"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Group_f4_di" bpmnElement="Group_f4"><dc:Bounds x="1756" y="60" width="476" height="680"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Group_f5_di" bpmnElement="Group_f5"><dc:Bounds x="2232" y="60" width="602" height="680"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Group_s1_di" bpmnElement="Group_s1"><dc:Bounds x="154" y="60" width="251" height="680"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Group_s2_di" bpmnElement="Group_s2"><dc:Bounds x="411" y="60" width="906" height="680"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Group_s3_di" bpmnElement="Group_s3"><dc:Bounds x="1323" y="60" width="146" height="680"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Group_s4_di" bpmnElement="Group_s4"><dc:Bounds x="1475" y="60" width="259" height="680"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Group_s5_di" bpmnElement="Group_s5"><dc:Bounds x="1779" y="60" width="146" height="680"/></bpmndi:BPMNShape>
+<bpmndi:BPMNShape id="Group_s6_di" bpmnElement="Group_s6"><dc:Bounds x="1931" y="60" width="298" height="680"/></bpmndi:BPMNShape>
+</bpmndi:BPMNPlane></bpmndi:BPMNDiagram>
+</bpmn:definitions>
