@@ -15986,10 +15986,28 @@ function captureProcessLevelKept(doc, proc, displayIdToUid, flowIdToUid, partEl)
   const categories = Array.from(doc.documentElement.children).filter(c => c.namespaceURI === B && c.localName === 'category'
     && Array.from(c.children).some(v => categoryRefs.has(v.getAttribute('id')))).map(keptElementXml);
   const di = [];
+  // T-1473 (T-1461 F3): the file's pool band (y, height of our participant's shape, else the union of our lanes'), so
+  // a group can be told to span the pool's full height (a phase) or not (a box, kept undrawn). View data only: never
+  // written; recorded only when there are categories, so a map without them keeps exactly what it kept before.
+  let band = null;
+  const partId = partEl && partEl.getAttribute('id');
+  const laneIds = new Set(Array.from(proc.getElementsByTagNameNS(B, 'lane')).map(l => l.getAttribute('id')).filter(Boolean));
+  const boundsOf = el => { const b = Array.from(el.children).find(c => c.localName === 'Bounds');
+    const r = b && [parseFloat(b.getAttribute('y')), parseFloat(b.getAttribute('height'))]; return r && r.every(Number.isFinite) ? r : null; };
+  const laneBands = [];
   for (const el of doc.getElementsByTagNameNS(IO_EXPORT_ROOT_NS.bpmndi, '*')) {
     if ((el.localName === 'BPMNShape' || el.localName === 'BPMNEdge') && keptIds.has(el.getAttribute('bpmnElement'))) {
       di.push({ ref: el.getAttribute('bpmnElement'), xml: keptElementXml(el) });
     }
+    if (categories.length && el.localName === 'BPMNShape') {
+      const ref = el.getAttribute('bpmnElement'), r = (ref === partId || laneIds.has(ref)) ? boundsOf(el) : null;
+      if (r && ref === partId) band = { y: r[0], h: r[1] };
+      else if (r) laneBands.push(r);
+    }
+  }
+  if (categories.length && !band && laneBands.length) {
+    const y0 = Math.min(...laneBands.map(r => r[0])), y1 = Math.max(...laneBands.map(r => r[0] + r[1]));
+    band = { y: y0, h: y1 - y0 };
   }
   const procDocs = Array.from(proc.children).filter(c => c.namespaceURI === B && c.localName === 'documentation').map(keptElementXml);
   // T-1327 (F11): a comment among the process's children is kept before the element that followed it (a node or flow
@@ -16008,6 +16026,7 @@ function captureProcessLevelKept(doc, proc, displayIdToUid, flowIdToUid, partEl)
   const rk = elementKept(doc.documentElement, ROOT_READ_ATTRS, () => true);
   const out = {
     ...(artifacts.length ? { artifacts } : {}), ...(categories.length ? { categories } : {}), ...(di.length ? { di } : {}),
+    ...(band ? { poolBand: band } : {}),
     ...(procDocs.length ? { procDocs } : {}), ...(comments.length ? { comments } : {}),
     ...(pk && pk.attrs.length ? { procAttrs: pk.attrs } : {}), ...(pk && pk.ext.length ? { procExt: pk.ext } : {}),
     ...(rk && rk.attrs.length ? { rootAttrs: rk.attrs } : {}),
@@ -16460,7 +16479,8 @@ function noteObstacles() {
 }
 // T-1473 (T-1461 GO, slice 1): phases drawn read-only from the kept groups and categories (T-1326, state.procKept), as
 // T-1447 draws the notes: nothing here writes state, and save keeps emitting the kept XML exactly as before. A phase is
-// a bpmn:group whose categoryValueRef names a value of a root bpmn:category; its x range is its shape's. The FIRST
+// a bpmn:group whose categoryValueRef names a value of a root bpmn:category AND whose shape spans the pool's full height
+// in the file (T-1461 F3: any other group is a box, kept and undrawn); its x range is its shape's. The FIRST
 // category in document order is row 1: a dashed divider through all lanes at each boundary between two of its phases,
 // and a named bracket per phase just above the pool. Every further category is a further row of brackets above, with no
 // dividers (Greenfield msgs 6ae1899a / 42171201: 'Fase' row 1, 'Fase in Salesforce' row 2). Bands are clamped to the
@@ -16479,9 +16499,13 @@ function phasesParse(pk) {
   for (const d of pk.di || []) {
     const e = parse(d.xml); if (!e || e.localName !== 'BPMNShape') continue;
     const b = Array.from(e.children).find(c => c.localName === 'Bounds');
-    const r = b && ['x', 'width'].map(a => parseFloat(b.getAttribute(a)));
-    if (r && r.every(Number.isFinite) && r[1] > 0) shapes.set(d.ref, { x: r[0], w: r[1] });
+    const r = b && ['x', 'width', 'y', 'height'].map(a => parseFloat(b.getAttribute(a)));
+    if (r && r.every(Number.isFinite) && r[1] > 0) shapes.set(d.ref, { x: r[0], w: r[1], y: r[2], h: r[3] });
   }
+  // F3: a group is a phase only when it spans the pool's full height (Greenfield's phases do; a bpmn.io box around a
+  // few elements, as the kitchen-sink's three, does not and stays a kept, undrawn group). No pool band, no phases.
+  const band = pk.poolBand, TOL = 2;
+  const spans = s => !!band && s.y <= band.y + TOL && s.y + s.h >= band.y + band.h - TOL;
   const valueRow = new Map(), rows = [];   // categoryValue id -> { row, name }
   for (const xml of pk.categories || []) {
     const c = parse(xml); if (!c) continue;
@@ -16492,7 +16516,7 @@ function phasesParse(pk) {
   for (const a of pk.artifacts || []) {
     const e = parse(a.xml); if (!e || e.localName !== 'group') continue;
     const v = valueRow.get(e.getAttribute('categoryValueRef') || ''), s = shapes.get(e.getAttribute('id') || '');
-    if (v && s) rows[v.row].phases.push({ id: e.getAttribute('id'), name: v.name, x: s.x, w: s.w });
+    if (v && s && spans(s)) rows[v.row].phases.push({ id: e.getAttribute('id'), name: v.name, x: s.x, w: s.w });
   }
   const out = rows.filter(r => r.phases.length).map(r => ({ ...r, phases: r.phases.sort((p, q) => p.x - q.x) }));
   _phasesParsed.set(pk, out);

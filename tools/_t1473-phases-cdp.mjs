@@ -10,6 +10,8 @@
 //   P4 [every map in examples/aef-processes/rendered] a map without groups draws nothing in the phase layer
 //   P5 [fixture, 1440] the import notice does not list the groups drawn as phases as "not shown yet" (the first
 //      shots still said "11 groups kept unchanged and saved back, not shown yet" over the drawn phases)
+//   P6 [tests/fixtures/third-party/kitchen-sink.bpmn] groups that do not span the pool's full height are boxes, not
+//      phases (T-1461 F3): none drawn, the notice still counts them (the first cut drew them; _t1327 leg3 caught it)
 // Teeth: T1473_EDITOR=<the 0.46.0 designer> fails P1 (no phase layer).
 // T1473_SHOTS=<dir> writes phases-{1024,1440,1920}.png of the opening view.
 import { readFileSync, mkdtempSync, copyFileSync, existsSync, readdirSync, rmSync, writeFileSync, mkdirSync } from 'node:fs';
@@ -156,6 +158,14 @@ try {
     if (n !== 0) drew.push(`${f}: ${n}`);
   }
   leg(corpus.length > 0 && !drew.length, `P4 [${corpus.length} corpus maps without groups] no phase layer content`, drew.slice(0, 4).join('; '));
+  // P6: groups that are boxes, not phases (T-1461 F3): the kitchen-sink's three bpmn.io groups, each with its own
+  // category, sit inside one lane; none is drawn as a phase, and the notice still counts them as kept, not shown
+  const ks = await ev(`(function(x){ adoptImportedXml(x, { userImport: true }); renderAll();
+    var g = document.getElementById('g-phases'); var n = document.getElementById('lane-fix-notice');
+    return { drawn: g ? g.childNodes.length : -1, note: n ? n.textContent.replace(/\\s+/g, ' ') : '' }; })(${JSON.stringify(readFileSync(join(ROOT, 'tests/fixtures/third-party/kitchen-sink.bpmn'), 'utf8'))})`);
+  leg(ks.drawn === 0 && /3 groups kept unchanged/.test(ks.note),
+    `P6 [kitchen-sink: 3 groups inside one lane, each its own category] none drawn as a phase; the notice still counts the 3 groups`,
+    ks.drawn !== 0 ? `${ks.drawn} phase element(s) drawn` : (/3 groups/.test(ks.note) ? '' : 'notice: ' + ks.note.slice(0, 160)));
 } catch (e) {
   leg(false, 'harness error', String(e && e.message || e).slice(0, 300));
 } finally {
