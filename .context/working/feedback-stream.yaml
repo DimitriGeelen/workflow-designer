@@ -24017,3 +24017,21 @@ scan_id: R-dc1d5f1f
 task_id: T-1493
 payload:
   task_file: .tasks/active/T-1493-properties-panel-the-lane-dropdown-lists.md
+---
+kind: scan_emitted
+timestamp: '2026-11-23T21:51:26Z'
+scan_id: R-c2017430
+task_id: T-1497
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-23T21:51:26Z'
+scan_id: R-c2017430
+task_id: T-1497
+payload:
+  task_file: .tasks/active/T-1497-release-designer-0470-greenfields-phases.md
