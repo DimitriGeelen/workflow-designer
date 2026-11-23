@@ -1,0 +1,110 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1493: Properties panel: the Lane dropdown lists lane ids (Lane_Salesforce) where the canvas shows lane names
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-23T15:54:35Z
+# ============================================================================
+
+task_id: T-1493
+task_name: "Properties panel: the Lane dropdown lists lane ids (Lane_Salesforce) where the canvas shows lane names"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-23T14:43:53Z
+completed: 2026-11-23T15:54:20Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-23T16:41:44+01:00
+last_commit: 2026-11-23T16:54:03+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the Lane dropdown shows lane names, as the canvas does, and still stores the id (Greenfield msg 2e879869, 2a): selectField takes { value, label } options; a nameless lane shows its id, same-named lanes are told apart by id. Browser leg test_t1493_lane_names (L1-L4; 0.46.0 fails L1); shots at 1024/1440/1920; RCA. reviewer verdict. before images (0.46.0, same step and widths) for the second judgement; the criterion names the fields that must be unchanged and the two expected differences from other tasks. evidence and the reviewer's green before the close
+
+# Key outcomes
+outcomes:
+  - 'On an imported map whose lanes have ids and names that differ, the Lane dropdown''s option texts are the names and'
+  - 'Saved bytes unchanged for an unedited map: byte-identity goldens and the browser tier green on a round'
+  - 'A step''s Lane field reads the lane''s name, as the canvas does'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1493/AC1-judge-t-1493-r3-2b8dc74b8657.md'
+  - '.context/reviews/evidence/T-1493/AC1-judge-t-1493-r3-f72757a18d25.md'
+  - '.context/reviews/evidence/T-1493/lane-field-1024-judge-t-1493-r3-2b8dc74b8657.png'
+  - '.context/reviews/evidence/T-1493/lane-field-1024-judge-t-1493-r3-f72757a18d25.png'
+  - '.context/reviews/evidence/T-1493/lane-field-1440-judge-t-1493-r3-2b8dc74b8657.png'
+  - '.context/reviews/evidence/T-1493/lane-field-1440-judge-t-1493-r3-f72757a18d25.png'
+  - '.context/reviews/evidence/T-1493/lane-field-1920-judge-t-1493-r3-2b8dc74b8657.png'
+  - '.context/reviews/evidence/T-1493/lane-field-1920-judge-t-1493-r3-f72757a18d25.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1493-properties-panel-the-lane-dropdown-lists.md'
+  - 'docs/reports/T-1493-shots/lane-field-1024.png'
+  - 'docs/reports/T-1493-shots/lane-field-1440.png'
+  - 'docs/reports/T-1493-shots/lane-field-1920.png'
+  - 'docs/reports/T-1493-shots/lane-field-before-1024.png'
+  - 'docs/reports/T-1493-shots/lane-field-before-1440.png'
+  - 'docs/reports/T-1493-shots/lane-field-before-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1493-lane-names-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-23T16:41:44'
+    action: 'T-1493: the Lane dropdown shows lane names, as the canvas does, and still stores the id (Greenfield msg 2e879869, 2a): selectField takes { value, label } options; a nameless lane shows its id, same-named lanes are told apart by id. Browser leg test_t1493_lane_names (L1-L4; 0.46.0 fails L1); shots at 1024/1440/1920; RCA'
+  - time: '2026-11-23T16:51:44'
+    action: 'T-1493: reviewer verdict'
+  - time: '2026-11-23T16:52:35'
+    action: 'T-1493: before images (0.46.0, same step and widths) for the second judgement; the criterion names the fields that must be unchanged and the two expected differences from other tasks'
+  - time: '2026-11-23T16:53:22'
+    action: 'T-1493: reviewer verdict'
+  - time: '2026-11-23T16:54:03'
+    action: 'T-1493: evidence and the reviewer''s green before the close'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 70 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [designer, greenfield, panel, bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 70
+  commits: 6
+  files_changed: 28
+  lines_added: 383
+  lines_removed: 20
+  footprint_refreshed_at: '2026-11-23T15:54:45Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1493-properties-panel-the-lane-dropdown-lists.md
+generated_by: context-agent-hybrid

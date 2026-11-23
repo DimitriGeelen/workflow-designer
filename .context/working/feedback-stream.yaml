@@ -23999,3 +23999,21 @@ scan_id: R-a1a93b12
 task_id: T-1494
 payload:
   task_file: .tasks/active/T-1494-properties-panel-a-plain-bpmntask-is-tit.md
+---
+kind: scan_emitted
+timestamp: '2026-11-23T15:54:27Z'
+scan_id: R-dc1d5f1f
+task_id: T-1493
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-23T15:54:27Z'
+scan_id: R-dc1d5f1f
+task_id: T-1493
+payload:
+  task_file: .tasks/active/T-1493-properties-panel-the-lane-dropdown-lists.md
