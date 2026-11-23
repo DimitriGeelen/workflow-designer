@@ -1,0 +1,122 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1473: Phases slice 1: draw phases from the file (bpmn:group + bpmn:category as phase bands: dividers through all lanes, a named bracket per phase above the pool, a second row, optional tint; read-only)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-23T15:26:25Z
+# ============================================================================
+
+task_id: T-1473
+task_name: "Phases slice 1: draw phases from the file (bpmn:group + bpmn:category as phase bands: dividers through all lanes, a named bracket per phase above the pool, a second row, optional tint; read-only)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-21T15:17:26Z
+completed: 2026-11-23T15:26:09Z
+duration_days: 2
+updates_count: 4
+first_commit: 2026-11-21T16:18:08+01:00
+last_commit: 2026-11-23T16:25:23+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  filed — phases slice 1 (draw only), the build of T-1461's GO (operator, c5b41a195); T-1461's Updates name it. Greenfield's phases sample as a fixture (ws-otb-fasen-voorbeeld.bpmn, 19227 bytes, sha256 7d37c5e3fc4922bf..., owner-approved, msg b50d7741): 2 bpmn:category (Fase 5 values, Fase in Salesforce 6), 11 bpmn:group with shapes; no documentation or io. phases slice 1 — Greenfield's phases drawn read-only from the kept groups and categories (T-1326): the first category is row 1 (a named bracket per phase above the pool, a dashed divider through all lanes at each boundary), each further category a row of brackets above it; names trimmed to their bracket with the full name as a tooltip, counted in the opening zoom's readable floor; the import notice no longer calls groups drawn as phases 'not shown yet'. Save untouched. Browser leg test_t1473_phases (P1-P5; 0.46.0 fails all). a group is a phase only when its shape spans the pool's full height (T-1461 F3) — the first cut drew the kitchen-sink's three bpmn.io boxes (each its own category, inside one lane) as phase rows, and the notice stopped counting them; the round at bbcb5a0bc was red on _t1327 leg3, pool and here alike. The import records the file's pool band (participant shape, else the lanes' union) as view data, only when there are categories; never written. Leg P6 (HEAD fails it: 3 phase elements drawn); _t1327 and byte-identity green. review criterion, verification, visual-verification table and the shots (phases-{1024,1440,1920}.png, Greenfield's sample as it opens). reviewer verdict. the shots for the second judgement — each width on a fresh page (storage cleared: the first 1440/1920 shots were a restored draft, renamed _v2), plus the whole pool at Fit; the reviewer's amber (a)-(c) answered on the criterion
+
+# Key outcomes
+outcomes:
+  - 'Phases drawn from the kept XML on `tests/fixtures/greenfield/ws-otb-fasen-voorbeeld.bpmn`: 5 row-1 brackets named Opportunity … Productie & service, 4 dividers through all lanes, 6 row-2 brackets above them and no row-2 dividers; each bracket spans its group''s x range; nothing of them hidden outside the canvas (brackets inside the drawn area) — a browser leg at 1024/1440/1920, failed by 0.46.0'
+  - 'Read-only: a save of the fixture is byte-identical with and without the drawing (the groups, categories and shapes as kept); a map without groups draws no phase layer; the browser tier and person-sees gate green on a round'
+  - 'The phase names readable at the opening zoom (>= OPEN_MIN_TEXT_PX, or counted in openingZoom), and no bracket name overlapping another bracket name or the pool header'
+  - 'Greenfield''s phases read as phases of the process: each name over the stretch of steps it covers, the two rows told apart, the dividers placing the steps in their phase without hiding anything'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Greenfield''s phases sample as a fixture (ws-otb-fasen-voorbeeld.bpmn, 19227 bytes, sha256 7d37c5e3fc4922bf..., owner-approved, msg b50d7741): 2 bpmn:category (Fase 5 values, Fase in Salesforce 6), 11 bpmn:group with shapes; no documentation or io'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/evidence/T-1473/AC1-judge-t-1473-r3-19b4190a6444.md'
+  - '.context/reviews/evidence/T-1473/AC1-judge-t-1473-r3-b0662ea3eace.md'
+  - '.context/reviews/evidence/T-1473/phases-1024-judge-t-1473-r3-19b4190a6444.png'
+  - '.context/reviews/evidence/T-1473/phases-1024-judge-t-1473-r3-b0662ea3eace.png'
+  - '.context/reviews/evidence/T-1473/phases-1440-judge-t-1473-r3-19b4190a6444.png'
+  - '.context/reviews/evidence/T-1473/phases-1440-judge-t-1473-r3-b0662ea3eace.png'
+  - '.context/reviews/evidence/T-1473/phases-1920-judge-t-1473-r3-19b4190a6444.png'
+  - '.context/reviews/evidence/T-1473/phases-1920-judge-t-1473-r3-b0662ea3eace.png'
+  - '.context/reviews/evidence/T-1473/phases-fit-1024-judge-t-1473-r3-19b4190a6444.png'
+  - '.context/reviews/evidence/T-1473/phases-fit-1440-judge-t-1473-r3-19b4190a6444.png'
+  - '.context/reviews/evidence/T-1473/phases-fit-1920-judge-t-1473-r3-19b4190a6444.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1473-phases-slice-1-draw-phases-from-the-file.md'
+  - '.tasks/completed/T-1461-should-the-designer-draw-phases-across-a.md'
+  - 'docs/reports/T-1473-shots/phases-1024.png'
+  - 'docs/reports/T-1473-shots/phases-1440.png'
+  - 'docs/reports/T-1473-shots/phases-1920.png'
+  - 'docs/reports/T-1473-shots/phases-fit-1024.png'
+  - 'docs/reports/T-1473-shots/phases-fit-1440.png'
+  - 'docs/reports/T-1473-shots/phases-fit-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/fixtures/greenfield/ws-otb-fasen-voorbeeld.bpmn'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1473-phases-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-21T16:18:08'
+    action: 'T-1473: filed — phases slice 1 (draw only), the build of T-1461''s GO (operator, c5b41a195); T-1461''s Updates name it'
+  - time: '2026-11-23T14:30:07'
+    action: 'T-1473: Greenfield''s phases sample as a fixture (ws-otb-fasen-voorbeeld.bpmn, 19227 bytes, sha256 7d37c5e3fc4922bf..., owner-approved, msg b50d7741): 2 bpmn:category (Fase 5 values, Fase in Salesforce 6), 11 bpmn:group with shapes; no documentation or io'
+  - time: '2026-11-23T15:57:54'
+    action: 'T-1473: phases slice 1 — Greenfield''s phases drawn read-only from the kept groups and categories (T-1326): the first category is row 1 (a named bracket per phase above the pool, a dashed divider through all lanes at each boundary), each further category a row of brackets above it; names trimmed to their bracket with the full name as a tooltip, counted in the opening zoom''s readable floor; the import notice no longer calls groups drawn as phases ''not shown yet''. Save untouched. Browser leg test_t1473_phases (P1-P5; 0.46.0 fails all)'
+  - time: '2026-11-23T16:11:13'
+    action: 'T-1473: a group is a phase only when its shape spans the pool''s full height (T-1461 F3) — the first cut drew the kitchen-sink''s three bpmn.io boxes (each its own category, inside one lane) as phase rows, and the notice stopped counting them; the round at bbcb5a0bc was red on _t1327 leg3, pool and here alike. The import records the file''s pool band (participant shape, else the lanes'' union) as view data, only when there are categories; never written. Leg P6 (HEAD fails it: 3 phase elements drawn); _t1327 and byte-identity green'
+  - time: '2026-11-23T16:11:14'
+    action: 'T-1473: review criterion, verification, visual-verification table and the shots (phases-{1024,1440,1920}.png, Greenfield''s sample as it opens)'
+  - time: '2026-11-23T16:23:01'
+    action: 'T-1473: reviewer verdict'
+  - time: '2026-11-23T16:24:16'
+    action: 'T-1473: the shots for the second judgement — each width on a fresh page (storage cleared: the first 1440/1920 shots were a restored draft, renamed _v2), plus the whole pool at Fit; the reviewer''s amber (a)-(c) answered on the criterion'
+  - time: '2026-11-23T16:25:23'
+    action: 'T-1473: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 8 commit(s), 2888 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2888
+  commits: 9
+  files_changed: 33
+  lines_added: 1132
+  lines_removed: 32
+  footprint_refreshed_at: '2026-11-23T15:26:32Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1473-phases-slice-1-draw-phases-from-the-file.md
+generated_by: context-agent-hybrid

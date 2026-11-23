@@ -11,13 +11,13 @@ description: >
   only; saved bytes unchanged (kitchen-sink golden identical). Greenfield's workshop
   map ws-2026-11-06-offerte-tot-order: 5 phases at x 560/1016/1604/2080.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: [T-1461]
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -46,8 +46,8 @@ related_tasks: [T-1461]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T15:17:26Z
-last_update: 2026-11-23T14:53:48Z
-date_finished:
+last_update: 2026-11-23T15:26:09Z
+date_finished: 2026-11-23T15:26:09Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -123,7 +123,7 @@ further row above. Read-only: nothing saved changes. No tint in slice 1.
   red on _t1327 leg3 on both sides: the F3 rule had been left out; fixed in ef783f295.
 
 ### Human
-- [ ] Greenfield's phases read as phases of the process: each name over the stretch of steps it covers, the two rows told apart, the dividers placing the steps in their phase without hiding anything
+- [x] Greenfield's phases read as phases of the process: each name over the stretch of steps it covers, the two rows told apart, the dividers placing the steps in their phase without hiding anything
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1473 --criterion 1`), who may escalate.
   **Steps:**
   1. `docs/reports/T-1473-shots/phases-{1024,1440,1920}.png`: Greenfield's sample (tests/fixtures/greenfield/ws-otb-fasen-voorbeeld.bpmn) as it opens on a fresh page (process_nooteboom), phases drawn above the pool ('Fase' row 1 with dividers; 'Fase in Salesforce' row 2 above it); `phases-fit-{1024,1440,1920}.png`: the same map at Fit (⤢), the whole pool with every phase of both rows
@@ -175,6 +175,7 @@ further row above. Read-only: nothing saved changes. No tint in slice 1.
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261123-82dc9545 — reviewer-judge-t-1473-r3-19b4190a6444:reviewer (rung rung-3-termlink-single-reviewer), digest 7672d0bfc8d6; dispatch judge-t-1473-r3-19b4190a6444; evidence: .context/reviews/evidence/T-1473/AC1-judge-t-1473-r3-19b4190a6444.md, .context/reviews/evidence/T-1473/phases-fit-1024-judge-t-1473-r3-19b4190a6444.png, .context/reviews/evidence/T-1473/phases-fit-1440-judge-t-1473-r3-19b4190a6444.png, .context/reviews/evidence/T-1473/phases-fit-1920-judge-t-1473-r3-19b4190a6444.png, .context/reviews/evidence/T-1473/phases-1024-judge-t-1473-r3-19b4190a6444.png, .context/reviews/evidence/T-1473/phases-1440-judge-t-1473-r3-19b4190a6444.png, .context/reviews/evidence/T-1473/phases-1920-judge-t-1473-r3-19b4190a6444.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -433,3 +434,21 @@ edge of 1440 is cut by the viewport, not by the bracket.
 
 ### 2026-11-23T14:53:48Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-23T15:26:09Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-8e3c42d4
+- **Timestamp:** 2026-11-23T15:26:19Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — Phases drawn from the kept XML on `tests/fixtures/greenfield/ws-otb-fasen-voorbeeld.bpmn`: 5 row-1 brackets named Opportunity … Productie & service, 4 dividers through all lanes, 6 row-2 brackets abov
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/fixtures/greenfield/ws-otb-fasen-voorbeeld.bpmn in: Phases drawn from the kept XML on `tests/fixtures/greenfield/ws-otb-fasen-voorbeeld.bpmn`: 5 row-1 brackets named Opportunity … Productie & service, 4`
