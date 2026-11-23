@@ -42,7 +42,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T12:17:01Z
-last_update: 2026-11-23T12:57:49Z
+last_update: '2026-11-23T14:44:13Z'
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -73,6 +73,25 @@ bvp_scores_proposed:
       body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
       F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
       about,L0: no signal)'
+    rubric_sha: e4a00f38e801
+  - ts: '2026-11-23T14:44:13Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 2
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=2 (body:lightly-promoted); F2=0 (no-signal); F4=0 (basis: task body
+      — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=0 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L0: no signal)'
     rubric_sha: e4a00f38e801
 ---
 
@@ -107,7 +126,11 @@ the task's top edge, clear of the text; a badge that meets nothing stays where i
 - [ ] The io badge no longer covers the name and still reads as the task's own
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1469 --criterion 1`), who may escalate.
   **Steps:**
-  1. `docs/reports/T-1469-shots/io-badge-before-1440.png` (0.46.0) and `io-badge-{1024,1440,1920}.png` (new): the task 'Opportunity – Solution (doorgestreept) – onder water' with its "1→1" badge
+  1. `docs/reports/T-1469-shots/io-badge-before-{1024,1440}.png` (0.46.0) and `io-badge-{1024,1440,1920}.png` (new): the task 'Opportunity – Solution (doorgestreept) – onder water' with its "1→1" badge
+     (first judgement, amber, V-20261123-64b8c601: badge and four lines readable at all three widths; at 1024 the pinned
+     'FRAMEWORK AUTHORITY' lane header covers the start event 'Investigation requested'. `io-badge-before-1024.png` shows
+     the same cover in 0.46.0: the shots are scrolled right at 200% to centre the task, and the lane header stays pinned
+     at the left edge over what scrolls under it. Not this change; captured as its own task, T-1496.)
   2. Judge: is every name line fully readable; does the badge, now on the top edge, still read as belonging to that task (not to a neighbour, not to a flow); is anything else covered
   **Expected:** before: the badge covers the end of the first line; after: all four lines readable, the badge clearly the task's.
   **If not:** say what is covered or ambiguous; the agent adjusts.
