@@ -13,13 +13,13 @@ description: >
   check byte-identity goldens and the corpus for equal-x steps first (saved bytes
   of maps that keep their file ids must not move).
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -48,8 +48,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T16:35:54Z
-last_update: 2026-11-23T12:38:11Z
-date_finished:
+last_update: 2026-11-23T14:52:20Z
+date_finished: 2026-11-23T14:52:20Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -105,8 +105,11 @@ are stable; imported maps byte-identical as before.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The starter map's node and edge uids are derived deterministically from its code ids (no Math.random), unique within the map; its display ids are identical across page loads — a browser leg loads the designer three times and compares the starter's full display-id list (control: the old designer gives different lists)
-- [ ] No imported or saved map changes: the byte-identity goldens and the browser tier green on a high-risk round
+- [x] The starter map's node and edge uids are derived deterministically from its code ids (no Math.random), unique within the map; its display ids are identical across page loads — a browser leg loads the designer three times and compares the starter's full display-id list (control: the old designer gives different lists)
+- [x] No imported or saved map changes: the byte-identity goldens and the browser tier green on a high-risk round
+  Evidence: browser tier at 6447fb8a3 (contains T-1475's change), high-risk round, "pool and local both green"
+  (build/tiergate/tier-browser.runs.log, 2026-11-23T13:40:53Z; 161/161 legs incl. test_t1475_starter_ids_stable and
+  _t358-byteid-thirdparty). Re-run 2026-11-23 on the working tree: D1/D2 PASS, byte-identity PASS.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -292,6 +295,9 @@ are stable; imported maps byte-identical as before.
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+node tools/_t1475-starter-ids-stable-cdp.mjs > /tmp/.t1475.out 2>&1
+timeout 300 node tools/_t358-byteid-thirdparty.mjs > /tmp/.t1475-byteid.out 2>&1
+grep -q "starterUid('n'" src/aef-workflow-designer.html
 
 ## RCA
 
@@ -393,3 +399,16 @@ are stable; imported maps byte-identical as before.
 ### 2026-11-23T12:35:48Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-23T14:52:20Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-3946a529
+- **Timestamp:** 2026-11-23T14:52:27Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1475: Display ids: steps at the same x in one lane are numbered in random order (uids from Math.random break the tie), so the starter map's stacked search tasks change ids per page load
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-23T14:52:35Z
+# ============================================================================
+
+task_id: T-1475
+task_name: "Display ids: steps at the same x in one lane are numbered in random order (uids from Math.random break the tie), so the starter map's stacked search tasks change ids per page load"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-21T16:35:54Z
+completed: 2026-11-23T14:52:20Z
+duration_days: 2
+updates_count: 3
+first_commit: 2026-11-23T13:38:12+01:00
+last_commit: 2026-11-23T13:38:12+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the starter map's uids are derived from its code ids (the importer's FNV-1a hash, salted on a clash) instead of Math.random, so its display ids are the same on every load (the stacked search tasks renumbered per load; equal-x steps tie-break by uid). Imported maps untouched (already deterministic); tie-break unchanged so no stored id moves. Browser leg test_t1475_starter_ids_stable (D1 3 loads identical; D2 the tie exists); the old designer fails D1
+
+# Key outcomes
+outcomes:
+  - 'The starter map''s node and edge uids are derived deterministically from its code ids (no Math.random), unique within the map; its display ids are identical across page loads — a browser leg loads the designer three times and compares the starter''s full display-id list (control: the old designer gives different lists)'
+  - 'No imported or saved map changes: the byte-identity goldens and the browser tier green on a high-risk round'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1475-display-ids-steps-at-the-same-x-in-one-l.md'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1475-starter-ids-stable-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-23T13:38:12'
+    action: 'T-1475: the starter map''s uids are derived from its code ids (the importer''s FNV-1a hash, salted on a clash) instead of Math.random, so its display ids are the same on every load (the stacked search tasks renumbered per load; equal-x steps tie-break by uid). Imported maps untouched (already deterministic); tie-break unchanged so no stored id moves. Browser leg test_t1475_starter_ids_stable (D1 3 loads identical; D2 the tie exists); the old designer fails D1'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2776 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2776
+  commits: 2
+  files_changed: 6
+  lines_added: 255
+  lines_removed: 23
+  footprint_refreshed_at: '2026-11-23T14:56:56Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1475-display-ids-steps-at-the-same-x-in-one-l.md
+generated_by: context-agent-hybrid
