@@ -50,7 +50,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T16:27:27Z
-last_update: 2026-11-23T13:54:00Z
+last_update: '2026-11-23T14:44:14Z'
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -81,6 +81,25 @@ bvp_scores_proposed:
       body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
       F1=2 (basis: task body — no hypothesis, so this score has no claim to be wrong
       about,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
+  - ts: '2026-11-23T14:44:14Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 2
+      F2: 1
+      F4: 1
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=2 (body:lightly-promoted); F2=1 (body/components:component-fabric-incidental);
+      F4=1 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L1:keyword=lane); F3=0 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L0: no signal); F1=2 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L2:keyword=import)'
     rubric_sha: e4a00f38e801
 ---
 
@@ -120,6 +139,13 @@ renders every corpus map at fit, 100% and 200% and finds every flow label in the
   1. `docs/reports/T-1474-shots/{v046,new}-review-emission-{1024,1440,1920}.png`: the flow from the gateway "Task file found?" down to "return 1 — no task file", labelled "not found"
   2. `docs/reports/T-1474-shots/{v046,new}-verification-gate-1440.png` and `{v046,new}-task-lifecycle-1440.png`: every flow label
   3. Judge: new vs v046, does "not found" still read as the label of its drop (not of another line), clear of the gateway name; does any other flow label read worse
+  4. At 1024 (first judgement, amber: "only 'not' shows"): the open side panel ends the visible canvas there, and the
+     map continues under it; the gateway's right-hand ("found") flow and everything right of that line are equally out
+     of view until scrolled. 0.46.0 is cut at the same edge ("not fou"). This task makes a label's place independent of the
+     zoom; placing it by the panel's edge would make it depend on the window width instead (a narrower window would
+     move labels). Judge whether "not found" being past the visible edge at 1024, like its neighbours, is acceptable,
+     or whether the opening view at narrow widths should be its own task (it would change how maps open, not where
+     labels sit).
   **Expected:** "not found" clearly belongs to its drop and no longer runs on with "found?"; nothing else reads worse.
   **If not:** name the label and what reads worse; the agent adjusts and re-measures.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
