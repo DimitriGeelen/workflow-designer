@@ -104,7 +104,7 @@ the task's top edge, clear of the text; a badge that meets nothing stays where i
 - [x] Screenshots read by the agent — `docs/reports/T-1469-shots/io-badge-{1024,1440,1920}.png` (starter map, a task given Greenfield's name + 1 input + 1 output, 200%): the "1→1" badge straddles the task's top-right edge, clear of "Opportunity –" at 1024 and 1440; still reads as the task's badge.
 
 ### Human
-- [ ] [REVIEW] The io badge no longer covers the name and still reads as the task's own
+- [ ] The io badge no longer covers the name and still reads as the task's own
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1469 --criterion 1`), who may escalate.
   **Steps:**
   1. `docs/reports/T-1469-shots/io-badge-before-1440.png` (0.46.0) and `io-badge-{1024,1440,1920}.png` (new): the task 'Opportunity – Solution (doorgestreept) – onder water' with its "1→1" badge

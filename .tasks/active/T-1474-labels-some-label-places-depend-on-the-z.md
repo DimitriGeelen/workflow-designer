@@ -114,7 +114,7 @@ renders every corpus map at fit, 100% and 200% and finds every flow label in the
 - [x] Screenshots read by the agent — `docs/reports/T-1474-shots/{new,v046}-{verification-gate,review-emission,task-lifecycle}-{1024,1440,1920}.png` (maps opened as a person opens them: opening zoom, lens all). verification-gate 1440 new vs 0.46.0: identical (it opens at 100%, where 0.46.0 already used these places; the 16 moves vs 0.46.0 show at "fit" only, which now matches 100%). review-emission 1440: "not found" now right of its drop, clear of the gateway name "Task file found?" (was 7-11 px from "found?", the pair label-clearance flagged). Also changed on the way (found by the round at 6855f6882): a third, wider side offset (32) beside a vertical drop, since unhinted measurement left that label no place clear of the name.
 
 ### Human
-- [ ] [REVIEW] Flow labels read as well or better, and the moved "not found" label still reads as its flow's
+- [ ] Flow labels read as well or better, and the moved "not found" label still reads as its flow's
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1474 --criterion 1`), who may escalate.
   **Steps:**
   1. `docs/reports/T-1474-shots/{v046,new}-review-emission-{1024,1440,1920}.png`: the flow from the gateway "Task file found?" down to "return 1 — no task file", labelled "not found"
