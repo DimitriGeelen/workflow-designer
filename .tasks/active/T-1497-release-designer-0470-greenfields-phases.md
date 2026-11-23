@@ -115,8 +115,11 @@ summary says so, and running the job is the operator's decision on it.
   Evidence: notes ecb78155a (`_t1425 --version 0.47.0 --check`: "shared-contract table agrees"); job
   179-release-designer-0.47.0 committed 50124f065, dry-run passed (all checks ok, step 1 rehearsed in a clone, real repo
   unchanged, sha ad037feeb1db); runme watcher pid 3160323 alive.
-- [ ] After the operator's run: the tag on origin, AEF told (version, tag, sha256, bytes, what it brings) and Greenfield
+- [x] After the operator's run: the tag on origin, AEF told (version, tag, sha256, bytes, what it brings) and Greenfield
   told
+  Evidence: job 179 done rc=0 (21:49:21Z; all 10 steps; both calibrations PASS; browser 164/164 on the pool, split;
+  core green); `designer-v0.47.0` on origin (846480a0); sha256 15299e56df9aa5f3…6a71003, 1451569 B; AEF msg 6e530142
+  (conversation 832-designer-release-0.47.0, asks their task id), Greenfield msg b72c1c5f (reply on 2e879869).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -302,6 +305,9 @@ summary says so, and running the job is the operator's decision on it.
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+git ls-remote --exit-code --tags origin designer-v0.47.0 > /dev/null
+echo "15299e56df9aa5f34c281f6396640e4e6926e7651b8291b482cba70ee6a71003  dist/aef-workflow-designer-0.47.0.html" | sha256sum -c --quiet
+test -f .context/runme/179-release-designer-0.47.0/done
 
 ## RCA
 

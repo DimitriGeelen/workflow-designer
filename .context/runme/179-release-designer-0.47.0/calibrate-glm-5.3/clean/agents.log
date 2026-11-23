@@ -1,0 +1,91 @@
+[0m
+> build · glm-5.3
+[0m
+[0m→ [0mRead kit/REVIEW.md
+[0m
+[0m$ [0mls -la ./kit/ && ls -la .
+total 212
+drwxrwxr-x+ 1 root root    196 Nov 23 18:34 .
+drwxrwxr-x+ 1 root root     76 Nov 23 18:34 ..
+-rw-r--r--+ 1 root root  27629 Nov 23 18:34 AUTHORING.md
+-rw-r--r--+ 1 root root  13727 Nov 23 18:34 CONFORMANCE.md
+-rw-r--r--+ 1 root root    841 Nov 23 18:34 CORRECT.md
+-rw-r--r--+ 1 root root    535 Nov 23 18:34 GENERATE.md
+-rw-r--r--+ 1 root root   1208 Nov 23 18:34 REVIEW.md
+-rw-r--r--+ 1 root root   5093 Nov 23 18:34 RUBRIC.md
+-rw-r--r--+ 1 root root  11780 Nov 23 18:34 exemplar.bpmn
+-rw-r--r--+ 1 root root 138795 Nov 23 18:34 validate-workflow.py
+total 32
+drwxrwxr-x+ 1 root root    76 Nov 23 18:34 .
+drwxrwxr-x+ 1 root root    10 Nov 23 18:34 ..
+-rw-rw-r--+ 1 root root    59 Nov 23 18:34 LOOP.txt
+-rw-r--r--+ 1 root root   823 Nov 23 18:34 SOURCE.md
+-rw-rw-r--+ 1 root root    60 Nov 23 18:34 agents.log
+drwxrwxr-x+ 1 root root   196 Nov 23 18:34 kit
+-rw-r--r--+ 1 root root 19744 Nov 23 18:34 map.bpmn
+[0m
+[0m→ [0mRead SOURCE.md
+[0m→ [0mRead kit/RUBRIC.md
+[0m→ [0mRead map.bpmn
+[0m→ [0mRead kit/AUTHORING.md
+[0m→ [0mRead kit/CONFORMANCE.md
+[0m
+[0m$ [0mpython3 ./kit/validate-workflow.py map.bpmn; echo "EXIT: $?"
+WARN  [W-XML-GW-AMBIGUOUS] exclusiveGateway 'credit-limit-exceeded': gw_ambiguous: exclusiveGateway has 2 outgoing flows without a conditionExpression: default flow 'credit-limit-exceeded--pick-parts' is declared; the other flow (credit-limit-exceeded--decide-whether-to-accept-order-anyway) has no conditionExpression
+WARN  [W-XML-GW-AMBIGUOUS] exclusiveGateway 'accept-order-anyway': gw_ambiguous: exclusiveGateway has 2 outgoing flows without a conditionExpression: no default flow is declared; none of them has a conditionExpression (accept-order-anyway--close-rejected-order, accept-order-anyway--pick-parts)
+WARN  [W-XML-UNREACHABLE] node 'labelling': node is not reachable from any startEvent
+WARN  [W-XML-UNREACHABLE] node 'quality-inspection': node is not reachable from any startEvent
+WARN  [W-XML-DEADEND] node 'labelling': no endEvent is reachable from this node: either control is trapped, or the source does not record what follows it
+WARN  [W-XML-DEADEND] node 'quality-inspection': no endEvent is reachable from this node: either control is trapped, or the source does not record what follows it
+WARN  [W-XML-DISCONNECTED] <process>: the flow graph falls into 3 disconnected parts: 16 node(s) [order-arrives-by-email -> accepted-order-fulfilled, order-rejected]; 1 node(s) [no start -> no end]; 1 node(s) [no start -> no end]. Either these are separate processes sharing one pool, or some steps have no recorded place in one process (then annotate them, do not connect them)
+WARN  [W-LANE-NO-OWNER] node 'close-rejected-order': this task's authority 'none' names no owner; mapping-v1 §3 derives a task's owner from its lane, so this task has no derivable owner. Declared unknown is honest: do not guess one
+WARN  [W-LANE-NO-OWNER] node 'tell-customer': this task's authority 'none' names no owner; mapping-v1 §3 derives a task's owner from its lane, so this task has no derivable owner. Declared unknown is honest: do not guess one
+INFO  [I-XML-LANE-GEOMETRY-SKIP] laneSet: lane/geometry agreement not evaluated: 18 of 18 flow node(s) carry no <aef:position> y (e.g. accept-order-anyway, accepted-order-fulfilled, book-carrier). Geometry that does not exist cannot disagree with the declared lanes — this map is SKIPPED by lane_geometry, not passed by it
+WARN  map.bpmn -- 0 error(s), 9 warning(s), 1 note(s)
+EXIT: 1
+[0m
+[0m→ [0mRead LOOP.txt
+[0m→ [0mRead agents.log
+[0m→ [0mRead kit/CORRECT.md
+This is the review leg: I've read the source, rubric, authoring guide, and map, and run the validator. Before writing my verdict, let me mechanically verify every `<documentation>` quote in the map against the source (the citation category depends on verbatim quoting).
+[0m
+[0m$ [0mpython3 - <<'EOF'
+import re, xml.etree.ElementTree as ET
+src = open('SOURCE.md').read()
+src_flat = ' '.join(src.split())  # unwrap line breaks
+ns = {'bpmn':'http://www.omg.org/spec/BPMN/20100524/MODEL'}
+tree = ET.parse('map.bpmn')
+bad = 0
+for el in tree.iter():
+    doc = el.find('bpmn:documentation', ns)
+    if doc is None or not (doc.text or '').strip():
+        continue
+    for line in doc.text.split('\n'):
+        line = line.strip()
+        m = re.match(r'source:\s*"(.*)"\s*$', line)
+        if not m:
+            if line.startswith('source:'):
+                print(f"UNSTATED-DECL {el.get('id')}: {line[:90]}")
+            continue
+        q = ' '.join(m.group(1).split())
+        ok = q in src_flat
+        if not ok:
+            bad += 1
+            print(f"NOT-VERBATIM {el.get('id')}: {q[:100]}")
+print("bad quotes:", bad)
+EOF
+UNSTATED-DECL Lane_unknown: source: unstated - The source names no performer for closing a rejected order or telling t
+UNSTATED-DECL accepted-order-fulfilled: source: unstated - marks where the stated order ends; the source names no result
+bad quotes: 0
+[0m
+All citations verified verbatim; the two `unstated` declarations are accurate. My review is complete:
+
+- **invented** — none: the unlabelled default after the credit check is the blessed "otherwise"; both decision branches carry the source's words; pick→pack→book is the prose order AUTHORING §4 explicitly blesses; the two plain successors after parcel collection (delivery, invoicing after shipment) are both stated and unconditional, so no note is owed; no parallel join; no link event for returns (no hand-over stated).
+- **missed** — none: every stated step, performer and the "for each order" scope is present.
+- **wrong-authority** — none: sovereignty/authority/external/none each correct; the map rightly keeps "enters the order into the ERP" with the employee, not in an ERP lane.
+- **undeclared-unknown** — none: unknown order unconnected and annotated; unknown performer in a `none` lane; unnamed end cited `unstated` with a note.
+- **citation / readability / scope** — clean; remaining validator warnings are exactly the rubric's "Do not report" set.
+[0m← [0mWrite REVIEW.json
+Wrote file successfully.
+[0m
+Review complete: `./REVIEW.json` written with `[]` — no findings. The map is faithful to SOURCE.md on all seven rubric categories, every citation is verbatim, all unknowns are declared, and each remaining validator warning is on the rubric's "Do not report" list.

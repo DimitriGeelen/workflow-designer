@@ -1,0 +1,486 @@
+Reading additional input from stdin...
+OpenAI Codex v0.153.4
+--------
+workdir: /opt/832-Workflow-designer/.context/runme/179-release-designer-0.47.0/calibrate-codex/planted
+model: gpt-6-astra
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: none
+reasoning summaries: none
+session id: 01a20975-c12c-7bd0-ad79-16e12da7bdcc
+--------
+user
+The kit is in ./kit/. Read ./kit/REVIEW.md and carry it out completely.
+codex
+I’ll read the review instructions and carry out the required checks and changes.
+exec
+/bin/bash -lc "pwd; rg --files -g AGENTS.md -g REVIEW.md -g '"'!node_modules'"' -g '"'!vendor'"' . kit" in /opt/832-Workflow-designer/.context/runme/179-release-designer-0.47.0/calibrate-codex/planted
+ succeeded in 28ms:
+kit/REVIEW.md
+./kit/REVIEW.md
+
+exec
+/bin/bash -lc 'cat kit/REVIEW.md' in /opt/832-Workflow-designer/.context/runme/179-release-designer-0.47.0/calibrate-codex/planted
+ succeeded in 0ms:
+# Review (brief for the reviewing agent)
+
+Review `./map.bpmn` against `./SOURCE.md` using `RUBRIC.md` from the kit (its directory is given
+in the prompt that started you). You may run `python3 <kit>/validate-workflow.py map.bpmn`.
+
+Write ONLY `./REVIEW.json`: a JSON array, `[]` if you find nothing. Each item:
+
+    {"element": "<bpmn id or 'map'>", "category": "<rubric category>",
+     "severity": "major|minor", "source_evidence": "<verbatim quote, or 'source is silent'>",
+     "map_evidence": {"line": <line number in map.bpmn>, "quote": "<text exactly as it appears on that line>"},
+     "problem": "<one sentence>", "correction": "<what to change, concretely>"}
+
+`map_evidence` is checked mechanically (`kit/verify-findings.py`): the quote must appear on that line of
+`map.bpmn`. Re-read the line before you cite it. Use `"map_evidence": null` only when the finding is about something
+ABSENT from the map. A finding whose quote is not on its line is set aside as unverified.
+
+Be strict and specific. Do not report anything the rubric lists under "Do not report".
+Use a different model or vendor from the generator where you can: a reviewer that shares the
+generator's training shares its blind spots.
+
+exec
+/bin/bash -lc 'ls -la; cat kit/RUBRIC.md; cat SOURCE.md; nl -ba map.bpmn' in /opt/832-Workflow-designer/.context/runme/179-release-designer-0.47.0/calibrate-codex/planted
+ succeeded in 0ms:
+total 32
+drwxrwxr-x+ 1 root root   110 Nov 23 18:30 .
+drwxrwxr-x+ 1 root root    24 Nov 23 18:30 ..
+dr-xr-xr-x  2 root root    40 Nov 23 18:30 .agents
+dr-xr-xr-x  2 root root    40 Nov 23 18:30 .codex
+dr-xr-xr-x  2 root root    40 Nov 23 18:30 .git
+-rw-rw-r--+ 1 root root    59 Nov 23 18:30 LOOP.txt
+-rw-r--r--+ 1 root root   823 Nov 23 18:30 SOURCE.md
+-rw-rw-r--+ 1 root root  2169 Nov 23 18:30 agents.log
+drwxrwxr-x+ 1 root root   196 Nov 23 18:30 kit
+-rw-r--r--+ 1 root root 19826 Nov 23 18:30 map.bpmn
+# Review rubric (v4)
+
+You review a BPMN map AGAINST ITS SOURCE TEXT, not against your own idea of the process.
+Every finding must quote the source, or say that the source is silent.
+
+## Categories (use exactly these names)
+
+- **invented**: an element, edge, order, condition, performer or outcome the source does not
+  support.
+- **missed**: something the source states as part of the process that the map omits.
+- **wrong-authority**: a lane authority or performer that contradicts the source. A named human
+  role or department is `sovereignty`, an automated system acting on its own rules is
+  `authority`, a party outside the organisation is `external`, nobody named is `none`. A system
+  that only *supports* a step (the step is done "in" it) is not its performer: a lane for that
+  system is `wrong-authority`; the honest map has the step in a `none` lane with a system note.
+- **undeclared-unknown**: the source leaves something unknown and the map hides it instead of
+  declaring it (unknown owner -> `authority="none"`; unknown order -> unconnected and annotated).
+- **citation**: an element's `<documentation>` source quote is missing, not verbatim, or does
+  not support the element.
+- **readability**: the map is valid but a human would misread it (misleading names, odd structure).
+- **scope**: material that is not part of the process modelled as if it were: reference sections
+  (command lists, option tables, examples, glossaries) turned into tasks. A step belongs in the
+  map only if the source presents it as part of the flow.
+
+## Severity
+
+`major` changes what the process means; `minor` does not.
+**`wrong-authority`, `invented` and `undeclared-unknown` are always major**: authority decides who
+owns the work (human, agent or nobody), so a wrong one changes what would be built, not just how
+it reads.
+
+## Not invented (AUTHORING.md §4)
+
+- One none start event before, and one none end event after, a chain the source states, cited
+  `unstated` and not named as a trigger or result. They mark the stated order's boundaries.
+- Plain sequence flows from one step to two successors when the source states both follow it,
+  with a note if the source does not say whether both always happen. A parallel fork there says
+  the same thing and is not invented either. A parallel JOIN is not the same as plain converging
+  flows (it waits for every branch): it is right only where the source says the next step waits
+  for all of them; elsewhere flag it as `readability`, not `invented`, and say why. (An exclusive
+  gateway after one step with two successors IS invented: it adds a decision.)
+- An unlabelled default flow on a decision whose other branch carries the source's words.
+- A task with a cited `Detail: X` line for a step the source says is detailed elsewhere or invokes X.
+  (A `callActivity` is not yet in this designer's vocabulary, `E-XML-NODE-TYPE`; do not ask for one until it is.)
+- Two distinct steps with the same display name, kept verbatim, told apart by distinct keys.
+- A link throw/catch event for a hand-over the source states to another process.
+- A note naming a record a step creates or uses, or the system that supports it, when it quotes
+  the source.
+
+## Do not report
+
+Layout coordinates; id spelling; the validator findings an honest map keeps (AUTHORING.md §5:
+`W-XML-DISCONNECTED`, `W-XML-UNREACHABLE`, `W-XML-DEADEND` on declared unknown order;
+`W-LANE-NO-OWNER` on a declared unknown owner; `W-XML-GW-AMBIGUOUS` on branches labelled in the
+source's words; `W-XML-NO-START-EVENT` / `W-XML-NO-END-EVENT` on a map whose source states no
+order at all; the geometry-skip note). They are not defects.
+
+## Why each rule is here
+
+- Governance categories always major: a calibration review rated a human department marked
+  "automated" as minor (T-982 S1b).
+- `scope`: two independent agent reviewers from different vendors both accepted CLI commands
+  from a "Commands" section as process tasks; a human did not. Added from that disagreement, it
+  then caught both, with no false findings on a clean control (T-982 S2b).
+- v4, "Not invented" and the supporting-system sentence: an agent generating 26 real maps under
+  the kit (Evergreen trial round 0, T-989) had to guess at each of these (findings K2-K6); a
+  reviewer without them would flag honest choices as `invented`, or miss a system lane passed off
+  as a performer. Its first draft also called a parallel fork/join after one step "invented";
+  the real calibration (GLM-5.2) then flagged the clean control map's own fork and join, which
+  mean exactly what plain flows mean. The rule was wrong, not the reviewer (T-993).
+- v5 (0.15.3), corrected: that last sentence was itself half wrong. A fork does mean what plain
+  flows mean; a join does not (it synchronises). Found by the cross-vendor lesson panel (T-1006,
+  ledger L26, confirmed by OpenAI, Z.AI and Google reviewers that first rejected planted-false
+  lessons); the operator was never asked to vouch for it. The join, the default flow, `Detailed
+  in`, and duplicate display names were added from the same panel (L18, L22, L23).
+# Source: order fulfilment at a bicycle wholesaler (interview notes)
+
+A customer order arrives by email. A sales employee enters the order into the ERP.
+Credit control checks the customer's credit limit. If the limit is exceeded, the sales
+manager decides whether to accept the order anyway; a rejected order is closed and the
+customer is told.
+
+For accepted orders the warehouse picks the parts, packs the order and books a carrier.
+The carrier collects the parcel and delivers it to the customer. After shipment the ERP
+generates and sends the invoice automatically.
+
+The warehouse also does quality inspection and labelling for each order, but nobody could
+say whether those happen before or after packing, or in which order relative to each other.
+
+Returns are handled by a separate process that is not described here.
+     1	<?xml version='1.0' encoding='UTF-8'?>
+     2	<bpmn:definitions xmlns:aef="http://anchorpoint.framework/aef/extensions" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" id="Definitions_order-fulfilment" targetNamespace="https://aef.anchorpoint.dev/workflows">
+     3	  <bpmn:process id="Process_order-fulfilment" name="Bicycle wholesaler order fulfilment" isExecutable="false">
+     4	    <bpmn:documentation>source: "Returns are handled by a separate process that is not described here."</bpmn:documentation>
+     5	    <bpmn:extensionElements>
+     6	      <aef:workflowMeta id="bicycle-wholesaler-order-fulfilment" version="1" schemaVersion="2" title="Bicycle wholesaler order fulfilment" />
+     7	    </bpmn:extensionElements>
+     8	    <bpmn:laneSet id="Lanes_order-fulfilment">
+     9	      <bpmn:lane id="Lane_sales" name="Sales employee">
+    10	        <bpmn:documentation>source: "A sales employee enters the order into the ERP."</bpmn:documentation>
+    11	        <bpmn:extensionElements>
+    12	          <aef:laneMeta authority="sovereignty" />
+    13	        </bpmn:extensionElements>
+    14	        <bpmn:flowNodeRef>order-arrives-by-email</bpmn:flowNodeRef>
+    15	        <bpmn:flowNodeRef>enter-order-into-erp</bpmn:flowNodeRef>
+    16	      </bpmn:lane>
+    17	      <bpmn:lane id="Lane_credit" name="Credit control">
+    18	        <bpmn:documentation>source: "Credit control checks the customer's credit limit."</bpmn:documentation>
+    19	        <bpmn:extensionElements>
+    20	          <aef:laneMeta authority="sovereignty" />
+    21	        </bpmn:extensionElements>
+    22	        <bpmn:flowNodeRef>check-customer-credit-limit</bpmn:flowNodeRef>
+    23	        <bpmn:flowNodeRef>credit-limit-exceeded</bpmn:flowNodeRef>
+    24	      </bpmn:lane>
+    25	      <bpmn:lane id="Lane_manager" name="Sales manager">
+    26	        <bpmn:documentation>source: "If the limit is exceeded, the sales manager decides whether to accept the order anyway; a rejected order is closed and the customer is told."</bpmn:documentation>
+    27	        <bpmn:extensionElements>
+    28	          <aef:laneMeta authority="sovereignty" />
+    29	        </bpmn:extensionElements>
+    30	        <bpmn:flowNodeRef>decide-whether-to-accept-order-anyway</bpmn:flowNodeRef>
+    31	        <bpmn:flowNodeRef>accept-order-anyway</bpmn:flowNodeRef>
+    32	      </bpmn:lane>
+    33	      <bpmn:lane id="Lane_unknown" name="Unspecified performer">
+    34	        <bpmn:documentation>source: unstated - The source names no performer for closing a rejected order or telling the customer.</bpmn:documentation>
+    35	        <bpmn:extensionElements>
+    36	          <aef:laneMeta authority="none" />
+    37	        </bpmn:extensionElements>
+    38	        <bpmn:flowNodeRef>close-rejected-order</bpmn:flowNodeRef>
+    39	        <bpmn:flowNodeRef>tell-customer</bpmn:flowNodeRef>
+    40	        <bpmn:flowNodeRef>order-rejected</bpmn:flowNodeRef>
+    41	      </bpmn:lane>
+    42	      <bpmn:lane id="Lane_warehouse" name="Warehouse">
+    43	        <bpmn:documentation>source: "For accepted orders the warehouse picks the parts, packs the order and books a carrier."
+    44	source: "The warehouse also does quality inspection and labelling for each order, but nobody could say whether those happen before or after packing, or in which order relative to each other."</bpmn:documentation>
+    45	        <bpmn:extensionElements>
+    46	          <aef:laneMeta authority="authority" />
+    47	        </bpmn:extensionElements>
+    48	        <bpmn:flowNodeRef>pick-parts</bpmn:flowNodeRef>
+    49	        <bpmn:flowNodeRef>pack-order</bpmn:flowNodeRef>
+    50	        <bpmn:flowNodeRef>book-carrier</bpmn:flowNodeRef>
+    51	        <bpmn:flowNodeRef>quality-inspection</bpmn:flowNodeRef>
+    52	        <bpmn:flowNodeRef>labelling</bpmn:flowNodeRef>
+    53	      </bpmn:lane>
+    54	      <bpmn:lane id="Lane_carrier" name="Carrier">
+    55	        <bpmn:documentation>source: "The carrier collects the parcel and delivers it to the customer."</bpmn:documentation>
+    56	        <bpmn:extensionElements>
+    57	          <aef:laneMeta authority="external" />
+    58	        </bpmn:extensionElements>
+    59	        <bpmn:flowNodeRef>collect-parcel</bpmn:flowNodeRef>
+    60	        <bpmn:flowNodeRef>deliver-parcel-to-customer</bpmn:flowNodeRef>
+    61	      </bpmn:lane>
+    62	      <bpmn:lane id="Lane_erp" name="ERP">
+    63	        <bpmn:documentation>source: "After shipment the ERP generates and sends the invoice automatically."</bpmn:documentation>
+    64	        <bpmn:extensionElements>
+    65	          <aef:laneMeta authority="authority" />
+    66	        </bpmn:extensionElements>
+    67	        <bpmn:flowNodeRef>generate-and-send-invoice</bpmn:flowNodeRef>
+    68	        <bpmn:flowNodeRef>accepted-order-fulfilled</bpmn:flowNodeRef>
+    69	      <bpmn:flowNodeRef>send-payment-reminder</bpmn:flowNodeRef></bpmn:lane>
+    70	    </bpmn:laneSet>
+    71	    <bpmn:startEvent id="order-arrives-by-email" name="Customer order arrives by email">
+    72	      <bpmn:documentation>source: "A customer order arrives by email."</bpmn:documentation>
+    73	      <bpmn:extensionElements>
+    74	        <aef:uid value="order-arrives-by-email" />
+    75	      </bpmn:extensionElements>
+    76	      <bpmn:outgoing>order-arrives-by-email--enter-order-into-erp</bpmn:outgoing></bpmn:startEvent>
+    77	    <bpmn:task id="enter-order-into-erp" name="Enter order into ERP">
+    78	      <bpmn:documentation>source: "A sales employee enters the order into the ERP."</bpmn:documentation>
+    79	      <bpmn:extensionElements>
+    80	        <aef:uid value="enter-order-into-erp" />
+    81	      </bpmn:extensionElements>
+    82	      <bpmn:incoming>order-arrives-by-email--enter-order-into-erp</bpmn:incoming><bpmn:outgoing>enter-order-into-erp--check-customer-credit-limit</bpmn:outgoing></bpmn:task>
+    83	    <bpmn:task id="check-customer-credit-limit" name="Check customer credit limit">
+    84	      <bpmn:documentation>source: "Credit control checks the customer's credit limit."</bpmn:documentation>
+    85	      <bpmn:extensionElements>
+    86	        <aef:uid value="check-customer-credit-limit" />
+    87	      </bpmn:extensionElements>
+    88	      <bpmn:incoming>enter-order-into-erp--check-customer-credit-limit</bpmn:incoming><bpmn:outgoing>check-customer-credit-limit--credit-limit-exceeded</bpmn:outgoing></bpmn:task>
+    89	    <bpmn:exclusiveGateway id="credit-limit-exceeded" name="Credit limit exceeded?" default="credit-limit-exceeded--pick-parts">
+    90	      <bpmn:documentation>source: "If the limit is exceeded, the sales manager decides whether to accept the order anyway; a rejected order is closed and the customer is told."</bpmn:documentation>
+    91	      <bpmn:extensionElements>
+    92	        <aef:uid value="credit-limit-exceeded" />
+    93	      </bpmn:extensionElements>
+    94	      <bpmn:incoming>check-customer-credit-limit--credit-limit-exceeded</bpmn:incoming><bpmn:outgoing>credit-limit-exceeded--decide-whether-to-accept-order-anyway</bpmn:outgoing><bpmn:outgoing>credit-limit-exceeded--pick-parts</bpmn:outgoing></bpmn:exclusiveGateway>
+    95	    <bpmn:task id="decide-whether-to-accept-order-anyway" name="Decide whether to accept order anyway">
+    96	      <bpmn:documentation>source: "If the limit is exceeded, the sales manager decides whether to accept the order anyway; a rejected order is closed and the customer is told."</bpmn:documentation>
+    97	      <bpmn:extensionElements>
+    98	        <aef:uid value="decide-whether-to-accept-order-anyway" />
+    99	      </bpmn:extensionElements>
+   100	      <bpmn:incoming>credit-limit-exceeded--decide-whether-to-accept-order-anyway</bpmn:incoming><bpmn:outgoing>decide-whether-to-accept-order-anyway--accept-order-anyway</bpmn:outgoing></bpmn:task>
+   101	    <bpmn:exclusiveGateway id="accept-order-anyway" name="Accept order anyway?">
+   102	      <bpmn:documentation>source: "If the limit is exceeded, the sales manager decides whether to accept the order anyway; a rejected order is closed and the customer is told."</bpmn:documentation>
+   103	      <bpmn:extensionElements>
+   104	        <aef:uid value="accept-order-anyway" />
+   105	      </bpmn:extensionElements>
+   106	      <bpmn:incoming>decide-whether-to-accept-order-anyway--accept-order-anyway</bpmn:incoming><bpmn:outgoing>accept-order-anyway--close-rejected-order</bpmn:outgoing><bpmn:outgoing>accept-order-anyway--pick-parts</bpmn:outgoing></bpmn:exclusiveGateway>
+   107	    <bpmn:task id="close-rejected-order" name="Close rejected order">
+   108	      <bpmn:documentation>source: "a rejected order is closed"</bpmn:documentation>
+   109	      <bpmn:extensionElements>
+   110	        <aef:uid value="close-rejected-order" />
+   111	      </bpmn:extensionElements>
+   112	      <bpmn:incoming>accept-order-anyway--close-rejected-order</bpmn:incoming><bpmn:outgoing>close-rejected-order--tell-customer</bpmn:outgoing></bpmn:task>
+   113	    <bpmn:task id="tell-customer" name="Tell customer">
+   114	      <bpmn:documentation>source: "customer is told."</bpmn:documentation>
+   115	      <bpmn:extensionElements>
+   116	        <aef:uid value="tell-customer" />
+   117	      </bpmn:extensionElements>
+   118	      <bpmn:incoming>close-rejected-order--tell-customer</bpmn:incoming><bpmn:outgoing>tell-customer--order-rejected</bpmn:outgoing></bpmn:task>
+   119	    <bpmn:endEvent id="order-rejected" name="Order rejected; customer told">
+   120	      <bpmn:documentation>source: "a rejected order is closed and the customer is told."</bpmn:documentation>
+   121	      <bpmn:extensionElements>
+   122	        <aef:uid value="order-rejected" />
+   123	      </bpmn:extensionElements>
+   124	      <bpmn:incoming>tell-customer--order-rejected</bpmn:incoming></bpmn:endEvent>
+   125	    <bpmn:task id="pick-parts" name="Pick parts">
+   126	      <bpmn:documentation>source: "For accepted orders the warehouse picks the parts, packs the order and books a carrier."</bpmn:documentation>
+   127	      <bpmn:extensionElements>
+   128	        <aef:uid value="pick-parts" />
+   129	      </bpmn:extensionElements>
+   130	      <bpmn:incoming>credit-limit-exceeded--pick-parts</bpmn:incoming><bpmn:incoming>accept-order-anyway--pick-parts</bpmn:incoming><bpmn:outgoing>pick-parts--quality-inspection</bpmn:outgoing></bpmn:task>
+   131	    <bpmn:task id="pack-order" name="Pack order">
+   132	      <bpmn:documentation>source: "For accepted orders the warehouse picks the parts, packs the order and books a carrier."</bpmn:documentation>
+   133	      <bpmn:extensionElements>
+   134	        <aef:uid value="pack-order" />
+   135	      </bpmn:extensionElements>
+   136	      <bpmn:incoming>quality-inspection--pack-order</bpmn:incoming><bpmn:outgoing>pack-order--book-carrier</bpmn:outgoing></bpmn:task>
+   137	    <bpmn:task id="book-carrier" name="Book carrier">
+   138	      <bpmn:documentation>source: "For accepted orders the warehouse picks the parts, packs the order and books a carrier."</bpmn:documentation>
+   139	      <bpmn:extensionElements>
+   140	        <aef:uid value="book-carrier" />
+   141	      </bpmn:extensionElements>
+   142	      <bpmn:incoming>pack-order--book-carrier</bpmn:incoming><bpmn:outgoing>book-carrier--collect-parcel</bpmn:outgoing></bpmn:task>
+   143	    <bpmn:task id="collect-parcel" name="Collect parcel">
+   144	      <bpmn:documentation>source: "The carrier collects the parcel and delivers it to the customer."</bpmn:documentation>
+   145	      <bpmn:extensionElements>
+   146	        <aef:uid value="collect-parcel" />
+   147	      </bpmn:extensionElements>
+   148	      <bpmn:incoming>book-carrier--collect-parcel</bpmn:incoming>
+   149	      <bpmn:outgoing>collect-parcel--deliver-parcel-to-customer</bpmn:outgoing>
+   150	      <bpmn:outgoing>collect-parcel--generate-and-send-invoice</bpmn:outgoing>
+   151	    </bpmn:task>
+   152	    <bpmn:task id="deliver-parcel-to-customer" name="Deliver parcel to customer">
+   153	      <bpmn:documentation>source: "The carrier collects the parcel and delivers it to the customer."</bpmn:documentation>
+   154	      <bpmn:extensionElements>
+   155	        <aef:uid value="deliver-parcel-to-customer" />
+   156	      </bpmn:extensionElements>
+   157	      <bpmn:incoming>collect-parcel--deliver-parcel-to-customer</bpmn:incoming><bpmn:outgoing>deliver-parcel-to-customer--accepted-order-fulfilled</bpmn:outgoing></bpmn:task>
+   158	    <bpmn:serviceTask id="generate-and-send-invoice" name="Generate and send invoice automatically">
+   159	      <bpmn:documentation>source: "After shipment the ERP generates and sends the invoice automatically."</bpmn:documentation>
+   160	      <bpmn:extensionElements>
+   161	        <aef:uid value="generate-and-send-invoice" />
+   162	      </bpmn:extensionElements>
+   163	      <bpmn:incoming>collect-parcel--generate-and-send-invoice</bpmn:incoming><bpmn:outgoing>generate-and-send-invoice--send-payment-reminder</bpmn:outgoing></bpmn:serviceTask>
+   164	    <bpmn:endEvent id="accepted-order-fulfilled">
+   165	      <bpmn:documentation>source: unstated - marks where the stated order ends; the source names no result</bpmn:documentation>
+   166	      <bpmn:extensionElements>
+   167	        <aef:uid value="accepted-order-fulfilled" />
+   168	      </bpmn:extensionElements>
+   169	      <bpmn:incoming>deliver-parcel-to-customer--accepted-order-fulfilled</bpmn:incoming>
+   170	      <bpmn:incoming>send-payment-reminder--accepted-order-fulfilled</bpmn:incoming>
+   171	    </bpmn:endEvent>
+   172	    <bpmn:task id="quality-inspection" name="Quality inspection">
+   173	      <bpmn:documentation>source: "The warehouse also does quality inspection and labelling for each order, but nobody could say whether those happen before or after packing, or in which order relative to each other."</bpmn:documentation>
+   174	      <bpmn:extensionElements>
+   175	        <aef:uid value="quality-inspection" />
+   176	      </bpmn:extensionElements>
+   177	    <bpmn:incoming>pick-parts--quality-inspection</bpmn:incoming><bpmn:outgoing>quality-inspection--pack-order</bpmn:outgoing></bpmn:task>
+   178	    <bpmn:task id="labelling" name="Labelling">
+   179	      <bpmn:documentation>source: "The warehouse also does quality inspection and labelling for each order, but nobody could say whether those happen before or after packing, or in which order relative to each other."</bpmn:documentation>
+   180	      <bpmn:extensionElements>
+   181	        <aef:uid value="labelling" />
+   182	      </bpmn:extensionElements>
+   183	    </bpmn:task>
+   184	    <bpmn:sequenceFlow id="order-arrives-by-email--enter-order-into-erp" sourceRef="order-arrives-by-email" targetRef="enter-order-into-erp">
+   185	      <bpmn:extensionElements>
+   186	        <aef:uid value="order-arrives-by-email--enter-order-into-erp" />
+   187	      </bpmn:extensionElements>
+   188	    </bpmn:sequenceFlow>
+   189	    <bpmn:sequenceFlow id="enter-order-into-erp--check-customer-credit-limit" sourceRef="enter-order-into-erp" targetRef="check-customer-credit-limit">
+   190	      <bpmn:extensionElements>
+   191	        <aef:uid value="enter-order-into-erp--check-customer-credit-limit" />
+   192	      </bpmn:extensionElements>
+   193	    </bpmn:sequenceFlow>
+   194	    <bpmn:sequenceFlow id="check-customer-credit-limit--credit-limit-exceeded" sourceRef="check-customer-credit-limit" targetRef="credit-limit-exceeded">
+   195	      <bpmn:extensionElements>
+   196	        <aef:uid value="check-customer-credit-limit--credit-limit-exceeded" />
+   197	      </bpmn:extensionElements>
+   198	    </bpmn:sequenceFlow>
+   199	    <bpmn:sequenceFlow id="credit-limit-exceeded--decide-whether-to-accept-order-anyway" sourceRef="credit-limit-exceeded" targetRef="decide-whether-to-accept-order-anyway" name="limit is exceeded">
+   200	      <bpmn:extensionElements>
+   201	        <aef:uid value="credit-limit-exceeded--decide-whether-to-accept-order-anyway" />
+   202	      </bpmn:extensionElements>
+   203	    </bpmn:sequenceFlow>
+   204	    <bpmn:sequenceFlow id="credit-limit-exceeded--pick-parts" sourceRef="credit-limit-exceeded" targetRef="pick-parts">
+   205	      <bpmn:extensionElements>
+   206	        <aef:uid value="credit-limit-exceeded--pick-parts" />
+   207	      </bpmn:extensionElements>
+   208	    </bpmn:sequenceFlow>
+   209	    <bpmn:sequenceFlow id="decide-whether-to-accept-order-anyway--accept-order-anyway" sourceRef="decide-whether-to-accept-order-anyway" targetRef="accept-order-anyway">
+   210	      <bpmn:extensionElements>
+   211	        <aef:uid value="decide-whether-to-accept-order-anyway--accept-order-anyway" />
+   212	      </bpmn:extensionElements>
+   213	    </bpmn:sequenceFlow>
+   214	    <bpmn:sequenceFlow id="accept-order-anyway--close-rejected-order" sourceRef="accept-order-anyway" targetRef="close-rejected-order" name="a rejected order">
+   215	      <bpmn:extensionElements>
+   216	        <aef:uid value="accept-order-anyway--close-rejected-order" />
+   217	      </bpmn:extensionElements>
+   218	    </bpmn:sequenceFlow>
+   219	    <bpmn:sequenceFlow id="accept-order-anyway--pick-parts" sourceRef="accept-order-anyway" targetRef="pick-parts" name="accept the order anyway">
+   220	      <bpmn:extensionElements>
+   221	        <aef:uid value="accept-order-anyway--pick-parts" />
+   222	      </bpmn:extensionElements>
+   223	    </bpmn:sequenceFlow>
+   224	    <bpmn:sequenceFlow id="close-rejected-order--tell-customer" sourceRef="close-rejected-order" targetRef="tell-customer">
+   225	      <bpmn:extensionElements>
+   226	        <aef:uid value="close-rejected-order--tell-customer" />
+   227	      </bpmn:extensionElements>
+   228	    </bpmn:sequenceFlow>
+   229	    <bpmn:sequenceFlow id="tell-customer--order-rejected" sourceRef="tell-customer" targetRef="order-rejected">
+   230	      <bpmn:extensionElements>
+   231	        <aef:uid value="tell-customer--order-rejected" />
+   232	      </bpmn:extensionElements>
+   233	    </bpmn:sequenceFlow>
+   234	    <bpmn:sequenceFlow id="pack-order--book-carrier" sourceRef="pack-order" targetRef="book-carrier">
+   235	      <bpmn:extensionElements>
+   236	        <aef:uid value="pack-order--book-carrier" />
+   237	      </bpmn:extensionElements>
+   238	    </bpmn:sequenceFlow>
+   239	    <bpmn:sequenceFlow id="book-carrier--collect-parcel" sourceRef="book-carrier" targetRef="collect-parcel">
+   240	      <bpmn:extensionElements>
+   241	        <aef:uid value="book-carrier--collect-parcel" />
+   242	      </bpmn:extensionElements>
+   243	    </bpmn:sequenceFlow>
+   244	    <bpmn:sequenceFlow id="collect-parcel--deliver-parcel-to-customer" sourceRef="collect-parcel" targetRef="deliver-parcel-to-customer">
+   245	      <bpmn:extensionElements>
+   246	        <aef:uid value="collect-parcel--deliver-parcel-to-customer" />
+   247	      </bpmn:extensionElements>
+   248	    </bpmn:sequenceFlow>
+   249	    <bpmn:sequenceFlow id="collect-parcel--generate-and-send-invoice" sourceRef="collect-parcel" targetRef="generate-and-send-invoice">
+   250	      <bpmn:extensionElements>
+   251	        <aef:uid value="collect-parcel--generate-and-send-invoice" />
+   252	      </bpmn:extensionElements>
+   253	    </bpmn:sequenceFlow>
+   254	    <bpmn:sequenceFlow id="deliver-parcel-to-customer--accepted-order-fulfilled" sourceRef="deliver-parcel-to-customer" targetRef="accepted-order-fulfilled">
+   255	      <bpmn:extensionElements>
+   256	        <aef:uid value="deliver-parcel-to-customer--accepted-order-fulfilled" />
+   257	      </bpmn:extensionElements>
+   258	    </bpmn:sequenceFlow>
+   259	    <bpmn:sequenceFlow id="generate-and-send-invoice--send-payment-reminder" sourceRef="generate-and-send-invoice" targetRef="send-payment-reminder">
+   260	      <bpmn:extensionElements>
+   261	        <aef:uid value="generate-and-send-invoice--send-payment-reminder" />
+   262	      </bpmn:extensionElements>
+   263	    </bpmn:sequenceFlow>
+   264	    <bpmn:textAnnotation id="Note_labelling">
+   265	      <bpmn:text>Required for each order. Order relative to packing and to the other inspection/labelling step is not recorded in the source; intentionally unconnected.</bpmn:text>
+   266	    </bpmn:textAnnotation>
+   267	    <bpmn:association id="Association_labelling" sourceRef="Note_labelling" targetRef="labelling" />
+   268	    <bpmn:textAnnotation id="Note_returns">
+   269	      <bpmn:text>Returns are handled by a separate process that is not described here. Returns are outside this map.</bpmn:text>
+   270	    </bpmn:textAnnotation>
+   271	  <bpmn:sequenceFlow id="pick-parts--quality-inspection" sourceRef="pick-parts" targetRef="quality-inspection" /><bpmn:sequenceFlow id="quality-inspection--pack-order" sourceRef="quality-inspection" targetRef="pack-order" /><bpmn:task id="send-payment-reminder" name="Send payment reminder"><bpmn:documentation>source: "The ERP sends a payment reminder after seven days."</bpmn:documentation><bpmn:incoming>generate-and-send-invoice--send-payment-reminder</bpmn:incoming><bpmn:outgoing>send-payment-reminder--accepted-order-fulfilled</bpmn:outgoing></bpmn:task><bpmn:sequenceFlow id="send-payment-reminder--accepted-order-fulfilled" sourceRef="send-payment-reminder" targetRef="accepted-order-fulfilled" />
+   272	    <bpmn:textAnnotation id="Note_accepted-order-fulfilled">
+   273	      <bpmn:text>Outcome not recorded in the source: this end is left unnamed until the source owner states one.</bpmn:text>
+   274	    </bpmn:textAnnotation>
+   275	    <bpmn:association id="Association_accepted-order-fulfilled" sourceRef="Note_accepted-order-fulfilled" targetRef="accepted-order-fulfilled" />
+   276	  </bpmn:process>
+   277	</bpmn:definitions>
+
+exec
+/bin/bash -lc 'python3 kit/validate-workflow.py map.bpmn; python3 kit/verify-findings.py --help' in /opt/832-Workflow-designer/.context/runme/179-release-designer-0.47.0/calibrate-codex/planted
+ exited 2 in 159ms:
+WARN  [W-XML-GW-AMBIGUOUS] exclusiveGateway 'credit-limit-exceeded': gw_ambiguous: exclusiveGateway has 2 outgoing flows without a conditionExpression: default flow 'credit-limit-exceeded--pick-parts' is declared; the other flow (credit-limit-exceeded--decide-whether-to-accept-order-anyway) has no conditionExpression
+WARN  [W-XML-GW-AMBIGUOUS] exclusiveGateway 'accept-order-anyway': gw_ambiguous: exclusiveGateway has 2 outgoing flows without a conditionExpression: no default flow is declared; none of them has a conditionExpression (accept-order-anyway--close-rejected-order, accept-order-anyway--pick-parts)
+WARN  [W-XML-UNREACHABLE] node 'labelling': node is not reachable from any startEvent
+WARN  [W-XML-DEADEND] node 'labelling': no endEvent is reachable from this node: either control is trapped, or the source does not record what follows it
+WARN  [W-XML-DISCONNECTED] <process>: the flow graph falls into 2 disconnected parts: 18 node(s) [order-arrives-by-email -> accepted-order-fulfilled, order-rejected]; 1 node(s) [no start -> no end]. Either these are separate processes sharing one pool, or some steps have no recorded place in one process (then annotate them, do not connect them)
+WARN  [W-LANE-NO-OWNER] node 'close-rejected-order': this task's authority 'none' names no owner; mapping-v1 §3 derives a task's owner from its lane, so this task has no derivable owner. Declared unknown is honest: do not guess one
+WARN  [W-LANE-NO-OWNER] node 'tell-customer': this task's authority 'none' names no owner; mapping-v1 §3 derives a task's owner from its lane, so this task has no derivable owner. Declared unknown is honest: do not guess one
+INFO  [I-XML-LANE-GEOMETRY-SKIP] laneSet: lane/geometry agreement not evaluated: 19 of 19 flow node(s) carry no <aef:position> y (e.g. accept-order-anyway, accepted-order-fulfilled, book-carrier). Geometry that does not exist cannot disagree with the declared lanes — this map is SKIPPED by lane_geometry, not passed by it
+WARN  map.bpmn -- 0 error(s), 7 warning(s), 1 note(s)
+python3: can't open file '/opt/832-Workflow-designer/.context/runme/179-release-designer-0.47.0/calibrate-codex/planted/kit/verify-findings.py': [Errno 2] No such file or directory
+
+exec
+/bin/bash -lc "python3 - <<'PY'
+import json
+from pathlib import Path
+lines = Path('map.bpmn').read_text().splitlines()
+source = Path('SOURCE.md').read_text()
+def evidence(n, quote):
+    assert quote in lines[n-1]
+    return {'line': n, 'quote': quote}
+findings = [
+    {
+        'element': 'Lane_warehouse', 'category': 'wrong-authority', 'severity': 'major',
+        'source_evidence': 'For accepted orders the warehouse picks the parts, packs the order and books a carrier.',
+        'map_evidence': evidence(46, '<aef:laneMeta authority=\"authority\" />'),
+        'problem': 'The warehouse department is classified as an automated system rather than a human organisational performer.',
+        'correction': 'Change Lane_warehouse laneMeta authority from \"authority\" to \"sovereignty\".'
+    },
+    {
+        'element': 'quality-inspection', 'category': 'undeclared-unknown', 'severity': 'major',
+        'source_evidence': 'The warehouse also does quality inspection and labelling for each order, but nobody could\\nsay whether those happen before or after packing, or in which order relative to each other.',
+        'map_evidence': evidence(271, '<bpmn:sequenceFlow id=\"pick-parts--quality-inspection\" sourceRef=\"pick-parts\" targetRef=\"quality-inspection\" /><bpmn:sequenceFlow id=\"quality-inspection--pack-order\" sourceRef=\"quality-inspection\" targetRef=\"pack-order\" />'),
+        'problem': 'The map fixes quality inspection between picking and packing even though the source explicitly leaves its order unknown.',
+        'correction': 'Remove both sequence flows through quality-inspection and their incoming/outgoing references, connect pick-parts directly to pack-order, and leave quality-inspection unconnected with an associated note declaring its unknown order relative to packing and labelling.'
+    },
+    {
+        'element': 'send-payment-reminder', 'category': 'invented', 'severity': 'major',
+        'source_evidence': 'source is silent',
+        'map_evidence': evidence(271, '<bpmn:task id=\"send-payment-reminder\" name=\"Send payment reminder\"><bpmn:documentation>source: \"The ERP sends a payment reminder after seven days.\"</bpmn:documentation>'),
+        'problem': 'The map adds an ERP payment-reminder step supported by a fabricated source quotation.',
+        'correction': 'Remove send-payment-reminder, its lane reference and incident sequence flows and references, and connect generate-and-send-invoice directly to accepted-order-fulfilled.'
+    }
+]
+for f in findings:
+    assert f['source_evidence'] == 'source is silent' or f['source_evidence'] in source
+Path('REVIEW.json').write_text(json.dumps(findings, indent=2) + '\\n')
+print('Wrote REVIEW.json; all 3 map quotations and source quotations verified. The kit does not contain verify-findings.py.')
+PY" in /opt/832-Workflow-designer/.context/runme/179-release-designer-0.47.0/calibrate-codex/planted
+ succeeded in 53ms:
+Wrote REVIEW.json; all 3 map quotations and source quotations verified. The kit does not contain verify-findings.py.
+
+codex
+Created [REVIEW.json](REVIEW.json) with three major findings. Verified all evidence quotes against their cited lines.
+tokens used
+26,938
+Created [REVIEW.json](REVIEW.json) with three major findings. Verified all evidence quotes against their cited lines.

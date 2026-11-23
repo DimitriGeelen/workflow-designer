@@ -1,0 +1,689 @@
+runme  179-release-designer-0.47.0   sha ad037feeb1db   rehearsed 2026-11-23T15:56:15Z   log: /opt/832-Workflow-designer/.context/runme/179-release-designer-0.47.0/run-20261123T182944.log
+Job:   179-release-designer-0.47.0   (T-1497)
+What:  Release designer 0.47.0: bump, calibrate the kit (codex, GLM-5.3), cut, commit, tag designer-v0.47.0 locally, browser tier on the pool (4 shards), core tier, push
+       Release 0.47.0 (minor). Phases drawn (Greenfield's request, your T-1461 GO, slice 1) and five fixes to what a person sees:
+       - phases from the file: named brackets above the pool, dividers through the lanes, a second row (T-1473, Greenfield);
+       - the io badge no longer covers a step's name (T-1469, Greenfield);
+       - flow labels take the same places at every zoom (T-1474) -- NOTE: its review is with you (the moved 'not found'
+         label is cut by the open side panel at 1024; 1440 and 1920 met). Running this job ships it as it is;
+       - the starter map numbers the same on every load (T-1475);
+       - the panel heads a plain task 'task' and shows lane names (T-1494, T-1493, Greenfield).
+       Nothing a save writes changes for existing maps; a fresh starter map gets deterministic uids. Notes: docs/releases/RELEASE-NOTES-0.47.0.md.
+       Steps 2-3 calibrate the kit with live reviewers (a few minutes each, model time); if one does not PASS, nothing is
+       released and the agent brings it to you. Step 7 tags locally. Step 8 runs the browser tier on the pool, split in 4
+       (about 9-10 minutes; your option 1 for 0.45.0), and stops the job if red or without a result, with nothing pushed.
+       Step 9 runs the core tier (about 20 minutes, or cached); step 10 pushes bleeding-edge and the tag. Answer y at every
+       step. Afterwards the agent tells AEF and Greenfield.
+Steps (each asks y/N first):
+  1. Bump VERSION and APP_VERSION to 0.47.0 and commit (parity checked)
+  2. Calibrate with codex (OpenAI): build the 0.47.0 kit, loop.sh --calibrate, record the result (outward)
+  3. Calibrate with GLM-5.3 (Z.AI, opencode): build the 0.47.0 kit, loop.sh --calibrate, record the result (outward)
+  4. Release gate: the 0.47.0 kit carries a PASS calibration of its exact bytes (outward)
+  5. Cut release 0.47.0: scripts/release-designer.sh (render gate ON, announce ON; writes dist/) (outward)
+  6. Commit dist/aef-workflow-designer-0.47.0.html, dist/aef-authoring-kit-0.47.0, dist/MANIFEST.yaml and the calibration record (outward)
+  7. Tag designer-v0.47.0 (annotated) on the release commit, locally only (outward)
+  8. Browser tier on the pool, 4 shards (T1467_POOL_ONLY=1; about 7-12 min): stops here if red or no result, nothing pushed (outward)
+  9. Core tier (about 20 minutes, or cached), so the push finds it green (outward)
+  10. Push bleeding-edge and designer-v0.47.0 to origin (outward)
+
+ok    on bleeding-edge
+ok    ./VERSION is still 0.46.0 (step 1 bumps it)
+ok    APP_VERSION in src matches VERSION (T-808)
+ok    the release inputs are committed
+ok    release notes for 0.47.0 exist, are committed and are not a draft
+ok    the release notes name all five designer endpoints and whether AEF serves each (T-1289, T-1315)
+ok    the index holds nothing staged (T-1313: commits here name their paths, but say so up front)
+ok    the unwired-guard ratchet holds (the leg that stopped job 108 at step 8)
+ok    the dialect axis passes (the kit's class column comes from it)
+ok    tag designer-v0.47.0 does not exist locally
+ok    tag designer-v0.47.0 does not exist on origin
+ok    no 0.47.0 artifact or kit in dist/ yet
+ok    no 0.47.0 calibration record yet
+ok    T-1469, T-1473, T-1475, T-1493, T-1494 are closed (T-1474 is with the operator, see the summary)
+ok    /tmp has at least 4 GB free (job 128 stopped at the cut on a full /tmp)
+ok    the kit for 0.47.0 builds
+ok    codex is installed
+ok    opencode is installed and lists zai-coding-plan/glm-5.3
+
+Step 1/10: Bump VERSION and APP_VERSION to 0.47.0 and commit (parity checked)
+  runs: do_bump
+        | do_bump () 
+        | { 
+        |     printf '%s\n' "$V" > VERSION || return 1;
+        |     sed -i "s/^const APP_VERSION = '[0-9][0-9.]*';/const APP_VERSION = '$V';/" src/aef-workflow-designer.html || return 1;
+        |     bash tools/_t808-version-parity.sh || { 
+        |         echo "parity failed after the bump";
+        |         return 1
+        |     };
+        |     git add VERSION src/aef-workflow-designer.html || return 1;
+        |     git commit -q -m "T-1497: $V — VERSION and APP_VERSION bumped by the release job (parity ok)" -- VERSION src/aef-workflow-designer.html || return 1;
+        |     echo "ok  bumped to $V in $(git rev-parse --short HEAD)"
+        | }
+Run step 1/10? [y/N] ok: APP_VERSION and VERSION agree (0.47.0)
+
+FABRIC: 1 component(s) modified: aef-workflow-designer
+  High connectivity (239 edges) — consider: fw fabric blast-radius HEAD
+ok  bumped to 0.47.0 in 029449b56
+ok    step 1/10
+
+Step 2/10: Calibrate with codex (OpenAI): build the 0.47.0 kit, loop.sh --calibrate, record the result
+  runs: do_calibrate codex openai "$CODEX_CMD"
+        | do_calibrate () 
+        | { 
+        |     local name="$1" vendor="$2" cmd="$3" kit wd res rc;
+        |     kit=$(mktemp -d /tmp/t1497-kit-$name.XXXXXX) || return 1;
+        |     python3 tools/build-authoring-kit.py --version "$V" --out "$kit/kit" > /dev/null || { 
+        |         echo "kit build failed";
+        |         rm -rf "$kit";
+        |         return 1
+        |     };
+        |     wd="$OUT/calibrate-$name";
+        |     res="$OUT/calibrate-$name.out";
+        |     mkdir -p "$wd";
+        |     echo "kit: $kit/kit (sha256 of SHA256SUMS $(sha256sum "$kit/kit/SHA256SUMS" | cut -c1-16)...), reviewer: $cmd";
+        |     ( export PATH="$NODEBIN:$OCBIN:$PATH" KIT_REVIEWER_CMD="$cmd";
+        |     bash "$kit/kit/loop.sh" --calibrate "$PWD/$wd" ) 2>&1 | tee "$res";
+        |     python3 tools/kit-calibration-gate.py record --version "$V" --reviewer "$name" --vendor "$vendor" --result-file "$res";
+        |     rc=$?;
+        |     rm -rf "$kit";
+        |     grep -E 'CALIBRATION: (PASS|FAIL|COULD NOT MEASURE)' "$res" | tail -1;
+        |     [ "$rc" = 0 ] || { 
+        |         echo "$name did not PASS (recorded); nothing is released — the agent brings it to you";
+        |         return 1
+        |     }
+        | }
+Run step 2/10? [y/N] kit: /tmp/t1497-kit-codex.8QD2xw/kit (sha256 of SHA256SUMS 19a7c3be8fe7d599...), reviewer: codex exec --skip-git-repo-check --sandbox workspace-write
+review prompt ~6718 tokens (reviewer context not declared)
+review prompt ~6738 tokens (reviewer context not declared)
+map evidence, clean map:
+  verify-findings: 0 verified, 0 absence, 0 unverified
+map evidence, planted map:
+    verified   Lane_warehouse (line 46 contains the quote)
+    verified   quality-inspection (line 271 contains the quote)
+    verified   send-payment-reminder (line 271 contains the quote)
+  verify-findings: 3 verified, 0 absence, 0 unverified
+recall: 3/3 planted defects caught
+  caught invented/citation                  send-payment-reminder
+  caught undeclared-unknown/invented        quality-inspection
+  caught wrong-authority                    Lane_warehouse
+false findings: 0 on the clean map, 0 on unplanted elements
+CALIBRATION: PASS
+0.47.0: codex PASS (openai) recall 3/3, false on clean 0
+CALIBRATION: PASS
+ok    step 2/10
+
+Step 3/10: Calibrate with GLM-5.3 (Z.AI, opencode): build the 0.47.0 kit, loop.sh --calibrate, record the result
+  runs: do_calibrate glm-5.3 zai "$GLM_CMD"
+        | do_calibrate () 
+        | { 
+        |     local name="$1" vendor="$2" cmd="$3" kit wd res rc;
+        |     kit=$(mktemp -d /tmp/t1497-kit-$name.XXXXXX) || return 1;
+        |     python3 tools/build-authoring-kit.py --version "$V" --out "$kit/kit" > /dev/null || { 
+        |         echo "kit build failed";
+        |         rm -rf "$kit";
+        |         return 1
+        |     };
+        |     wd="$OUT/calibrate-$name";
+        |     res="$OUT/calibrate-$name.out";
+        |     mkdir -p "$wd";
+        |     echo "kit: $kit/kit (sha256 of SHA256SUMS $(sha256sum "$kit/kit/SHA256SUMS" | cut -c1-16)...), reviewer: $cmd";
+        |     ( export PATH="$NODEBIN:$OCBIN:$PATH" KIT_REVIEWER_CMD="$cmd";
+        |     bash "$kit/kit/loop.sh" --calibrate "$PWD/$wd" ) 2>&1 | tee "$res";
+        |     python3 tools/kit-calibration-gate.py record --version "$V" --reviewer "$name" --vendor "$vendor" --result-file "$res";
+        |     rc=$?;
+        |     rm -rf "$kit";
+        |     grep -E 'CALIBRATION: (PASS|FAIL|COULD NOT MEASURE)' "$res" | tail -1;
+        |     [ "$rc" = 0 ] || { 
+        |         echo "$name did not PASS (recorded); nothing is released — the agent brings it to you";
+        |         return 1
+        |     }
+        | }
+Run step 3/10? [y/N] kit: /tmp/t1497-kit-glm-5.3.Mw3SKM/kit (sha256 of SHA256SUMS 19a7c3be8fe7d599...), reviewer: opencode run -m zai-coding-plan/glm-5.3
+review prompt ~6718 tokens (reviewer context not declared)
+review prompt ~6738 tokens (reviewer context not declared)
+map evidence, clean map:
+  verify-findings: 0 verified, 0 absence, 0 unverified
+map evidence, planted map:
+    verified   Lane_warehouse (line 46 contains the quote)
+    verified   quality-inspection (line 177 contains the quote)
+    verified   send-payment-reminder (line 271 contains the quote)
+  verify-findings: 3 verified, 0 absence, 0 unverified
+recall: 3/3 planted defects caught
+  caught invented/citation                  send-payment-reminder
+  caught undeclared-unknown/invented        quality-inspection
+  caught wrong-authority                    Lane_warehouse
+false findings: 0 on the clean map, 0 on unplanted elements
+CALIBRATION: PASS
+0.47.0: glm-5.3 PASS (zai) recall 3/3, false on clean 0
+CALIBRATION: PASS
+ok    step 3/10
+
+Step 4/10: Release gate: the 0.47.0 kit carries a PASS calibration of its exact bytes
+  runs: do_gate
+        | do_gate () 
+        | { 
+        |     cat "$REC";
+        |     python3 tools/kit-calibration-gate.py check --version "$V"
+        | }
+Run step 4/10? [y/N] # Calibration record for kit 0.47.0 (tools/kit-calibration-gate.py, T-1008). Bound to the
+# kit bytes by kit_sha256; any change to the kit voids it.
+version: 0.47.0
+kit_sha256: 19a7c3be8fe7d599d65dc5ae179416478abce591acefc7b318e240eecc625da7
+reviewers:
+- result: PASS
+  recall: 3/3
+  false_on_clean: 0
+  false_on_unplanted: 0
+  reviewer: codex
+  vendor: openai
+  at: '2026-11-23T17:31:20Z'
+- result: PASS
+  recall: 3/3
+  false_on_clean: 0
+  false_on_unplanted: 0
+  reviewer: glm-5.3
+  vendor: zai
+  at: '2026-11-23T17:40:04Z'
+kit 0.47.0 calibrated: codex (openai) 3/3, glm-5.3 (zai) 3/3
+ok    step 4/10
+
+Step 5/10: Cut release 0.47.0: scripts/release-designer.sh (render gate ON, announce ON; writes dist/)
+  runs: do_cut
+        | do_cut () 
+        | { 
+        |     PATH="$NODEBIN:$PATH" scripts/release-designer.sh || { 
+        |         echo "release-designer.sh failed (see above); dist/ may need a look";
+        |         return 1
+        |     };
+        |     { 
+        |         [ -f "$ART" ] && cmp -s src/aef-workflow-designer.html "$ART"
+        |     } || { 
+        |         echo "$ART missing or differs from src";
+        |         return 1
+        |     };
+        |     ( cd "$KIT" && sha256sum -c SHA256SUMS --quiet ) || { 
+        |         echo "the kit does not verify against its SHA256SUMS";
+        |         return 1
+        |     };
+        |     [ -f "$KIT/SKILL.md" ] || { 
+        |         echo "the kit has no SKILL.md (T-1376)";
+        |         return 1
+        |     };
+        |     grep -q 'Expense claim' "$KIT/exemplar.bpmn" || { 
+        |         echo "the kit does not ship the T-1418 exemplar";
+        |         return 1
+        |     };
+        |     echo "ok  artifact == src, kit verifies, ships SKILL.md and the new exemplar"
+        | }
+Run step 5/10? [y/N] ok: APP_VERSION and VERSION agree (0.47.0)
+kit 0.47.0 calibrated: codex (openai) 3/3, glm-5.3 (zai) 3/3
+authoring kit 0.47.0: would be created at /opt/832-Workflow-designer/dist/aef-authoring-kit-0.47.0
+Render gate: python3 tests/test_designer_render.py
+PASS: designer render-check (0.47.0) — render, T-177 markers, inspector dropdowns, and console all OK (whitelisted probes: /api/health, /favicon.ico, /api/instances)
+authoring kit 0.47.0: built at /opt/832-Workflow-designer/dist/aef-authoring-kit-0.47.0
+Released designer 0.47.0
+  artifact: dist/aef-workflow-designer-0.47.0.html
+  sha256:   15299e56df9aa5f34c281f6396640e4e6926e7651b8291b482cba70ee6a71003
+  bytes:    1451569
+  kit:      dist/aef-authoring-kit-0.47.0 (SHA256SUMS 19a7c3be8fe7d599d65dc5ae179416478abce591acefc7b318e240eecc625da7)
+Announced 0.47.0 to dm:0e7ee6cad65137fc:6a646ce8b1bc6560 (offset 39, cv_key=designer-release)
+
+WARNING: release 0.47.0 is NOT TAGGED — tag 'designer-v0.47.0' does not exist.
+WARNING: the release is INCOMPLETE. dist/ and the rail announcement name a
+WARNING: sha, but nothing names a REF it can be fetched at, and a branch tip
+WARNING: is not a release. AEF fetch the artifact by tag (rail 483).
+WARNING:
+WARNING: The tag must be applied AFTER the release commit exists — tagging
+WARNING: now would name the previous commit, which carries neither this
+WARNING: VERSION nor this artifact. So: commit first, then tag HEAD:
+WARNING:   cd /opt/832-Workflow-designer && git tag -a designer-v0.47.0 -m "designer 0.47.0 (sha256 15299e56df9aa5f34c281f6396640e4e6926e7651b8291b482cba70ee6a71003)" && git push origin designer-v0.47.0
+WARNING:
+WARNING: Verify with: cd /opt/832-Workflow-designer && python3 tools/_t382-release-lag.py
+Release 0.47.0: CUT and ANNOUNCED — NOT YET TAGGED
+ok  artifact == src, kit verifies, ships SKILL.md and the new exemplar
+ok    step 5/10
+
+Step 6/10: Commit dist/aef-workflow-designer-0.47.0.html, dist/aef-authoring-kit-0.47.0, dist/MANIFEST.yaml and the calibration record
+  runs: do_commit
+        | do_commit () 
+        | { 
+        |     git add "$ART" "$KIT" dist/MANIFEST.yaml "$REC" || return 1;
+        |     git commit -q -m "T-1497: release designer $V — phases drawn (Greenfield), io badge clear of names, label places zoom-free, starter ids stable, panel names plain tasks and lanes; kit calibrated on its bytes" -m "Notes: docs/releases/RELEASE-NOTES-$V.md" -- "$ART" "$KIT" dist/MANIFEST.yaml "$REC" || return 1;
+        |     echo "ok  release commit $(git rev-parse --short HEAD)"
+        | }
+Run step 6/10? [y/N] 
+FABRIC: 8 new file(s) without component cards: dist/aef-authoring-kit-0.47.0/SHA256SUMS, dist/aef-authoring-kit-0.47.0/calibration/clean.bpmn, dist/aef-authoring-kit-0.47.0/calibration/planted.bpmn, dist/aef-authoring-kit-0.47.0/exemplar.bpmn, dist/aef-authoring-kit-0.47.0/loop.sh, dist/aef-authoring-kit-0.47.0/validate-workflow.py, dist/aef-authoring-kit-0.47.0/verify-findings.py, dist/aef-workflow-designer-0.47.0.html
+  Register: fw fabric register <path>
+ok  release commit 2d53c7932
+ok    step 6/10
+
+Step 7/10: Tag designer-v0.47.0 (annotated) on the release commit, locally only
+  runs: do_tag
+        | do_tag () 
+        | { 
+        |     local rel sha;
+        |     rel=$(git log -1 --format=%H -- "$ART");
+        |     [ -n "$rel" ] || { 
+        |         echo "no commit carries $ART";
+        |         return 1
+        |     };
+        |     sha=$(sha256sum "$ART" | awk '{print $1}');
+        |     git tag -a "$TAG" "$rel" -m "designer $V (sha256 $sha) + authoring kit" || return 1;
+        |     echo "ok  tagged $TAG on $(git rev-parse --short "$rel") (local; pushed in the last step)"
+        | }
+Run step 7/10? [y/N] ok  tagged designer-v0.47.0 on 2d53c7932 (local; pushed in the last step)
+ok    step 7/10
+
+Step 8/10: Browser tier on the pool, 4 shards (T1467_POOL_ONLY=1; about 7-12 min): stops here if red or no result, nothing pushed
+  runs: do_browser
+        | do_browser () 
+        | { 
+        |     PATH="$NODEBIN:$PATH" T1467_POOL_ONLY=1 bash tools/pool/tier-gate.sh browser || { 
+        |         echo "browser tier RED or no pool result (build/tiergate/tier-browser.runs.log); nothing pushed, the tag is local only — the agent brings it to you";
+        |         return 1
+        |     };
+        |     echo "ok  browser tier green on the pool (split) for the release tree"
+        | }
+Run step 8/10? [y/N] T-1288 browser: T1467_POOL_ONLY=1: browser runs on the pool only (operator's choice for releases, 2026-11-20); high-risk change: src/aef-workflow-designer.html
+T-1288 browser: running the browser tier on ring20's POOL as 4 shards in parallel, the unsplit run as a non-gating shadow (T-1462, T-1467) ...
+tier browser GREEN: 40 passed, 0 failed, 0 flaky, 0 quarantined, 386 s   [pool: pool-w2, shard 3/4]
+tier browser GREEN: 40 passed, 0 failed, 0 flaky, 0 quarantined, 386 s   [pool: pool-w2, shard 1/4]
+tier browser GREEN: 47 passed, 0 failed, 0 flaky, 0 quarantined, 410 s   [pool: ring20-live, shard 2/4]
+tier browser GREEN: 42 passed, 0 failed, 0 flaky, 0 quarantined, 416 s   [pool: ring20-live, shard 4/4]
+T-1288 browser: shard-coverage: ok — 4 shard(s) ran each of the 164 browser legs exactly once
+T-1288 browser: pool only: green
+ok  browser tier green on the pool (split) for the release tree
+ok    step 8/10
+
+Step 9/10: Core tier (about 20 minutes, or cached), so the push finds it green
+  runs: do_core
+        | do_core () 
+        | { 
+        |     PATH="$NODEBIN:$PATH" bash tools/_t1288-prepush-gate.sh || { 
+        |         echo "core tier RED (see .context/working/prepush-core.log); nothing pushed — the agent brings it to you";
+        |         return 1
+        |     };
+        |     echo "ok  core tier green for this tree; the push hook will find it cached"
+        | }
+Run step 9/10? [y/N] T-1288 core: high-risk change (src/aef-workflow-designer.html): core runs on the pool AND here, side by side; both must be green
+T-1288 core: running the core tier on ring20's POOL as 5 shards in parallel, the unsplit run as a non-gating shadow (T-1462, T-1467) ...
+T-1288 core: running the core tier HERE as 4 shards at once, each in a clean clone of 2d53c7932d22 (plan tests/shard-plan-core-4.tsv) ...
+tier core    GREEN: 33 passed, 0 failed, 0 flaky, 0 quarantined, 159 s   [pool: pool-w2, shard 3/5]
+tier core    GREEN: 44 passed, 0 failed, 0 flaky, 0 quarantined, 170 s   [pool: pool-132, shard 5/5]
+tier core    GREEN: 119 passed, 0 failed, 0 flaky, 0 quarantined, 196 s   [pool: ring20-live, shard 4/5]
+tier core    GREEN: 22 passed, 0 failed, 0 flaky, 0 quarantined, 210 s   [pool: ring20-live, shard 2/5]
+T-1288 core: shard-coverage: ok — 4 shard(s) ran each of the 205 core legs exactly once
+tier core    GREEN: 133 passed, 0 failed, 0 flaky, 0 quarantined, 271 s
+tier core    GREEN: 35 passed, 0 failed, 0 flaky, 0 quarantined, 267 s
+tier core    GREEN: 35 passed, 0 failed, 0 flaky, 0 quarantined, 250 s
+tier core    GREEN: 36 passed, 0 failed, 0 flaky, 0 quarantined, 248 s
+tier core    GREEN: 21 passed, 0 failed, 0 flaky, 0 quarantined, 142 s   [pool: pool-w2, shard 1/5]
+T-1288 core: shard-coverage: ok — 5 shard(s) ran each of the 205 core legs exactly once
+T-1288 core: high-risk change: pool and local both green
+ok  core tier green for this tree; the push hook will find it cached
+ok    step 9/10
+
+Step 10/10: Push bleeding-edge and designer-v0.47.0 to origin
+  runs: do_push
+        | do_push () 
+        | { 
+        |     git push origin bleeding-edge || { 
+        |         echo "push of bleeding-edge failed";
+        |         return 1
+        |     };
+        |     git push origin "$TAG" || { 
+        |         echo "push of $TAG failed";
+        |         return 1
+        |     };
+        |     echo "DONE: release $V committed, tagged $TAG, browser (pool, split) and core tiers green, pushed."
+        | }
+Run step 10/10? [y/N] T-1288 pre-push: core tier already GREEN for this tree (src/tools/tests/kit/framework unchanged) — no run needed
+VERSION is tracked — not stamped (fw release is its only writer, T-3821)
+
+=== Pre-Push Audit Check ===
+
+=== AUDIT REPORT ===
+Timestamp: 2026-11-23T22:41:47+01:00
+Project: /opt/832-Workflow-designer
+Sections: structure
+
+=== STRUCTURE CHECKS ===
+[PASS] Tasks directory exists
+[PASS] Tasks/active directory exists
+[PASS] Tasks/completed directory exists
+[PASS] Tasks/templates directory exists
+[PASS] Task template exists
+[PASS] No duplicate task IDs — examined 1496 task file(s) across 1 corpus view(s)
+[PASS] All project YAML files parse correctly — examined 16 project YAML file(s)
+[PASS] All arc anchor_task references resolve to existing tasks — examined 3 arc anchor_task reference(s)
+[WARN] All onboarding-seed corpus references resolve to existing maps — NOT EVALUATED: candidate set empty (0 onboarding-seed corpus reference(s))
+       Evidence: The check ran and found nothing, because there was nothing to look at. A PASS here would assert coverage the check does not have (T-3105).
+       Mitigation: No 'fw corpus explain <id>' reference was found in lib/seeds/tasks — either the seeds stopped routing to maps, or lib/seeds/tasks is absent
+[WARN] Arc 'hypothesis-first-inceptions' has no task commits in the last 30 days (6 task(s) in arc)
+       Evidence: Arc is in-progress but its constituent tasks show no recent git activity — may have stalled
+       Mitigation: Either close/abandon the arc via 'fw arc close' or run 'fw task update T-XXX --last-update $(date -u +%FT%TZ)' on a relevant task. Configurable via FW_STALE_ARC_DAYS (default 30).
+[INFO] free driver F2: retire_when text present, no recognition heuristic — manual review
+[PASS] No inline arc:<slug> tag-only scans outside canonical lib (T-1881) — examined 434 source file(s) under lib/ web/ agents/ bin/ tools/
+[PASS] No Python arc-membership derivation outside canonical import (T-3516, OBS-546) — examined 223 Python file(s) under lib/ web/ agents/ bin/ tools/
+[WARN] No PROJECT_ROOT resolution of framework-owned assets (T-2648, OBS-097) — NOT EVALUATED: candidate set empty (0 Python file(s) under web/ + lib/)
+       Evidence: The check ran and found nothing, because there was nothing to look at. A PASS here would assert coverage the check does not have (T-3105).
+       Mitigation: The scan walked no .py files under web/ or lib/ — the OBS-097 rail asserted nothing this run
+[WARN] No stale-slice-references (L-417) — NOT EVALUATED: candidate set empty (0 file(s) under web/templates web/blueprints lib)
+       Evidence: The check ran and found nothing, because there was nothing to look at. A PASS here would assert coverage the check does not have (T-3105).
+       Mitigation: The scan walked no files — the L-417 rail asserted nothing this run
+[WARN] 11 GO'd inception(s) have NO declared build link — whether they were built is UNKNOWN (0 not even mentioned by a later task; 5 mentioned by an open task; 6 mentioned only by closed tasks; of 64 GO-recorded completed inception(s) examined). A mention is not a build (T-3562).
+       Evidence: T-1452, T-1397, T-1375, T-1285, T-1219 (+6 more unlinked)
+       Mitigation: For each: find the task that builds it and declare unlocks_inception_decision: [T-XXXX:<decision-id>] on it, or record that it was never built. The tiers are mentions only; the unmentioned ones are the likeliest abandoned, but a mention proves nothing either way (T-3475 was mentioned and unbuilt). Triage per tier: cat /opt/832-Workflow-designer/.context/audits/go-scope-unpropagated/LATEST.md (origin: T-2078, T-2091, T-3099; tiers T-3469/OBS-535; wording T-3562)
+[PASS] Fabric: 553 registered card(s)
+[WARN] Fabric: 217/553 cards have no edges
+       Evidence: Graph coverage below target
+       Mitigation: Run: fw fabric enrich
+[WARN] Fabric: 553 registered, 205 unregistered (of 736 watched — 75% covered, cards flat since earlier today (553))
+       Evidence: 205 file(s) matching watch-patterns.yaml have no component card; registered is unchanged while the watch set moves, so any change in the unregistered count is tree growth, not carding activity
+       Mitigation: Run: fw fabric scan
+[WARN] Fabric: 22 card(s) point at files no watch pattern covers
+       Evidence: The registry already treats these as components; drift checks cannot see them, so coverage is measured over a subset
+       Mitigation: Widen .fabric/watch-patterns.yaml, or remove the cards if they are not components
+[PASS] Cron registry in sync with /etc/cron.d/agentic-audit-832-workflow-designer
+[WARN] Reviewer-verdict ledger: non-counting rows only (acknowledged/void/provisional) — verdict ledger: 294 row(s), 0 failure(s), 1 acknowledged refusal(s), 4 void/provisional row(s) — exit 3: warnings only (acknowledged, void or provisional rows); nothing fails
+       Evidence: WARN acknowledged: V-20261020-2c550c7f (T-1215) superseded by T-1225 — introduced by other: the commit that added this row (c2ba7be91) was made by ['Dimitri Geelen'], not by its worker 'reviewer-judge-t-1215-r3-ce5c8564a414';WARN void: V-20261020-6ba9cb1c (T-209) worker failed — the worker exited 143 — a green from a failed or killed review does not count; never counts, a later verdict on the criterion supersedes it;WARN void: V-20261020-5a4ff53f (T-209) worker failed — the worker exited 143 — a green from a failed or killed review does not count; never counts, a later verdict on the criterion supersedes it;
+       Mitigation: Inspect: python3 lib/verdict_ledger.py audit — acknowledged, void and provisional rows never count as verdicts; a later verdict on the criterion supersedes a void one
+[PASS] Human-AC ticks: no unprovenanced ### Human ticks in commits since detector commit b37861b597
+[PASS] Accepted misses: accepted misses: 2 committed, all backed by .context/reviews/accepted-misses.jsonl; ledger append-only
+[PASS] Outside commits: not configured (no internal-identities.yaml)
+[PASS] No oversized file under .context/working/
+[PASS] Watchtower decisions: 0 Watchtower decision(s) no longer at HEAD (last 60 days)
+[PASS] Index reconcile: no armed stale index entries
+[WARN] Reviewer green-degraded closes: 2 criterion close(s) on a panel with unavailable seats (per ISO week: 2026-W44 1;2026-W46 1;)
+       Evidence: WARN green-degraded: T-1303 AC#1 V-20261027-cb560298: run run-t-1303-05571671cb closed on 2 green seat(s) of distinct vendors (claude-code [anthropic], codex [openai]); unavailable: opencode (exit 0, no verdict (dispatch judge-t-1303-r5-opencode-554edd6226fa));WARN green-degraded: T-358 AC#1 V-20261109-d853c93c: run run-t-358-b673b38a2a closed on 2 green seat(s) of distinct vendors (claude-code [anthropic], codex [openai]); unavailable: opencode (exit 137, no verdict (dispatch judge-t-358-r5-opencode-928435695d92));
+       Mitigation: Fix the unavailable seat kinds (fw reviewer judge names each reason); opt out per project: fw config set REVIEW_GREEN_DEGRADED 0
+[WARN] CLAUDE.md governance rewrite unreviewed: 1 line(s) in CLAUDE.md.bak are absent from CLAUDE.md
+       Evidence: fw upgrade replaced the governance tail from the framework template and kept the old file as CLAUDE.md.bak. Some of the 1 may be reworded rather than lost — the diff cannot tell them apart, which is exactly why a human clears this and not a count
+       Mitigation: Review: diff CLAUDE.md.bak CLAUDE.md — re-apply what is still wanted, then clear the signal: rm CLAUDE.md.bak
+[WARN] Reviewer-closed act-in-the-world criterion under an operator widening: T-676 AC#1 V-20261119-a0071b67: widened by RL-87476ffe (ruling a): "[REVIEW] **Should P-002 exempt read-only Bash when focus is absent, captured, or"
+       Evidence: 
+       Mitigation: Inspect: python3 lib/human_ac_ticks.py delegation list — revoke the widening there if the ruling no longer holds
+[WARN] Watchtower serving stale code: pid 3635661 predates 13 file(s) under web/
+       Evidence: bvp.py designer.py fabric.py — every web/ change since the process started is inert, including operator review/decision surfaces (G-104)
+       Mitigation: Run: .agentic-framework/bin/fw watchtower restart
+[PASS] Temp filesystem /tmp is 56% full (under TMP_USE_WARN_PCT=85)
+[PASS] Process placement: no long-lived agent process in a non-lingering session scope
+[PASS] Exec-bit parity: every 100755-indexed script is executable on disk — examined 367 indexed-100755 script(s) (*.sh + bin/fw)
+[WARN] Cron exec-bit: every script cron execs directly is executable — NOT EVALUATED: candidate set empty (0 directly-invoked script(s) in the deployed crontab)
+       Evidence: The check ran and found nothing, because there was nothing to look at. A PASS here would assert coverage the check does not have (T-3105).
+       Mitigation: Confirm that 0 directly-invoked script(s) in the deployed crontab is the real corpus state and not a mis-scoped enumeration or a predicate that matches nothing
+[PASS] Branch hygiene: no stale branches, worktrees or remote refs
+[WARN] Hook threshold: 3 hook(s) failing over threshold (T-1626)
+       Evidence: FAIL|block-plan-mode|60|60|1.0000
+FAIL|block-task-tools|60|60|1.0000
+FAIL|check-active-task|5170|610|0.1180
+       Mitigation: Run: python3 /opt/832-Workflow-designer/.agentic-framework/lib/hook-threshold.py --register (or fw upgrade if witness pattern)
+[WARN] Stray root files: 1 zero-byte untracked file(s) in repo root (T-651)
+       Evidence: ...
+       Mitigation: Shell-redirect debris from unquoted markdown. Verify none collide with a tracked path, then remove by explicit name (never a glob — such names can contain *)
+[PASS] Large-file gate: tracked tree clean
+[INFO] Invariant suite (tests/lint) skipped — framework-repo property; PROJECT_ROOT is not the framework repo
+[INFO] Dead-negation lint (tests/) skipped — framework-repo property; PROJECT_ROOT is not the framework repo
+[INFO] Unit suite (tests/unit) skipped — no suite at /opt/832-Workflow-designer/.agentic-framework/tests/unit to run (832 T-934)
+[INFO] Integration suite not graded at pre-push — graded by the */30 and daily audits (T-4634)
+[PASS] Designer ghost registry: ghost↔task joins clean
+[PASS] Cron outputs: every declared output is committed by its job or untracked
+[WARN] Silent-zero store greps: 16 grep(s) can read a reshaped store as empty
+       Evidence: lib/harvest.sh:334: fixed-indent-store-grep: project_decisions=$(grep "^  description:" "$project_file" 2>/dev/null | sed 's/.*description:[;lib/harvest.sh:343: fixed-indent-store-grep: framework_decisions=$(grep "^  description:" "$framework_file" 2>/dev/null | sed 's/.*descripti;lib/harvest.sh:427: fixed-indent-store-grep: project_practices=$(grep "^    name:" "$project_file" 2>/dev/null | sed 's/.*name:[[:space:]]*/
+       Mitigation: Make the pattern indent-tolerant (^[[:space:]]*key:) or parse the YAML; for counts, fail loudly when the store is unreadable instead of '|| echo 0'. Full list: python3 lib/silent_zero_scan.py (T-2680)
+[WARN] Sidecar: 3 consult(s) recorded UNKNOWN — sent, never confirmed delivered
+       Evidence: fw sidecar status: UNKNOWN=3 of 298 message(s) (0 of them dead-lettered); a peer never saw these
+       Mitigation: Run: .agentic-framework/bin/fw sidecar status — the retry ladder (T-3434, D-600) re-posts and escalates these automatically; an UNKNOWN that is NOT a dead-letter was recorded some other way and is worth reading
+[PASS] Sidecar watcher live: seq 138788, last tick 12.8s ago, self-probe 24.5ms
+[PASS] No peer mail held unsurfaced past 24h
+[WARN] 107 orphan inbox(es) on this hub: unread posts no known agent reads
+       Evidence: inbox:cacc73ea32b121dd/aef-greenfield-test 28;inbox:cacc73ea32b121dd/agentic-engineering-framework 1;inbox:cacc73ea32b121dd/claude-shared-toolkit 12;
+       Mitigation: Mail sent to a nickname? Tell the senders the real circuit. Run: .agentic-framework/bin/fw sidecar orphan-inboxes (T-4418)
+[PASS] BVP drivers: every active free and arc-scoped driver is scorable (handler or scoring: spec)
+[PASS] Delegation surface: reviewer-closeable 0, reviewer-judges 36, agent-self 2, operator-only 17 across 50 active task(s) with open Human criteria
+[WARN] Fabric: 224 under-populated card(s)
+       Evidence: TODO purpose: 12, unknown subsystem: 1, no edges: 217 — e.g. .context/inbox.yaml, .context/project/concerns.yaml, docs/authoring-kit/loop.sh
+       Mitigation: Run: .agentic-framework/bin/fw fabric enrich --describe-only (fills purpose/subsystem from each file's own header; names what it refuses). Zero-edge cards want a look, not a re-run: .agentic-framework/bin/fw fabric drift
+[PASS] Design-conformance register: every row has a live or finished-and-built owner
+[PASS] Stale keystones: none captured >3 days
+[PASS] Issue-ledger lag: every linked task's GitHub issue has the stage its state implies
+
+=== SUMMARY ===
+Pass: 37
+Warn: 20
+Fail: 0
+
+=== PRIORITY ACTIONS ===
+     1	Confirm that 0 directly-invoked script(s) in the deployed crontab is the real corpus state and not a mis-scoped enumeration or a predicate that matches nothing
+     2	Either close/abandon the arc via 'fw arc close' or run 'fw task update T-XXX --last-update $(date -u +%FT%TZ)' on a relevant task. Configurable via FW_STALE_ARC_DAYS (default 30).
+     3	Fix the unavailable seat kinds (fw reviewer judge names each reason); opt out per project: fw config set REVIEW_GREEN_DEGRADED 0
+     4	For each: find the task that builds it and declare unlocks_inception_decision: [T-XXXX:<decision-id>] on it, or record that it was never built. The tiers are mentions only; the unmentioned ones are the likeliest abandoned, but a mention proves nothing either way (T-3475 was mentioned and unbuilt). Triage per tier: cat /opt/832-Workflow-designer/.context/audits/go-scope-unpropagated/LATEST.md (origin: T-2078, T-2091, T-3099; tiers T-3469/OBS-535; wording T-3562)
+     5	Inspect: python3 lib/human_ac_ticks.py delegation list — revoke the widening there if the ruling no longer holds
+
+=== TREND ANALYSIS ===
+Repeated issues detected in last 14 days (candidates for practice):
+  - Reviewer-verdict ledger: non-counting rows only (acknowledged/void/provisional) — verdict ledger: 285 row(s), 0 failure(s), 1 acknowledged refusal(s), 4 void/provisional row(s) — exit 3: warnings only (acknowledged, void or provisional rows); nothing fails (37 times)
+  - Fabric: 553 registered, 195 unregistered (of 726 watched — 76% covered, cards flat since earlier today (553)) (21 times)
+  - 11 GO'd inception(s) have NO declared build link — whether they were built is UNKNOWN (0 not even mentioned by a later task; 5 mentioned by an open task; 6 mentioned only by closed tasks; of 64 GO-recorded completed inception(s) examined). A mention is not a build (T-3562). (19 times)
+  - Fabric: 553 registered, 193 unregistered (of 724 watched — 76% covered, cards flat since 2026-11-21 (553)) (18 times)
+  - All onboarding-seed corpus references resolve to existing maps — NOT EVALUATED: candidate set empty (0 onboarding-seed corpus reference(s)) (14 times)
+  - Arc 'hypothesis-first-inceptions' has no task commits in the last 30 days (6 task(s) in arc) (14 times)
+  - Cron exec-bit: every script cron execs directly is executable — NOT EVALUATED: candidate set empty (0 directly-invoked script(s) in the deployed crontab) (14 times)
+  - Fabric: 22 card(s) point at files no watch pattern covers (14 times)
+  - Fabric: 224 under-populated card(s) (14 times)
+  - Fabric: 217/553 cards have no edges (14 times)
+  - No PROJECT_ROOT resolution of framework-owned assets (T-2648, OBS-097) — NOT EVALUATED: candidate set empty (0 Python file(s) under web/ + lib/) (14 times)
+  - No stale-slice-references (L-417) — NOT EVALUATED: candidate set empty (0 file(s) under web/templates web/blueprints lib) (14 times)
+  - Reviewer green-degraded closes: 2 criterion close(s) on a panel with unavailable seats (per ISO week: 2026-W44 1;2026-W46 1;) (14 times)
+  - Sidecar: 3 consult(s) recorded UNKNOWN — sent, never confirmed delivered (14 times)
+  - Silent-zero store greps: 16 grep(s) can read a reshaped store as empty (14 times)
+  - Stray root files: 1 zero-byte untracked file(s) in repo root (T-651) (14 times)
+  - Hook threshold: 3 hook(s) failing over threshold (T-1626) (13 times)
+  - 106 orphan inbox(es) on this hub: unread posts no known agent reads (11 times)
+  - Temp filesystem /opt is 87% full (over TMP_USE_WARN_PCT=85) (10 times)
+  - Watchtower serving stale code: pid 3635661 predates 13 file(s) under web/ (10 times)
+  - CTL-028: T-9002 is in .tasks/completed/ but frontmatter status='started-work' (expected: work-completed) (7 times)
+  - CTL-029: T-1241 has all Agent ACs ticked but status='started-work' — completable, not closed (7 times)
+  - CTL-029: T-1300 has all Agent ACs ticked but status='started-work' — completable, not closed (7 times)
+  - Task T-9003-inflight.md missing Updates section (7 times)
+  - Reviewer-closed act-in-the-world criterion under an operator widening: T-676 AC#1 V-20261119-a0071b67: widened by RL-87476ffe (ruling a): \"[REVIEW] **Should P-002 exempt read-only Bash when focus is absent, captured, or\" (4 times)
+  - Branch hygiene: 1 finding(s) — stale branches, worktrees or remote refs (3 times)
+  - CLAUDE.md governance rewrite unreviewed: 1 line(s) in CLAUDE.md.bak are absent from CLAUDE.md (3 times)
+  - Fabric: 545 registered, 169 unregistered (of 693 watched — 78% covered, +4 cards since 2026-11-11) (3 times)
+
+Consider creating a practice to address these recurring issues.
+Run: fw context add-learning "description" --task T-XXX
+
+Audit history: 163 audit(s) across 14 day(s) in last 14 days + today
+  Coverage: 1 full, 162 partial (section-scoped). Trends can only
+  surface a check that was actually RUN in the records above (T-677).
+
+Audit saved to: /opt/832-Workflow-designer/.context/audits/2026-11-23.yaml
+
+AUDIT-SCOPE: fails=0 ref=0 worktree=0
+=== END AUDIT ===
+
+WARNING: Audit has warnings (push allowed)
+Consider addressing the issues above.
+
+remote:          
+remote: Create a pull request for 'bleeding-edge' by visiting:        
+remote:     https://onedev.docker.ring20.geelenandcompany.com/workflow-designer/~pulls/new?target=45:master&source=45:bleeding-edge        
+remote:          
+To ssh://<git-host>:6611/workflow-designer
+   a7364976b..2d53c7932  bleeding-edge -> bleeding-edge
+T-1288 pre-push: core tier already GREEN for this tree (src/tools/tests/kit/framework unchanged) — no run needed
+VERSION is tracked — not stamped (fw release is its only writer, T-3821)
+
+=== Pre-Push Audit Check ===
+
+=== AUDIT REPORT ===
+Timestamp: 2026-11-23T22:45:04+01:00
+Project: /opt/832-Workflow-designer
+Sections: structure
+
+=== STRUCTURE CHECKS ===
+[PASS] Tasks directory exists
+[PASS] Tasks/active directory exists
+[PASS] Tasks/completed directory exists
+[PASS] Tasks/templates directory exists
+[PASS] Task template exists
+[PASS] No duplicate task IDs — examined 1496 task file(s) across 1 corpus view(s)
+[PASS] All project YAML files parse correctly — examined 16 project YAML file(s)
+[PASS] All arc anchor_task references resolve to existing tasks — examined 3 arc anchor_task reference(s)
+[WARN] All onboarding-seed corpus references resolve to existing maps — NOT EVALUATED: candidate set empty (0 onboarding-seed corpus reference(s))
+       Evidence: The check ran and found nothing, because there was nothing to look at. A PASS here would assert coverage the check does not have (T-3105).
+       Mitigation: No 'fw corpus explain <id>' reference was found in lib/seeds/tasks — either the seeds stopped routing to maps, or lib/seeds/tasks is absent
+[WARN] Arc 'hypothesis-first-inceptions' has no task commits in the last 30 days (6 task(s) in arc)
+       Evidence: Arc is in-progress but its constituent tasks show no recent git activity — may have stalled
+       Mitigation: Either close/abandon the arc via 'fw arc close' or run 'fw task update T-XXX --last-update $(date -u +%FT%TZ)' on a relevant task. Configurable via FW_STALE_ARC_DAYS (default 30).
+[INFO] free driver F2: retire_when text present, no recognition heuristic — manual review
+[PASS] No inline arc:<slug> tag-only scans outside canonical lib (T-1881) — examined 434 source file(s) under lib/ web/ agents/ bin/ tools/
+[PASS] No Python arc-membership derivation outside canonical import (T-3516, OBS-546) — examined 223 Python file(s) under lib/ web/ agents/ bin/ tools/
+[WARN] No PROJECT_ROOT resolution of framework-owned assets (T-2648, OBS-097) — NOT EVALUATED: candidate set empty (0 Python file(s) under web/ + lib/)
+       Evidence: The check ran and found nothing, because there was nothing to look at. A PASS here would assert coverage the check does not have (T-3105).
+       Mitigation: The scan walked no .py files under web/ or lib/ — the OBS-097 rail asserted nothing this run
+[WARN] No stale-slice-references (L-417) — NOT EVALUATED: candidate set empty (0 file(s) under web/templates web/blueprints lib)
+       Evidence: The check ran and found nothing, because there was nothing to look at. A PASS here would assert coverage the check does not have (T-3105).
+       Mitigation: The scan walked no files — the L-417 rail asserted nothing this run
+[WARN] 11 GO'd inception(s) have NO declared build link — whether they were built is UNKNOWN (0 not even mentioned by a later task; 5 mentioned by an open task; 6 mentioned only by closed tasks; of 64 GO-recorded completed inception(s) examined). A mention is not a build (T-3562).
+       Evidence: T-1452, T-1397, T-1375, T-1285, T-1219 (+6 more unlinked)
+       Mitigation: For each: find the task that builds it and declare unlocks_inception_decision: [T-XXXX:<decision-id>] on it, or record that it was never built. The tiers are mentions only; the unmentioned ones are the likeliest abandoned, but a mention proves nothing either way (T-3475 was mentioned and unbuilt). Triage per tier: cat /opt/832-Workflow-designer/.context/audits/go-scope-unpropagated/LATEST.md (origin: T-2078, T-2091, T-3099; tiers T-3469/OBS-535; wording T-3562)
+[PASS] Fabric: 553 registered card(s)
+[WARN] Fabric: 217/553 cards have no edges
+       Evidence: Graph coverage below target
+       Mitigation: Run: fw fabric enrich
+[WARN] Fabric: 553 registered, 205 unregistered (of 736 watched — 75% covered, cards flat since earlier today (553))
+       Evidence: 205 file(s) matching watch-patterns.yaml have no component card; registered is unchanged while the watch set moves, so any change in the unregistered count is tree growth, not carding activity
+       Mitigation: Run: fw fabric scan
+[WARN] Fabric: 22 card(s) point at files no watch pattern covers
+       Evidence: The registry already treats these as components; drift checks cannot see them, so coverage is measured over a subset
+       Mitigation: Widen .fabric/watch-patterns.yaml, or remove the cards if they are not components
+[PASS] Cron registry in sync with /etc/cron.d/agentic-audit-832-workflow-designer
+[WARN] Reviewer-verdict ledger: non-counting rows only (acknowledged/void/provisional) — verdict ledger: 294 row(s), 0 failure(s), 1 acknowledged refusal(s), 4 void/provisional row(s) — exit 3: warnings only (acknowledged, void or provisional rows); nothing fails
+       Evidence: WARN acknowledged: V-20261020-2c550c7f (T-1215) superseded by T-1225 — introduced by other: the commit that added this row (c2ba7be91) was made by ['Dimitri Geelen'], not by its worker 'reviewer-judge-t-1215-r3-ce5c8564a414';WARN void: V-20261020-6ba9cb1c (T-209) worker failed — the worker exited 143 — a green from a failed or killed review does not count; never counts, a later verdict on the criterion supersedes it;WARN void: V-20261020-5a4ff53f (T-209) worker failed — the worker exited 143 — a green from a failed or killed review does not count; never counts, a later verdict on the criterion supersedes it;
+       Mitigation: Inspect: python3 lib/verdict_ledger.py audit — acknowledged, void and provisional rows never count as verdicts; a later verdict on the criterion supersedes a void one
+[PASS] Human-AC ticks: no unprovenanced ### Human ticks in commits since detector commit b37861b597
+[PASS] Accepted misses: accepted misses: 2 committed, all backed by .context/reviews/accepted-misses.jsonl; ledger append-only
+[PASS] Outside commits: not configured (no internal-identities.yaml)
+[PASS] No oversized file under .context/working/
+[PASS] Watchtower decisions: 0 Watchtower decision(s) no longer at HEAD (last 60 days)
+[PASS] Index reconcile: no armed stale index entries
+[WARN] Reviewer green-degraded closes: 2 criterion close(s) on a panel with unavailable seats (per ISO week: 2026-W44 1;2026-W46 1;)
+       Evidence: WARN green-degraded: T-1303 AC#1 V-20261027-cb560298: run run-t-1303-05571671cb closed on 2 green seat(s) of distinct vendors (claude-code [anthropic], codex [openai]); unavailable: opencode (exit 0, no verdict (dispatch judge-t-1303-r5-opencode-554edd6226fa));WARN green-degraded: T-358 AC#1 V-20261109-d853c93c: run run-t-358-b673b38a2a closed on 2 green seat(s) of distinct vendors (claude-code [anthropic], codex [openai]); unavailable: opencode (exit 137, no verdict (dispatch judge-t-358-r5-opencode-928435695d92));
+       Mitigation: Fix the unavailable seat kinds (fw reviewer judge names each reason); opt out per project: fw config set REVIEW_GREEN_DEGRADED 0
+[WARN] CLAUDE.md governance rewrite unreviewed: 1 line(s) in CLAUDE.md.bak are absent from CLAUDE.md
+       Evidence: fw upgrade replaced the governance tail from the framework template and kept the old file as CLAUDE.md.bak. Some of the 1 may be reworded rather than lost — the diff cannot tell them apart, which is exactly why a human clears this and not a count
+       Mitigation: Review: diff CLAUDE.md.bak CLAUDE.md — re-apply what is still wanted, then clear the signal: rm CLAUDE.md.bak
+[WARN] Reviewer-closed act-in-the-world criterion under an operator widening: T-676 AC#1 V-20261119-a0071b67: widened by RL-87476ffe (ruling a): "[REVIEW] **Should P-002 exempt read-only Bash when focus is absent, captured, or"
+       Evidence: 
+       Mitigation: Inspect: python3 lib/human_ac_ticks.py delegation list — revoke the widening there if the ruling no longer holds
+[WARN] Watchtower serving stale code: pid 3635661 predates 13 file(s) under web/
+       Evidence: bvp.py designer.py fabric.py — every web/ change since the process started is inert, including operator review/decision surfaces (G-104)
+       Mitigation: Run: .agentic-framework/bin/fw watchtower restart
+[PASS] Temp filesystem /tmp is 56% full (under TMP_USE_WARN_PCT=85)
+[PASS] Process placement: no long-lived agent process in a non-lingering session scope
+[PASS] Exec-bit parity: every 100755-indexed script is executable on disk — examined 367 indexed-100755 script(s) (*.sh + bin/fw)
+[WARN] Cron exec-bit: every script cron execs directly is executable — NOT EVALUATED: candidate set empty (0 directly-invoked script(s) in the deployed crontab)
+       Evidence: The check ran and found nothing, because there was nothing to look at. A PASS here would assert coverage the check does not have (T-3105).
+       Mitigation: Confirm that 0 directly-invoked script(s) in the deployed crontab is the real corpus state and not a mis-scoped enumeration or a predicate that matches nothing
+[PASS] Branch hygiene: no stale branches, worktrees or remote refs
+[WARN] Hook threshold: 3 hook(s) failing over threshold (T-1626)
+       Evidence: FAIL|block-plan-mode|60|60|1.0000
+FAIL|block-task-tools|60|60|1.0000
+FAIL|check-active-task|5170|610|0.1180
+       Mitigation: Run: python3 /opt/832-Workflow-designer/.agentic-framework/lib/hook-threshold.py --register (or fw upgrade if witness pattern)
+[WARN] Stray root files: 1 zero-byte untracked file(s) in repo root (T-651)
+       Evidence: ...
+       Mitigation: Shell-redirect debris from unquoted markdown. Verify none collide with a tracked path, then remove by explicit name (never a glob — such names can contain *)
+[PASS] Large-file gate: tracked tree clean
+[INFO] Invariant suite (tests/lint) skipped — framework-repo property; PROJECT_ROOT is not the framework repo
+[INFO] Dead-negation lint (tests/) skipped — framework-repo property; PROJECT_ROOT is not the framework repo
+[INFO] Unit suite (tests/unit) skipped — no suite at /opt/832-Workflow-designer/.agentic-framework/tests/unit to run (832 T-934)
+[INFO] Integration suite not graded at pre-push — graded by the */30 and daily audits (T-4634)
+[PASS] Designer ghost registry: ghost↔task joins clean
+[PASS] Cron outputs: every declared output is committed by its job or untracked
+[WARN] Silent-zero store greps: 16 grep(s) can read a reshaped store as empty
+       Evidence: lib/harvest.sh:334: fixed-indent-store-grep: project_decisions=$(grep "^  description:" "$project_file" 2>/dev/null | sed 's/.*description:[;lib/harvest.sh:343: fixed-indent-store-grep: framework_decisions=$(grep "^  description:" "$framework_file" 2>/dev/null | sed 's/.*descripti;lib/harvest.sh:427: fixed-indent-store-grep: project_practices=$(grep "^    name:" "$project_file" 2>/dev/null | sed 's/.*name:[[:space:]]*/
+       Mitigation: Make the pattern indent-tolerant (^[[:space:]]*key:) or parse the YAML; for counts, fail loudly when the store is unreadable instead of '|| echo 0'. Full list: python3 lib/silent_zero_scan.py (T-2680)
+[WARN] Sidecar: 3 consult(s) recorded UNKNOWN — sent, never confirmed delivered
+       Evidence: fw sidecar status: UNKNOWN=3 of 298 message(s) (0 of them dead-lettered); a peer never saw these
+       Mitigation: Run: .agentic-framework/bin/fw sidecar status — the retry ladder (T-3434, D-600) re-posts and escalates these automatically; an UNKNOWN that is NOT a dead-letter was recorded some other way and is worth reading
+[PASS] Sidecar watcher live: seq 138796, last tick 17.0s ago, self-probe 30.2ms
+[PASS] No peer mail held unsurfaced past 24h
+[WARN] 107 orphan inbox(es) on this hub: unread posts no known agent reads
+       Evidence: inbox:cacc73ea32b121dd/aef-greenfield-test 28;inbox:cacc73ea32b121dd/agentic-engineering-framework 1;inbox:cacc73ea32b121dd/claude-shared-toolkit 12;
+       Mitigation: Mail sent to a nickname? Tell the senders the real circuit. Run: .agentic-framework/bin/fw sidecar orphan-inboxes (T-4418)
+[PASS] BVP drivers: every active free and arc-scoped driver is scorable (handler or scoring: spec)
+[PASS] Delegation surface: reviewer-closeable 0, reviewer-judges 36, agent-self 2, operator-only 17 across 50 active task(s) with open Human criteria
+[WARN] Fabric: 224 under-populated card(s)
+       Evidence: TODO purpose: 12, unknown subsystem: 1, no edges: 217 — e.g. .context/inbox.yaml, .context/project/concerns.yaml, docs/authoring-kit/loop.sh
+       Mitigation: Run: .agentic-framework/bin/fw fabric enrich --describe-only (fills purpose/subsystem from each file's own header; names what it refuses). Zero-edge cards want a look, not a re-run: .agentic-framework/bin/fw fabric drift
+[PASS] Design-conformance register: every row has a live or finished-and-built owner
+[PASS] Stale keystones: none captured >3 days
+[PASS] Issue-ledger lag: every linked task's GitHub issue has the stage its state implies
+
+=== SUMMARY ===
+Pass: 37
+Warn: 20
+Fail: 0
+
+=== PRIORITY ACTIONS ===
+     1	Confirm that 0 directly-invoked script(s) in the deployed crontab is the real corpus state and not a mis-scoped enumeration or a predicate that matches nothing
+     2	Either close/abandon the arc via 'fw arc close' or run 'fw task update T-XXX --last-update $(date -u +%FT%TZ)' on a relevant task. Configurable via FW_STALE_ARC_DAYS (default 30).
+     3	Fix the unavailable seat kinds (fw reviewer judge names each reason); opt out per project: fw config set REVIEW_GREEN_DEGRADED 0
+     4	For each: find the task that builds it and declare unlocks_inception_decision: [T-XXXX:<decision-id>] on it, or record that it was never built. The tiers are mentions only; the unmentioned ones are the likeliest abandoned, but a mention proves nothing either way (T-3475 was mentioned and unbuilt). Triage per tier: cat /opt/832-Workflow-designer/.context/audits/go-scope-unpropagated/LATEST.md (origin: T-2078, T-2091, T-3099; tiers T-3469/OBS-535; wording T-3562)
+     5	Inspect: python3 lib/human_ac_ticks.py delegation list — revoke the widening there if the ruling no longer holds
+
+=== TREND ANALYSIS ===
+Repeated issues detected in last 14 days (candidates for practice):
+  - Reviewer-verdict ledger: non-counting rows only (acknowledged/void/provisional) — verdict ledger: 285 row(s), 0 failure(s), 1 acknowledged refusal(s), 4 void/provisional row(s) — exit 3: warnings only (acknowledged, void or provisional rows); nothing fails (37 times)
+  - Fabric: 553 registered, 195 unregistered (of 726 watched — 76% covered, cards flat since earlier today (553)) (21 times)
+  - 11 GO'd inception(s) have NO declared build link — whether they were built is UNKNOWN (0 not even mentioned by a later task; 5 mentioned by an open task; 6 mentioned only by closed tasks; of 64 GO-recorded completed inception(s) examined). A mention is not a build (T-3562). (19 times)
+  - Fabric: 553 registered, 193 unregistered (of 724 watched — 76% covered, cards flat since 2026-11-21 (553)) (18 times)
+  - All onboarding-seed corpus references resolve to existing maps — NOT EVALUATED: candidate set empty (0 onboarding-seed corpus reference(s)) (14 times)
+  - Arc 'hypothesis-first-inceptions' has no task commits in the last 30 days (6 task(s) in arc) (14 times)
+  - Cron exec-bit: every script cron execs directly is executable — NOT EVALUATED: candidate set empty (0 directly-invoked script(s) in the deployed crontab) (14 times)
+  - Fabric: 22 card(s) point at files no watch pattern covers (14 times)
+  - Fabric: 224 under-populated card(s) (14 times)
+  - Fabric: 217/553 cards have no edges (14 times)
+  - No PROJECT_ROOT resolution of framework-owned assets (T-2648, OBS-097) — NOT EVALUATED: candidate set empty (0 Python file(s) under web/ + lib/) (14 times)
+  - No stale-slice-references (L-417) — NOT EVALUATED: candidate set empty (0 file(s) under web/templates web/blueprints lib) (14 times)
+  - Reviewer green-degraded closes: 2 criterion close(s) on a panel with unavailable seats (per ISO week: 2026-W44 1;2026-W46 1;) (14 times)
+  - Sidecar: 3 consult(s) recorded UNKNOWN — sent, never confirmed delivered (14 times)
+  - Silent-zero store greps: 16 grep(s) can read a reshaped store as empty (14 times)
+  - Stray root files: 1 zero-byte untracked file(s) in repo root (T-651) (14 times)
+  - Hook threshold: 3 hook(s) failing over threshold (T-1626) (13 times)
+  - 106 orphan inbox(es) on this hub: unread posts no known agent reads (11 times)
+  - Temp filesystem /opt is 87% full (over TMP_USE_WARN_PCT=85) (10 times)
+  - Watchtower serving stale code: pid 3635661 predates 13 file(s) under web/ (10 times)
+  - CTL-028: T-9002 is in .tasks/completed/ but frontmatter status='started-work' (expected: work-completed) (7 times)
+  - CTL-029: T-1241 has all Agent ACs ticked but status='started-work' — completable, not closed (7 times)
+  - CTL-029: T-1300 has all Agent ACs ticked but status='started-work' — completable, not closed (7 times)
+  - Task T-9003-inflight.md missing Updates section (7 times)
+  - Reviewer-closed act-in-the-world criterion under an operator widening: T-676 AC#1 V-20261119-a0071b67: widened by RL-87476ffe (ruling a): \"[REVIEW] **Should P-002 exempt read-only Bash when focus is absent, captured, or\" (4 times)
+  - Branch hygiene: 1 finding(s) — stale branches, worktrees or remote refs (3 times)
+  - CLAUDE.md governance rewrite unreviewed: 1 line(s) in CLAUDE.md.bak are absent from CLAUDE.md (3 times)
+  - Fabric: 545 registered, 169 unregistered (of 693 watched — 78% covered, +4 cards since 2026-11-11) (3 times)
+
+Consider creating a practice to address these recurring issues.
+Run: fw context add-learning "description" --task T-XXX
+
+Audit history: 163 audit(s) across 14 day(s) in last 14 days + today
+  Coverage: 1 full, 162 partial (section-scoped). Trends can only
+  surface a check that was actually RUN in the records above (T-677).
+
+Audit saved to: /opt/832-Workflow-designer/.context/audits/2026-11-23.yaml
+
+AUDIT-SCOPE: fails=0 ref=0 worktree=0
+=== END AUDIT ===
+
+WARNING: Audit has warnings (push allowed)
+Consider addressing the issues above.
+
+To ssh://<git-host>:6611/workflow-designer
+ * [new tag]             designer-v0.47.0 -> designer-v0.47.0
+DONE: release 0.47.0 committed, tagged designer-v0.47.0, browser (pool, split) and core tiers green, pushed.
+ok    step 10/10
+
+DONE: 179-release-designer-0.47.0 — all 10 step(s) ran. rc=0  (log: /opt/832-Workflow-designer/.context/runme/179-release-designer-0.47.0/run-20261123T182944.log)
