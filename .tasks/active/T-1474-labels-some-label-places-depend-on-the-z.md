@@ -18,7 +18,7 @@ description: >
 status: started-work
 workflow_type: build
 current_node: frw_1_start
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -192,6 +192,7 @@ renders every corpus map at fit, 100% and 200% and finds every flow label in the
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer escalation (V-20261123-6f6f1574, reviewer-judge-t-1474-r3-2e85af468b4f:reviewer, rung rung-3-termlink-single-reviewer):** Escalate: labels at 1440 and 1920 are met (not found is fully visible, clear of found? and the gateway name, nothing else reads worse). At 1024 the moved label shows only 'not' before the open panel edge, where 0.46.0 showed 'not fou'; whether a label cut at 1024 is acceptable, or the opening view at narrow widths becomes its own task (a project-direction call), is for the human.
 
 ## Verification
 
