@@ -1,15 +1,15 @@
 // T-1474 / T-1469 review shots (not a leg): maps opened as a person opens them (adopt, opening zoom, lens all) at
 // 1024/1440/1920, for one designer file.
-//   node tools/_t1474-shots-cdp.mjs <designer.html> <outdir> <prefix> <map.bpmn> [<map.bpmn> ...]
+//   node docs/reports/T-1474-shots/shots.mjs <designer.html> <outdir> <prefix> <map.bpmn> [<map.bpmn> ...]
 // Writes <outdir>/<prefix>-<map>-<width>.png (the whole window).
 import { readFileSync, mkdtempSync, copyFileSync, existsSync, readdirSync, rmSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, basename } from 'node:path';
 import { tmpdir, homedir } from 'node:os';
 import { spawn } from 'node:child_process';
 import net from 'node:net';
-import { makeProfileDir, removeProfileDir } from './_cdp-profile.mjs';
-import { pageWsUrl } from './_cdp-attach.mjs';
-import { cdp } from './_cdp-client.mjs';
+import { makeProfileDir, removeProfileDir } from '../../../tools/_cdp-profile.mjs';
+import { pageWsUrl } from '../../../tools/_cdp-attach.mjs';
+import { cdp } from '../../../tools/_cdp-client.mjs';
 
 const [EDITOR, OUT, PREFIX, ...MAPS] = process.argv.slice(2);
 if (!EDITOR || !OUT || !PREFIX || !MAPS.length) { console.log('usage: <designer.html> <outdir> <prefix> <map.bpmn>...'); process.exit(2); }

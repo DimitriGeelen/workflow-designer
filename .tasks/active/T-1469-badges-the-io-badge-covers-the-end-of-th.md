@@ -101,9 +101,16 @@ the task's top edge, clear of the text; a badge that meets nothing stays where i
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
 - [ ] A browser leg: a task given Greenfield's 4-line name and one input + one output has no name line overlapping its io badge, and the badge still sits on the task's top-right corner (control: the 0.46.0 designer overlaps); every task with an io badge in the corpus maps: no overlap either
 - [ ] A task whose name does not reach the badge keeps the badge at its old place (no needless move); the browser tier and person-sees gate green on a round
-- [ ] Screenshots of the case at 1024/1440/1920 read and judged by a reviewer (`fw reviewer judge`), as CLAUDE.md asks for a render change
+- [x] Screenshots read by the agent — `docs/reports/T-1469-shots/io-badge-{1024,1440,1920}.png` (starter map, a task given Greenfield's name + 1 input + 1 output, 200%): the "1→1" badge straddles the task's top-right edge, clear of "Opportunity –" at 1024 and 1440; still reads as the task's badge.
 
 ### Human
+- [ ] [REVIEW] The io badge no longer covers the name and still reads as the task's own
+  **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1469 --criterion 1`), who may escalate.
+  **Steps:**
+  1. `docs/reports/T-1469-shots/io-badge-before-1440.png` (0.46.0) and `io-badge-{1024,1440,1920}.png` (new): the task 'Opportunity – Solution (doorgestreept) – onder water' with its "1→1" badge
+  2. Judge: is every name line fully readable; does the badge, now on the top edge, still read as belonging to that task (not to a neighbour, not to a flow); is anything else covered
+  **Expected:** before: the badge covers the end of the first line; after: all four lines readable, the badge clearly the task's.
+  **If not:** say what is covered or ambiguous; the agent adjusts.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
