@@ -111,15 +111,23 @@ further row above. Read-only: nothing saved changes. No tint in slice 1.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Phases drawn from the kept XML on `tests/fixtures/greenfield/ws-otb-fasen-voorbeeld.bpmn`: 5 row-1 brackets named Opportunity … Productie & service, 4 dividers through all lanes, 6 row-2 brackets above them and no row-2 dividers; each bracket spans its group's x range; nothing of them hidden outside the canvas (brackets inside the drawn area) — a browser leg at 1024/1440/1920, failed by 0.46.0
-- [ ] Read-only: a save of the fixture is byte-identical with and without the drawing (the groups, categories and shapes as kept); a map without groups draws no phase layer; the browser tier and person-sees gate green on a round
-- [ ] The phase names readable at the opening zoom (>= OPEN_MIN_TEXT_PX, or counted in openingZoom), and no bracket name overlapping another bracket name or the pool header
+- [x] Phases drawn from the kept XML on `tests/fixtures/greenfield/ws-otb-fasen-voorbeeld.bpmn`: 5 row-1 brackets named Opportunity … Productie & service, 4 dividers through all lanes, 6 row-2 brackets above them and no row-2 dividers; each bracket spans its group's x range; nothing of them hidden outside the canvas (brackets inside the drawn area) — a browser leg at 1024/1440/1920, failed by 0.46.0
+- [x] Read-only: a save of the fixture is byte-identical with and without the drawing (the groups, categories and shapes as kept); a map without groups draws no phase layer; the browser tier and person-sees gate green on a round
+- [x] The phase names readable at the opening zoom (>= OPEN_MIN_TEXT_PX, or counted in openingZoom), and no bracket name overlapping another bracket name or the pool header
+  Evidence (2026-11-23): tools/_t1473-phases-cdp.mjs — P1 (counts, names, dividers, spans, inside the viewBox) and P2
+  (>= 9 px at the opening zoom, no overlap with each other or the pool header) at 1024/1440/1920; P3 save byte-identical
+  with the layer suppressed (33939 chars, the same length 0.46.0 writes); P4 24 corpus maps draw nothing; P5 notice;
+  P6 the kitchen-sink's boxes are not phases (T-1461 F3). 0.46.0 fails P1-P4 (no phase layer; P5 not reached); HEAD before ef783f295 fails P6.
+  Round at e4f24ba64 (high-risk): browser "pool and local both green" (162/162 legs, shard-coverage ok, incl.
+  test_t1473_phases, the person-sees legs and _t1327), core "pool and local both green". The first round (bbcb5a0bc) was
+  red on _t1327 leg3 on both sides: the F3 rule had been left out; fixed in ef783f295.
 
 ### Human
 - [ ] Greenfield's phases read as phases of the process: each name over the stretch of steps it covers, the two rows told apart, the dividers placing the steps in their phase without hiding anything
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1473 --criterion 1`), who may escalate.
   **Steps:**
-  1. `docs/reports/T-1473-shots/phases-{1024,1440,1920}.png`: Greenfield's sample (tests/fixtures/greenfield/ws-otb-fasen-voorbeeld.bpmn) as it opens, phases drawn above the pool ('Fase' row 1 with dividers; 'Fase in Salesforce' row 2 above it)
+  1. `docs/reports/T-1473-shots/phases-{1024,1440,1920}.png`: Greenfield's sample (tests/fixtures/greenfield/ws-otb-fasen-voorbeeld.bpmn) as it opens on a fresh page (process_nooteboom), phases drawn above the pool ('Fase' row 1 with dividers; 'Fase in Salesforce' row 2 above it); `phases-fit-{1024,1440,1920}.png`: the same map at Fit (⤢), the whole pool with every phase of both rows
+     (first judgement, amber: (a) whole pool — the fit shots; (c) the earlier 1440/1920 shots were a restored draft renamed _v2 — the harness now clears storage per width; (b) at 1024/1440 the opening view is wider than the canvas, so the right-hand phase names run under the panel edge as the steps under them do: the opening zoom keeps text at the readable floor and scrolls (T-1256), and Fit shows the whole map; the names are cut by the viewport, never by their bracket)
   2. Judge: does each phase name read as the label of the stretch under its bracket; are the two rows clearly two different phase sets; do the dashed dividers read as phase boundaries and leave every step, flow and label readable; is a trimmed name (if any) still recognisable
   **Expected:** a person who knows the process can tell which steps belong to which phase in both rows, and nothing on the map reads worse for the phases being there.
   **If not:** name the phase, row or element that reads wrong; the agent adjusts.

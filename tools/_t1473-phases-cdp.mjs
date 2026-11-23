@@ -92,8 +92,14 @@ try {
   const xml = readFileSync(FIXTURE, 'utf8');
   for (const W of [1024, 1440, 1920]) {
     await cl.cmd('Emulation.setDeviceMetricsOverride', { width: W, height: 900, deviceScaleFactor: 1, mobile: false });
-    await cl.cmd('Page.navigate', { url: `http://127.0.0.1:${port}/designer.html` });
-    for (let k = 0; k < 150; k++) { if (await ev(`typeof _appReady!=='undefined'&&_appReady===true`).catch(() => false)) break; await sleep(150); }
+    // each width opens the file as a person does on a fresh page: storage cleared and the page reloaded, so no draft or
+    // library entry of the previous width is restored (the first shots showed "Restored your unsaved work" and the
+    // import renamed process_nooteboom_v2 — the reviewer's amber, V-20261123 on T-1473)
+    for (const pass of [0, 1]) {
+      await cl.cmd('Page.navigate', { url: `http://127.0.0.1:${port}/designer.html` });
+      for (let k = 0; k < 150; k++) { if (await ev(`typeof _appReady!=='undefined'&&_appReady===true`).catch(() => false)) break; await sleep(150); }
+      if (!pass) await ev(`(function(){ try { localStorage.clear(); sessionStorage.clear(); } catch (e) {} return true; })()`);
+    }
     await ev(`document.fonts.ready`);
     await ev(`(function(x){ adoptImportedXml(x, { userImport: true }); renderAll(); if (typeof openingZoom === 'function') openingZoom(); })(${JSON.stringify(xml)})`);
     await frames();
@@ -134,6 +140,11 @@ try {
       await frames(); await sleep(300);
       const shot = await cl.cmd('Page.captureScreenshot', { format: 'png' });
       writeFileSync(join(process.env.T1473_SHOTS, `phases-${W}.png`), Buffer.from(shot.data, 'base64'));
+      // the whole pool: Fit (the ⤢ button), so every phase of both rows is in one picture
+      await ev(`(function(){ setZoom(null); return true; })()`);
+      await frames(); await sleep(300);
+      const fit = await cl.cmd('Page.captureScreenshot', { format: 'png' });
+      writeFileSync(join(process.env.T1473_SHOTS, `phases-fit-${W}.png`), Buffer.from(fit.data, 'base64'));
       await cl.cmd('Emulation.setDeviceMetricsOverride', { width: W, height: 900, deviceScaleFactor: 1, mobile: false });
     }
   }
