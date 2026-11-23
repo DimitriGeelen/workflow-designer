@@ -5504,11 +5504,15 @@ function clearFlowLabels() {
     const out = [];
     for (const lines of variants) {
       const lift = (lines.length - 1) * 11;
-      for (const [above, below, side] of [[-6 - lift, 13, 8], [-17 - lift, 24, 20]]) {
+      // T-1474: a third, wider side offset for a VERTICAL drop (32): with node texts measured truly (unhinted), a short
+      // drop below a gateway whose name sits beside it had no place clear of that name ("not found" | "found?" on
+      // review-emission, 7-11 px apart); 8 and 20 px beside the flow both stay within 3 em of it. Horizontal flows get no
+      // farther rows (tried: a long label on verification-gate then took a farther row another flow crosses).
+      for (const [above, below, side] of [[-6 - lift, 13, 8], [-17 - lift, 24, 20], [null, null, 32]]) {
         for (const s of segList) {
           for (const f of [0.5, 0.3, 0.7, 0.15, 0.85, 0.05, 0.95]) {
             const mx = s.a.x + (s.b.x - s.a.x) * f, my = s.a.y + (s.b.y - s.a.y) * f;
-            if (s.horiz) out.push({ lines, x: mx, y: my + above, a: 'middle' }, { lines, x: mx, y: my + below, a: 'middle' });
+            if (s.horiz) { if (above !== null) out.push({ lines, x: mx, y: my + above, a: 'middle' }, { lines, x: mx, y: my + below, a: 'middle' }); }
             else out.push({ lines, x: mx + side, y: my + 3 - lift / 2, a: 'start' }, { lines, x: mx - side, y: my + 3 - lift / 2, a: 'end' });
           }
         }
