@@ -23945,3 +23945,21 @@ scan_id: R-3946a529
 task_id: T-1475
 payload:
   task_file: .tasks/active/T-1475-display-ids-steps-at-the-same-x-in-one-l.md
+---
+kind: scan_emitted
+timestamp: '2026-11-23T15:11:44Z'
+scan_id: R-e9f65b3b
+task_id: T-1469
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-23T15:11:44Z'
+scan_id: R-e9f65b3b
+task_id: T-1469
+payload:
+  task_file: .tasks/active/T-1469-badges-the-io-badge-covers-the-end-of-th.md

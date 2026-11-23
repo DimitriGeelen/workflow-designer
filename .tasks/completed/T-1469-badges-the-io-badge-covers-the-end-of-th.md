@@ -7,13 +7,13 @@ description: >
   v3, 1700x1100): on task 'Opportunity – Solution (doorgestreept) – onder water' (4
   name lines) the io badge 1->1 covers the end of the first name line.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -42,8 +42,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T12:17:01Z
-last_update: '2026-11-23T14:44:13Z'
-date_finished:
+last_update: 2026-11-23T15:11:35Z
+date_finished: 2026-11-23T15:11:35Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -118,12 +118,16 @@ the task's top edge, clear of the text; a badge that meets nothing stays where i
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] A browser leg: a task given Greenfield's 4-line name and one input + one output has no name line overlapping its io badge, and the badge still sits on the task's top-right corner (control: the 0.46.0 designer overlaps); every task with an io badge in the corpus maps: no overlap either
-- [ ] A task whose name does not reach the badge keeps the badge at its old place (no needless move); the browser tier and person-sees gate green on a round
+- [x] A browser leg: a task given Greenfield's 4-line name and one input + one output has no name line overlapping its io badge, and the badge still sits on the task's top-right corner (control: the 0.46.0 designer overlaps); every task with an io badge in the corpus maps: no overlap either
+- [x] A task whose name does not reach the badge keeps the badge at its old place (no needless move); the browser tier and person-sees gate green on a round
+  Evidence: test_t1469_io_badge_clear B1-B3 PASS (B2 = no needless move); 0.46.0 fails B1/B3 (2026-11-23, scratchpad
+  run with T1469_EDITOR). Browser tier at 6447fb8a3 (contains T-1469), high-risk round: "pool and local both green",
+  161/161 legs incl. the six person-sees legs (build/tiergate/tier-browser.runs.log 13:40:53Z); core at b8a1d6c42
+  (contains T-1469): "pool and local both green" (.context/working/prepush-core.runs.log 14:48:13Z).
 - [x] Screenshots read by the agent — `docs/reports/T-1469-shots/io-badge-{1024,1440,1920}.png` (starter map, a task given Greenfield's name + 1 input + 1 output, 200%): the "1→1" badge straddles the task's top-right edge, clear of "Opportunity –" at 1024 and 1440; still reads as the task's badge.
 
 ### Human
-- [ ] The io badge no longer covers the name and still reads as the task's own
+- [x] The io badge no longer covers the name and still reads as the task's own
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1469 --criterion 1`), who may escalate.
   **Steps:**
   1. `docs/reports/T-1469-shots/io-badge-before-{1024,1440}.png` (0.46.0) and `io-badge-{1024,1440,1920}.png` (new): the task 'Opportunity – Solution (doorgestreept) – onder water' with its "1→1" badge
@@ -178,6 +182,7 @@ the task's top edge, clear of the text; a badge that meets nothing stays where i
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261123-64250e26 — reviewer-judge-t-1469-r3-92694d61b32f:reviewer (rung rung-3-termlink-single-reviewer), digest ce121fdf7ba5; dispatch judge-t-1469-r3-92694d61b32f; evidence: .context/reviews/evidence/T-1469/AC1-judge-t-1469-r3-92694d61b32f.md, .context/reviews/evidence/T-1469/io-badge-1440-judge-t-1469-r3-92694d61b32f.png, .context/reviews/evidence/T-1469/io-badge-1920-judge-t-1469-r3-92694d61b32f.png, .context/reviews/evidence/T-1469/io-badge-1024-judge-t-1469-r3-92694d61b32f.png, .context/reviews/evidence/T-1469/io-badge-before-1440-judge-t-1469-r3-92694d61b32f.png, .context/reviews/evidence/T-1469/io-badge-before-1024-judge-t-1469-r3-92694d61b32f.png, .context/reviews/evidence/T-1469/io-badge-1024-start-crop-judge-t-1469-r3-92694d61b32f.png, .context/reviews/evidence/T-1469/io-badge-before-1024-start-crop-judge-t-1469-r3-92694d61b32f.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -317,6 +322,9 @@ the task's top edge, clear of the text; a badge that meets nothing stays where i
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+node tools/_t1469-io-badge-clear-cdp.mjs > /tmp/.t1469.out 2>&1
+grep -q 'leg browser "test_t1469_io_badge_clear"' tests/run-bridge-tests.sh
+grep -q "function clearIoBadges" src/aef-workflow-designer.html
 
 ## RCA
 
@@ -418,3 +426,16 @@ the task's top edge, clear of the text; a badge that meets nothing stays where i
 ### 2026-11-23T12:39:11Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-23T15:11:35Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-e9f65b3b
+- **Timestamp:** 2026-11-23T15:11:44Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none
