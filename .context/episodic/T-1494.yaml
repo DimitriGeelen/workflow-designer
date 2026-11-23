@@ -1,0 +1,98 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1494: Properties panel: a plain bpmn:task is titled 'serviceTask
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-23T15:40:34Z
+# ============================================================================
+
+task_id: T-1494
+task_name: "Properties panel: a plain bpmn:task is titled 'serviceTask"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-23T14:43:54Z
+completed: 2026-11-23T15:40:16Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-23T16:28:23+01:00
+last_commit: 2026-11-23T16:40:15+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  a plain bpmn:task is headed 'task' in the properties panel, not 'serviceTask' (Greenfield msg 2e879869, 2b): the header names the kept foreignTag (T-337) as the canvas caption does, the badge keeps the shape the canvas draws. Checked first: the save already writes <bpmn:task> back (K3 passes on 0.46.0). Browser leg test_t1494_plain_task_title (K1-K3; 0.46.0 fails K1); shots at 1024/1440/1920. reviewer verdict. evidence, RCA and the reviewer's green (V-20261123-0c70cf92) before the close
+
+# Key outcomes
+outcomes:
+  - 'On a fixture with a plain bpmn:task, selecting it titles the panel with the plain kind (not ''serviceTask''); a'
+  - 'The save writes bpmn:task back for it (checked and recorded first; a different finding gets its own task), and the'
+  - 'A plain task''s panel is headed by its own kind and still looks like a task''s panel'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1494/AC1-judge-t-1494-r3-26f2e83e8c86.md'
+  - '.context/reviews/evidence/T-1494/plain-task-panel-1024-judge-t-1494-r3-26f2e83e8c86.png'
+  - '.context/reviews/evidence/T-1494/plain-task-panel-1440-judge-t-1494-r3-26f2e83e8c86.png'
+  - '.context/reviews/evidence/T-1494/plain-task-panel-1920-judge-t-1494-r3-26f2e83e8c86.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1494-properties-panel-a-plain-bpmntask-is-tit.md'
+  - 'docs/reports/T-1494-shots/plain-task-panel-1024.png'
+  - 'docs/reports/T-1494-shots/plain-task-panel-1440.png'
+  - 'docs/reports/T-1494-shots/plain-task-panel-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1494-plain-task-title-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-23T16:28:23'
+    action: 'T-1494: a plain bpmn:task is headed ''task'' in the properties panel, not ''serviceTask'' (Greenfield msg 2e879869, 2b): the header names the kept foreignTag (T-337) as the canvas caption does, the badge keeps the shape the canvas draws. Checked first: the save already writes <bpmn:task> back (K3 passes on 0.46.0). Browser leg test_t1494_plain_task_title (K1-K3; 0.46.0 fails K1); shots at 1024/1440/1920'
+  - time: '2026-11-23T16:38:28'
+    action: 'T-1494: reviewer verdict'
+  - time: '2026-11-23T16:40:15'
+    action: 'T-1494: evidence, RCA and the reviewer''s green (V-20261123-0c70cf92) before the close'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 56 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [designer, greenfield, panel, bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 56
+  commits: 4
+  files_changed: 20
+  lines_added: 725
+  lines_removed: 14
+  footprint_refreshed_at: '2026-11-23T15:40:42Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1494-properties-panel-a-plain-bpmntask-is-tit.md
+generated_by: context-agent-hybrid
