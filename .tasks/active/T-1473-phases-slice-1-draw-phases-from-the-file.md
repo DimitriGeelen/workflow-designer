@@ -1,11 +1,19 @@
 ---
 id: T-1473
-name: "Phases slice 1: draw phases from the file (bpmn:group + bpmn:category as phase bands: dividers through all lanes, a named bracket per phase above the pool, a second row, optional tint; read-only)"
+name: "Phases slice 1: draw phases from the file (bpmn:group + bpmn:category as phase
+  bands: dividers through all lanes, a named bracket per phase above the pool, a second
+  row, optional tint; read-only)"
 description: >
-  T-1461 GO (operator, 2026-11-21, c5b41a195), slice 1 only. Design: docs/reports/T-1461-phases.md F1-F6. A phase row = a bpmn:category marked by an aef marker in its extensionElements, or (unmarked) whose groups span the pool's full height; a phase = a group pointing at a categoryValue of that row; boundaries from the steps inside its bounds. Draw only; saved bytes unchanged (kitchen-sink golden identical). Greenfield's workshop map ws-2026-11-06-offerte-tot-order: 5 phases at x 560/1016/1604/2080.
+  T-1461 GO (operator, 2026-11-21, c5b41a195), slice 1 only. Design: docs/reports/T-1461-phases.md
+  F1-F6. A phase row = a bpmn:category marked by an aef marker in its extensionElements,
+  or (unmarked) whose groups span the pool's full height; a phase = a group pointing
+  at a categoryValue of that row; boundaries from the steps inside its bounds. Draw
+  only; saved bytes unchanged (kitchen-sink golden identical). Greenfield's workshop
+  map ws-2026-11-06-offerte-tot-order: 5 phases at x 560/1016/1604/2080.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
 horizon: now
 tags: []
@@ -38,8 +46,8 @@ related_tasks: [T-1461]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T15:17:26Z
-last_update: 2026-11-23T13:30:07Z
-date_finished: null
+last_update: 2026-11-23T14:53:48Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +58,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-23T14:44:13Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 4
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=2 (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body
+      — no hypothesis, so this score has no claim to be wrong about,L1:keyword=lane);
+      F3=4 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L4:keyword=round-trip); F1=2 (basis: task body — no hypothesis, so this
+      score has no claim to be wrong about,L2:keyword=canvas)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1473: Phases slice 1: draw phases from the file (bpmn:group + bpmn:category as phase bands: dividers through all lanes, a named bracket per phase above the pool, a second row, optional tint; read-only)
@@ -57,7 +85,8 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** T-1461 GO (operator, phases slice 1; design docs/reports/T-1461-phases.md). Greenfield's
+workshop maps carry phases (sales stages) that a person must see on the map; 0.46.0 keeps them on save but draws nothing.
 
 **Greenfield's encoding, msg 6ae1899a (2026-11-23):** their map v5 stores phases as proposed: two `bpmn:category` root
 elements, 'Fase' (5 categoryValue) and 'Fase in Salesforce' (6 categoryValue), and 11 `bpmn:group` artifacts in the
@@ -68,20 +97,32 @@ pool ONLY, no dividers through the lanes. 0.46.0 round-trips all 2 categories, 1
 stripped sample is coming (our fixture). **Our answer (msg b678cceb):** the first category in document order draws
 dividers + brackets; every further category draws brackets only, as a further row; no marker needed unless they ask.
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** the groups and categories are already kept verbatim (T-1326: state.procKept.artifacts /
+categories / di), exactly as the text annotations are, which T-1447 draws read-only from that same kept XML. Phases can be
+drawn the same way: parse once, lay out against the pool as drawn, render in their own layer; save untouched.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** a person opening Greenfield's map sees its phases: where each starts and ends, and its name.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** row 1 (the first category in document order): a dashed divider through all lanes at each boundary
+between two adjacent phases, and a named bracket per phase just above the pool; each further category: brackets only, a
+further row above. Read-only: nothing saved changes. No tint in slice 1.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] Phases drawn from the kept XML on `tests/fixtures/greenfield/ws-otb-fasen-voorbeeld.bpmn`: 5 row-1 brackets named Opportunity … Productie & service, 4 dividers through all lanes, 6 row-2 brackets above them and no row-2 dividers; each bracket spans its group's x range; nothing of them hidden outside the canvas (brackets inside the drawn area) — a browser leg at 1024/1440/1920, failed by 0.46.0
+- [ ] Read-only: a save of the fixture is byte-identical with and without the drawing (the groups, categories and shapes as kept); a map without groups draws no phase layer; the browser tier and person-sees gate green on a round
+- [ ] The phase names readable at the opening zoom (>= OPEN_MIN_TEXT_PX, or counted in openingZoom), and no bracket name overlapping another bracket name or the pool header
 
 ### Human
+- [ ] Greenfield's phases read as phases of the process: each name over the stretch of steps it covers, the two rows told apart, the dividers placing the steps in their phase without hiding anything
+  **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1473 --criterion 1`), who may escalate.
+  **Steps:**
+  1. `docs/reports/T-1473-shots/phases-{1024,1440,1920}.png`: Greenfield's sample (tests/fixtures/greenfield/ws-otb-fasen-voorbeeld.bpmn) as it opens, phases drawn above the pool ('Fase' row 1 with dividers; 'Fase in Salesforce' row 2 above it)
+  2. Judge: does each phase name read as the label of the stretch under its bracket; are the two rows clearly two different phase sets; do the dashed dividers read as phase boundaries and leave every step, flow and label readable; is a trimmed name (if any) still recognisable
+  **Expected:** a person who knows the process can tell which steps belong to which phase in both rows, and nothing on the map reads worse for the phases being there.
+  **If not:** name the phase, row or element that reads wrong; the agent adjusts.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -265,6 +306,22 @@ dividers + brackets; every further category draws brackets only, as a further ro
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+node tools/_t1473-phases-cdp.mjs > /tmp/.t1473.out 2>&1
+grep -q 'leg browser "test_t1473_phases"' tests/run-bridge-tests.sh
+grep -q "text.phase-label" src/aef-workflow-designer.html
+
+## Visual Verification
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| opening view, Greenfield sample | row-1 phase brackets + names | ok | ok | ok | 1024: the map continues right of the open panel (scroll), as every element there |
+| opening view, Greenfield sample | row-2 phase brackets + names | ok | ok | ok | above row 1, no dividers of their own |
+| opening view, Greenfield sample | dividers through the lanes | ok | ok | ok | dashed, pool header bottom to pool bottom |
+| opening view, Greenfield sample | import notice | ok | ok | ok | first shots listed "11 groups … not shown yet" over the drawn phases; fixed, leg P5 |
+
+Shots: docs/reports/T-1473-shots/phases-{1024,1440,1920}.png (the harness's T1473_SHOTS). Read one by one: names
+centred over their brackets, none clipped at 1440/1920, row 2 clearly above row 1; the trimmed row-2 name at the right
+edge of 1440 is cut by the viewport, not by the bracket.
 
 ## RCA
 
@@ -365,3 +422,6 @@ dividers + brackets; every further category draws brackets only, as a further ro
 
 ### 2026-11-21T15:18:02Z — status-update [task-update-agent]
 - **Change:** related_tasks: +T-1461
+
+### 2026-11-23T14:53:48Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
