@@ -890,6 +890,9 @@ font-family: 'Outfit';
     stroke-dasharray: 4 3;
     opacity: 0.7;
   }
+  /* T-1474: the node texts the flow-label search avoids are measured unhinted too; hinted, their boxes changed with the
+     zoom at render time and 16 corpus flow labels took another place at fit than at 100% */
+  .node-label, .node-id-badge, .node-io-badge { text-rendering: geometricPrecision; }
   .edge-label { fill: var(--text-dim); font-family: var(--mono); font-size: 10px; pointer-events: none;
     text-rendering: geometricPrecision; /* T-1256: unhinted, so a label's width does not change with zoom or engine */
     paint-order: stroke; stroke: var(--bg); stroke-width: 3px; stroke-linejoin: round; }
@@ -4615,8 +4618,9 @@ function renderNodes() {
       if ((inN || outN) && lensDeco('io')) {
         const badge = `${inN}→${outN}`;
         const bw = badge.length * 5.4 + 8;
-        g.appendChild(el('rect', { x: n.x + def.w - bw - 4, y: n.y + 4, width: bw, height: 12, rx: 2, fill: 'var(--surface-3)', stroke: 'var(--border)', 'stroke-width': '0.5' }));
-        g.appendChild(el('text', { x: n.x + def.w - bw / 2 - 4, y: n.y + 12, class: 'node-io-badge', 'text-anchor': 'middle' }, [text(badge)]));
+        // data-iob: clearIoBadges() (T-1469) moves the badge off the name when the fitted name reaches it
+        g.appendChild(el('rect', { x: n.x + def.w - bw - 4, y: n.y + 4, width: bw, height: 12, rx: 2, fill: 'var(--surface-3)', stroke: 'var(--border)', 'stroke-width': '0.5', 'data-iob': n.uid }));
+        g.appendChild(el('text', { x: n.x + def.w - bw / 2 - 4, y: n.y + 12, class: 'node-io-badge', 'text-anchor': 'middle', 'data-iob': n.uid }, [text(badge)]));
       }
       // ID below the rectangle, centered — or just right of a bottom-centre flow (T-1090)
       if (labelPrefs.showIds && lensDeco('ids')) g.appendChild(el('text', bottomFlow.has(n.id)
@@ -4955,6 +4959,29 @@ function fitNodeLabels() {
       }
     }
     g.appendChild(el('title', {}, [text(n.name)]));
+  }
+  clearIoBadges();
+}
+
+// T-1469 (Greenfield msg bfd033c1): the io badge sits inside the task's top-right corner (y 4-16); a 4-line name's first
+// line starts at ~6.5 and, when long, runs under it. The name block fills the task, so the name cannot move: the BADGE
+// does, up to straddle the top edge (its bottom 1 px above the highest name line), only when a fitted name line meets it.
+function clearIoBadges() {
+  for (const rect of gNodes.querySelectorAll('rect[data-iob]')) {
+    const uid = rect.getAttribute('data-iob');
+    const label = gNodes.querySelector(`text.node-io-badge[data-iob="${uid}"]`);
+    const lines = Array.from(gNodes.querySelectorAll(`text[data-fitn="${uid}"]`));
+    if (!label || !lines.length) continue;
+    let b, boxes;
+    try { b = rect.getBBox(); boxes = lines.map(t => t.getBBox()); }
+    catch (err) { aefRecordFault('io-badge:bbox', err); continue; }
+    const meets = boxes.some(r => r.width && r.x < b.x + b.width + 1 && r.x + r.width > b.x - 1 && r.y < b.y + b.height + 1 && r.y + r.height > b.y - 1);
+    if (!meets) continue;
+    const top = Math.min(...boxes.map(r => r.y));
+    const dy = Math.min(0, (top - 1) - (b.y + b.height));   // only ever up
+    rect.setAttribute('y', b.y + dy);
+    label.setAttribute('y', parseFloat(label.getAttribute('y')) + dy);
+    rect.setAttribute('data-iob-moved', '1');
   }
 }
 

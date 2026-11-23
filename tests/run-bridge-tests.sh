@@ -2074,6 +2074,17 @@ else
 fi
 }
 leg core "_t1482-infra-legs" _leg_t1482i
+_leg_t1489() {
+# ── T-1489: shard coverage compares the shards with the COMMIT they tested, not the working tree ──
+if bash "$ROOT/tests/test_t1489_coverage_ref.sh" > "$TMP/leg-_t1489.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "shard coverage reads the expected legs from the working tree again, or no longer catches a missing leg (run 'bash tests/test_t1489_coverage_ref.sh'; T-1489)"
+  show_output "$TMP/leg-_t1489.out" "test_t1489_coverage_ref.sh"
+  fail=$((fail + 1))
+fi
+}
+leg core "_t1489-coverage-ref" _leg_t1489
 _leg_235() {
 
 # ── T-1408: where the pre-push gate runs core ──
@@ -2358,6 +2369,32 @@ else
 fi
 }
 leg browser "test_t1475_starter_ids_stable" _leg_t1475
+_leg_t1469() {
+
+# ── T-1469 (Greenfield msg bfd033c1): the io badge never covers a name line (a 4-line name's first line ran under it);
+# clearIoBadges() lifts it onto the task's top edge. B1 Greenfield's name, B2 no needless move, B3 every corpus map. ~25 s.
+if node "$ROOT/tools/_t1469-io-badge-clear-cdp.mjs" > "$TMP/leg-_t1469.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "An io badge covers a task's name again, or moved when it did not need to (_t1469-io-badge-clear-cdp.mjs; T-1469)"
+  show_output "$TMP/leg-_t1469.out" "_t1469-io-badge-clear-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1469_io_badge_clear" _leg_t1469
+_leg_t1474() {
+
+# ── T-1474: flow labels take the same places whatever the zoom at render time (node texts measured unhinted, as flow
+# labels were since T-1256): every corpus map rendered at fit, 100% and 200%, each flow label compared. ~40 s.
+if node "$ROOT/tools/_t1474-label-places-zoom-free-cdp.mjs" > "$TMP/leg-_t1474.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "Flow label places depend on the zoom at render time again (_t1474-label-places-zoom-free-cdp.mjs; T-1474)"
+  show_output "$TMP/leg-_t1474.out" "_t1474-label-places-zoom-free-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1474_label_places_zoom_free" _leg_t1474
 _leg_t1470() {
 
 # ── T-1470 (Greenfield): an association between two steps that line up is drawn straight (Solution - Product ->

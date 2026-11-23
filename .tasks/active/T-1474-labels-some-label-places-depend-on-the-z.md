@@ -1,13 +1,25 @@
 ---
 id: T-1474
-name: "Labels: some label places depend on the zoom at render time (review-emission 'not found' x 'found?' 13.6 px apart when laid out at 100%, clear at fit)"
+name: "Labels: some label places depend on the zoom at render time (review-emission
+  'not found' x 'found?' 13.6 px apart when laid out at 100%, clear at fit)"
 description: >
-  Found by T-1472 (2026-11-21): with the bare designer opening its starter map at 100%, _t1256 label-clearance leg6 adopted review-emission at 100% instead of fit and found the flow labels 'not found' and 'found?' 13.6 px apart (< 30 px nearness), 0 near pairs at fit. A person zoomed to 100% who opens or re-renders that map sees it. T-1256's comment says label places stopped following the zoom; this shows one pass still does. Find which pass reads screen geometry (getBoundingClientRect / getScreenCTM) and make placement zoom-independent; then add a _t1256 leg that adopts a map at a zoom the person chose (setZoom(1)) and requires the same near pairs as at fit. (T-1472's final fix made adoptImportedXml reset an opening-set zoom, so _t1256 measures at fit again without a pin; the dependence remains for a person's own zoom.)
+  Found by T-1472 (2026-11-21): with the bare designer opening its starter map at
+  100%, _t1256 label-clearance leg6 adopted review-emission at 100% instead of fit
+  and found the flow labels 'not found' and 'found?' 13.6 px apart (< 30 px nearness),
+  0 near pairs at fit. A person zoomed to 100% who opens or re-renders that map sees
+  it. T-1256's comment says label places stopped following the zoom; this shows one
+  pass still does. Find which pass reads screen geometry (getBoundingClientRect /
+  getScreenCTM) and make placement zoom-independent; then add a _t1256 leg that adopts
+  a map at a zoom the person chose (setZoom(1)) and requires the same near pairs as
+  at fit. (T-1472's final fix made adoptImportedXml reset an opening-set zoom, so
+  _t1256 measures at fit again without a pin; the dependence remains for a person's
+  own zoom.)
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +50,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-21T16:27:27Z
-last_update: 2026-11-21T16:27:27Z
-date_finished: null
+last_update: '2026-11-23T12:45:37Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +62,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-23T12:45:37Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=2 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1474: Labels: some label places depend on the zoom at render time (review-emission 'not found' x 'found?' 13.6 px apart when laid out at 100%, clear at fit)
@@ -57,20 +89,29 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** found by T-1472 (2026-11-21): _t1256 leg 6 laid review-emission out at 100% and found flow
+labels 'not found' x 'found?' 13.6 px apart, clear at fit. Probe 2026-11-23 (24 corpus maps, each rendered at fit, 100%
+and 200%): 16 flow labels on several maps (context-memory, cross-host-dispatch, fabric-blast-radius, ...) take another
+place at 100%/200% than at fit; 100% and 200% always agree.
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** T-1256 made FLOW labels unhinted (`.edge-label { text-rendering: geometricPrecision }`) so
+their width no longer changes with the zoom; but the placement search (clearFlowLabels) also measures the NODE texts it
+must avoid and stay away from (`.node-label`, `.node-id-badge`, `.node-io-badge`), and those are still hinted, so at fit
+(a small scale) their boxes differ slightly and the discrete search picks another place. Ruled out on the way: sticky
+lane captions (drawn only when zoomed; off: still 32 differences) and render order (fit rendered second: the same 32).
+Tested: the three node text classes unhinted -> 0 of 136 labels differ; all svg text unhinted -> also 0.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** a map's flow labels take the same places whatever the zoom at render time.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** `.node-label, .node-id-badge, .node-io-badge { text-rendering: geometricPrecision }`; a browser leg
+renders every corpus map at fit, 100% and 200% and finds every flow label in the same place.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] A browser leg: every corpus map rendered at fit, 100% and 200%: each flow label at the same place (control: 0.46.0 differs, 16 labels); the person-sees gate and the browser tier green on a round (node text measured unhinted may move a label at fit, judged there)
+- [ ] Screenshots of two affected maps (context-memory, cross-host-dispatch) at 1024/1440/1920 read, and judged by a reviewer, as CLAUDE.md asks for a render change
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -353,3 +394,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1474-labels-some-label-places-depend-on-the-z.md
 - **Context:** Initial task creation
+
+### 2026-11-23T12:45:36Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

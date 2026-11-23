@@ -59,6 +59,15 @@ date_finished: null
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
 **Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
 
+**Greenfield's encoding, msg 6ae1899a (2026-11-23):** their map v5 stores phases as proposed: two `bpmn:category` root
+elements, 'Fase' (5 categoryValue) and 'Fase in Salesforce' (6 categoryValue), and 11 `bpmn:group` artifacts in the
+process with `categoryValueRef`, each with a BPMNShape. Row 1 groups span the pool's full height, midpoint to midpoint
+between phases (the first starts right of the lane-label strip). Row 2 groups run from the first to the last step under
+that stage (x - 8 to right edge + 8) and carry the pool's y and height for now. They want row 2 as brackets above the
+pool ONLY, no dividers through the lanes. 0.46.0 round-trips all 2 categories, 11 values, 11 groups, 11 shapes. A 19 KB
+stripped sample is coming (our fixture). **Our answer (msg b678cceb):** the first category in document order draws
+dividers + brackets; every further category draws brackets only, as a further row; no marker needed unless they ask.
+
 **Problem / hypothesis:** <what we think is wrong and why>
 
 **Goal:** <what we are trying to achieve>
