@@ -24169,3 +24169,21 @@ scan_id: R-69dad707
 task_id: T-1510
 payload:
   task_file: .tasks/active/T-1510-phases-vanish-after-a-save-and-reopen-in.md
+---
+kind: scan_emitted
+timestamp: '2026-11-24T15:27:44Z'
+scan_id: R-d1e741b3
+task_id: T-1511
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-24T15:27:44Z'
+scan_id: R-d1e741b3
+task_id: T-1511
+payload:
+  task_file: .tasks/active/T-1511-release-designer-0481-patch-phases-survi.md

@@ -1,0 +1,167 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1511: Release designer 0.48.1 (patch): phases survive a save and reopen (T-1510)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-24T15:27:50Z
+# ============================================================================
+
+task_id: T-1511
+task_name: "Release designer 0.48.1 (patch): phases survive a save and reopen (T-1510)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-24T12:19:59Z
+completed: 2026-11-24T15:27:42Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-24T13:35:28+01:00
+last_commit: 2026-11-24T16:27:40+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  release notes for 0.48.1 (patch: phases survive a save and reopen, T-1510; contracts table checked) and the release task. runme job 181 — release designer 0.48.1 (patch; job 180's steps; dry-run and rehearsal passed, sha f905c50b2c97). 0.48.1 — VERSION and APP_VERSION bumped by the release job (parity ok). release designer 0.48.1 (patch) — phases survive a save and reopen; kit calibrated on its bytes. 0.48.1 released by job 181 (done rc=0), Greenfield and AEF told; evidence recorded
+
+# Key outcomes
+outcomes:
+  - 'Release notes `docs/releases/RELEASE-NOTES-0.48.1.md` committed (the fix, nothing a save writes, endpoints, the'
+  - 'A runme job from job 180''s steps, dry-run passed with nothing uncommitted in the release inputs, committed and'
+  - 'After the operator''s run: the tag on origin, Greenfield and AEF told (version, tag, sha256, bytes, what it fixes)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/181-release-designer-0.48.1/calibrate-codex.out'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-codex/clean/LOOP.txt'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-codex/clean/REVIEW.json'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-codex/clean/SOURCE.md'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-codex/clean/agents.log'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-codex/clean/kit/AUTHORING.md'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-codex/clean/kit/CONFORMANCE.md'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-codex/clean/kit/CORRECT.md'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-codex/clean/kit/GENERATE.md'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-codex/clean/kit/REVIEW.md'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-codex/clean/kit/RUBRIC.md'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-codex/clean/kit/exemplar.bpmn'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-codex/clean/kit/validate-workflow.py'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-codex/clean/map.bpmn'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-codex/planted/LOOP.txt'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-codex/planted/REVIEW.json'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-codex/planted/SOURCE.md'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-codex/planted/agents.log'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-codex/planted/kit/AUTHORING.md'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-codex/planted/kit/CONFORMANCE.md'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-codex/planted/kit/CORRECT.md'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-codex/planted/kit/GENERATE.md'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-codex/planted/kit/REVIEW.md'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-codex/planted/kit/RUBRIC.md'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-codex/planted/kit/exemplar.bpmn'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-codex/planted/kit/validate-workflow.py'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-codex/planted/map.bpmn'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-glm-5.3.out'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-glm-5.3/clean/LOOP.txt'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-glm-5.3/clean/REVIEW.json'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-glm-5.3/clean/SOURCE.md'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-glm-5.3/clean/agents.log'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-glm-5.3/clean/kit/AUTHORING.md'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-glm-5.3/clean/kit/CONFORMANCE.md'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-glm-5.3/clean/kit/CORRECT.md'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-glm-5.3/clean/kit/GENERATE.md'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-glm-5.3/clean/kit/REVIEW.md'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-glm-5.3/clean/kit/RUBRIC.md'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-glm-5.3/clean/kit/exemplar.bpmn'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-glm-5.3/clean/kit/validate-workflow.py'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-glm-5.3/clean/map.bpmn'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-glm-5.3/planted/LOOP.txt'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-glm-5.3/planted/REVIEW.json'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-glm-5.3/planted/SOURCE.md'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-glm-5.3/planted/agents.log'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-glm-5.3/planted/kit/AUTHORING.md'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-glm-5.3/planted/kit/CONFORMANCE.md'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-glm-5.3/planted/kit/CORRECT.md'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-glm-5.3/planted/kit/GENERATE.md'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-glm-5.3/planted/kit/REVIEW.md'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-glm-5.3/planted/kit/RUBRIC.md'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-glm-5.3/planted/kit/exemplar.bpmn'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-glm-5.3/planted/kit/validate-workflow.py'
+  - '.context/runme/181-release-designer-0.48.1/calibrate-glm-5.3/planted/map.bpmn'
+  - '.context/runme/181-release-designer-0.48.1/done'
+  - '.context/runme/181-release-designer-0.48.1/dryrun.ok'
+  - '.context/runme/181-release-designer-0.48.1/job.sh'
+  - '.context/runme/181-release-designer-0.48.1/run-20261124T134336.log'
+  - '.context/runme/181-release-designer-0.48.1/run-20261124T134336.log.pid'
+  - '.tasks/active/T-1511-release-designer-0481-patch-phases-survi.md'
+  - 'VERSION'
+  - 'dist/MANIFEST.yaml'
+  - 'dist/aef-authoring-kit-0.48.1/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.48.1/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.48.1/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.48.1/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.48.1/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.48.1/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.48.1/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.48.1/SKILL.md'
+  - 'dist/aef-authoring-kit-0.48.1/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.48.1/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.48.1/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.48.1/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.48.1/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.48.1/loop.sh'
+  - 'dist/aef-authoring-kit-0.48.1/validate-workflow.py'
+  - 'dist/aef-authoring-kit-0.48.1/verify-findings.py'
+  - 'dist/aef-workflow-designer-0.48.1.html'
+  - 'docs/authoring-kit/calibration-records/0.48.1.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.48.1.md'
+  - 'src/aef-workflow-designer.html'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-24T13:35:28'
+    action: 'T-1511: release notes for 0.48.1 (patch: phases survive a save and reopen, T-1510; contracts table checked) and the release task'
+  - time: '2026-11-24T13:35:57'
+    action: 'T-1511: runme job 181 — release designer 0.48.1 (patch; job 180''s steps; dry-run and rehearsal passed, sha f905c50b2c97)'
+  - time: '2026-11-24T13:49:22'
+    action: 'T-1511: 0.48.1 — VERSION and APP_VERSION bumped by the release job (parity ok)'
+  - time: '2026-11-24T14:10:33'
+    action: 'T-1511: release designer 0.48.1 (patch) — phases survive a save and reopen; kit calibrated on its bytes'
+  - time: '2026-11-24T16:27:40'
+    action: 'T-1511: 0.48.1 released by job 181 (done rc=0), Greenfield and AEF told; evidence recorded'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 187 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [release, designer]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 187
+  commits: 6
+  files_changed: 85
+  lines_added: 40838
+  lines_removed: 21
+  footprint_refreshed_at: '2026-11-24T15:27:52Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1511-release-designer-0481-patch-phases-survi.md
+generated_by: context-agent-hybrid
