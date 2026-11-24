@@ -24223,3 +24223,21 @@ scan_id: R-71006b3b
 task_id: T-1503
 payload:
   task_file: .tasks/active/T-1503-phases-slice-d-t-1491-go-show-or-hide-ea.md
+---
+kind: scan_emitted
+timestamp: '2026-11-24T19:50:14Z'
+scan_id: R-6d4a94fc
+task_id: T-1512
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-24T19:50:14Z'
+scan_id: R-6d4a94fc
+task_id: T-1512
+payload:
+  task_file: .tasks/active/T-1512-release-designer-0490-phases-editable-se.md
