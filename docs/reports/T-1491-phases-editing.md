@@ -113,8 +113,13 @@ Phases are the vertical counterpart of lanes, so Mira will look for them in the 
   <bpmndi:BPMNShape id="Group_f3_di" bpmnElement="Group_f3"><dc:Bounds x="1168" y="60" width="588" height="680"/></bpmndi:BPMNShape>
   ```
   The same shape Greenfield already writes (msg 6ae1899a), so 0.47.0 reads it back by its full-height rule; no aef
-  marker is needed (F3 proposed one only for groups that do not span the pool). AEF is asked before the slice that
-  writes it (T-1461 F6).
+  marker is needed (F3 proposed one only for groups that do not span the pool).
+  **AEF's answer (2026-11-24, msg 581bf5d2, their T-5381):** yes in principle, this is the right form; but their side
+  is not ready: `tools/corpus_spec.py parse_map` hard-refuses any map containing `<bpmn:group>` ("unsupported BPMN
+  element", deliberately since their T-2614, data-loss class), and a root `<bpmn:category>` is not read, so it is lost
+  on `fw corpus spec regenerate`. 0 maps they store carry either. They will confirm on the thread when T-5381 (group
+  with documentation and category carried verbatim, byte round-trip test) is in a be-tag. Until then, no slice lets a
+  person make phases in a map AEF stores.
 - **IW-6 (the band above the pool):** phase rows sit directly above the pool, each row labelled at its left in the
   lane-header column (T-1498); notes above the pool are placed above the phase rows, and their associations route
   around the row labels (T-1499). T-1498 and T-1499 come before or with the first editing slice.
@@ -128,6 +133,9 @@ Phases are the vertical counterpart of lanes, so Mira will look for them in the 
 | C | drag a boundary, snapping to step gaps; boundaries follow moved steps | 5 | yes: group bounds |
 | D | show/hide per row and for all phases (view only) | 6 | no |
 | — | notes and phase rows share the band above the pool (T-1499) | (all) | no |
+
+**Order (after AEF's answer):** A and D first: they work on files that already carry phases (Greenfield's) and make
+none. B and C (new phases, new bounds) after AEF confirms T-5381 in a be-tag.
 
 Each slice ends with a browser leg (the scenario's steps it covers, plus a save read back by 0.47.0's reader),
 screenshots at 1024/1440/1920 and a reviewer judgement, as T-1473 did. A map without phases saves byte-identically

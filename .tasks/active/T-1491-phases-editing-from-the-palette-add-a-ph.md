@@ -162,7 +162,7 @@ by 0.47.0's reader (T-1473) with the same phases, names and boundaries.
 - **IW-5: What XML does a made phase write, and does AEF accept it in the maps it stores (T-1461 F6)?**
   confidence: 1
   disposition: deferred
-  rationale: XML in report §IW-5 (Greenfield's own encoding, read by 0.47.0's full-height rule, no aef marker); AEF asked 2026-11-24 (msg 8dccabe1, conversation 832-phases-editing-T-1491); answer needed before slice B writes new phases, not before slice A
+  rationale: XML in report §IW-5. AEF answered (msg 581bf5d2, their T-5381): yes in principle (plain group/category, no aef extension), but NOT ready: their corpus parser (corpus_spec.py parse_map) hard-refuses a map with <bpmn:group> (T-2614, data-loss class) and drops a root <bpmn:category> on regenerate; 0 stored maps carry either. They will confirm on the thread when T-5381 is in a be-tag. Until then no slice may let a person MAKE phases in a map AEF stores (slice B, and C's new bounds) — slices A and D are safe for files that already carry phases
 - **IW-6: How do phases share the band above the pool with notes and row labels (T-1499, T-1498)?**
   confidence: 2
   disposition: answered
@@ -241,7 +241,9 @@ session and each testable by a browser leg, screenshots and a save read back by 
 document/delete with row labels (T-1498); B add rows and phases from a Phases section in the left panel; C drag a
 boundary snapping to step gaps; D show/hide (view only). The file side is standard BPMN that 0.47.0 already reads
 (Greenfield's own encoding), steps never move (T-1461 F4 holds), and maps without phases stay byte-identical. The
-one open dependency, AEF accepting made phases in stored maps (IW-5), gates slice B only and was asked today.
+one open dependency is AEF: their corpus parser refuses maps with groups today (msg 581bf5d2, AEF T-5381), so slice
+B (making phases) and C ship only after AEF confirms T-5381 in a be-tag; A and D work on files that already carry
+phases (Greenfield's) and can go first.
 
 **Evidence:**
 
