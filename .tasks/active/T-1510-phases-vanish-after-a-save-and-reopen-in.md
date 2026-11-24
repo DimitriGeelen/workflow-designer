@@ -122,10 +122,13 @@ box around a few steps (kitchen-sink) is still not a phase. No saved byte change
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Greenfield's sample: open → save → reopen draws the same 11 phases at the same x ranges, and again after a second
+- [x] Greenfield's sample: open → save → reopen draws the same 11 phases at the same x ranges, and again after a second
   save; the kitchen-sink's boxes are still not phases after its save → reopen — legs in _t1473 (dist 0.48.0 fails the
   first)
-- [ ] No saved byte changes (P3, byte-identity goldens); the browser tier green on a round
+- [x] No saved byte changes (P3, byte-identity goldens); the browser tier green on a round
+  Evidence (2026-11-24): _t1473 P9 "11 → 11 → 11" (dist 0.48.0: "11 → 0 → 0"), P10 0 phase elements, P3 byte-identical;
+  run on the committed src alone (index copy, slice A held out). Round at 5ba8f79b5 (high-risk): browser "pool and local
+  both green", 166/166 legs incl. test_t1473_phases and _t358-byteid-thirdparty; core "pool and local both green".
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
