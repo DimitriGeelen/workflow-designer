@@ -8,10 +8,11 @@ description: >
   names the be-tag carrying T-5381 (thread 832-phases-editing-T-1491); AEF T-5387
   carries group shapes through regenerate, not blocking.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [designer, phases, greenfield, aef-dependent]
 components: []
 related_tasks: []
@@ -42,7 +43,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-24T11:08:18Z
-last_update: '2026-11-24T11:08:27Z'
+last_update: 2026-11-24T20:42:23Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -81,20 +82,48 @@ bvp_scores_proposed:
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** T-1491 GO (operator, 2026-11-24, 7e4de752a), slice B: "in the left panel these brackets I
+want to be able to add them". Unblocked 2026-11-24: AEF's T-5381 (corpus group/category support) shipped in
+v1.8.16-be.64 (msg b507829e); AEF T-5387 (group shapes through regenerate) is not blocking.
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** a map without phases cannot get any in the designer (walkthrough step 1 stops: no Phases
+section, docs/reports/T-1491-phases-editing.md). Slices A (T-1502) and D (T-1503) edit and show phases a file has.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** a Phases section under Lanes in the left panel: "Add phase row" makes a bpmn:category with one phase spanning
+the whole pool; "Add phase" then a click on the canvas splits the phase under the click at the nearest step gap. Both
+select the new phase so the panel (slice A) renames it.
 
-**Expected outcome:** <what will be different when this is done>
+**Plan (for the session that builds it):**
+- Data: append to `state.procKept` (create `{categories: [], artifacts: [], di: []}` when absent): a root category XML
+  string to `pk.categories`, a `<bpmn:group categoryValueRef>` to `pk.artifacts`, and its `BPMNShape` (+`dc:Bounds`) to
+  `pk.di`. Ids unique against every kept string and node id (`Category_<n>`, `CategoryValue_<n>`, `Group_<n>`,
+  `Group_<n>_di`). Prefix: the one the kept XML uses (default `bpmn:`).
+- Geometry: the group's y/height = the pool border rect as drawn (designer coordinates, so on reopen of the designer's
+  own save the steps' band, T-1510, lies inside it); set `pk.poolBand` = that rect when absent so `phasesParse`'s F3
+  rule accepts the new groups in this session. x range: row = [pool left + LANE_HEADER, pool right].
+- Step gaps: sort steps by x; a gap is the midpoint between one column's right edge and the next column's left edge
+  where they do not overlap; "Add phase" + click → the gap nearest the click inside the phase under it; the phase's
+  shape width is cut there (`_setAttr` on its Bounds) and a new value + group + shape take the right part.
+- Palette: copy the Lanes section's markup (`#palette-add-lane`), ids `palette-add-phase-row`, `palette-add-phase`;
+  "Add phase" enters a mode like `create:` (setMode('phase-split')), handled in the svg click listener.
+- Undo via pushHistory(); `_phasesChanged(pk)` after each change; select the new phase.
+- Tests: new `tools/_t1504-phase-add-cdp.mjs` on Greenfield's sample with its groups/categories stripped (as the T-1491
+  walkthrough) and on the starter map: add a row, split into 5 at gaps, rename one, save; reopen here and in dist 0.49.0
+  (draws designer-saved phases since 0.48.1): same 5 phases, same boundaries; a map nobody adds phases to saves
+  byte-identically. Shots: Phases section in the palette, a row just added, after 4 splits, at 1024/1440/1920.
+
+**Expected outcome:** Mira (persona) completes scenario steps 1-3 in the designer.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] On a map without phases (Greenfield's sample stripped; the starter map): the left panel's Phases section adds a
+  row with one phase spanning the pool; "Add phase" + a click splits the phase under the click at the nearest step gap;
+  the new phase is selected; undo removes it — a browser leg, failed by 0.49.0 (no Phases section)
+- [ ] The save writes standard BPMN (root category with values, groups with categoryValueRef, full-pool-height group
+  shapes, no aef extension); reopened here and by dist 0.49.0 it draws the same phases at the same boundaries; a map
+  nobody adds phases to saves byte-identically; the browser tier green on a round
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -377,3 +406,7 @@ bvp_scores_proposed:
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1504-phases-slice-b-t-1491-go-a-phases-sectio.md
 - **Context:** Initial task creation
+
+### 2026-11-24T20:42:23Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
