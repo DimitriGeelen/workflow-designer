@@ -120,6 +120,15 @@ Phases are the vertical counterpart of lanes, so Mira will look for them in the 
   on `fw corpus spec regenerate`. 0 maps they store carry either. They will confirm on the thread when T-5381 (group
   with documentation and category carried verbatim, byte round-trip test) is in a be-tag. Until then, no slice lets a
   person make phases in a map AEF stores.
+  **Update (2026-11-24, msg 75ada896):** T-5381 done on AEF's bleeding-edge (groups with documentation, categories pass
+  their corpus tooling and regenerate byte-identically as elements; groups placed after the last flow on regenerate).
+  Open: their regenerate writes no DI, so group shapes are lost, and the designer draws a phase only from its shape.
+  Asked when maps are regenerated and whether shapes can be carried (our preference) or the designer should also
+  record a phase's first and last step (msg on the same thread).
+  **Answer (msg 82a0b44b):** regenerating a stored map is not routine; only the manual `fw corpus spec prove` does it.
+  AEF agreed on plain BPMN with the group shapes carried through regenerate (their T-5387, no aef extension); until it
+  lands, `prove` refuses a map with `bpmn:group` instead of undrawing it. T-5387 does not block phase creation; the
+  be-tag carrying T-5381 still does.
 - **IW-6 (the band above the pool):** phase rows sit directly above the pool, each row labelled at its left in the
   lane-header column (T-1498); notes above the pool are placed above the phase rows, and their associations route
   around the row labels (T-1499). T-1498 and T-1499 come before or with the first editing slice.
