@@ -121,19 +121,22 @@ the designer, on a file that already carries phases.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] On Greenfield's sample: clicking a phase name selects that phase (panel "phase": Name, Row, Documentation,
+- [x] On Greenfield's sample: clicking a phase name selects that phase (panel "phase": Name, Row, Documentation,
   delete); clicking a row label selects the row; clicking elsewhere behaves as before (steps, flows, lanes still
   select) — a browser leg, failed by 0.47.0
-- [ ] Rename a phase, write its documentation, delete one phase and one row; save; the saved file read back by this
+- [x] Rename a phase, write its documentation, delete one phase and one row; save; the saved file read back by this
   designer AND by the released 0.48.1's reader (the first that draws phases from any designer-saved file, T-1510;
   0.47.0 draws none from such a file) draws the remaining phases with the new name and boundaries unchanged; the group
   carries the documentation as <bpmn:documentation>; the deleted phase's group, shape and categoryValue (the row's
   category and groups) are gone; every other kept byte unchanged
-- [ ] A map that nobody edits phases on saves byte-identically (byte-identity goldens, P3); maps without phases
+- [x] A map that nobody edits phases on saves byte-identically (byte-identity goldens, P3); maps without phases
   unchanged; the browser tier and person-sees legs green on a round
+  Evidence (2026-11-24): _t1502 A1-A6 PASS (released 0.48.1 fails A1: no phase selection); A2 selecting changes no
+  byte; _t1473 P1-P10 PASS; byte-identity PASS. Round at e779e99aa (high-risk): browser "pool and local both green",
+  167/167 legs incl. test_t1502_phase_edit and the person-sees legs; core "pool and local both green".
 
 ### Human
-- [ ] Selecting and editing a phase reads like selecting and editing a lane: the panel, the selected look on the canvas,
+- [x] Selecting and editing a phase reads like selecting and editing a lane: the panel, the selected look on the canvas,
   and the delete are where a person expects them
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1502 --criterion 1`), who may escalate.
   **Steps:**
@@ -189,6 +192,7 @@ the designer, on a file that already carries phases.
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261124-80805084 — reviewer-judge-t-1502-r3-073c0fe7e412:reviewer (rung rung-3-termlink-single-reviewer), digest afb09a06fd49; dispatch judge-t-1502-r3-073c0fe7e412; evidence: .context/reviews/evidence/T-1502/AC1-judge-t-1502-r3-073c0fe7e412.md, .context/reviews/evidence/T-1502/phase-selected-1024-judge-t-1502-r3-073c0fe7e412.png, .context/reviews/evidence/T-1502/phase-selected-1440-judge-t-1502-r3-073c0fe7e412.png, .context/reviews/evidence/T-1502/phase-selected-1920-judge-t-1502-r3-073c0fe7e412.png, .context/reviews/evidence/T-1502/row-selected-1024-judge-t-1502-r3-073c0fe7e412.png, .context/reviews/evidence/T-1502/row-selected-1440-judge-t-1502-r3-073c0fe7e412.png, .context/reviews/evidence/T-1502/row-selected-1920-judge-t-1502-r3-073c0fe7e412.png, .context/reviews/evidence/T-1502/lane-selected-1024-judge-t-1502-r3-073c0fe7e412.png, .context/reviews/evidence/T-1502/lane-selected-1440-judge-t-1502-r3-073c0fe7e412.png, .context/reviews/evidence/T-1502/lane-selected-1920-judge-t-1502-r3-073c0fe7e412.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
