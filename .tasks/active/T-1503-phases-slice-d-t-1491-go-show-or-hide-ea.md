@@ -7,8 +7,9 @@ description: >
   the browser, not written to the file (recommendation accepted with the GO). Makes
   no phases, so it does not wait for AEF.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
 horizon: now
 tags: [designer, phases, greenfield]
@@ -41,7 +42,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-24T11:08:18Z
-last_update: '2026-11-24T11:08:27Z'
+last_update: '2026-11-24T15:46:34Z'
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -72,6 +73,25 @@ bvp_scores_proposed:
       body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
       F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
       about,L0: no signal)'
+    rubric_sha: e4a00f38e801
+  - ts: '2026-11-24T15:46:34Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=2 (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body
+      — no hypothesis, so this score has no claim to be wrong about,L1:keyword=pool);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=0 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L0: no signal)'
     rubric_sha: e4a00f38e801
 ---
 
@@ -107,7 +127,7 @@ remembered per map in the browser and restored when the map is opened again; hid
 - [ ] The switch is found where a person looks for view switches, and hiding a row reads as hiding, not deleting
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1503 --criterion 1`), who may escalate.
   **Steps:**
-  1. `docs/reports/T-1503-shots/` (to be made): the switch, all phases hidden, row 2 hidden, at 1024/1440/1920
+  1. `docs/reports/T-1503-shots/settings-phases-{1024,1440,1920}.png` (Settings opened, scrolled to its Phases section: "Show phases" and one switch per row, with the note that hiding never removes them from the file) and `row-hidden-{1024,1440,1920}.png` (the map at its opening zoom with 'Fase in Salesforce' hidden: only 'Fase' above the pool). The row panel also carries a "Visible on the map" switch (leg V3)
   2. Judge: is the switch findable and its state clear; does a hidden row read as hidden (not gone from the file)
   **Expected:** a person can hide and show phases without fearing they deleted them.
   **If not:** say what reads wrong; the agent adjusts.
@@ -294,6 +314,28 @@ remembered per map in the browser and restored when the map is opened again; hid
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+node tools/_t1503-phase-view-cdp.mjs > /tmp/.t1503.out 2>&1
+node tools/_t1473-phases-cdp.mjs > /tmp/.t1503-phases.out 2>&1
+grep -q 'leg browser "test_t1503_phase_view"' tests/run-bridge-tests.sh
+
+## Visual Verification
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| Settings open | Phases section: Show phases + one switch per row | ok | ok | ok | its own heading (first shot had none, at the panel's end) |
+| row 2 hidden | the map above the pool | ok | ok | ok | only 'Fase' with its dividers; nothing else moved |
+
+Shots: docs/reports/T-1503-shots/settings-phases-*.png and row-hidden-*.png, read at 1440 (settings, row hidden) and
+1024 (settings).
+
+## Decisions (T-1503)
+
+### 2026-11-24 — the switches live in Settings and the row panel, not the toolbar
+- **Chose:** a Phases section in Settings (all phases + one switch per row) and "Visible on the map" in the row panel.
+- **Why:** the toolbar must fit one row at AEF's 1894 px frame (T-1471) with about 39 px to spare; Settings already holds
+  the view switches (edge labels, pool title, authority markers); a hidden row cannot be clicked, so its switch must be
+  reachable elsewhere.
+- **Rejected:** a toolbar button (width), per-row switches only on the canvas (unreachable once hidden).
 
 ## RCA
 
@@ -391,3 +433,6 @@ remembered per map in the browser and restored when the map is opened again; hid
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1503-phases-slice-d-t-1491-go-show-or-hide-ea.md
 - **Context:** Initial task creation
+
+### 2026-11-24T15:46:33Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

@@ -2477,6 +2477,19 @@ else
 fi
 }
 leg browser "test_t1502_phase_edit" _leg_t1502
+_leg_t1503() {
+
+# ── T-1503 (T-1491 GO, slice D): phases on/off and each row on/off, from Settings and the row panel, per map in this
+# browser, never written: hides and shows, a hidden row takes no space, the choice survives a reload, saves unchanged. ~20 s.
+if node "$ROOT/tools/_t1503-phase-view-cdp.mjs" > "$TMP/leg-_t1503.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "Showing or hiding phases no longer works as it did, or it changed what a save writes (_t1503-phase-view-cdp.mjs; T-1503)"
+  show_output "$TMP/leg-_t1503.out" "_t1503-phase-view-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1503_phase_view" _leg_t1503
 _leg_t1470() {
 
 # ── T-1470 (Greenfield): an association between two steps that line up is drawn straight (Solution - Product ->

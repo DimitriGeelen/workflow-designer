@@ -1497,6 +1497,9 @@ font-family: 'Outfit';
     font-size: 12.5px;
     cursor: pointer;
   }
+  /* T-1503: each phase row of the open map, indented under "Show phases" */
+  .settings-phase-rows .settings-phase-row { padding-left: 22px; }
+  .settings-phases { margin-top: 14px; }
   .settings-num {
     width: 58px;
     background: var(--bg);
@@ -2138,6 +2141,17 @@ font-family: 'Outfit';
             <input type="checkbox" id="set-show-authority">
             <span>Show authority markers</span>
           </label>
+          <!-- T-1503 (T-1491 GO, slice D): phases on or off, for this map; each of its rows on or off. A view only: the
+               phases stay in the file whatever is shown. Hidden when the map has no phases. -->
+          <div class="settings-phases" id="set-phases-group" hidden>
+            <div class="settings-section-label">Phases</div>
+            <label class="settings-row">
+              <input type="checkbox" id="set-show-phases">
+              <span>Show phases</span>
+              <span class="settings-hint">this map only; hiding never removes them from the file</span>
+            </label>
+            <div id="set-phase-rows" class="settings-phase-rows"></div>
+          </div>
         </div>
         <div class="settings-footer">
           <span class="settings-hint">Stored in this browser only — never in the workflow file.</span>
@@ -3449,6 +3463,29 @@ function setLabelPref(key, value) {
   labelPrefs[key] = value;
   try { localStorage.setItem('aefLabelPrefs', JSON.stringify(labelPrefs)); } catch (e) { aefRecordFault('prefs-persist:label', e); }
   renderAll();
+}
+// T-1503 (T-1491 GO, slice D): which phases this map shows, per map id, in this browser only (never in the file):
+// { [workflowId]: { hideAll: bool, hiddenRows: [categoryId] } }. A viewing choice: the phases stay in the file.
+let _phaseView = {};
+try { const v = JSON.parse(localStorage.getItem('aefPhaseView') || '{}'); if (v && typeof v === 'object') _phaseView = v; }
+catch (e) { aefRecordFault('prefs-restore:phases', e); }
+function _phaseViewKey() { return (state && state.workflowMeta && state.workflowMeta.id) || ''; }
+function phaseView() {
+  const v = _phaseView[_phaseViewKey()];
+  return { hideAll: !!(v && v.hideAll), hiddenRows: (v && Array.isArray(v.hiddenRows)) ? v.hiddenRows.slice() : [] };
+}
+function setPhaseView(v) {
+  const k = _phaseViewKey(); if (!k) return;
+  if (!v.hideAll && !v.hiddenRows.length) delete _phaseView[k]; else _phaseView[k] = { hideAll: !!v.hideAll, hiddenRows: v.hiddenRows };
+  try { localStorage.setItem('aefPhaseView', JSON.stringify(_phaseView)); } catch (e) { aefRecordFault('prefs-persist:phases', e); }
+  renderAll();
+  if (typeof renderPhaseSettings === 'function') renderPhaseSettings();
+}
+function setPhaseRowVisible(rowId, visible) {
+  const v = phaseView();
+  v.hiddenRows = v.hiddenRows.filter(r => r !== rowId);
+  if (!visible) v.hiddenRows.push(rowId);
+  setPhaseView(v);
 }
 
 // View prefs (T-108): branchPitch guides Tidy/Clean stack spacing; rowSpacing is
@@ -8551,6 +8588,21 @@ function _renderPropsInto(props, details) {
     n.className = 'field-hint';
     n.textContent = `${r.phases.length} phase${r.phases.length === 1 ? '' : 's'}: ${r.phases.map(p => p.name).join(' · ')}`;
     s.appendChild(n);
+    // T-1503: show or hide this row (a view for this map, in this browser; the phases stay in the file)
+    const vis = document.createElement('label');
+    vis.className = 'settings-row';
+    vis.dataset.testid = 'phase-row-visible';
+    const vcb = document.createElement('input');
+    vcb.type = 'checkbox';
+    vcb.checked = !phaseView().hiddenRows.includes(r.id);
+    vcb.addEventListener('change', () => setPhaseRowVisible(r.id, vcb.checked));
+    const vsp = document.createElement('span');
+    vsp.textContent = 'Visible on the map';
+    const vh = document.createElement('span');
+    vh.className = 'settings-hint';
+    vh.textContent = 'a view only; hiding keeps the row in the file';
+    vis.appendChild(vcb); vis.appendChild(vsp); vis.appendChild(vh);
+    s.appendChild(vis);
     props.appendChild(s);
     return;
   }
@@ -10214,6 +10266,7 @@ function syncSettingsUI() {
   $('set-show-edge').checked = labelPrefs.showEdge;
   $('set-show-pool').checked = labelPrefs.showPool;
   $('set-show-authority').checked = labelPrefs.showAuthority;
+  renderPhaseSettings();   // T-1503
 }
 function openSettings() { syncSettingsUI(); $('view-apply-row').style.display = 'none'; $('settings-modal').classList.add('visible'); }
 function closeSettings() { $('settings-modal').classList.remove('visible'); }
@@ -10343,6 +10396,33 @@ $('set-show-ids').addEventListener('change', e => setLabelPref('showIds', e.targ
 $('set-show-edge').addEventListener('change', e => setLabelPref('showEdge', e.target.checked));
 $('set-show-pool').addEventListener('change', e => setLabelPref('showPool', e.target.checked));
 $('set-show-authority').addEventListener('change', e => setLabelPref('showAuthority', e.target.checked));
+// T-1503 (T-1491 GO, slice D): the open map's phases on or off, and each of its rows; shown only when it has phases
+function renderPhaseSettings() {
+  const grp = $('set-phases-group'), list = $('set-phase-rows');
+  if (!grp || !list) return;
+  const pk = state && state.procKept;
+  const rows = pk && (pk.categories || []).length ? phasesParse(pk) : [];
+  grp.hidden = !rows.length;
+  if (!rows.length) { list.innerHTML = ''; return; }
+  const v = phaseView();
+  $('set-show-phases').checked = !v.hideAll;
+  list.innerHTML = '';
+  for (const r of rows) {
+    const lab = document.createElement('label');
+    lab.className = 'settings-row settings-phase-row';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = !v.hiddenRows.includes(r.id);
+    cb.disabled = v.hideAll;
+    cb.dataset.phaseRow = r.id;
+    cb.addEventListener('change', () => setPhaseRowVisible(r.id, cb.checked));
+    const sp = document.createElement('span');
+    sp.textContent = `${r.name || r.id} (${r.phases.length} phase${r.phases.length === 1 ? '' : 's'})`;
+    lab.appendChild(cb); lab.appendChild(sp);
+    list.appendChild(lab);
+  }
+}
+$('set-show-phases').addEventListener('change', e => { const v = phaseView(); v.hideAll = !e.target.checked; setPhaseView(v); });
 $('set-grid-size').addEventListener('change', e => {
   const v = Math.max(4, Math.min(100, Math.round(parseFloat(e.target.value)) || 20));
   setSnapPref('gridSize', v);
@@ -16690,7 +16770,12 @@ function renderPhases() {
   const px = parseFloat(pb.getAttribute('x')), py = parseFloat(pb.getAttribute('y'));
   const pw = parseFloat(pb.getAttribute('width')), ph = parseFloat(pb.getAttribute('height'));
   const left = px + LANE_HEADER, right = px + pw, top = py + POOL_HEADER, bottom = py + ph;
-  rows.forEach((r, ri) => {
+  // T-1503: the view this map asked for — all phases off, or some rows off. A hidden row takes no space (the rows above
+  // it move down); the dividers belong to the file's first row only, so they go when that row is hidden.
+  const view = phaseView();
+  if (view.hideAll) return;
+  const shown = rows.map((r, i) => ({ ...r, first: i === 0 })).filter(r => !view.hiddenRows.includes(r.id));
+  shown.forEach((r, ri) => {
     const by = py - 8 - ri * PHASE_ROW_H;   // this row's bracket line; its names sit just above it
     // T-1498 (Greenfield msg ee60b420): the row's category name, right-aligned just left of where its brackets start,
     // on the phase names' baseline. It may reach left of the pool: the view grows to fit (fitViewBox, minX <= 0).
@@ -16707,7 +16792,7 @@ function renderPhases() {
     r.phases.forEach((p, pi) => {
       const x1 = Math.max(left, p.x), x2 = Math.min(right, p.x + p.w);
       if (x2 - x1 < 8) return;
-      if (ri === 0 && pi > 0) g.appendChild(el('line', { x1, y1: top, x2: x1, y2: bottom, class: 'phase-divider', 'data-phase-divider': p.id }));
+      if (r.first && pi > 0) g.appendChild(el('line', { x1, y1: top, x2: x1, y2: bottom, class: 'phase-divider', 'data-phase-divider': p.id }));
       const sel = selection && selection.kind === 'phase' && selection.id === p.id;
       const pg = el('g', { 'data-phase': p.id, 'data-phase-row': ri, class: sel ? 'phase-selected' : '' });
       // T-1502: the phase's hit area: its bracket and name band, transparent (the layer itself stays click-through)
