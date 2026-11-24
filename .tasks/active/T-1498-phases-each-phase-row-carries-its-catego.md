@@ -134,9 +134,11 @@ the phase names' baseline, styled quieter than a phase name so it reads as the r
 - [ ] The two phase rows are told apart by their labels, and the labels read as the rows' names, not as phases
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1498 --criterion 1`), who may escalate.
   **Steps:**
-  1. `docs/reports/T-1498-shots/phases-{1024,1440,1920}.png` and `phases-fit-{1024,1440,1920}.png`: Greenfield's sample as it opens and at Fit
-  2. Judge: can a reader tell which row is 'Fase' and which 'Fase in Salesforce'; does each label read as its row's name (not a phase of it); anything clipped or overlapping
-  **Expected:** both rows named at their left at all three widths; nothing clipped or overlapping.
+  1. `docs/reports/T-1498-shots/phases-{1024,1440,1920}.png`: Greenfield's sample as it opens (the opening zoom); `phases-fit-*.png` show the whole pool at Fit for context only
+  2. Judge: at the opening zoom, can a reader tell which row is 'Fase' and which 'Fase in Salesforce'; does each label read as its row's name (not a phase of it); anything clipped or overlapping
+  **Expected:** both phase rows are named at their left at the opening zoom (100%) at 1024, 1440 and 1920, and the labels read as the rows' names, not as phases; nothing is clipped or overlapping.
+  (Restated 2026-11-24 with the operator's approval, as the first judgement proposed (amber, V-20261124 on T-1498): at Fit
+  every text on the map shrinks alike, so Fit at 1024 is an overview; the readable floor is the opening zoom's (T-1256).)
   **If not:** say what reads wrong; the agent adjusts.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
