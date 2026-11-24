@@ -24151,3 +24151,21 @@ scan_id: R-cf50d267
 task_id: T-1506
 payload:
   task_file: .tasks/active/T-1506-census-which-children-and-attributes-of-.md
+---
+kind: scan_emitted
+timestamp: '2026-11-24T12:34:55Z'
+scan_id: R-69dad707
+task_id: T-1510
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-24T12:34:55Z'
+scan_id: R-69dad707
+task_id: T-1510
+payload:
+  task_file: .tasks/active/T-1510-phases-vanish-after-a-save-and-reopen-in.md

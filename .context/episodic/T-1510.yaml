@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1510: Phases vanish after a save and reopen in the designer (0.47.0, 0.48.0): the designer's save writes no pool shape, so no group 'spans the pool' on reopen
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-24T12:35:02Z
+# ============================================================================
+
+task_id: T-1510
+task_name: "Phases vanish after a save and reopen in the designer (0.47.0, 0.48.0): the designer's save writes no pool shape, so no group 'spans the pool' on reopen"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-24T12:14:39Z
+completed: 2026-11-24T12:34:47Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-24T13:16:40+01:00
+last_commit: 2026-11-24T13:34:46+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  phases survive a save and reopen in the designer (they vanished in 0.47.0/0.48.0: 11 → 0 on Greenfield's sample). The designer's own save writes no pool or lane shape, so the F3 'spans the pool' rule had no band on reopen; a file without them is now judged against the band its steps occupy. Files with a pool shape are judged as before (kitchen-sink's boxes still not phases). No saved byte changes. Legs P9 (save → reopen twice; 0.48.0 fails) and P10; RCA. evidence before the close (round green at 5ba8f79b5)
+
+# Key outcomes
+outcomes:
+  - 'Greenfield''s sample: open → save → reopen draws the same 11 phases at the same x ranges, and again after a second'
+  - 'No saved byte changes (P3, byte-identity goldens); the browser tier green on a round'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1510-phases-vanish-after-a-save-and-reopen-in.md'
+  - 'src/aef-workflow-designer.html'
+  - 'tools/_t1473-phases-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-24T13:16:40'
+    action: 'T-1510: phases survive a save and reopen in the designer (they vanished in 0.47.0/0.48.0: 11 → 0 on Greenfield''s sample). The designer''s own save writes no pool or lane shape, so the F3 ''spans the pool'' rule had no band on reopen; a file without them is now judged against the band its steps occupy. Files with a pool shape are judged as before (kitchen-sink''s boxes still not phases). No saved byte changes. Legs P9 (save → reopen twice; 0.48.0 fails) and P10; RCA'
+  - time: '2026-11-24T13:34:46'
+    action: 'T-1510: evidence before the close (round green at 5ba8f79b5)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 20 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [designer, phases, greenfield, bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 20
+  commits: 5
+  files_changed: 7
+  lines_added: 752
+  lines_removed: 11
+  footprint_refreshed_at: '2026-11-24T12:35:04Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1510-phases-vanish-after-a-save-and-reopen-in.md
+generated_by: context-agent-hybrid
