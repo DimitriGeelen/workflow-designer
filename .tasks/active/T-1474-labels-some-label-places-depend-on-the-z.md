@@ -17,7 +17,7 @@ description: >
 
 status: started-work
 workflow_type: build
-current_node: frw_1_start
+current_node: agt_2_perform
 owner: agent
 horizon: now
 tags: []
@@ -129,7 +129,10 @@ renders every corpus map at fit, 100% and 200% and finds every flow label in the
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] A browser leg: every corpus map rendered at fit, 100% and 200%: each flow label at the same place (control: 0.46.0 differs, 16 labels); the person-sees gate and the browser tier green on a round (node text measured unhinted may move a label at fit, judged there)
+- [x] A browser leg: every corpus map rendered at fit, 100% and 200%: each flow label at the same place (control: 0.46.0 differs, 16 labels); the person-sees gate and the browser tier green on a round (node text measured unhinted may move a label at fit, judged there)
+  Evidence (2026-11-24): `_t1474-label-places-zoom-free-cdp.mjs` Z1 PASS now ("24 corpus maps, 136 flow labels, each
+  at the same place"); test_t1474_label_places_zoom_free and the person-sees legs in every browser round since, last at
+  1b4cafa84 ("pool and local both green", 169/169), and in the release jobs 179-183 (browser green on the pool).
 - [x] Screenshots read by the agent — `docs/reports/T-1474-shots/{new,v046}-{verification-gate,review-emission,task-lifecycle}-{1024,1440,1920}.png` (maps opened as a person opens them: opening zoom, lens all). verification-gate 1440 new vs 0.46.0: identical (it opens at 100%, where 0.46.0 already used these places; the 16 moves vs 0.46.0 show at "fit" only, which now matches 100%). review-emission 1440: "not found" now right of its drop, clear of the gateway name "Task file found?" (was 7-11 px from "found?", the pair label-clearance flagged). Also changed on the way (found by the round at 6855f6882): a third, wider side offset (32) beside a vertical drop, since unhinted measurement left that label no place clear of the name.
 
 ### Human
@@ -337,6 +340,8 @@ renders every corpus map at fit, 100% and 200% and finds every flow label in the
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+node tools/_t1474-label-places-zoom-free-cdp.mjs > /tmp/.t1474.out 2>&1
+grep -q 'leg browser "test_t1474_label_places_zoom_free"' tests/run-bridge-tests.sh
 
 ## RCA
 
