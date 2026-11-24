@@ -144,29 +144,29 @@ by 0.47.0's reader (T-1473) with the same phases, names and boundaries.
 -->
 
 - **IW-1: What must a person be able to do with phases, step by step, to finish the persona's user story?**
-  confidence: 0
-  disposition: open
-  rationale: walkthrough of 0.47.0 as the persona, docs/reports/T-1491-phases-editing.md
+  confidence: 2
+  disposition: answered
+  rationale: report §Proposed design: Phases section under Lanes (add row, add phase at a step gap), select phase/row → panel (name, row, documentation, visible, delete), drag a boundary; walkthrough on 0.47.0 stops at step 1 (no Phases section, layer pointer-events none, no menu, no control)
 - **IW-2: Does a boundary move freely (any x) or by whole steps (F4: a phase is a range of steps)?**
-  confidence: 0
-  disposition: open
-  rationale: operator: "drag them to the left, to the right … where the phase ends and starts"
+  confidence: 2
+  disposition: answered
+  rationale: by step gaps (snap), report §Open questions; a free x could cut through a step and break T-1461 F4
 - **IW-3: Is "switch them on and off" a view setting (not saved) or part of the map (saved)?**
-  confidence: 0
-  disposition: open
-  rationale: to settle from the user story
+  confidence: 1
+  disposition: answered
+  rationale: proposed a view setting remembered per map in the browser (no saved-byte change for a viewing choice); the operator confirms or overrides at the decision
 - **IW-4: Where does a phase's documentation live in the file, so other tools keep it and Greenfield's reader sees it?**
-  confidence: 0
-  disposition: open
-  rationale: bpmn:documentation on the group is standard BPMN; to check against the kept-XML path (T-1326)
+  confidence: 2
+  disposition: answered
+  rationale: <bpmn:documentation> in the bpmn:group (tBaseElement, standard; kept with the group by T-1326's kept-XML path)
 - **IW-5: What XML does a made phase write, and does AEF accept it in the maps it stores (T-1461 F6)?**
-  confidence: 0
-  disposition: open
-  rationale: AEF to be asked with the exact XML before the build slice that writes it
+  confidence: 1
+  disposition: deferred
+  rationale: XML in report §IW-5 (Greenfield's own encoding, read by 0.47.0's full-height rule, no aef marker); AEF asked 2026-11-24 (msg 8dccabe1, conversation 832-phases-editing-T-1491); answer needed before slice B writes new phases, not before slice A
 - **IW-6: How do phases share the band above the pool with notes and row labels (T-1499, T-1498)?**
-  confidence: 0
-  disposition: open
-  rationale: Greenfield's observations on 0.47.0, msg ee60b420
+  confidence: 2
+  disposition: answered
+  rationale: rows directly above the pool labelled at the left (T-1498), notes above the rows (T-1499); both before or with slice A
 
 ## Exploration Plan
 
@@ -232,17 +232,27 @@ by 0.47.0's reader (T-1473) with the same phases, names and boundaries.
 
 ## Recommendation
 
-**Recommendation:** EXPLORING
+**Recommendation:** GO
 
 **Rationale:**
 
-Greenfield msg 6ae1899a (2026-11-23): their owner's vote for editing phases from the left menu. T-1461 deferred editing as a separate decision; slice 1 (T-1473) draws phases read-only. Explored after T-1473 ships.
+The persona's user story (docs/reports/T-1491-phases-editing.md) splits into four bounded slices, each about one
+session and each testable by a browser leg, screenshots and a save read back by 0.47.0's reader: A select/rename/
+document/delete with row labels (T-1498); B add rows and phases from a Phases section in the left panel; C drag a
+boundary snapping to step gaps; D show/hide (view only). The file side is standard BPMN that 0.47.0 already reads
+(Greenfield's own encoding), steps never move (T-1461 F4 holds), and maps without phases stay byte-identical. The
+one open dependency, AEF accepting made phases in stored maps (IW-5), gates slice B only and was asked today.
 
 **Evidence:**
 
-<!-- Add evidence bullets as exploration progresses (file paths,
-     commit hashes, test results). The filing-time recommendation
-     can be revised before fw inception decide. -->
+- Walkthrough on 0.47.0 as the persona: no Phases section in the left panel, phase layer `pointer-events: none`, no
+  menu, no control mentioning phases (docs/reports/T-1491-shots/1-left-panel-bottom.png, 2-click-phase.png).
+- The lane pattern to follow already exists: "Lanes → Add Lane" in the left panel, a lane panel with name and delete.
+- 0.47.0 reads Greenfield's encoding and the proposed XML by its full-height rule (T-1473 P1, P6).
+- Greenfield's observations on 0.47.0 (msg ee60b420) → T-1498, T-1499, folded into slice A.
+
+**For the operator at the decision:** IW-3, phases on/off as a view setting (not saved). Say if you want it saved in
+the map instead.
 
 ## Decisions
 
