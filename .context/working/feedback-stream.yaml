@@ -24089,3 +24089,29 @@ scan_id: R-d2479d80
 task_id: T-1498
 payload:
   task_file: .tasks/active/T-1498-phases-each-phase-row-carries-its-catego.md
+---
+kind: scan_emitted
+timestamp: '2026-11-24T11:07:56Z'
+scan_id: R-4630c2ef
+task_id: T-1491
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-24T11:07:56Z'
+scan_id: R-4630c2ef
+task_id: T-1491
+payload:
+  task_file: .tasks/active/T-1491-phases-editing-from-the-palette-add-a-ph.md
+---
+kind: recommendation_claims_verdict
+timestamp: '2026-11-24T11:07:56Z'
+scan_id: RC-7466c987
+task_id: T-1491
+payload:
+  overall: CONTRADICTED
+  claim_count: 5

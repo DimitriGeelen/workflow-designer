@@ -1,0 +1,92 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1491: Phases editing from the palette: add a phase or divider, name it, drag its boundary, choose its row
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-24T11:08:03Z
+# ============================================================================
+
+task_id: T-1491
+task_name: "Phases editing from the palette: add a phase or divider, name it, drag its boundary, choose its row"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-23T12:55:10Z
+completed: 2026-11-24T11:07:54Z
+duration_days: 1
+updates_count: 5
+first_commit: 2026-11-24T10:39:41+01:00
+last_commit: 2026-11-24T12:07:57+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  inception framed from the operator's request (add phases from the left panel, document, move start/end, show/hide, delete; try it as a persona first): problem, hypothesis, IW-1..IW-6, go/no-go criteria. persona (Mira, facilitator), user story and 8-step scenario, walkthrough on 0.47.0 (stops at step 1: no Phases section, layer not clickable, no menu, no control), proposed design per step, IW answers (snap to step gaps; on/off a view setting; documentation in the group; Greenfield's XML, AEF asked msg 8dccabe1), four slices; recommendation GO. AEF's answer on the phase XML (T-5381: right form, but their corpus parser refuses groups today) — making phases waits for their be-tag; slices A and D first. AEF T-5381 done on their bleeding-edge; group shapes on regenerate settled (manual prove only; AEF T-5387 carries them, plain BPMN); phase creation waits only for their be-tag. inception decision GO (via Watchtower)
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/human-ac-ticks.jsonl'
+  - 'docs/reports/T-1491-phases-editing.md'
+  - 'docs/reports/T-1491-shots/1-left-panel-bottom.png'
+  - 'docs/reports/T-1491-shots/2-click-phase.png'
+  - '.tasks/active/T-1491-phases-editing-from-the-palette-add-a-ph.md'
+  - '.tasks/completed/T-1491-phases-editing-from-the-palette-add-a-ph.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-24T10:39:41'
+    action: 'T-1491: inception framed from the operator''s request (add phases from the left panel, document, move start/end, show/hide, delete; try it as a persona first): problem, hypothesis, IW-1..IW-6, go/no-go criteria'
+  - time: '2026-11-24T10:42:40'
+    action: 'T-1491: persona (Mira, facilitator), user story and 8-step scenario, walkthrough on 0.47.0 (stops at step 1: no Phases section, layer not clickable, no menu, no control), proposed design per step, IW answers (snap to step gaps; on/off a view setting; documentation in the group; Greenfield''s XML, AEF asked msg 8dccabe1), four slices; recommendation GO'
+  - time: '2026-11-24T10:47:47'
+    action: 'T-1491: AEF''s answer on the phase XML (T-5381: right form, but their corpus parser refuses groups today) — making phases waits for their be-tag; slices A and D first'
+  - time: '2026-11-24T12:03:20'
+    action: 'T-1491: AEF T-5381 done on their bleeding-edge; group shapes on regenerate settled (manual prove only; AEF T-5387 carries them, plain BPMN); phase creation waits only for their be-tag'
+  - time: '2026-11-24T12:07:57'
+    action: 'T-1491: inception decision GO (via Watchtower)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 1332 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1332
+  commits: 6
+  files_changed: 8
+  lines_added: 467
+  lines_removed: 51
+  footprint_refreshed_at: '2026-11-24T11:08:08Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1491-phases-editing-from-the-palette-add-a-ph.md
+generated_by: context-agent-hybrid
