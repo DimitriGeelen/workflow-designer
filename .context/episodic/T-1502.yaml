@@ -1,0 +1,144 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1502: Phases slice A (T-1491 GO): select a phase or a phase row on the canvas; the panel names it, edits its name and documentation, deletes it
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-24T15:54:13Z
+# ============================================================================
+
+task_id: T-1502
+task_name: "Phases slice A (T-1491 GO): select a phase or a phase row on the canvas; the panel names it, edits its name and documentation, deletes it"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-11-24T11:08:18Z
+completed: 2026-11-24T15:53:40Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-24T12:09:10+01:00
+last_commit: 2026-11-24T16:53:23+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  T-1491's build slices filed after the operator's GO (7e4de752a): A select/rename/document/delete (T-1502) and D show/hide, view only (T-1503) with criteria; B add from the left panel (T-1504) and C drag boundaries (T-1505) queued behind AEF's be-tag for T-5381. phases slice A (T-1491 GO) — select a phase or a phase row on the canvas (transparent hit areas; the layer stays click-through elsewhere) and edit it in the panel: rename (the categoryValue's value, the row's category name), documentation (the group's <documentation>, also shown as blocks), delete (group, shape and value; the row with its last value; a row with all its groups). Each edit rewrites only its element's kept XML; undoable; the Delete key works on a selected phase or row. Browser leg test_t1502_phase_edit (A1-A6: real clicks, panel typing, undo/redo, the save carries exactly the edits, read back here and by 0.48.1; 0.48.1 fails A1); shots at 1024/1440/1920. reviewer verdict. lane-selected shots beside the phase and row shots, for the second judgement (first: amber, no lane to compare); the harness takes them. the criterion states that phases are not reordered (T-1461 F4: a phase is a range of steps; boundaries move in slice C), as the second judgement asked. evidence and the reviewer's green (third judgement) before the close
+
+# Key outcomes
+outcomes:
+  - 'On Greenfield''s sample: clicking a phase name selects that phase (panel "phase": Name, Row, Documentation,'
+  - 'Rename a phase, write its documentation, delete one phase and one row; save; the saved file read back by this'
+  - 'A map that nobody edits phases on saves byte-identically (byte-identity goldens, P3); maps without phases'
+  - 'Selecting and editing a phase reads like selecting and editing a lane: the panel, the selected look on the canvas,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # 1 decision(s) below are recorded in the register (.context/project/decisions.yaml) for this task but absent from the task file's Decisions section (T-4193).
+  - decision: 'PD-474'
+    chose: 'delete removes the group, its shape and its categoryValue; the neighbours keep their ranges.'
+    rationale: 'Auto-captured from task file on completion'
+    id: 'PD-474'
+    source: register
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1502/AC1-judge-t-1502-r3-073c0fe7e412.md'
+  - '.context/reviews/evidence/T-1502/AC1-judge-t-1502-r3-97d4e679b4a1.md'
+  - '.context/reviews/evidence/T-1502/AC1-judge-t-1502-r3-9e3fe32a9be7.md'
+  - '.context/reviews/evidence/T-1502/lane-selected-1024-judge-t-1502-r3-073c0fe7e412.png'
+  - '.context/reviews/evidence/T-1502/lane-selected-1024-judge-t-1502-r3-97d4e679b4a1.png'
+  - '.context/reviews/evidence/T-1502/lane-selected-1440-judge-t-1502-r3-073c0fe7e412.png'
+  - '.context/reviews/evidence/T-1502/lane-selected-1440-judge-t-1502-r3-97d4e679b4a1.png'
+  - '.context/reviews/evidence/T-1502/lane-selected-1920-judge-t-1502-r3-073c0fe7e412.png'
+  - '.context/reviews/evidence/T-1502/phase-selected-1024-judge-t-1502-r3-073c0fe7e412.png'
+  - '.context/reviews/evidence/T-1502/phase-selected-1024-judge-t-1502-r3-97d4e679b4a1.png'
+  - '.context/reviews/evidence/T-1502/phase-selected-1024-judge-t-1502-r3-9e3fe32a9be7.png'
+  - '.context/reviews/evidence/T-1502/phase-selected-1440-judge-t-1502-r3-073c0fe7e412.png'
+  - '.context/reviews/evidence/T-1502/phase-selected-1440-judge-t-1502-r3-97d4e679b4a1.png'
+  - '.context/reviews/evidence/T-1502/phase-selected-1440-judge-t-1502-r3-9e3fe32a9be7.png'
+  - '.context/reviews/evidence/T-1502/phase-selected-1920-judge-t-1502-r3-073c0fe7e412.png'
+  - '.context/reviews/evidence/T-1502/phase-selected-1920-judge-t-1502-r3-97d4e679b4a1.png'
+  - '.context/reviews/evidence/T-1502/phase-selected-1920-judge-t-1502-r3-9e3fe32a9be7.png'
+  - '.context/reviews/evidence/T-1502/row-selected-1024-judge-t-1502-r3-073c0fe7e412.png'
+  - '.context/reviews/evidence/T-1502/row-selected-1024-judge-t-1502-r3-9e3fe32a9be7.png'
+  - '.context/reviews/evidence/T-1502/row-selected-1440-judge-t-1502-r3-073c0fe7e412.png'
+  - '.context/reviews/evidence/T-1502/row-selected-1440-judge-t-1502-r3-97d4e679b4a1.png'
+  - '.context/reviews/evidence/T-1502/row-selected-1440-judge-t-1502-r3-9e3fe32a9be7.png'
+  - '.context/reviews/evidence/T-1502/row-selected-1920-judge-t-1502-r3-073c0fe7e412.png'
+  - '.context/reviews/evidence/T-1502/row-selected-1920-judge-t-1502-r3-9e3fe32a9be7.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1502-phases-slice-a-t-1491-go-select-a-phase-.md'
+  - '.tasks/active/T-1503-phases-slice-d-t-1491-go-show-or-hide-ea.md'
+  - '.tasks/active/T-1504-phases-slice-b-t-1491-go-a-phases-sectio.md'
+  - '.tasks/active/T-1505-phases-slice-c-t-1491-go-drag-a-phase-bo.md'
+  - 'docs/reports/T-1502-shots/lane-selected-1024.png'
+  - 'docs/reports/T-1502-shots/lane-selected-1440.png'
+  - 'docs/reports/T-1502-shots/lane-selected-1920.png'
+  - 'docs/reports/T-1502-shots/phase-selected-1024.png'
+  - 'docs/reports/T-1502-shots/phase-selected-1440.png'
+  - 'docs/reports/T-1502-shots/phase-selected-1920.png'
+  - 'docs/reports/T-1502-shots/row-selected-1024.png'
+  - 'docs/reports/T-1502-shots/row-selected-1440.png'
+  - 'docs/reports/T-1502-shots/row-selected-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1502-phase-edit-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-24T12:09:10'
+    action: 'T-1502: T-1491''s build slices filed after the operator''s GO (7e4de752a): A select/rename/document/delete (T-1502) and D show/hide, view only (T-1503) with criteria; B add from the left panel (T-1504) and C drag boundaries (T-1505) queued behind AEF''s be-tag for T-5381'
+  - time: '2026-11-24T16:29:51'
+    action: 'T-1502: phases slice A (T-1491 GO) — select a phase or a phase row on the canvas (transparent hit areas; the layer stays click-through elsewhere) and edit it in the panel: rename (the categoryValue''s value, the row''s category name), documentation (the group''s <documentation>, also shown as blocks), delete (group, shape and value; the row with its last value; a row with all its groups). Each edit rewrites only its element''s kept XML; undoable; the Delete key works on a selected phase or row. Browser leg test_t1502_phase_edit (A1-A6: real clicks, panel typing, undo/redo, the save carries exactly the edits, read back here and by 0.48.1; 0.48.1 fails A1); shots at 1024/1440/1920'
+  - time: '2026-11-24T16:48:18'
+    action: 'T-1502: reviewer verdict'
+  - time: '2026-11-24T16:50:04'
+    action: 'T-1502: lane-selected shots beside the phase and row shots, for the second judgement (first: amber, no lane to compare); the harness takes them'
+  - time: '2026-11-24T16:50:56'
+    action: 'T-1502: reviewer verdict'
+  - time: '2026-11-24T16:51:37'
+    action: 'T-1502: the criterion states that phases are not reordered (T-1461 F4: a phase is a range of steps; boundaries move in slice C), as the second judgement asked'
+  - time: '2026-11-24T16:52:34'
+    action: 'T-1502: reviewer verdict'
+  - time: '2026-11-24T16:53:23'
+    action: 'T-1502: evidence and the reviewer''s green (third judgement) before the close'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 8 commit(s), 285 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [designer, phases, greenfield]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 285
+  commits: 9
+  files_changed: 50
+  lines_added: 2258
+  lines_removed: 23
+  footprint_refreshed_at: '2026-11-24T15:54:24Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1502-phases-slice-a-t-1491-go-select-a-phase-.md
+generated_by: context-agent-hybrid
