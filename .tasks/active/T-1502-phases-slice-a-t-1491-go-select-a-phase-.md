@@ -137,7 +137,7 @@ the designer, on a file that already carries phases.
   and the delete are where a person expects them
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1502 --criterion 1`), who may escalate.
   **Steps:**
-  1. `docs/reports/T-1502-shots/phase-selected-{1024,1440,1920}.png` (the phase 'Order & levering' selected after a rename, its panel with Name, Row, the documentation field and the documentation as read) and `row-selected-{1024,1440,1920}.png` (the row 'Fase' selected, its panel)
+  1. `docs/reports/T-1502-shots/phase-selected-{1024,1440,1920}.png` (the phase 'Order & levering' selected after a rename, its panel with Name, Row, the documentation field and the documentation as read) and `row-selected-{1024,1440,1920}.png` (the row 'Fase' selected, its panel); for the comparison, `lane-selected-{1024,1440,1920}.png` (the lane 'Salesforce' selected the same way, same build; added after the first judgement, amber: no lane shot to compare). Known difference: the lane's header has a badge icon, the phase's has none
   2. Judge: is it clear which phase is selected; is the panel's wording and order like a lane's; is anything clipped
   **Expected:** a person who has edited a lane finds the same moves for a phase.
   **If not:** say what reads wrong; the agent adjusts.

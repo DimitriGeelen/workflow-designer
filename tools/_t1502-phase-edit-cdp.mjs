@@ -163,6 +163,12 @@ try {
       await sleep(300);
       s = await cl.cmd('Page.captureScreenshot', { format: 'png' });
       writeFileSync(join(process.env.T1502_SHOTS, `row-selected-${W}.png`), Buffer.from(s.data, 'base64'));
+      // a lane selected the same way, for the side-by-side the reviewer asked for (first judgement, amber)
+      await click('#g-lanes [data-lane-id="Lane_Salesforce"], #g-pool [data-lane="Lane_Salesforce"], text.lane-label');
+      await ev(`(function(){ if (!selection || selection.kind !== 'lane') { selection = { kind: 'lane', id: 'Lane_Salesforce' }; renderAll(); } return true; })()`);
+      await sleep(300);
+      s = await cl.cmd('Page.captureScreenshot', { format: 'png' });
+      writeFileSync(join(process.env.T1502_SHOTS, `lane-selected-${W}.png`), Buffer.from(s.data, 'base64'));
     }
   }
 } catch (e) {
