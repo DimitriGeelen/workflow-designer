@@ -760,6 +760,13 @@ font-family: 'Outfit';
   .phase-label { fill: var(--text); font-size: 11px; font-weight: 600; text-rendering: geometricPrecision; }
   /* T-1498: a phase row's own name (its category), at the row's left: quieter than a phase name, so it reads as the row */
   .phase-row-label { fill: var(--text-dim); font-size: 11px; font-weight: 500; font-style: italic; text-rendering: geometricPrecision; }
+  /* T-1502: a read-only value in a panel field (a phase's row) */
+  .field-static { font-size: 13px; color: var(--text); padding: 4px 0; }
+  /* T-1502: phases are selectable through their hit areas only; the rest of the layer stays click-through */
+  #g-phases .phase-hit { fill: transparent; pointer-events: all; cursor: pointer; }
+  #g-phases .phase-hit:hover + .phase-bracket, #g-phases g:hover > .phase-bracket { stroke: var(--accent); }
+  #g-phases .phase-selected > .phase-bracket { stroke: var(--accent); stroke-width: 2; }
+  #g-phases .phase-selected > .phase-label, #g-phases text.phase-selected { fill: var(--accent); }
   .node-id-badge { fill: var(--text-hint); font-family: var(--mono); font-size: 9px; pointer-events: none; letter-spacing: 0.02em; }
   /* T-893 (T-888 clause 4): authority marker on the element. Two classes for two states that
      must read DIFFERENTLY — a differing authority is a choice (faint, like the id badge), a
@@ -4092,7 +4099,7 @@ function updateStatus() {
     sel.textContent = `   ·   ${multiSelect.size} nodes selected`;
     sel.style.color = 'var(--accent)';
   } else if (selection) {
-    sel.textContent = `   ·   ${selection.kind} selected`;
+    sel.textContent = `   ·   ${selection.kind === 'phaseRow' ? 'phase row' : selection.kind} selected`;   // T-1502: no internal name
     sel.style.color = 'var(--text-faint)';
   } else {
     sel.textContent = '';
@@ -8510,6 +8517,43 @@ function _renderPropsInto(props, details) {
     props.appendChild(secR);
     return;
   }
+  // T-1502 (T-1491 GO, slice A): a phase or a phase row, edited in the kept XML (see phaseRename etc.)
+  if (selection.kind === 'phase') {
+    const f = phaseFind(selection.id);
+    if (!f) { selection = null; renderProperties(); return; }
+    props.appendChild(propsHeader('phase', f.row.name || f.row.id, () => phaseDelete(f.phase.id)));
+    const s = section('Phase');
+    s.dataset.testid = 'props-phase';
+    s.appendChild(field('Name', f.phase.name, v => phaseRename(f.phase.id, v), { deferred: true }));
+    const rowW = document.createElement('div');
+    rowW.className = 'field';
+    rowW.innerHTML = '<div class="field-label">Row</div>';
+    const rowV = document.createElement('div');
+    rowV.className = 'field-static';
+    rowV.textContent = f.row.name || f.row.id;
+    rowW.appendChild(rowV);
+    s.appendChild(rowW);
+    s.appendChild(field('Documentation', f.phase.doc || '', v => phaseSetDoc(f.phase.id, v),
+      { textarea: true, deferred: true, hint: 'one fact per line: Rule:, Open:, Decision: …' }));
+    props.appendChild(s);
+    const sDoc = docSection(f.phase.doc ? [{ text: f.phase.doc }] : []);
+    if (sDoc) props.appendChild(sDoc);
+    return;
+  }
+  if (selection.kind === 'phaseRow') {
+    const r = phaseRowFind(selection.id);
+    if (!r) { selection = null; renderProperties(); return; }
+    props.appendChild(propsHeader('phase row', r.id, () => phaseRowDelete(r.id)));
+    const s = section('Phase row');
+    s.dataset.testid = 'props-phase-row';
+    s.appendChild(field('Name', r.name, v => phaseRowRename(r.id, v), { deferred: true }));
+    const n = document.createElement('div');
+    n.className = 'field-hint';
+    n.textContent = `${r.phases.length} phase${r.phases.length === 1 ? '' : 's'}: ${r.phases.map(p => p.name).join(' · ')}`;
+    s.appendChild(n);
+    props.appendChild(s);
+    return;
+  }
   if (selection.kind === 'lane') {
     const lane = findLane(selection.id);
     if (!lane) { selection = null; renderProperties(); return; }
@@ -10054,6 +10098,8 @@ document.addEventListener('keydown', e => {
       e.preventDefault();
     }
     else if (selection?.kind === 'edge') { deleteEdge(selection.id); e.preventDefault(); }
+    else if (selection?.kind === 'phase') { phaseDelete(selection.id); e.preventDefault(); }       // T-1502
+    else if (selection?.kind === 'phaseRow') { phaseRowDelete(selection.id); e.preventDefault(); } // T-1502
     else if (selection?.kind === 'lane') {
       const lane = findLane(selection.id);
       if (!lane) return;
@@ -10356,6 +10402,19 @@ svg.addEventListener('click', e => {
     renderAll();
   }
 });
+// T-1502: a click on a phase's or a row label's hit area selects it (in select mode); everything else as before
+{ const gp = $('g-phases');
+  if (gp) gp.addEventListener('click', e => {
+    if (mode !== 'select') return;
+    const h = e.target.closest('[data-phase-id], [data-phase-row-id]');
+    if (!h) return;
+    e.stopPropagation();
+    selection = h.hasAttribute('data-phase-id') ? { kind: 'phase', id: h.getAttribute('data-phase-id') }
+                                                : { kind: 'phaseRow', id: h.getAttribute('data-phase-row-id') };
+    multiSelect = new Set();
+    renderAll();
+  });
+}
 svg.addEventListener('mousemove', e => {
   if (mode === 'connect' && connectFrom) {
     const pt = clientToSvg(e.clientX, e.clientY);
@@ -16605,13 +16664,16 @@ function phasesParse(pk) {
   for (const xml of pk.categories || []) {
     const c = parse(xml); if (!c) continue;
     const row = rows.length;
-    rows.push({ name: c.getAttribute('name') || '', phases: [] });
-    for (const v of Array.from(c.children)) if (v.localName === 'categoryValue' && v.getAttribute('id')) valueRow.set(v.getAttribute('id'), { row, name: v.getAttribute('value') || '' });
+    rows.push({ id: c.getAttribute('id') || '', name: c.getAttribute('name') || '', phases: [] });
+    for (const v of Array.from(c.children)) if (v.localName === 'categoryValue' && v.getAttribute('id')) valueRow.set(v.getAttribute('id'), { row, name: v.getAttribute('value') || '', valueId: v.getAttribute('id') });
   }
   for (const a of pk.artifacts || []) {
     const e = parse(a.xml); if (!e || e.localName !== 'group') continue;
     const v = valueRow.get(e.getAttribute('categoryValueRef') || ''), s = shapes.get(e.getAttribute('id') || '');
-    if (v && s && spans(s)) rows[v.row].phases.push({ id: e.getAttribute('id'), name: v.name, x: s.x, w: s.w });
+    // T-1502: the group's own documentation (the first one, as text), for the phase panel
+    const docEl = Array.from(e.children).find(c => c.localName === 'documentation');
+    if (v && s && spans(s)) rows[v.row].phases.push({ id: e.getAttribute('id'), name: v.name, valueId: v.valueId, x: s.x, w: s.w,
+      doc: docEl ? docEl.textContent : '' });
   }
   const out = rows.filter(r => r.phases.length).map(r => ({ ...r, phases: r.phases.sort((p, q) => p.x - q.x) }));
   _phasesParsed.set(pk, out);
@@ -16632,15 +16694,24 @@ function renderPhases() {
     const by = py - 8 - ri * PHASE_ROW_H;   // this row's bracket line; its names sit just above it
     // T-1498 (Greenfield msg ee60b420): the row's category name, right-aligned just left of where its brackets start,
     // on the phase names' baseline. It may reach left of the pool: the view grows to fit (fitViewBox, minX <= 0).
+    // T-1502: a row is selected by its label (its panel renames or deletes the row)
+    const rowSel = selection && selection.kind === 'phaseRow' && selection.id === r.id;
     if ((r.name || '').trim()) {
-      g.appendChild(el('text', { x: left - 8, y: by - 4, class: 'phase-row-label', 'text-anchor': 'end', 'data-phase-row-label': ri },
-        [text(r.name.trim())]));
+      const rl = el('text', { x: left - 8, y: by - 4, class: 'phase-row-label' + (rowSel ? ' phase-selected' : ''), 'text-anchor': 'end',
+        'data-phase-row-label': ri, 'data-phase-row-id': r.id }, [text(r.name.trim())]);
+      g.appendChild(rl);
+      try { const b = rl.getBBox();   // a hit area a little larger than the label, transparent
+        g.insertBefore(el('rect', { x: b.x - 3, y: b.y - 3, width: b.width + 6, height: b.height + 6, class: 'phase-hit', 'data-phase-row-id': r.id }), rl);
+      } catch (e) { aefRecordFault('phases:row-hit', e); }
     }
     r.phases.forEach((p, pi) => {
       const x1 = Math.max(left, p.x), x2 = Math.min(right, p.x + p.w);
       if (x2 - x1 < 8) return;
       if (ri === 0 && pi > 0) g.appendChild(el('line', { x1, y1: top, x2: x1, y2: bottom, class: 'phase-divider', 'data-phase-divider': p.id }));
-      const pg = el('g', { 'data-phase': p.id, 'data-phase-row': ri });
+      const sel = selection && selection.kind === 'phase' && selection.id === p.id;
+      const pg = el('g', { 'data-phase': p.id, 'data-phase-row': ri, class: sel ? 'phase-selected' : '' });
+      // T-1502: the phase's hit area: its bracket and name band, transparent (the layer itself stays click-through)
+      pg.appendChild(el('rect', { x: x1, y: by - 16, width: x2 - x1, height: 16 + PHASE_TICK, class: 'phase-hit', 'data-phase-id': p.id }));
       pg.appendChild(el('path', { d: `M${x1 + 2},${by + PHASE_TICK} V${by} H${x2 - 2} V${by + PHASE_TICK}`, class: 'phase-bracket' }));
       const t = el('text', { x: (x1 + x2) / 2, y: by - 4, class: 'phase-label', 'text-anchor': 'middle' }, [text(p.name)]);
       pg.appendChild(t);
@@ -16652,6 +16723,98 @@ function renderPhases() {
       if (s !== p.name) pg.appendChild(el('title', {}, [text(p.name)]));
     });
   });
+}
+// T-1502 (T-1491 GO, slice A): edit a phase in the kept XML. Each edit rewrites only the element it concerns, as a string
+// (the kept XML is written back verbatim, T-1326), so every other kept byte stays as it was:
+//   rename a phase  → its categoryValue's `value`;   rename a row → its category's `name`
+//   documentation   → the group's first <documentation> (added, replaced, or removed when emptied)
+//   delete a phase  → its group, its DI shape and its categoryValue (the row too when it was the last)
+//   delete a row    → its category, and every group pointing at its values, with their shapes
+const _xmlEsc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const _attrEsc = s => _xmlEsc(s).replace(/"/g, '&quot;');
+const _reEsc = s => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+function phaseKept() { return state && state.procKept; }
+function phaseFind(id) {
+  const pk = phaseKept(); if (!pk) return null;
+  for (const r of phasesParse(pk)) { const p = r.phases.find(x => x.id === id); if (p) return { row: r, phase: p }; }
+  return null;
+}
+function phaseRowFind(id) { const pk = phaseKept(); return pk ? (phasesParse(pk).find(r => r.id === id) || null) : null; }
+// the opening tag of the element <(prefix:)?local ... id="ID" ...> in xml: [match, index] or null
+function _openTag(xml, local, id) {
+  const m = new RegExp(`<(?:[\\w.-]+:)?${local}\\b[^>]*\\bid="${_reEsc(id)}"[^>]*>`).exec(xml);
+  return m ? [m[0], m.index] : null;
+}
+function _setAttr(xml, local, id, attr, val) {
+  const t = _openTag(xml, local, id); if (!t) return xml;
+  const re = new RegExp(`(\\s${attr}=")[^"]*(")`);
+  const tag2 = re.test(t[0]) ? t[0].replace(re, `$1${_attrEsc(val)}$2`) : t[0].replace(/\s*(\/?)>$/, ` ${attr}="${_attrEsc(val)}"$1>`);
+  return xml.slice(0, t[1]) + tag2 + xml.slice(t[1] + t[0].length);
+}
+function _phasesChanged(pk) { _phasesParsed.delete(pk); if (typeof _notesParsed !== 'undefined') _notesParsed.delete(pk); }
+function phaseRename(id, name) {
+  const f = phaseFind(id), pk = phaseKept(); if (!f || !pk || !f.phase.valueId) return;
+  const v = String(name).trim(); if (!v || v === f.phase.name) return;
+  pushHistory();
+  pk.categories = pk.categories.map(x => _openTag(x, 'categoryValue', f.phase.valueId) ? _setAttr(x, 'categoryValue', f.phase.valueId, 'value', v) : x);
+  _phasesChanged(pk); renderAll();
+}
+function phaseRowRename(rowId, name) {
+  const r = phaseRowFind(rowId), pk = phaseKept(); if (!r || !pk) return;
+  const v = String(name).trim(); if (!v || v === r.name) return;
+  pushHistory();
+  pk.categories = pk.categories.map(x => _openTag(x, 'category', rowId) ? _setAttr(x, 'category', rowId, 'name', v) : x);
+  _phasesChanged(pk); renderAll();
+}
+function phaseSetDoc(id, textIn) {
+  const f = phaseFind(id), pk = phaseKept(); if (!f || !pk) return;
+  const want = String(textIn || '');
+  if (want === (f.phase.doc || '')) return;
+  pushHistory();
+  pk.artifacts = pk.artifacts.map(a => {
+    const t = _openTag(a.xml, 'group', id); if (!t || t[1] !== 0) return a;
+    const pfx = (/^<([\w.-]+:)?group\b/.exec(a.xml) || [])[1] || '';
+    const docRe = new RegExp(`<${_reEsc(pfx)}documentation\\b[^>]*>[\\s\\S]*?</${_reEsc(pfx)}documentation>|<${_reEsc(pfx)}documentation\\b[^>]*/>`);
+    let xml = a.xml;
+    if (docRe.test(xml)) {
+      xml = want.trim() ? xml.replace(docRe, m => m.replace(/(<[^>]*?)\s*\/>$/, '$1>') .replace(/>[\s\S]*$/, `>${_xmlEsc(want)}</${pfx}documentation>`)) : xml.replace(docRe, '');
+    } else if (want.trim()) {
+      const d = `<${pfx}documentation>${_xmlEsc(want)}</${pfx}documentation>`;
+      xml = /\/>$/.test(t[0]) && t[0] === xml.slice(0, t[0].length) && xml.length === t[0].length
+        ? t[0].replace(/\s*\/>$/, '>') + d + `</${pfx}group>`
+        : xml.slice(0, t[0].length) + d + xml.slice(t[0].length);
+    }
+    return { ...a, xml };
+  });
+  _phasesChanged(pk); renderAll();
+}
+function _dropGroups(pk, groupIds) {
+  pk.artifacts = pk.artifacts.filter(a => !groupIds.some(g => { const t = _openTag(a.xml, 'group', g); return t && t[1] === 0; }));
+  pk.di = (pk.di || []).filter(d => !groupIds.includes(d.ref));
+}
+function phaseDelete(id) {
+  const f = phaseFind(id), pk = phaseKept(); if (!f || !pk) return;
+  pushHistory();
+  _dropGroups(pk, [id]);
+  const vid = f.phase.valueId;
+  pk.categories = pk.categories.map(x => {
+    if (!vid || !_openTag(x, 'categoryValue', vid)) return x;
+    const y = x.replace(new RegExp(`<(?:[\\w.-]+:)?categoryValue\\b[^>]*\\bid="${_reEsc(vid)}"[^>]*?(?:/>|>[\\s\\S]*?</(?:[\\w.-]+:)?categoryValue>)`), '');
+    return /<(?:[\w.-]+:)?categoryValue\b/.test(y) ? y : null;   // the row's last value: the row goes too
+  }).filter(Boolean);
+  selection = null; _phasesChanged(pk); renderAll();
+}
+function phaseRowDelete(rowId) {
+  const r = phaseRowFind(rowId), pk = phaseKept(); if (!r || !pk) return;
+  pushHistory();
+  // every group pointing at one of the row's values, drawn or not (a non-spanning one would otherwise dangle)
+  const catXml = pk.categories.find(x => _openTag(x, 'category', rowId)) || '';
+  const vals = new Set([...catXml.matchAll(/<(?:[\w.-]+:)?categoryValue\b[^>]*\bid="([^"]+)"/g)].map(m => m[1]));
+  const gids = pk.artifacts.map(a => /^<(?:[\w.-]+:)?group\b[^>]*>/.exec(a.xml)).filter(Boolean).map(m => m[0])
+    .filter(t => vals.has((/\bcategoryValueRef="([^"]+)"/.exec(t) || [])[1])).map(t => (/\bid="([^"]+)"/.exec(t) || [])[1]).filter(Boolean);
+  _dropGroups(pk, gids);
+  pk.categories = pk.categories.filter(x => !_openTag(x, 'category', rowId));
+  selection = null; _phasesChanged(pk); renderAll();
 }
 function renderNotes() {
   const g = $('g-notes'); if (!g) return;

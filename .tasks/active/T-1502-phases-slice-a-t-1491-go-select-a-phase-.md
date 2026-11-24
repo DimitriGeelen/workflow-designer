@@ -8,8 +8,9 @@ description: >
   phases (Greenfield's); makes none, so it does not wait for AEF. Row labels already
   shipped (T-1498).
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
 horizon: now
 tags: [designer, phases, greenfield]
@@ -42,7 +43,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-24T11:08:18Z
-last_update: '2026-11-24T11:08:27Z'
+last_update: 2026-11-24T15:27:57Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -73,6 +74,25 @@ bvp_scores_proposed:
       body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
       F1=2 (basis: task body — no hypothesis, so this score has no claim to be wrong
       about,L2:keyword=canvas)'
+    rubric_sha: e4a00f38e801
+  - ts: '2026-11-24T12:09:28Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=2 (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body
+      — no hypothesis, so this score has no claim to be wrong about,L1:keyword=lane);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=2 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L2:keyword=canvas)'
     rubric_sha: e4a00f38e801
 ---
 
@@ -105,7 +125,8 @@ the designer, on a file that already carries phases.
   delete); clicking a row label selects the row; clicking elsewhere behaves as before (steps, flows, lanes still
   select) — a browser leg, failed by 0.47.0
 - [ ] Rename a phase, write its documentation, delete one phase and one row; save; the saved file read back by this
-  designer AND by 0.47.0's reader draws the remaining phases with the new name and boundaries unchanged; the group
+  designer AND by the released 0.48.1's reader (the first that draws phases from any designer-saved file, T-1510;
+  0.47.0 draws none from such a file) draws the remaining phases with the new name and boundaries unchanged; the group
   carries the documentation as <bpmn:documentation>; the deleted phase's group, shape and categoryValue (the row's
   category and groups) are gone; every other kept byte unchanged
 - [ ] A map that nobody edits phases on saves byte-identically (byte-identity goldens, P3); maps without phases
@@ -116,7 +137,7 @@ the designer, on a file that already carries phases.
   and the delete are where a person expects them
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1502 --criterion 1`), who may escalate.
   **Steps:**
-  1. `docs/reports/T-1502-shots/` (to be made): a phase selected, its panel, the documentation being edited, a row selected, at 1024/1440/1920
+  1. `docs/reports/T-1502-shots/phase-selected-{1024,1440,1920}.png` (the phase 'Order & levering' selected after a rename, its panel with Name, Row, the documentation field and the documentation as read) and `row-selected-{1024,1440,1920}.png` (the row 'Fase' selected, its panel)
   2. Judge: is it clear which phase is selected; is the panel's wording and order like a lane's; is anything clipped
   **Expected:** a person who has edited a lane finds the same moves for a phase.
   **If not:** say what reads wrong; the agent adjusts.
@@ -303,6 +324,29 @@ the designer, on a file that already carries phases.
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+node tools/_t1502-phase-edit-cdp.mjs > /tmp/.t1502.out 2>&1
+node tools/_t1473-phases-cdp.mjs > /tmp/.t1502-phases.out 2>&1
+grep -q 'leg browser "test_t1502_phase_edit"' tests/run-bridge-tests.sh
+
+## Visual Verification
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| phase selected | bracket + name in accent; panel Name, Row, Documentation (field + blocks), delete | ok | ok | ok | header has no badge icon (a lane's has one) |
+| phase row selected | row label in accent; panel Name, phase list, delete | ok | ok | ok | status bar said "phaseRow selected"; now "phase row selected" |
+
+Shots: docs/reports/T-1502-shots/phase-selected-*.png and row-selected-*.png, read at 1440 (phase) and 1024 (row).
+
+## Decisions (T-1502)
+
+### 2026-11-24 — deleting a phase leaves its stretch without a phase
+- **Chose:** delete removes the group, its shape and its categoryValue; the neighbours keep their ranges.
+- **Why:** widening a neighbour moves a boundary, which rewrites that group's shape: slice C (T-1505), after AEF's
+  be-tag. The design report said "its neighbour takes its range"; that waits for C.
+- **Rejected:** widening the left neighbour now (would make slice A write new bounds).
+
+### 2026-11-24 — the released reader in the read-back check is 0.48.1, not 0.47.0
+- **Why:** 0.47.0 and 0.48.0 draw no phases from any designer-saved file (T-1510); 0.48.1 is the first that does.
 
 ## RCA
 
@@ -400,3 +444,6 @@ the designer, on a file that already carries phases.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1502-phases-slice-a-t-1491-go-select-a-phase-.md
 - **Context:** Initial task creation
+
+### 2026-11-24T12:09:27Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

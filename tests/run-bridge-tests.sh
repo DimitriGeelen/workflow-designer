@@ -2464,6 +2464,19 @@ else
 fi
 }
 leg browser "test_t1492_documentation_panel" _leg_t1492
+_leg_t1502() {
+
+# ── T-1502 (T-1491 GO, slice A): select a phase or phase row by a real click; rename, document and delete through the
+# panel and the Delete key; undo/redo; the save carries exactly the edits; read back here and by released 0.48.1. ~20 s.
+if node "$ROOT/tools/_t1502-phase-edit-cdp.mjs" > "$TMP/leg-_t1502.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "Selecting or editing a phase no longer works as it did, or the save changed more than the edit (_t1502-phase-edit-cdp.mjs; T-1502)"
+  show_output "$TMP/leg-_t1502.out" "_t1502-phase-edit-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1502_phase_edit" _leg_t1502
 _leg_t1470() {
 
 # ── T-1470 (Greenfield): an association between two steps that line up is drawn straight (Solution - Product ->
