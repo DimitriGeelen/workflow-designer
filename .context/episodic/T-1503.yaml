@@ -1,0 +1,109 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1503: Phases slice D (T-1491 GO): show or hide each phase row, and all phases at once (a view setting, not saved)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-24T16:13:25Z
+# ============================================================================
+
+task_id: T-1503
+task_name: "Phases slice D (T-1491 GO): show or hide each phase row, and all phases at once (a view setting, not saved)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-11-24T11:08:18Z
+completed: 2026-11-24T16:13:02Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-24T16:54:42+01:00
+last_commit: 2026-11-24T17:12:45+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  phases slice D (T-1491 GO) — show or hide phases, for the open map, in this browser only (never in the file): a Phases section in Settings ('Show phases' and one switch per row) and 'Visible on the map' in the row panel; a hidden row takes no space and the rows above move down; the first row's dividers go with it. Kept per map (aefPhaseView). Browser leg test_t1503_phase_view (V1-V5: switches, row moves, reload, other maps, saves unchanged; slice A's build fails V1-V4); shots at 1024/1440/1920. reviewer verdict. evidence and the reviewer's green before the close
+
+# Key outcomes
+outcomes:
+  - 'On Greenfield''s sample: the all-phases switch hides every bracket, name, row label and divider and shows them'
+  - 'Never written: the save is byte-identical with phases hidden and shown (P3-style); maps without phases show no'
+  - 'The switch is found where a person looks for view switches, and hiding a row reads as hiding, not deleting'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # 1 decision(s) below are recorded in the register (.context/project/decisions.yaml) for this task but absent from the task file's Decisions section (T-4193).
+  - decision: 'PD-475'
+    chose: 'a Phases section in Settings (all phases + one switch per row) and "Visible on the map" in the row panel.'
+    rationale: 'Auto-captured from task file on completion'
+    id: 'PD-475'
+    source: register
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1503/AC1-judge-t-1503-r3-c43dcd2da636.md'
+  - '.context/reviews/evidence/T-1503/row-hidden-1024-judge-t-1503-r3-c43dcd2da636.png'
+  - '.context/reviews/evidence/T-1503/row-hidden-1440-judge-t-1503-r3-c43dcd2da636.png'
+  - '.context/reviews/evidence/T-1503/row-hidden-1920-judge-t-1503-r3-c43dcd2da636.png'
+  - '.context/reviews/evidence/T-1503/settings-phases-1024-judge-t-1503-r3-c43dcd2da636.png'
+  - '.context/reviews/evidence/T-1503/settings-phases-1440-judge-t-1503-r3-c43dcd2da636.png'
+  - '.context/reviews/evidence/T-1503/settings-phases-1920-judge-t-1503-r3-c43dcd2da636.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1503-phases-slice-d-t-1491-go-show-or-hide-ea.md'
+  - 'docs/reports/T-1503-shots/row-hidden-1024.png'
+  - 'docs/reports/T-1503-shots/row-hidden-1440.png'
+  - 'docs/reports/T-1503-shots/row-hidden-1920.png'
+  - 'docs/reports/T-1503-shots/settings-phases-1024.png'
+  - 'docs/reports/T-1503-shots/settings-phases-1440.png'
+  - 'docs/reports/T-1503-shots/settings-phases-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1503-phase-view-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-24T16:54:42'
+    action: 'T-1503: phases slice D (T-1491 GO) — show or hide phases, for the open map, in this browser only (never in the file): a Phases section in Settings (''Show phases'' and one switch per row) and ''Visible on the map'' in the row panel; a hidden row takes no space and the rows above move down; the first row''s dividers go with it. Kept per map (aefPhaseView). Browser leg test_t1503_phase_view (V1-V5: switches, row moves, reload, other maps, saves unchanged; slice A''s build fails V1-V4); shots at 1024/1440/1920'
+  - time: '2026-11-24T17:09:39'
+    action: 'T-1503: reviewer verdict'
+  - time: '2026-11-24T17:12:45'
+    action: 'T-1503: evidence and the reviewer''s green before the close'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 304 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [designer, phases, greenfield]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 304
+  commits: 4
+  files_changed: 26
+  lines_added: 484
+  lines_removed: 14
+  footprint_refreshed_at: '2026-11-24T16:13:34Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1503-phases-slice-d-t-1491-go-show-or-hide-ea.md
+generated_by: context-agent-hybrid
