@@ -147,6 +147,10 @@ renders every corpus map at fit, 100% and 200% and finds every flow label in the
      or whether the opening view at narrow widths should be its own task (it would change how maps open, not where
      labels sit).
   **Expected:** "not found" clearly belongs to its drop and no longer runs on with "found?"; nothing else reads worse.
+  (Second judgement escalated the 1024 case to the operator as a direction question. The operator decided on
+  2026-11-24: accept it as it is (recorded under Decisions): at 1024 with the side panel open the map continues past the
+  visible edge and is scrolled to, like every element there. So the 1024 cut is not a failure of this criterion; judge
+  1440 and 1920, and at 1024 that nothing else reads worse.)
   **If not:** name the label and what reads worse; the agent adjusts and re-measures.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
