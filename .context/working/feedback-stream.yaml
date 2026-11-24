@@ -24133,3 +24133,21 @@ scan_id: R-8f9d9fdc
 task_id: T-1501
 payload:
   task_file: .tasks/active/T-1501-release-designer-0480-lane-documentation.md
+---
+kind: scan_emitted
+timestamp: '2026-11-24T12:06:53Z'
+scan_id: R-cf50d267
+task_id: T-1506
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-24T12:06:53Z'
+scan_id: R-cf50d267
+task_id: T-1506
+payload:
+  task_file: .tasks/active/T-1506-census-which-children-and-attributes-of-.md

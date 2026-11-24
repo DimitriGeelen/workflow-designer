@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1506: Census: which children and attributes of each BPMN element kind does a save drop (the class of T-1500's lane documentation loss)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-24T12:07:00Z
+# ============================================================================
+
+task_id: T-1506
+task_name: "Census: which children and attributes of each BPMN element kind does a save drop (the class of T-1500's lane documentation loss)"
+workflow_type: test
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-24T11:20:42Z
+completed: 2026-11-24T12:06:52Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-24T13:05:26+01:00
+last_commit: 2026-11-24T13:06:35+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  census of what a save drops, per element kind (66 kinds, 244 elements): lane (foreign attributes, extensions), laneSet (all, id rewritten) and linkEventDefinition (all) lose data; everything else keeps documentation, extensions and attributes. Filed T-1507 (lane, next), T-1508 (laneSet, later), T-1509 (linkEventDefinition, later). census results under the criteria (a level-2 heading had cut off the Human block); verification commands
+
+# Key outcomes
+outcomes:
+  - 'The census table for both files recorded in this task (element kind × documentation / extension / attribute:'
+  - 'Every loss is either filed as its own bug task (named here) or explained as not a loss (e.g. an element the'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1506-census-which-children-and-attributes-of-.md'
+  - '.tasks/active/T-1507-data-loss-a-lanes-other-tool-attributes-.md'
+  - '.tasks/active/T-1508-data-loss-a-lanesets-documentation-other.md'
+  - '.tasks/active/T-1509-data-loss-a-linkeventdefinitions-documen.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-24T13:05:26'
+    action: 'T-1506: census of what a save drops, per element kind (66 kinds, 244 elements): lane (foreign attributes, extensions), laneSet (all, id rewritten) and linkEventDefinition (all) lose data; everything else keeps documentation, extensions and attributes. Filed T-1507 (lane, next), T-1508 (laneSet, later), T-1509 (linkEventDefinition, later)'
+  - time: '2026-11-24T13:06:35'
+    action: 'T-1506: census results under the criteria (a level-2 heading had cut off the Human block); verification commands'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 46 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [designer, data-loss, census]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 46
+  commits: 3
+  files_changed: 7
+  lines_added: 1607
+  lines_removed: 7
+  footprint_refreshed_at: '2026-11-24T12:07:06Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1506-census-which-children-and-attributes-of-.md
+generated_by: context-agent-hybrid
