@@ -15358,6 +15358,10 @@ function buildBpmnXml(s) {
   if (lanesToEmit.length) lines.push(`    <bpmn:laneSet id="LaneSet_1">`);
   for (const lane of lanesToEmit) {
     lines.push(`      <bpmn:lane id="${escAttr(lane.id)}" name="${escAttr(lane.name)}">`);
+    for (const d of (lane.documentation || [])) {   // T-1500: documentation first (tBaseElement order), as nodes (T-602)
+      const attrs = (d.id ? ` id="${escAttr(d.id)}"` : '') + (d.textFormat ? ` textFormat="${escAttr(d.textFormat)}"` : '');
+      lines.push(`        <bpmn:documentation${attrs}>${escText(d.text)}</bpmn:documentation>`);
+    }
     lines.push(`        <bpmn:extensionElements>`);
     // T-890: additive, same shape as uuid/pageWidth/kind — absent when unset, so a map
     // that declares no authoring default exports byte-identically.
@@ -16878,7 +16882,17 @@ function parseBpmnXml(text) {
   if (laneSets.length) {
     for (const laneEl of byBpmn(laneSets[0], 'lane')) {
       const laneMeta = byAef(laneEl, 'laneMeta')[0];
+      // T-1500: a lane's own <bpmn:documentation> (Greenfield keeps the owner role there), read as T-602 reads a
+      // node's: direct children only, text with id/textFormat; written back first in the lane. Before, never read,
+      // so every save dropped it.
+      const laneDocs = byBpmn(laneEl, 'documentation').filter(d => d.parentNode === laneEl).map(d => {
+        const entry = { text: d.textContent || '' };
+        if (d.hasAttribute('id')) entry.id = d.getAttribute('id');
+        if (d.hasAttribute('textFormat')) entry.textFormat = d.getAttribute('textFormat');
+        return entry;
+      });
       lanes.push({
+        ...(laneDocs.length ? { documentation: laneDocs } : {}),
         id: laneEl.getAttribute('id') || generateUid('l').slice(2),
         name: laneEl.getAttribute('name') || laneEl.getAttribute('id') || 'lane',
         abbr: laneMeta?.getAttribute('abbr') || deriveLaneAbbr(laneEl.getAttribute('name') || laneEl.getAttribute('id') || 'lane'),

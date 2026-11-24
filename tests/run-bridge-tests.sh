@@ -2437,6 +2437,19 @@ else
 fi
 }
 leg browser "test_t1493_lane_names" _leg_t1493
+_leg_t1500() {
+
+# ── T-1500: a lane's bpmn:documentation survives a save (the importer never read it, so every save dropped it;
+# Greenfield keeps the lane's owner role there): written back identically, first in the lane; stable on reopen. ~10 s.
+if node "$ROOT/tools/_t1500-lane-docs-kept-cdp.mjs" > "$TMP/leg-_t1500.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "A lane's documentation is dropped or changed on save again (_t1500-lane-docs-kept-cdp.mjs; T-1500)"
+  show_output "$TMP/leg-_t1500.out" "_t1500-lane-docs-kept-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1500_lane_docs_kept" _leg_t1500
 _leg_t1470() {
 
 # ── T-1470 (Greenfield): an association between two steps that line up is drawn straight (Solution - Product ->
