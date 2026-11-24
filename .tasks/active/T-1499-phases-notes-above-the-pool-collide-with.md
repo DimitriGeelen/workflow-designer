@@ -104,15 +104,18 @@ not cross out the text. Hiding phases (T-1503) draws the notes where the file ha
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] On Greenfield's sample with three notes added above the pool (each with an association to a step), at
+- [x] On Greenfield's sample with three notes added above the pool (each with an association to a step), at
   1024/1440/1920: no note box meets a phase bracket, phase name or row label; each association still joins its note and
   its step; with phases hidden (T-1503) the notes are drawn at their file positions — a browser leg, failed by 0.49.0
-- [ ] Phase names and row labels carry a halo (paint-order stroke in the canvas colour); the save is byte-identical with
+- [x] Phase names and row labels carry a halo (paint-order stroke in the canvas colour); the save is byte-identical with
   and without the shift (notes' DI unchanged); maps without phases draw their notes as before (T-1447's leg green); the
   browser tier green on a round
+  Evidence (2026-11-24): _t1499 N1-N5 PASS (0.49.0 fails N1 and N3); _t1447 notes, _t1473 phases, _t1503 view and
+  byte-identity all PASS locally. Round at 1b4cafa84 (high-risk): browser "pool and local both green", 169/169 legs incl.
+  test_t1499_notes_vs_phases and test_t1447 notes; core "pool and local both green".
 
 ### Human
-- [ ] Greenfield's notes above the pool and the phase rows read clearly together: each note readable, each line going to
+- [x] Greenfield's notes above the pool and the phase rows read clearly together: each note readable, each line going to
   its step, each phase name legible
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1499 --criterion 1`), who may escalate.
   **Steps:**
@@ -164,6 +167,7 @@ not cross out the text. Hiding phases (T-1503) draws the notes where the file ha
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261124-01892087 — reviewer-judge-t-1499-r3-01d3a7f17ada:reviewer (rung rung-3-termlink-single-reviewer), digest 9c1fe169d36e; dispatch judge-t-1499-r3-01d3a7f17ada; evidence: .context/reviews/evidence/T-1499/AC1-judge-t-1499-r3-01d3a7f17ada.md, .context/reviews/evidence/T-1499/notes-phases-before-1440-judge-t-1499-r3-01d3a7f17ada.png, .context/reviews/evidence/T-1499/notes-phases-1440-judge-t-1499-r3-01d3a7f17ada.png, .context/reviews/evidence/T-1499/notes-phases-note3-1440-judge-t-1499-r3-01d3a7f17ada.png, .context/reviews/evidence/T-1499/notes-phases-note3-1920-judge-t-1499-r3-01d3a7f17ada.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
