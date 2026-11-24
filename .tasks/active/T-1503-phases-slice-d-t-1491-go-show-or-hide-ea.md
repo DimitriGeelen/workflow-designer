@@ -117,14 +117,18 @@ remembered per map in the browser and restored when the map is opened again; hid
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] On Greenfield's sample: the all-phases switch hides every bracket, name, row label and divider and shows them
+- [x] On Greenfield's sample: the all-phases switch hides every bracket, name, row label and divider and shows them
   again; hiding row 2 alone leaves row 1 with its dividers and moves nothing else; a reload of the same map restores
   the choice; another map is unaffected — a browser leg, failed by 0.47.0 (no switch)
-- [ ] Never written: the save is byte-identical with phases hidden and shown (P3-style); maps without phases show no
+- [x] Never written: the save is byte-identical with phases hidden and shown (P3-style); maps without phases show no
   switch (or a disabled one); the browser tier green on a round
+  Evidence (2026-11-24): _t1503 V1-V5 PASS (V4: the starter, no phases, shows no switch; V5 byte-identical); slice A's
+  committed build (no switch) fails V1-V4. Round at 12044b1a6 (high-risk): browser "pool and local both green",
+  168/168 legs incl. test_t1503_phase_view; core "pool and local both green". Reviewer green first time
+  (V-20261124-78bf3467).
 
 ### Human
-- [ ] The switch is found where a person looks for view switches, and hiding a row reads as hiding, not deleting
+- [x] The switch is found where a person looks for view switches, and hiding a row reads as hiding, not deleting
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1503 --criterion 1`), who may escalate.
   **Steps:**
   1. `docs/reports/T-1503-shots/settings-phases-{1024,1440,1920}.png` (Settings opened, scrolled to its Phases section: "Show phases" and one switch per row, with the note that hiding never removes them from the file) and `row-hidden-{1024,1440,1920}.png` (the map at its opening zoom with 'Fase in Salesforce' hidden: only 'Fase' above the pool). The row panel also carries a "Visible on the map" switch (leg V3)
@@ -175,6 +179,7 @@ remembered per map in the browser and restored when the map is opened again; hid
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261124-78bf3467 — reviewer-judge-t-1503-r3-c43dcd2da636:reviewer (rung rung-3-termlink-single-reviewer), digest e33a495a7eaf; dispatch judge-t-1503-r3-c43dcd2da636; evidence: .context/reviews/evidence/T-1503/AC1-judge-t-1503-r3-c43dcd2da636.md, .context/reviews/evidence/T-1503/settings-phases-1024-judge-t-1503-r3-c43dcd2da636.png, .context/reviews/evidence/T-1503/settings-phases-1440-judge-t-1503-r3-c43dcd2da636.png, .context/reviews/evidence/T-1503/settings-phases-1920-judge-t-1503-r3-c43dcd2da636.png, .context/reviews/evidence/T-1503/row-hidden-1024-judge-t-1503-r3-c43dcd2da636.png, .context/reviews/evidence/T-1503/row-hidden-1440-judge-t-1503-r3-c43dcd2da636.png, .context/reviews/evidence/T-1503/row-hidden-1920-judge-t-1503-r3-c43dcd2da636.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
