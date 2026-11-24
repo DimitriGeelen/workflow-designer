@@ -2490,6 +2490,20 @@ else
 fi
 }
 leg browser "test_t1503_phase_view" _leg_t1503
+_leg_t1499() {
+
+# ── T-1499 (Greenfield msg ee60b420): notes above the pool are drawn clear of the phase rows (shifted up, view only),
+# their lines from where they are shown; phase names carry a halo; with phases hidden notes are where the file has them;
+# saves unchanged. ~15 s.
+if node "$ROOT/tools/_t1499-notes-vs-phases-cdp.mjs" > "$TMP/leg-_t1499.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "Notes above the pool collide with the phase rows again, or the shift changed what a save writes (_t1499-notes-vs-phases-cdp.mjs; T-1499)"
+  show_output "$TMP/leg-_t1499.out" "_t1499-notes-vs-phases-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1499_notes_vs_phases" _leg_t1499
 _leg_t1470() {
 
 # ── T-1470 (Greenfield): an association between two steps that line up is drawn straight (Solution - Product ->

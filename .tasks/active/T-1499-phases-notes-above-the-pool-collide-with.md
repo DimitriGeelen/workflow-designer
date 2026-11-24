@@ -1,13 +1,21 @@
 ---
 id: T-1499
-name: "Phases: notes above the pool collide with the phase rows (their association lines cross the brackets and names; the brackets take the place where the notes stood)"
+name: "Phases: notes above the pool collide with the phase rows (their association
+  lines cross the brackets and names; the brackets take the place where the notes
+  stood)"
 description: >
-  Greenfield (T-453, msg ee60b420, on 0.47.0, map ws-2026-11-06-offerte-tot-order v5): (b) the dotted associations of the three notes above the pool run through the bracket rows and their labels; (c) the brackets occupy the band above the pool where the notes stood, so the notes now sit left of and above them. One cause: the phase rows (T-1473) and the notes (T-1447) both claim the band above the pool, and neither knows the other.
+  Greenfield (T-453, msg ee60b420, on 0.47.0, map ws-2026-11-06-offerte-tot-order
+  v5): (b) the dotted associations of the three notes above the pool run through the
+  bracket rows and their labels; (c) the brackets occupy the band above the pool where
+  the notes stood, so the notes now sit left of and above them. One cause: the phase
+  rows (T-1473) and the notes (T-1447) both claim the band above the pool, and neither
+  knows the other.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [designer, greenfield, phases, notes]
 components: []
 related_tasks: []
@@ -38,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-24T09:34:29Z
-last_update: 2026-11-24T09:34:29Z
-date_finished: null
+last_update: 2026-11-24T19:50:34Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +58,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-24T16:57:39Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=2 (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body
+      — no hypothesis, so this score has no claim to be wrong about,L1:keyword=pool);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=2 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L2:keyword=canvas)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1499: Phases: notes above the pool collide with the phase rows (their association lines cross the brackets and names; the brackets take the place where the notes stood)
@@ -57,22 +85,41 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** Greenfield on 0.47.0 (msg ee60b420), their workshop map: (b) the dotted association lines of
+the three notes above the pool run through the bracket rows and their labels; (c) the brackets take the place where
+their notes stood, so the notes now sit on or around the brackets.
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** notes (T-1447) are drawn at their file positions; the phase rows (T-1473) are drawn in a band
+directly above the pool (one 24 px row per category, from pool top − 8 upward). Neither knows the other, so a note the
+author placed just above the pool lands on the brackets, and its line crosses the phase names.
 
-**Goal:** <what we are trying to achieve>
+**Goal (view only; nothing saved changes):** when phases are drawn, a note whose box meets the phase band is drawn
+higher by the band's height (and further left/right only if it would then meet another note), its associations drawn
+from where it is shown; the phase names and row labels get a background-coloured halo so a line crossing a bracket does
+not cross out the text. Hiding phases (T-1503) draws the notes where the file has them again.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** Greenfield's notes above the pool read clear of the phase rows; every phase name stays legible.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] On Greenfield's sample with three notes added above the pool (each with an association to a step), at
+  1024/1440/1920: no note box meets a phase bracket, phase name or row label; each association still joins its note and
+  its step; with phases hidden (T-1503) the notes are drawn at their file positions — a browser leg, failed by 0.49.0
+- [ ] Phase names and row labels carry a halo (paint-order stroke in the canvas colour); the save is byte-identical with
+  and without the shift (notes' DI unchanged); maps without phases draw their notes as before (T-1447's leg green); the
+  browser tier green on a round
 
 ### Human
+- [ ] Greenfield's notes above the pool and the phase rows read clearly together: each note readable, each line going to
+  its step, each phase name legible
+  **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1499 --criterion 1`), who may escalate.
+  **Steps:**
+  1. `docs/reports/T-1499-shots/notes-phases-before-{1024,1440,1920}.png` (0.49.0) and `notes-phases-{1024,1440,1920}.png` (this change): Greenfield's sample with three notes added just above the pool, each linked to a step, at the opening zoom
+  2. Judge: does any note sit on a bracket or a phase name; does each line read as going from its note to its step; is every phase name legible where a line crosses
+  **Expected:** notes clear of the phase rows; lines traceable; names legible.
+  **If not:** say which note or name reads wrong; the agent adjusts.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -256,6 +303,18 @@ date_finished: null
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+node tools/_t1499-notes-vs-phases-cdp.mjs > /tmp/.t1499.out 2>&1
+node tools/_t1473-phases-cdp.mjs > /tmp/.t1499-phases.out 2>&1
+grep -q 'leg browser "test_t1499_notes_vs_phases"' tests/run-bridge-tests.sh
+
+## Visual Verification
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| opening view, notes above the pool | notes vs phase rows | ok | ok | ok | before: note text printed over 'Opportunity', a note on the 'Fase' brackets |
+| opening view | phase names where a note line crosses | ok | ok | ok | halo keeps 'Opportunity' legible |
+
+Shots: docs/reports/T-1499-shots/notes-phases-*.png and notes-phases-before-*.png, read at 1440 (both).
 
 ## RCA
 
@@ -353,3 +412,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1499-phases-notes-above-the-pool-collide-with.md
 - **Context:** Initial task creation
+
+### 2026-11-24T19:50:34Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

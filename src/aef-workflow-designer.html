@@ -760,6 +760,9 @@ font-family: 'Outfit';
   .phase-label { fill: var(--text); font-size: 11px; font-weight: 600; text-rendering: geometricPrecision; }
   /* T-1498: a phase row's own name (its category), at the row's left: quieter than a phase name, so it reads as the row */
   .phase-row-label { fill: var(--text-dim); font-size: 11px; font-weight: 500; font-style: italic; text-rendering: geometricPrecision; }
+  /* T-1499: a halo in the canvas colour behind phase names and row labels, so a note's line crossing a bracket does not
+     cross out the text (Greenfield msg ee60b420) */
+  .phase-label, .phase-row-label { paint-order: stroke; stroke: var(--bg); stroke-width: 3px; stroke-linejoin: round; }
   /* T-1502: a read-only value in a panel field (a phase's row) */
   .field-static { font-size: 13px; color: var(--text); padding: 4px 0; }
   /* T-1502: phases are selectable through their hit areas only; the rest of the layer stays click-through */
@@ -16641,11 +16644,33 @@ function noteLines(n) {
   const max = Math.max(4, Math.floor((n.w - 2 * NOTE_PAD) / NOTE_CHAR_W));
   return String(n.text).split(/\r?\n/).flatMap(p => p.trim() ? wrapText(p.trim().replace(/\s+/g, ' '), max) : ['']);
 }
+// T-1499 (Greenfield msg ee60b420): the band the phase rows take above the pool, as renderPhases draws them (rows shown
+// in this view, T-1503): from the topmost row's names down to the pool's top edge, across the pool. null when no
+// phases are drawn. Computed, not read off the phase layer, so the notes can be placed before it is drawn.
+function phaseBand(s) {
+  const pk = s && s.procKept;
+  if (!pk || !(pk.categories || []).length) return null;
+  const view = phaseView();
+  if (view.hideAll) return null;
+  const rows = phasesParse(pk).filter(r => !view.hiddenRows.includes(r.id));
+  const pb = typeof gPool !== 'undefined' && gPool.querySelector('.pool-border');
+  if (!rows.length || !pb) return null;
+  const px = parseFloat(pb.getAttribute('x')), py = parseFloat(pb.getAttribute('y')), pw = parseFloat(pb.getAttribute('width'));
+  const top = py - 8 - (rows.length - 1) * PHASE_ROW_H - 18;   // the topmost row's names (11 px, baseline 4 above its bracket)
+  return { top, bottom: py, left: px, right: px + pw };
+}
 function notesLayout(s) {
   const pk = s && s.procKept;
   if (!pk || !(pk.artifacts || []).length) return null;
-  const { notes, links } = notesParse(pk);
+  let { notes, links } = notesParse(pk);
   if (!notes.length && !links.length) return null;
+  // T-1499: a note the author placed just above the pool sits where the phase rows are drawn now; drawn (not saved)
+  // higher, so its box clears the band by 6 px. Its links are then routed from where it is shown (a file waypoint that
+  // no longer touches the shown box is not used). Notes inside the pool, or clear of the band, are drawn as before;
+  // with phases hidden (T-1503) every note is where the file has it. Saved bytes never change (the DI is kept).
+  const band = phaseBand(s);
+  if (band) notes = notes.map(n => (n.y < band.bottom && n.y + n.h > band.top - 6 && n.x < band.right && n.x + n.w > band.left
+    && n.y + n.h / 2 < band.bottom) ? { ...n, y: band.top - 6 - n.h, shownAbovePhases: true } : n);
   const byNote = new Map(notes.map(n => [n.id, n]));
   const byUid = new Map(s.nodes.map(n => [n.uid, n]));
   const rectOf = end => {
