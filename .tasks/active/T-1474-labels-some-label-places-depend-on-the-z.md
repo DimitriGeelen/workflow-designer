@@ -413,6 +413,15 @@ renders every corpus map at fit, 100% and 200% and finds every flow label in the
      - **Rejected:** [alternatives and why not]
 -->
 
+### 2026-11-24 — the 1024 case of the moved "not found" label (reviewer escalation V-20261123-6f6f1574)
+- **Chose:** accept as it is (operator, in session, 2026-11-24: "1 yes" to the proposal "accept it and close the task").
+  The label's place is right at every zoom; at 1024 with the side panel open the map continues past the visible edge
+  and is reached by scrolling, like every element there.
+- **Why:** placing labels by the panel's edge would make them depend on the window width, the dependence this task
+  removed. Shipped in 0.47.0.
+- **Rejected:** clamping the label to the visible edge (viewport-dependent places); a narrow-width opening view (a
+  separate change to how maps open, not wanted now).
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
