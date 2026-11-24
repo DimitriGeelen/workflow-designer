@@ -402,7 +402,17 @@ renders every corpus map at fit, 100% and 200% and finds every flow label in the
      commit, that is a calibration failure — recommend GO or NO-GO.
 -->
 
-## Decisions
+**Recommendation:** GO
+
+**Rationale:** Tick the open criterion and close. The reviewer met it at 1440 and 1920 and escalated only the 1024 case
+(the moved "not found" label cut by the open side panel); the operator accepted that case as it is on 2026-11-24
+("1 yes", see Decisions). The change shipped in 0.47.0.
+
+**Evidence:**
+- Reviewer V-20261123-6f6f1574: "labels at 1440 and 1920 are met (not found is fully visible, clear of found? and the
+  gateway name, nothing else reads worse)".
+- Browser leg test_t1474_label_places_zoom_free green in every round since, and in release job 179 (164/164).
+- Operator decision recorded under Decisions, 2026-11-24.
 
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
