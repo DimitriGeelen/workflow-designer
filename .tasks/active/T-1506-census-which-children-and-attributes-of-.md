@@ -12,7 +12,7 @@ description: >
 
 status: started-work
 workflow_type: test
-current_node: frw_1_start
+current_node: frw_3_run
 owner: agent
 horizon: now
 tags: [designer, data-loss, census]
@@ -109,7 +109,7 @@ task); the method kept as a leg if it finds anything worth guarding.
 - [x] Every loss is either filed as its own bug task (named here) or explained as not a loss (e.g. an element the
   designer writes from its own model by design, with the reason), each with its evidence line
 
-## Census results (2026-11-24, src at 58fe6d57b = bleeding-edge with T-1500)
+#### Census results (2026-11-24, src at 58fe6d57b = bleeding-edge with T-1500)
 
 Method: every BPMN element with an id got three tracers named `<kind>-<id>`: a first `<bpmn:documentation>`, a foreign
 `<cx:mark>` in `<bpmn:extensionElements>`, a foreign attribute `cx:a`. Opened (adoptImportedXml, userImport) and saved
@@ -313,6 +313,8 @@ msg 2e879869), which T-1500 keeps; AEF's 49 maps carry no lane documentation (th
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+ls .tasks/active/T-1507-*.md .tasks/active/T-1508-*.md .tasks/active/T-1509-*.md > /dev/null
+grep -q "Census results" .tasks/active/T-1506-census-which-children-and-attributes-of-.md
 
 ## RCA
 
