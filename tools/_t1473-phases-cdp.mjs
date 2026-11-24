@@ -204,6 +204,10 @@ try {
   const ks = await ev(`(function(x){ adoptImportedXml(x, { userImport: true }); renderAll();
     var g = document.getElementById('g-phases'); var n = document.getElementById('lane-fix-notice');
     return { drawn: g ? g.childNodes.length : -1, note: n ? n.textContent.replace(/\\s+/g, ' ') : '' }; })(${JSON.stringify(readFileSync(join(ROOT, 'tests/fixtures/third-party/kitchen-sink.bpmn'), 'utf8'))})`);
+  // P8 (T-1498): a row whose category has no name draws no row label; the named row keeps its label
+  const nn = await ev(`(function(x){ adoptImportedXml(x, { userImport: true }); renderAll();
+    return Array.from(document.querySelectorAll('#g-phases text.phase-row-label')).map(function(t){ return [t.getAttribute('data-phase-row-label'), t.textContent]; }); })(${JSON.stringify(xml.replace(' name="Fase in Salesforce"', ''))})`);
+  leg(JSON.stringify(nn) === JSON.stringify([['0', 'Fase']]), `P8 a row whose category has no name draws no row label; the named row keeps 'Fase'`, JSON.stringify(nn));
   leg(ks.drawn === 0 && /3 groups kept unchanged/.test(ks.note),
     `P6 [kitchen-sink: 3 groups inside one lane, each its own category] none drawn as a phase; the notice still counts the 3 groups`,
     ks.drawn !== 0 ? `${ks.drawn} phase element(s) drawn` : (/3 groups/.test(ks.note) ? '' : 'notice: ' + ks.note.slice(0, 160)));

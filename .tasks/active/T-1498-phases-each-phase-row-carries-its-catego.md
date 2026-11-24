@@ -120,11 +120,15 @@ the phase names' baseline, styled quieter than a phase name so it reads as the r
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] On Greenfield's sample at 1024/1440/1920: row 1 labelled "Fase", row 2 "Fase in Salesforce", each ending left of
+- [x] On Greenfield's sample at 1024/1440/1920: row 1 labelled "Fase", row 2 "Fase in Salesforce", each ending left of
   its row's first bracket and on its row's line; inside the canvas view; at or above the readable floor at the opening
   zoom; overlapping no phase name, bracket or the pool header — legs added to _t1473 (0.47.0 fails them)
-- [ ] A row with no category name draws no label; maps without phases unchanged (P4); saves unchanged (P3); the browser
+- [x] A row with no category name draws no label; maps without phases unchanged (P4); saves unchanged (P3); the browser
   tier green on a round
+  Evidence (2026-11-24): _t1473 P7 PASS at 1024/1440/1920 (0.47.0 fails P7 at all three: no labels); P8 (added after
+  the round: a nameless category draws no label, the named row keeps 'Fase') PASS; P3, P4 PASS. Round at 5d409618c
+  (high-risk): browser "pool and local both green", 166/166 legs incl. test_t1473_phases; core "pool and local both
+  green". P8 runs again in the release's browser tier.
 
 ### Human
 - [ ] The two phase rows are told apart by their labels, and the labels read as the rows' names, not as phases
