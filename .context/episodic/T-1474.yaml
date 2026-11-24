@@ -1,0 +1,170 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1474: Labels: some label places depend on the zoom at render time (review-emission 'not found' x 'found?' 13.6 px apart when laid out at 100%, clear at fit)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-24T22:50:31Z
+# ============================================================================
+
+task_id: T-1474
+task_name: "Labels: some label places depend on the zoom at render time (review-emission 'not found' x 'found?' 13.6 px apart when laid out at 100%, clear at fit)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-21T16:27:27Z
+completed: 2026-11-24T22:50:01Z
+duration_days: 3
+updates_count: 3
+first_commit: 2026-11-23T14:29:50+01:00
+last_commit: 2026-11-24T23:50:00+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  a third, wider side offset (32) for a flow label beside a VERTICAL drop — unhinted measurement exposed a near pair hinting had hidden at fit (review-emission 'not found' | gateway name 'found?' 7-11 px; the round at 6855f6882 failed label-clearance leg6 on it); horizontal flows get no farther rows (tried: verification-gate then got a crossed label). label-clearance green on it; 16 of 136 corpus flow labels sit elsewhere at fit than in 0.46.0, for the visual review. review shots (verification-gate, review-emission, task-lifecycle at 1024/1440/1920, new and 0.46.0) and the shot script. the review-shot script lives beside its shots (docs/reports/T-1474-shots/shots.mjs), not in tools/: a one-off helper there read as a guard reachable only through a JS comment (_t578) and moved the unwired-guard backlog (_t451) — the round at 6447fb8a3 was core-red on exactly that; T-1469/T-1474 review criteria and T-1473's criteria written. shots.mjs imports the CDP helpers from tools/ after the move; T-1469's review criterion. reviewer verdict. reviewer-judged criteria on T-1469/T-1474 lose the [REVIEW] prefix (kept for operator carve-outs; _t1066 red on the push); T-1491's go/no-go names 'Why you: direction'. the review criterion states the 1024 case (the open side panel ends the visible canvas; the label's place is zoom-independent by design) for the second judgement. reviewer escalation recorded (V-20261123-6f6f1574): 1440/1920 met; the label cut at 1024 behind the open panel is put to the operator as a direction call; owner human. the operator accepts the 1024 case as it is (2026-11-24, '1 yes'); decision recorded, Human box left for the operator. recommendation for the operator's review (tick and close; 1024 case accepted 2026-11-24). the criterion records the operator's decision on the escalated 1024 case (accepted as is), for a third judgement instead of a Watchtower click. the reviewer's green on the third judgement (the operator's 1024 decision recorded) before the close. the browser-leg criterion's evidence (Z1 re-run green; green in every round and release since) and verification commands
+
+# Key outcomes
+outcomes:
+  - 'A browser leg: every corpus map rendered at fit, 100% and 200%: each flow label at the same place (control: 0.46.0 differs, 16 labels); the person-sees gate and the browser tier green on a round (node text measured unhinted may move a label at fit, judged there)'
+  - 'Screenshots read by the agent — `docs/reports/T-1474-shots/{new,v046}-{verification-gate,review-emission,task-lifecycle}-{1024,1440,1920}.png` (maps opened as a person opens them: opening zoom, lens all). verification-gate 1440 new vs 0.46.0: identical (it opens at 100%, where 0.46.0 already used these places; the 16 moves vs 0.46.0 show at "fit" only, which now matches 100%). review-emission 1440: "not found" now right of its drop, clear of the gateway name "Task file found?" (was 7-11 px from "found?", the pair label-clearance flagged). Also changed on the way (found by the round at 6855f6882): a third, wider side offset (32) beside a vertical drop, since unhinted measurement left that label no place clear of the name.'
+  - 'Flow labels read as well or better, and the moved "not found" label still reads as its flow''s'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'reviewer-judged criteria on T-1469/T-1474 lose the [REVIEW] prefix (kept for operator carve-outs; _t1066 red on the push); T-1491''s go/no-go names ''Why you: direction'''
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1474/AC1-judge-t-1474-r3-2e85af468b4f.md'
+  - '.context/reviews/evidence/T-1474/AC1-judge-t-1474-r3-e17ab6dbbacc.md'
+  - '.context/reviews/evidence/T-1474/AC1-judge-t-1474-r3-fb3c7fd7d628.md'
+  - '.context/reviews/evidence/T-1474/new-review-emission-1024-judge-t-1474-r3-2e85af468b4f.png'
+  - '.context/reviews/evidence/T-1474/new-review-emission-1024-judge-t-1474-r3-e17ab6dbbacc.png'
+  - '.context/reviews/evidence/T-1474/new-review-emission-1024-judge-t-1474-r3-fb3c7fd7d628.png'
+  - '.context/reviews/evidence/T-1474/new-review-emission-1440-judge-t-1474-r3-2e85af468b4f.png'
+  - '.context/reviews/evidence/T-1474/new-review-emission-1440-judge-t-1474-r3-e17ab6dbbacc.png'
+  - '.context/reviews/evidence/T-1474/new-review-emission-1440-judge-t-1474-r3-fb3c7fd7d628.png'
+  - '.context/reviews/evidence/T-1474/new-review-emission-1920-judge-t-1474-r3-2e85af468b4f.png'
+  - '.context/reviews/evidence/T-1474/new-review-emission-1920-judge-t-1474-r3-e17ab6dbbacc.png'
+  - '.context/reviews/evidence/T-1474/new-review-emission-1920-judge-t-1474-r3-fb3c7fd7d628.png'
+  - '.context/reviews/evidence/T-1474/new-task-lifecycle-1440-judge-t-1474-r3-2e85af468b4f.png'
+  - '.context/reviews/evidence/T-1474/new-task-lifecycle-1440-judge-t-1474-r3-e17ab6dbbacc.png'
+  - '.context/reviews/evidence/T-1474/new-task-lifecycle-1440-judge-t-1474-r3-fb3c7fd7d628.png'
+  - '.context/reviews/evidence/T-1474/new-verification-gate-1440-judge-t-1474-r3-2e85af468b4f.png'
+  - '.context/reviews/evidence/T-1474/new-verification-gate-1440-judge-t-1474-r3-e17ab6dbbacc.png'
+  - '.context/reviews/evidence/T-1474/new-verification-gate-1440-judge-t-1474-r3-fb3c7fd7d628.png'
+  - '.context/reviews/evidence/T-1474/v046-review-emission-1024-judge-t-1474-r3-2e85af468b4f.png'
+  - '.context/reviews/evidence/T-1474/v046-review-emission-1024-judge-t-1474-r3-e17ab6dbbacc.png'
+  - '.context/reviews/evidence/T-1474/v046-review-emission-1024-judge-t-1474-r3-fb3c7fd7d628.png'
+  - '.context/reviews/evidence/T-1474/v046-review-emission-1440-judge-t-1474-r3-2e85af468b4f.png'
+  - '.context/reviews/evidence/T-1474/v046-review-emission-1440-judge-t-1474-r3-e17ab6dbbacc.png'
+  - '.context/reviews/evidence/T-1474/v046-review-emission-1440-judge-t-1474-r3-fb3c7fd7d628.png'
+  - '.context/reviews/evidence/T-1474/v046-review-emission-1920-judge-t-1474-r3-2e85af468b4f.png'
+  - '.context/reviews/evidence/T-1474/v046-review-emission-1920-judge-t-1474-r3-e17ab6dbbacc.png'
+  - '.context/reviews/evidence/T-1474/v046-review-emission-1920-judge-t-1474-r3-fb3c7fd7d628.png'
+  - '.context/reviews/evidence/T-1474/v046-task-lifecycle-1440-judge-t-1474-r3-2e85af468b4f.png'
+  - '.context/reviews/evidence/T-1474/v046-task-lifecycle-1440-judge-t-1474-r3-e17ab6dbbacc.png'
+  - '.context/reviews/evidence/T-1474/v046-task-lifecycle-1440-judge-t-1474-r3-fb3c7fd7d628.png'
+  - '.context/reviews/evidence/T-1474/v046-verification-gate-1440-judge-t-1474-r3-2e85af468b4f.png'
+  - '.context/reviews/evidence/T-1474/v046-verification-gate-1440-judge-t-1474-r3-e17ab6dbbacc.png'
+  - '.context/reviews/evidence/T-1474/v046-verification-gate-1440-judge-t-1474-r3-fb3c7fd7d628.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1469-badges-the-io-badge-covers-the-end-of-th.md'
+  - '.tasks/active/T-1474-labels-some-label-places-depend-on-the-z.md'
+  - '.tasks/active/T-1491-phases-editing-from-the-palette-add-a-ph.md'
+  - 'docs/reports/T-1474-shots/new-review-emission-1024.png'
+  - 'docs/reports/T-1474-shots/new-review-emission-1440.png'
+  - 'docs/reports/T-1474-shots/new-review-emission-1920.png'
+  - 'docs/reports/T-1474-shots/new-task-lifecycle-1024.png'
+  - 'docs/reports/T-1474-shots/new-task-lifecycle-1440.png'
+  - 'docs/reports/T-1474-shots/new-task-lifecycle-1920.png'
+  - 'docs/reports/T-1474-shots/new-verification-gate-1024.png'
+  - 'docs/reports/T-1474-shots/new-verification-gate-1440.png'
+  - 'docs/reports/T-1474-shots/new-verification-gate-1920.png'
+  - 'docs/reports/T-1474-shots/shots.mjs'
+  - 'docs/reports/T-1474-shots/v046-review-emission-1024.png'
+  - 'docs/reports/T-1474-shots/v046-review-emission-1440.png'
+  - 'docs/reports/T-1474-shots/v046-review-emission-1920.png'
+  - 'docs/reports/T-1474-shots/v046-task-lifecycle-1024.png'
+  - 'docs/reports/T-1474-shots/v046-task-lifecycle-1440.png'
+  - 'docs/reports/T-1474-shots/v046-task-lifecycle-1920.png'
+  - 'docs/reports/T-1474-shots/v046-verification-gate-1024.png'
+  - 'docs/reports/T-1474-shots/v046-verification-gate-1440.png'
+  - 'docs/reports/T-1474-shots/v046-verification-gate-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tools/_t1474-shots-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-23T14:29:50'
+    action: 'T-1474: a third, wider side offset (32) for a flow label beside a VERTICAL drop — unhinted measurement exposed a near pair hinting had hidden at fit (review-emission ''not found'' | gateway name ''found?'' 7-11 px; the round at 6855f6882 failed label-clearance leg6 on it); horizontal flows get no farther rows (tried: verification-gate then got a crossed label). label-clearance green on it; 16 of 136 corpus flow labels sit elsewhere at fit than in 0.46.0, for the visual review'
+  - time: '2026-11-23T14:31:32'
+    action: 'T-1474: review shots (verification-gate, review-emission, task-lifecycle at 1024/1440/1920, new and 0.46.0) and the shot script'
+  - time: '2026-11-23T14:53:37'
+    action: 'T-1474: the review-shot script lives beside its shots (docs/reports/T-1474-shots/shots.mjs), not in tools/: a one-off helper there read as a guard reachable only through a JS comment (_t578) and moved the unwired-guard backlog (_t451) — the round at 6447fb8a3 was core-red on exactly that; T-1469/T-1474 review criteria and T-1473''s criteria written'
+  - time: '2026-11-23T14:54:01'
+    action: 'T-1474: shots.mjs imports the CDP helpers from tools/ after the move; T-1469''s review criterion'
+  - time: '2026-11-23T14:57:15'
+    action: 'T-1474: reviewer verdict'
+  - time: '2026-11-23T15:15:22'
+    action: 'T-1474: reviewer-judged criteria on T-1469/T-1474 lose the [REVIEW] prefix (kept for operator carve-outs; _t1066 red on the push); T-1491''s go/no-go names ''Why you: direction'''
+  - time: '2026-11-23T15:57:04'
+    action: 'T-1474: the review criterion states the 1024 case (the open side panel ends the visible canvas; the label''s place is zoom-independent by design) for the second judgement'
+  - time: '2026-11-23T15:58:38'
+    action: 'T-1474: reviewer verdict'
+  - time: '2026-11-23T15:59:19'
+    action: 'T-1474: reviewer escalation recorded (V-20261123-6f6f1574): 1440/1920 met; the label cut at 1024 behind the open panel is put to the operator as a direction call; owner human'
+  - time: '2026-11-24T10:39:40'
+    action: 'T-1474: the operator accepts the 1024 case as it is (2026-11-24, ''1 yes''); decision recorded, Human box left for the operator'
+  - time: '2026-11-24T10:47:46'
+    action: 'T-1474: recommendation for the operator''s review (tick and close; 1024 case accepted 2026-11-24)'
+  - time: '2026-11-24T23:47:20'
+    action: 'T-1474: the criterion records the operator''s decision on the escalated 1024 case (accepted as is), for a third judgement instead of a Watchtower click'
+  - time: '2026-11-24T23:48:19'
+    action: 'T-1474: reviewer verdict'
+  - time: '2026-11-24T23:48:47'
+    action: 'T-1474: the reviewer''s green on the third judgement (the operator''s 1024 decision recorded) before the close'
+  - time: '2026-11-24T23:50:00'
+    action: 'T-1474: the browser-leg criterion''s evidence (Z1 re-run green; green in every round and release since) and verification commands'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 16 commit(s), 4702 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 4702
+  commits: 17
+  files_changed: 75
+  lines_added: 1404
+  lines_removed: 42
+  footprint_refreshed_at: '2026-11-24T22:50:39Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1474-labels-some-label-places-depend-on-the-z.md
+generated_by: context-agent-hybrid
