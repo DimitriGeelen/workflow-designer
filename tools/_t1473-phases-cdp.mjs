@@ -10,6 +10,9 @@
 //   P4 [every map in examples/aef-processes/rendered] a map without groups draws nothing in the phase layer
 //   P5 [fixture, 1440] the import notice does not list the groups drawn as phases as "not shown yet" (the first
 //      shots still said "11 groups kept unchanged and saved back, not shown yet" over the drawn phases)
+//   P7 [fixture, each width] (T-1498) each row carries its category's name at its left, ending before its first
+//      bracket, on its row's line, at or above the readable floor, clear of phase names, brackets and the pool header,
+//      inside the canvas view
 //   P6 [tests/fixtures/third-party/kitchen-sink.bpmn] groups that do not span the pool's full height are boxes, not
 //      phases (T-1461 F3): none drawn, the notice still counts them (the first cut drew them; _t1327 leg3 caught it)
 // Teeth: T1473_EDITOR=<the 0.46.0 designer> fails P1 (no phase layer).
@@ -60,6 +63,10 @@ const MEASURE = `(function(){
   });
   var divs = Array.from(g.querySelectorAll('line.phase-divider')).map(function(l){
     return { id: l.getAttribute('data-phase-divider'), x: +l.getAttribute('x1'), y1: +l.getAttribute('y1'), y2: +l.getAttribute('y2') }; });
+  var rowLabels = Array.from(g.querySelectorAll('text.phase-row-label')).map(function(t){ var b = t.getBBox();
+    return { row: t.getAttribute('data-phase-row-label'), text: t.textContent, x: b.x, y: b.y, w: b.width, h: b.height,
+             px: parseFloat(getComputedStyle(t).fontSize) * fit }; });
+  var brackets = Array.from(g.querySelectorAll('g[data-phase] path')).map(function(p){ var b = p.getBBox(); return { x: b.x, y: b.y, w: b.width, h: b.height }; });
   var bb = g.childNodes.length ? g.getBBox() : null;
   var header = null;
   var ht = gPool.querySelector('text');
@@ -73,7 +80,7 @@ const MEASURE = `(function(){
   });
   return { layer: true, rows: rows, divs: divs, pool: P, laneHeader: LANE_HEADER, poolHeader: POOL_HEADER,
            vb: vb ? { x: vb.x, y: vb.y, w: vb.width, h: vb.height } : null, bb: bb ? { x: bb.x, y: bb.y, w: bb.width, h: bb.height } : null,
-           header: header, di: di, minPx: OPEN_MIN_TEXT_PX, children: g.childNodes.length };
+           header: header, di: di, minPx: OPEN_MIN_TEXT_PX, children: g.childNodes.length, rowLabels: rowLabels, brackets: brackets };
 })()`;
 const meets = (a, b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
 
@@ -129,6 +136,29 @@ try {
     leg(all.length > 0 && !small.length && !over.length && !onHeader.length,
       `P2 [${W}] ${all.length} phase names at >= ${m.minPx}px at the opening zoom, none on another or on the pool header`,
       [small.join(', '), over.join(', '), onHeader.length ? 'on header: ' + onHeader.join(', ') : ''].filter(Boolean).join('; '));
+    // P7 (T-1498, Greenfield msg ee60b420): each row named at its left
+    {
+      const rl = m.rowLabels || [];
+      const want = [['0', 'Fase'], ['1', 'Fase in Salesforce']];
+      const got = rl.map(l => [l.row, l.text]);
+      const bad = [];
+      if (JSON.stringify(got) !== JSON.stringify(want)) bad.push('labels ' + JSON.stringify(got));
+      for (const l of rl) {
+        const row = (m.rows[l.row] || []);
+        if (!row.length) { bad.push(`row ${l.row}: no phases`); continue; }
+        const first = Math.min(...row.map(b => b.x1));
+        if (l.x + l.w > first - 2) bad.push(`'${l.text}' runs into its first bracket (${(l.x + l.w).toFixed(0)} > ${first.toFixed(0)})`);
+        const names = row.map(b => b.tb);
+        if (!names.some(t => l.y < t.y + t.h && l.y + l.h > t.y)) bad.push(`'${l.text}' not on its row's line`);
+        if (!(l.px >= m.minPx - 0.01)) bad.push(`'${l.text}' ${l.px.toFixed(1)}px`);
+        const lb = { x: l.x, y: l.y, w: l.w, h: l.h };
+        if ([...r0, ...r1].some(b => meets(lb, b.tb))) bad.push(`'${l.text}' on a phase name`);
+        if ((m.brackets || []).some(b => meets(lb, b))) bad.push(`'${l.text}' on a bracket`);
+        if (m.header && meets(lb, m.header)) bad.push(`'${l.text}' on the pool header`);
+        if (m.vb && (l.x < m.vb.x - 0.5 || l.y < m.vb.y - 0.5)) bad.push(`'${l.text}' outside the view (x ${l.x.toFixed(0)}, view ${m.vb.x.toFixed(0)})`);
+      }
+      leg(!bad.length, `P7 [${W}] each phase row named at its left ('Fase', 'Fase in Salesforce'), clear of brackets, names and the header, readable, in view`, bad.join('; '));
+    }
     if (W === 1440) {
       const note = await ev(`(function(){ var n = document.getElementById('lane-fix-notice'); return n ? n.textContent : ''; })()`);
       leg(!/\bgroups?\b[^.]*not shown yet/.test(note) && note.length > 0,

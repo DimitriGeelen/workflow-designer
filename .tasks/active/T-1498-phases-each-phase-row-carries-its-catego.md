@@ -1,13 +1,19 @@
 ---
 id: T-1498
-name: "Phases: each phase row carries its category's name as a row label ('Fase', 'Fase in Salesforce'), so a reader can tell the rows apart"
+name: "Phases: each phase row carries its category's name as a row label ('Fase',
+  'Fase in Salesforce'), so a reader can tell the rows apart"
 description: >
-  Greenfield (T-453, msg ee60b420, on 0.47.0): the bracket rows carry no row label, so a reader cannot tell the upper row is 'Fase in Salesforce'. phasesParse already reads each category's name (rows[].name); T-1473 draws only the phase names. Note: T-1473's reviewer proposed the row names 'need not be drawn'; the consumer asks for them.
+  Greenfield (T-453, msg ee60b420, on 0.47.0): the bracket rows carry no row label,
+  so a reader cannot tell the upper row is 'Fase in Salesforce'. phasesParse already
+  reads each category's name (rows[].name); T-1473 draws only the phase names. Note:
+  T-1473's reviewer proposed the row names 'need not be drawn'; the consumer asks
+  for them.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [designer, greenfield, phases]
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-24T09:34:28Z
-last_update: 2026-11-24T09:34:28Z
-date_finished: null
+last_update: '2026-11-24T10:26:31Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +56,45 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-24T10:18:56Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
+  - ts: '2026-11-24T10:26:31Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 2
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=2 (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body
+      — no hypothesis, so this score has no claim to be wrong about,L1:keyword=lane);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=2 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L2:keyword=canvas)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1498: Phases: each phase row carries its category's name as a row label ('Fase', 'Fase in Salesforce'), so a reader can tell the rows apart
@@ -57,22 +102,38 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** Greenfield (T-453, msg ee60b420) tested 0.47.0's phases on their workshop map: "the rows carry
+no row label, so a reader cannot tell that the upper row is 'Fase in Salesforce' (the category name is not shown)".
+The operator asked for it next (2026-11-24).
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** phasesParse already reads each row's category name (rows[].name); renderPhases draws only the
+phase names. The lane-header column under the rows is 60 px, too narrow for "Fase in Salesforce" (~95 px at 11 px),
+but the canvas view grows to fit what is drawn (fitViewBox: minX = min(0, bbox.x − pad)), so a label right-aligned
+just left of the brackets can extend left of the pool and stays in view.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** each phase row shows its category's name at its left, right-aligned against the start of its brackets, on
+the phase names' baseline, styled quieter than a phase name so it reads as the row's label.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** a reader of Greenfield's map sees "Fase" and "Fase in Salesforce" beside their rows.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] On Greenfield's sample at 1024/1440/1920: row 1 labelled "Fase", row 2 "Fase in Salesforce", each ending left of
+  its row's first bracket and on its row's line; inside the canvas view; at or above the readable floor at the opening
+  zoom; overlapping no phase name, bracket or the pool header — legs added to _t1473 (0.47.0 fails them)
+- [ ] A row with no category name draws no label; maps without phases unchanged (P4); saves unchanged (P3); the browser
+  tier green on a round
 
 ### Human
+- [ ] The two phase rows are told apart by their labels, and the labels read as the rows' names, not as phases
+  **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1498 --criterion 1`), who may escalate.
+  **Steps:**
+  1. `docs/reports/T-1498-shots/phases-{1024,1440,1920}.png` and `phases-fit-{1024,1440,1920}.png`: Greenfield's sample as it opens and at Fit
+  2. Judge: can a reader tell which row is 'Fase' and which 'Fase in Salesforce'; does each label read as its row's name (not a phase of it); anything clipped or overlapping
+  **Expected:** both rows named at their left at all three widths; nothing clipped or overlapping.
+  **If not:** say what reads wrong; the agent adjusts.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -256,6 +317,19 @@ date_finished: null
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+node tools/_t1473-phases-cdp.mjs > /tmp/.t1498.out 2>&1
+grep -q "phase-row-label" src/aef-workflow-designer.html
+
+## Visual Verification
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| opening view, Greenfield sample | row labels 'Fase', 'Fase in Salesforce' | ok | ok | ok | italic, dimmer than phase names, right-aligned before the brackets |
+| Fit, Greenfield sample | row labels | ok | ok | ok | small at Fit, as all text there |
+
+Shots: docs/reports/T-1498-shots/phases-{1024,1440,1920}.png and phases-fit-*.png, read at 1440: both rows named at
+their left, on their row's line, clear of the brackets and the pool title; they read as a column of row names, not as
+phases.
 
 ## RCA
 
@@ -353,3 +427,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1498-phases-each-phase-row-carries-its-catego.md
 - **Context:** Initial task creation
+
+### 2026-11-24T10:26:30Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
