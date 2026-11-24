@@ -6,19 +6,19 @@ description: >
   Inception: Phases editing from the palette: add a phase or divider, name it, drag
   its boundary, choose its row
 
-status: started-work
+status: work-completed
 workflow_type: inception
-current_node: frw_1_start
+current_node: frw_end_task
 owner: human
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
 waiting_on: agent
 revisit_at: 2026-11-30
 created: 2026-11-23T12:55:10Z
-last_update: 2026-11-24T09:38:55Z
-date_finished:
+last_update: 2026-11-24T11:07:54Z
+date_finished: 2026-11-24T11:07:54Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -188,15 +188,15 @@ by 0.47.0's reader (T-1473) with the same phases, names and boundaries.
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Why you:** direction — whether phases become editable on the map (a new kind of thing a person adds, asked by Greenfield's owner) is the operator's call, as T-1461 was
   **Steps:**
   1. Run: `fw task review T-1491` (opens Watchtower with recommendation, assumptions, research artifacts)
@@ -269,7 +269,18 @@ the map instead.
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: The persona's user story (docs/reports/T-1491-phases-editing.md) splits into four bounded slices, each about one
+session and each testable by a browser leg, screenshots and a save read back by 0.47.0's reader: A select/rename/
+document/delete with row labels (T-1498); B add rows and phases from a Phases section in the left panel; C drag a
+boundary snapping to step gaps; D show/hide (view only). The file side is standard BPMN that 0.47.0 already reads
+(Greenfield's own encoding), steps never move (T-1461 F4 holds), and maps without phases stay byte-identical. The
+one open dependency is AEF: their corpus parser refuses maps with groups today (msg 581bf5d2, AEF T-5381), so slice
+B (making phases) and C ship only after AEF confirms T-5381 in a be-tag; A and D work on files that already carry
+phases (Greenfield's) and can go first.
+
+**Date**: 2026-11-24T11:07:53Z
 
 ## Updates
 
@@ -285,3 +296,51 @@ the map instead.
 
 ### 2026-11-24T09:38:55Z — status-update [task-update-agent]
 - **Change:** horizon: now → now
+
+### 2026-11-24T11:07:53Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** The persona's user story (docs/reports/T-1491-phases-editing.md) splits into four bounded slices, each about one
+session and each testable by a browser leg, screenshots and a save read back by 0.47.0's reader: A select/rename/
+document/delete with row labels (T-1498); B add rows and phases from a Phases section in the left panel; C drag a
+boundary snapping to step gaps; D show/hide (view only). The file side is standard BPMN that 0.47.0 already reads
+(Greenfield's own encoding), steps never move (T-1461 F4 holds), and maps without phases stay byte-identical. The
+one open dependency is AEF: their corpus parser refuses maps with groups today (msg 581bf5d2, AEF T-5381), so slice
+B (making phases) and C ship only after AEF confirms T-5381 in a be-tag; A and D work on files that already carry
+phases (Greenfield's) and can go first.
+
+### 2026-11-24T11:07:54Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-4630c2ef
+- **Timestamp:** 2026-11-24T11:07:56Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 2
+
+**Verification-level findings:**
+
+  1. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-1
+     - evidence: `IW-1 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  2. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-3
+     - evidence: `IW-3 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-7466c987
+- **Timestamp:** 2026-11-24T11:07:56Z
+- **Overall:** CONTRADICTED
+- **Claims:** 5
+
+| Claim | Type | Status |
+|-------|------|--------|
+| `T-1498` | task | ✓ pass |
+| `T-1461` | task | ✓ pass |
+| `T-5381` | task | ✗ fail — no task file in .tasks/{active,completed}/ |
+| `T-1473` | task | ✓ pass |
+| `T-1499` | task | ✓ pass |
