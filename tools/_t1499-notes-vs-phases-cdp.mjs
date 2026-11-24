@@ -90,6 +90,11 @@ try {
       await sleep(300);
       const s = await cl.cmd('Page.captureScreenshot', { format: 'png' });
       writeFileSync(join(process.env.T1499_SHOTS, `notes-phases-${W}.png`), Buffer.from(s.data, 'base64'));
+      // the third note lies right of the opening view: a second shot scrolled to it (first judgement, amber)
+      await ev(`(function(){ var n = document.querySelector('#g-notes [data-note="Note_t3"]'); if (n) n.scrollIntoView({ block: 'center', inline: 'center' }); return !!n; })()`);
+      await sleep(300);
+      const s3 = await cl.cmd('Page.captureScreenshot', { format: 'png' });
+      writeFileSync(join(process.env.T1499_SHOTS, `notes-phases-note3-${W}.png`), Buffer.from(s3.data, 'base64'));
     }
   }
   leg(!bad1.length, `N1 [1024/1440/1920] the three notes above the pool meet no phase bracket, name or row label`, bad1.slice(0, 4).join('; '));

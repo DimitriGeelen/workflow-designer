@@ -116,7 +116,7 @@ not cross out the text. Hiding phases (T-1503) draws the notes where the file ha
   its step, each phase name legible
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1499 --criterion 1`), who may escalate.
   **Steps:**
-  1. `docs/reports/T-1499-shots/notes-phases-before-{1024,1440,1920}.png` (0.49.0) and `notes-phases-{1024,1440,1920}.png` (this change): Greenfield's sample with three notes added just above the pool, each linked to a step, at the opening zoom
+  1. `docs/reports/T-1499-shots/notes-phases-before-{1024,1440,1920}.png` (0.49.0) and `notes-phases-{1024,1440,1920}.png` (this change): Greenfield's sample with three notes added just above the pool, each linked to a step, at the opening zoom; the third note lies right of the opening view, so `notes-phases-note3-{1024,1440,1920}.png` and `notes-phases-note3-before-*.png` show it, scrolled into view (added after the first judgement, amber: the third note was out of frame)
   2. Judge: does any note sit on a bracket or a phase name; does each line read as going from its note to its step; is every phase name legible where a line crosses
   **Expected:** notes clear of the phase rows; lines traceable; names legible.
   **If not:** say which note or name reads wrong; the agent adjusts.
