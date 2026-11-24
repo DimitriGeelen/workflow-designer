@@ -96,11 +96,15 @@ before the dry-run, so it cannot enter the release), then announced to Greenfiel
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Release notes `docs/releases/RELEASE-NOTES-0.48.1.md` committed (the fix, nothing a save writes, endpoints, the
+- [x] Release notes `docs/releases/RELEASE-NOTES-0.48.1.md` committed (the fix, nothing a save writes, endpoints, the
   contracts table agreeing with `_t1425 --check`), and T-1510 closed
-- [ ] A runme job from job 180's steps, dry-run passed with nothing uncommitted in the release inputs, committed and
+- [x] A runme job from job 180's steps, dry-run passed with nothing uncommitted in the release inputs, committed and
   handed to the operator with the watcher armed
-- [ ] After the operator's run: the tag on origin, Greenfield and AEF told (version, tag, sha256, bytes, what it fixes)
+- [x] After the operator's run: the tag on origin, Greenfield and AEF told (version, tag, sha256, bytes, what it fixes)
+  Evidence: notes 4a92bb213 (`_t1425 --version 0.48.1 --check` agrees); T-1510 closed e4e3977f4; slice A stashed
+  before the dry-run (stash "T-1502 slice A work in progress"); job 181 committed e18594628, dry-run passed (sha
+  f905c50b2c97); run done rc=0 at 15:26:49Z (calibrations PASS, browser green on the pool, core green); tag on origin
+  (c1a2af11); sha256 c7e69ba6f0e79a7a…de01b1a1, 1457639 B; Greenfield msg 0899da9b, AEF msg 8ce4853f.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -286,6 +290,9 @@ before the dry-run, so it cannot enter the release), then announced to Greenfiel
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+git ls-remote --exit-code --tags origin designer-v0.48.1 > /dev/null
+echo "c7e69ba6f0e79a7abaf8816e453bb47ca6252d623c06794b3a9275d3de01b1a1  dist/aef-workflow-designer-0.48.1.html" | sha256sum -c --quiet
+test -f .context/runme/181-release-designer-0.48.1/done
 
 ## RCA
 
