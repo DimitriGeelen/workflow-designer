@@ -95,10 +95,15 @@ They make no new phases, so they do not wait for AEF's T-5381 be-tag.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Release notes `docs/releases/RELEASE-NOTES-0.49.0.md` committed (both slices, what a save writes when a phase is
+- [x] Release notes `docs/releases/RELEASE-NOTES-0.49.0.md` committed (both slices, what a save writes when a phase is
   edited, endpoints, the contracts table agreeing with `_t1425 --check`); T-1502 and T-1503 closed
-- [ ] A runme job from job 181's steps, dry-run passed, committed and handed to the operator with the watcher armed
-- [ ] After the operator's run: the tag on origin, Greenfield and AEF told (version, tag, sha256, bytes, what it brings)
+- [x] A runme job from job 181's steps, dry-run passed, committed and handed to the operator with the watcher armed
+- [x] After the operator's run: the tag on origin, Greenfield and AEF told (version, tag, sha256, bytes, what it brings)
+  Evidence: notes e85660992 (`_t1425 --check` agrees); job 182 committed b415479e0, dry-run passed; it ran steps 1-8
+  (calibrations PASS, release commit e9a85518f, local tag, browser 168/168 green on the pool) and STOPPED at step 9 on
+  an empty Enter (typed-ahead characters discarded by design, as its log and event record); retired with that reason;
+  resume job 183 (core tier, push) dry-run passed (ef5aefb1e), done rc=0 at 19:49:10Z; tag on origin (b21b63df);
+  sha256 bc6830534a9b9ac8…dfe58c1253a, 1472593 B; Greenfield msg 2cc7615c, AEF msg c1e7eabc.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -284,6 +289,9 @@ They make no new phases, so they do not wait for AEF's T-5381 be-tag.
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+git ls-remote --exit-code --tags origin designer-v0.49.0 > /dev/null
+echo "bc6830534a9b9ac8168f6ae251ed218ecc3fe53f8704cfdf7a1f35fe58c1253a  dist/aef-workflow-designer-0.49.0.html" | sha256sum -c --quiet
+test -f .context/runme/183-release-designer-0.49.0-push/done
 
 ## RCA
 
