@@ -1,0 +1,120 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1499: Phases: notes above the pool collide with the phase rows (their association lines cross the brackets and names; the brackets take the place where the notes stood)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-24T20:11:47Z
+# ============================================================================
+
+task_id: T-1499
+task_name: "Phases: notes above the pool collide with the phase rows (their association lines cross the brackets and names; the brackets take the place where the notes stood)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-24T09:34:29Z
+completed: 2026-11-24T20:11:27Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-24T20:54:43+01:00
+last_commit: 2026-11-24T21:11:10+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  notes above the pool are drawn clear of the phase rows (Greenfield msg ee60b420): a note whose box meets the band the rows take is drawn just above it, its lines routed from where it is shown; phase names and row labels carry a halo in the canvas colour so a crossing line leaves them legible; with phases hidden notes are where the file has them. View only: saved bytes unchanged. Browser leg test_t1499_notes_vs_phases (N1-N5; 0.49.0 fails N1, N3); shots before/after at 1024/1440/1920. reviewer verdict. shots with the third note in frame (scrolled to it), before and after, for the second judgement. evidence and the reviewer's green (second judgement) before the close
+
+# Key outcomes
+outcomes:
+  - 'On Greenfield''s sample with three notes added above the pool (each with an association to a step), at'
+  - 'Phase names and row labels carry a halo (paint-order stroke in the canvas colour); the save is byte-identical with'
+  - 'Greenfield''s notes above the pool and the phase rows read clearly together: each note readable, each line going to'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1499/AC1-judge-t-1499-r3-01d3a7f17ada.md'
+  - '.context/reviews/evidence/T-1499/AC1-judge-t-1499-r3-19f9c84a6fe5.md'
+  - '.context/reviews/evidence/T-1499/crop-after1440-phase-judge-t-1499-r3-19f9c84a6fe5.png'
+  - '.context/reviews/evidence/T-1499/crop-after1920-phase-judge-t-1499-r3-19f9c84a6fe5.png'
+  - '.context/reviews/evidence/T-1499/notes-phases-1024-judge-t-1499-r3-19f9c84a6fe5.png'
+  - '.context/reviews/evidence/T-1499/notes-phases-1440-judge-t-1499-r3-01d3a7f17ada.png'
+  - '.context/reviews/evidence/T-1499/notes-phases-1440-judge-t-1499-r3-19f9c84a6fe5.png'
+  - '.context/reviews/evidence/T-1499/notes-phases-1920-judge-t-1499-r3-19f9c84a6fe5.png'
+  - '.context/reviews/evidence/T-1499/notes-phases-before-1440-judge-t-1499-r3-01d3a7f17ada.png'
+  - '.context/reviews/evidence/T-1499/notes-phases-before-1440-judge-t-1499-r3-19f9c84a6fe5.png'
+  - '.context/reviews/evidence/T-1499/notes-phases-note3-1440-judge-t-1499-r3-01d3a7f17ada.png'
+  - '.context/reviews/evidence/T-1499/notes-phases-note3-1920-judge-t-1499-r3-01d3a7f17ada.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1499-phases-notes-above-the-pool-collide-with.md'
+  - 'docs/reports/T-1499-shots/notes-phases-1024.png'
+  - 'docs/reports/T-1499-shots/notes-phases-1440.png'
+  - 'docs/reports/T-1499-shots/notes-phases-1920.png'
+  - 'docs/reports/T-1499-shots/notes-phases-before-1024.png'
+  - 'docs/reports/T-1499-shots/notes-phases-before-1440.png'
+  - 'docs/reports/T-1499-shots/notes-phases-before-1920.png'
+  - 'docs/reports/T-1499-shots/notes-phases-note3-1024.png'
+  - 'docs/reports/T-1499-shots/notes-phases-note3-1440.png'
+  - 'docs/reports/T-1499-shots/notes-phases-note3-1920.png'
+  - 'docs/reports/T-1499-shots/notes-phases-note3-before-1024.png'
+  - 'docs/reports/T-1499-shots/notes-phases-note3-before-1440.png'
+  - 'docs/reports/T-1499-shots/notes-phases-note3-before-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1499-notes-vs-phases-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-24T20:54:43'
+    action: 'T-1499: notes above the pool are drawn clear of the phase rows (Greenfield msg ee60b420): a note whose box meets the band the rows take is drawn just above it, its lines routed from where it is shown; phase names and row labels carry a halo in the canvas colour so a crossing line leaves them legible; with phases hidden notes are where the file has them. View only: saved bytes unchanged. Browser leg test_t1499_notes_vs_phases (N1-N5; 0.49.0 fails N1, N3); shots before/after at 1024/1440/1920'
+  - time: '2026-11-24T21:08:36'
+    action: 'T-1499: reviewer verdict'
+  - time: '2026-11-24T21:09:41'
+    action: 'T-1499: shots with the third note in frame (scrolled to it), before and after, for the second judgement'
+  - time: '2026-11-24T21:10:33'
+    action: 'T-1499: reviewer verdict'
+  - time: '2026-11-24T21:11:10'
+    action: 'T-1499: evidence and the reviewer''s green (second judgement) before the close'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 636 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [designer, greenfield, phases, notes]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 636
+  commits: 6
+  files_changed: 38
+  lines_added: 466
+  lines_removed: 24
+  footprint_refreshed_at: '2026-11-24T20:11:54Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1499-phases-notes-above-the-pool-collide-with.md
+generated_by: context-agent-hybrid
