@@ -8,10 +8,11 @@ description: >
   save but shows it nowhere; their owner expected to read per step what happens, rules
   and open points (map ws-2026-11-06-offerte-tot-order, 106 lines over 23 nodes).
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [designer, greenfield, panel]
 components: []
 related_tasks: []
@@ -42,7 +43,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-23T14:43:53Z
-last_update: '2026-11-23T14:44:16Z'
+last_update: 2026-11-24T09:56:39Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -109,6 +110,13 @@ Notes; read-only in this slice (editing is a later slice).
   the section scrolls with the panel
 
 ### Human
+- [ ] A step's documentation reads as what happens, the rules and the open points, grouped so a business reader finds them
+  **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1492 --criterion 1`), who may escalate.
+  **Steps:**
+  1. `docs/reports/T-1492-shots/documentation-{1024,1440,1920}.png`: Greenfield's sample with documentation in their line format added to the task 'Opportunity aanmaken' (Instruction, Rule with a continuation line, Keys, Open, Decision, two unprefixed lines), selected; the panel scrolled to its Documentation section
+  2. Judge: does each block read as one kind of fact under its label; is the long Rule readable (wrapped, its continuation with it); do the unprefixed lines read as notes; does the section sit sensibly between BPMN and Extensions; anything clipped or overflowing at any width
+  **Expected:** a reader can find the instruction, the rules and the open points at a glance at all three widths; nothing clipped.
+  **If not:** say which block or width reads wrong; the agent adjusts.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -292,6 +300,30 @@ Notes; read-only in this slice (editing is a later slice).
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+node tools/_t1492-documentation-panel-cdp.mjs > /tmp/.t1492.out 2>&1
+grep -q 'leg browser "test_t1492_documentation_panel"' tests/run-bridge-tests.sh
+
+## Visual Verification
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| task with documentation selected | Documentation section (labelled blocks) | ok | ok | ok | wraps inside the panel; D6 measures no horizontal overflow |
+
+Shots: docs/reports/T-1492-shots/documentation-{1024,1440,1920}.png, read at 1440 and 1024: six blocks in Greenfield's
+order (Instruction, Rule, Keys, Open, Decision, Notes), the Rule's continuation line joined to it, "Call back at
+10:30 …" under Notes (a time is not a label), section between BPMN and Extensions.
+
+## Decisions (T-1492)
+
+### 2026-11-24 — labels outside Greenfield's list
+- **Chose:** a short label (one or two words before a colon, up to 20 characters, the second word starting with a
+  letter) outside the seven known prefixes becomes its own block after them; anything else goes under Notes.
+- **Why:** a lane's documentation reads "Owner: Sales (account manager)"; under Notes it read "Notes — Owner: …".
+- **Rejected:** only the seven prefixes (labels Greenfield or AEF add later would read as notes).
+
+### 2026-11-24 — shown under every lens
+- **Chose:** the Documentation section is shown whatever the lens.
+- **Why:** it is the map's content for a business reader; a lens that predates it would otherwise hide it.
 
 ## RCA
 
@@ -389,3 +421,7 @@ Notes; read-only in this slice (editing is a later slice).
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1492-properties-panel-show-a-steps-bpmndocume.md
 - **Context:** Initial task creation
+
+### 2026-11-24T09:56:39Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

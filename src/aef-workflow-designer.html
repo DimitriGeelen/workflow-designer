@@ -1134,6 +1134,11 @@ font-family: 'Outfit';
     align-items: center;
     gap: 8px;
   }
+  /* T-1492: a step's (or lane's) bpmn:documentation, read-only, one block per line prefix */
+  .doc-block { margin-bottom: 10px; }
+  .doc-label { font-size: 12px; font-weight: 600; color: var(--text-dim); margin-bottom: 3px; }
+  .doc-item { font-size: 12.5px; line-height: 1.45; color: var(--text); white-space: pre-wrap; overflow-wrap: anywhere;
+              padding: 2px 0 2px 8px; border-left: 2px solid var(--border); margin-bottom: 4px; }
   .props-section-title .ns-tag {
     background: var(--accent-soft);
     color: var(--accent);
@@ -8595,6 +8600,8 @@ function _renderPropsInto(props, details) {
     sBpmn.appendChild(heightWrap);
 
     props.appendChild(sBpmn);
+    // T-1492: the lane's documentation (Greenfield: its owner role), read-only; kept on save since T-1500
+    { const sDoc = docSection(lane.documentation); if (sDoc) props.appendChild(sDoc); }
 
     // Ordering
     const secO = section('Order');
@@ -8761,6 +8768,8 @@ function _renderPropsInto(props, details) {
     if (!lensBpmn(t)) f.remove();
   }
   if (lensSection('BPMN')) props.appendChild(sBpmn);
+  // T-1492: the element's documentation, read-only, under every lens (it is the map's content for a business reader)
+  { const sDoc = docSection(n.documentation); if (sDoc) props.appendChild(sDoc); }
 
   // AEF extensions
   // T-308: a bare catch event has no aef:link, so the link schema's target fields
@@ -9179,6 +9188,65 @@ function typeBadgeSvg(t) {
   if (t === 'sequence flow') return '<svg viewBox="0 0 28 28"><path d="M4 14 H22" stroke="var(--text-dim)" stroke-width="2"/><path d="M18 10 L22 14 L18 18" stroke="var(--text-dim)" stroke-width="2" fill="none"/></svg>';
   if (t === 'lane') return '<svg viewBox="0 0 28 28"><rect x="3" y="6" width="22" height="16" rx="2" fill="none" stroke="var(--text-dim)" stroke-width="1.5"/><line x1="9" y1="6" x2="9" y2="22" stroke="var(--text-dim)" stroke-width="1.5"/></svg>';
   return '';
+}
+// T-1492 (Greenfield msg 2e879869): an element's <bpmn:documentation>, shown read-only. Greenfield writes one line per
+// fact, prefixed "Instruction:", "Rule:", "Keys:", "Mapping:", "Open:", "Detail:", "Decision:" (106 lines over 23
+// steps on their workshop map); each prefix becomes a labelled block, in that order, items in file order. Another
+// short label (one or two words, as a lane's "Owner:") becomes its own block after those, in first-seen order. A line
+// that starts with whitespace or a bullet continues the item above it; any other line goes under Notes, last.
+// Nothing here writes: the documentation is saved back exactly as read (T-602 nodes, T-1500 lanes).
+const DOC_PREFIXES = ['Instruction', 'Rule', 'Keys', 'Mapping', 'Open', 'Detail', 'Decision'];
+function docBlocks(docs) {
+  const by = new Map(DOC_PREFIXES.map(p => [p, []]));
+  const other = [];                                    // labels outside the known list, first-seen order
+  const notes = [];
+  const re = /^([A-Za-zÀ-ÿ][\wÀ-ÿ.&/-]*(?: [A-Za-zÀ-ÿ][\wÀ-ÿ.&/-]*)?)\s*:\s*(.*)$/;   // one or two words, then a colon
+  for (const d of docs || []) {
+    let last = null;
+    for (const raw of String(d.text || '').split(/\r?\n/)) {
+      if (!raw.trim()) continue;
+      const m = re.exec(raw.trim());
+      if (m && m[1].length <= 20 && !/^https?$/i.test(m[1])) {
+        const known = DOC_PREFIXES.find(p => p.toLowerCase() === m[1].toLowerCase());
+        const isNote = /^notes?$/i.test(m[1]);
+        const key = known || (isNote ? null : m[1]);
+        last = { text: m[2] };
+        if (!key) notes.push(last);
+        else { if (!by.has(key)) { by.set(key, []); other.push(key); } by.get(key).push(last); }
+      } else if (last && /^(\s|[-•*·])/.test(raw)) {
+        last.text += '\n' + raw.trim();
+      } else {
+        last = { text: raw.trim() };
+        notes.push(last);
+      }
+    }
+  }
+  const out = DOC_PREFIXES.concat(other).filter(p => by.get(p).length).map(p => ({ label: p, items: by.get(p).map(x => x.text) }));
+  if (notes.length) out.push({ label: 'Notes', items: notes.map(x => x.text) });
+  return out;
+}
+function docSection(docs) {
+  const blocks = docBlocks(docs);
+  if (!blocks.length) return null;
+  const s = section('Documentation');
+  s.dataset.testid = 'props-documentation';
+  for (const b of blocks) {
+    const w = document.createElement('div');
+    w.className = 'doc-block';
+    w.dataset.docLabel = b.label;
+    const l = document.createElement('div');
+    l.className = 'doc-label';
+    l.textContent = b.label;
+    w.appendChild(l);
+    for (const t of b.items) {
+      const it = document.createElement('div');
+      it.className = 'doc-item';
+      it.textContent = t;
+      w.appendChild(it);
+    }
+    s.appendChild(w);
+  }
+  return s;
 }
 function section(title, isAef) {
   const s = document.createElement('div');

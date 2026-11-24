@@ -2450,6 +2450,20 @@ else
 fi
 }
 leg browser "test_t1500_lane_docs_kept" _leg_t1500
+_leg_t1492() {
+
+# ── T-1492 (Greenfield msg 2e879869, request 1): a selected element's bpmn:documentation in the panel, read-only, one
+# block per line prefix (Instruction … Decision, other short labels, Notes) for a task, a gateway, a start event and a
+# lane; none when absent; the save unchanged by it; no horizontal overflow at 1024/1440/1920. ~15 s.
+if node "$ROOT/tools/_t1492-documentation-panel-cdp.mjs" > "$TMP/leg-_t1492.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "A step's or lane's documentation is no longer shown in the panel as it was (_t1492-documentation-panel-cdp.mjs; T-1492)"
+  show_output "$TMP/leg-_t1492.out" "_t1492-documentation-panel-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1492_documentation_panel" _leg_t1492
 _leg_t1470() {
 
 # ── T-1470 (Greenfield): an association between two steps that line up is drawn straight (Solution - Product ->
