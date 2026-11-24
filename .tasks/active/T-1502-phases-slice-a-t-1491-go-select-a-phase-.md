@@ -139,7 +139,11 @@ the designer, on a file that already carries phases.
   **Steps:**
   1. `docs/reports/T-1502-shots/phase-selected-{1024,1440,1920}.png` (the phase 'Order & levering' selected after a rename, its panel with Name, Row, the documentation field and the documentation as read) and `row-selected-{1024,1440,1920}.png` (the row 'Fase' selected, its panel); for the comparison, `lane-selected-{1024,1440,1920}.png` (the lane 'Salesforce' selected the same way, same build; added after the first judgement, amber: no lane shot to compare). Known difference: the lane's header has a badge icon, the phase's has none
   2. Judge: is it clear which phase is selected; is the panel's wording and order like a lane's; is anything clipped
-  **Expected:** a person who has edited a lane finds the same moves for a phase.
+  **Expected:** a person who has edited a lane finds the same moves for a phase: selecting, the panel's wording and
+  field order (Name first), and delete. Phases are NOT reordered, by design (T-1461 F4, accepted with the T-1491 GO): a
+  phase is a range of steps, so its order is the steps' order and it has no Move up/down; where a phase starts and ends
+  is moved by dragging its boundary, slice C (T-1505). So the lane's ORDER section has no counterpart here.
+  (Second judgement, amber: asked for move controls or this statement.)
   **If not:** say what reads wrong; the agent adjusts.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
