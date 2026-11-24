@@ -101,16 +101,21 @@ Notes; read-only in this slice (editing is a later slice).
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] On a fixture with documentation on a task, a gateway, a start event and a lane, selecting each shows a Documentation
+- [x] On a fixture with documentation on a task, a gateway, a start event and a lane, selecting each shows a Documentation
   section with one block per prefix present, labelled by the prefix, lines in file order, unprefixed lines under Notes;
   an element without documentation shows no section — a browser leg, failed by 0.46.0
-- [ ] Read-only: the save of that fixture is byte-identical before and after selecting every element; the byte-identity
+- [x] Read-only: the save of that fixture is byte-identical before and after selecting every element; the byte-identity
   goldens and the browser tier green on a round
-- [ ] Long documentation (Greenfield's longest step) stays inside the panel at 1024/1440/1920: no horizontal overflow,
+- [x] Long documentation (Greenfield's longest step) stays inside the panel at 1024/1440/1920: no horizontal overflow,
   the section scrolls with the panel
+  Evidence (2026-11-24): _t1492 D1-D6 PASS; 0.47.0 (as 0.46.0, no documentation display) fails D1-D3 and D6. Greenfield's
+  map itself is not in this repo: the fixture is their sample with documentation in their line format added (a 4-line
+  task entry with a two-sentence Rule and a continuation line as the long case). Round at f37dc81ab (high-risk):
+  browser "pool and local both green", 166/166 legs incl. test_t1492_documentation_panel and _t358-byteid-thirdparty;
+  core "pool and local both green".
 
 ### Human
-- [ ] A step's documentation reads as what happens, the rules and the open points, grouped so a business reader finds them
+- [x] A step's documentation reads as what happens, the rules and the open points, grouped so a business reader finds them
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1492 --criterion 1`), who may escalate.
   **Steps:**
   1. `docs/reports/T-1492-shots/documentation-{1024,1440,1920}.png`: Greenfield's sample with documentation in their line format added to the task 'Opportunity aanmaken' (Instruction, Rule with a continuation line, Keys, Open, Decision, two unprefixed lines), selected; the panel scrolled to its Documentation section
@@ -161,6 +166,7 @@ Notes; read-only in this slice (editing is a later slice).
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261124-070a5346 — reviewer-judge-t-1492-r3-c971048de9d6:reviewer (rung rung-3-termlink-single-reviewer), digest 195117f9800f; dispatch judge-t-1492-r3-c971048de9d6; evidence: .context/reviews/evidence/T-1492/AC1-judge-t-1492-r3-c971048de9d6.md, .context/reviews/evidence/T-1492/documentation-1024-judge-t-1492-r3-c971048de9d6.png, .context/reviews/evidence/T-1492/documentation-1440-judge-t-1492-r3-c971048de9d6.png, .context/reviews/evidence/T-1492/documentation-1920-judge-t-1492-r3-c971048de9d6.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
