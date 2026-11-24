@@ -204,6 +204,19 @@ try {
   const ks = await ev(`(function(x){ adoptImportedXml(x, { userImport: true }); renderAll();
     var g = document.getElementById('g-phases'); var n = document.getElementById('lane-fix-notice');
     return { drawn: g ? g.childNodes.length : -1, note: n ? n.textContent.replace(/\\s+/g, ' ') : '' }; })(${JSON.stringify(readFileSync(join(ROOT, 'tests/fixtures/third-party/kitchen-sink.bpmn'), 'utf8'))})`);
+  // P9 (T-1510): the designer's own save → reopen keeps the phases (it writes no pool/lane shape; the band comes from
+  // the steps), twice over; P10: the kitchen-sink's boxes are still not phases after its save → reopen
+  const rt = await ev(`(function(x){
+    var ph = function(){ return Array.from(document.querySelectorAll('#g-phases g[data-phase]')).map(function(g){ var b = g.querySelector('path').getBBox(); return g.getAttribute('data-phase') + ':' + Math.round(b.x) + '-' + Math.round(b.x + b.width); }); };
+    adoptImportedXml(x, { userImport: true }); renderAll(); var a = ph();
+    var s1 = buildBpmnXml(state); adoptImportedXml(s1, { userImport: true }); renderAll(); var b = ph();
+    var s2 = buildBpmnXml(state); adoptImportedXml(s2, { userImport: true }); renderAll(); var c = ph();
+    return { a: a, b: b, c: c }; })(${JSON.stringify(xml)})`);
+  leg(rt.a.length === 11 && JSON.stringify(rt.b) === JSON.stringify(rt.a) && JSON.stringify(rt.c) === JSON.stringify(rt.a),
+    `P9 the phases survive the designer's own save → reopen, twice (11, same x ranges)`, `${rt.a.length} → ${rt.b.length} → ${rt.c.length}`);
+  const ks2 = await ev(`(function(x){ adoptImportedXml(x, { userImport: true }); renderAll(); var s = buildBpmnXml(state);
+    adoptImportedXml(s, { userImport: true }); renderAll(); var g = document.getElementById('g-phases'); return g ? g.childNodes.length : -1; })(${JSON.stringify(readFileSync(join(ROOT, 'tests/fixtures/third-party/kitchen-sink.bpmn'), 'utf8'))})`);
+  leg(ks2 === 0, `P10 the kitchen-sink's boxes are still not phases after its save → reopen`, `${ks2} phase element(s)`);
   // P8 (T-1498): a row whose category has no name draws no row label; the named row keeps its label
   const nn = await ev(`(function(x){ adoptImportedXml(x, { userImport: true }); renderAll();
     return Array.from(document.querySelectorAll('#g-phases text.phase-row-label')).map(function(t){ return [t.getAttribute('data-phase-row-label'), t.textContent]; }); })(${JSON.stringify(xml.replace(' name="Fase in Salesforce"', ''))})`);

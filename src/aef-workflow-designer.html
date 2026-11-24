@@ -16080,20 +16080,29 @@ function captureProcessLevelKept(doc, proc, displayIdToUid, flowIdToUid, partEl)
   const laneIds = new Set(Array.from(proc.getElementsByTagNameNS(B, 'lane')).map(l => l.getAttribute('id')).filter(Boolean));
   const boundsOf = el => { const b = Array.from(el.children).find(c => c.localName === 'Bounds');
     const r = b && [parseFloat(b.getAttribute('y')), parseFloat(b.getAttribute('height'))]; return r && r.every(Number.isFinite) ? r : null; };
-  const laneBands = [];
+  const laneBands = [], stepBands = [];
   for (const el of doc.getElementsByTagNameNS(IO_EXPORT_ROOT_NS.bpmndi, '*')) {
     if ((el.localName === 'BPMNShape' || el.localName === 'BPMNEdge') && keptIds.has(el.getAttribute('bpmnElement'))) {
       di.push({ ref: el.getAttribute('bpmnElement'), xml: keptElementXml(el) });
     }
     if (categories.length && el.localName === 'BPMNShape') {
-      const ref = el.getAttribute('bpmnElement'), r = (ref === partId || laneIds.has(ref)) ? boundsOf(el) : null;
+      const ref = el.getAttribute('bpmnElement');
+      const r = (ref === partId || laneIds.has(ref) || displayIdToUid.has(ref)) ? boundsOf(el) : null;
       if (r && ref === partId) band = { y: r[0], h: r[1] };
-      else if (r) laneBands.push(r);
+      else if (r && laneIds.has(ref)) laneBands.push(r);
+      else if (r) stepBands.push(r);
     }
   }
   if (categories.length && !band && laneBands.length) {
     const y0 = Math.min(...laneBands.map(r => r[0])), y1 = Math.max(...laneBands.map(r => r[0] + r[1]));
     band = { y: y0, h: y1 - y0 };
+  }
+  // T-1510: a file with neither a participant nor a lane shape (the designer's own save writes the steps' shapes and the
+  // kept group shapes, but no pool or lane outline) is judged against the band its steps occupy: a group spanning every
+  // step top to bottom is a phase. Before, there was no band and every phase vanished after a save and reopen.
+  if (categories.length && !band && stepBands.length) {
+    const y0 = Math.min(...stepBands.map(r => r[0])), y1 = Math.max(...stepBands.map(r => r[0] + r[1]));
+    band = { y: y0, h: y1 - y0, from: 'steps' };
   }
   const procDocs = Array.from(proc.children).filter(c => c.namespaceURI === B && c.localName === 'documentation').map(keptElementXml);
   // T-1327 (F11): a comment among the process's children is kept before the element that followed it (a node or flow
