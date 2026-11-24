@@ -96,12 +96,17 @@ roles), T-1492 (documentation shown in the panel, Greenfield's request 1) and T-
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Release notes `docs/releases/RELEASE-NOTES-0.48.0.md` committed: the three changes, what changes in stored maps
+- [x] Release notes `docs/releases/RELEASE-NOTES-0.48.0.md` committed: the three changes, what changes in stored maps
   (lane documentation kept; nothing else), endpoints, and the shared-contracts table (`_t1425 --check` agrees)
-- [ ] A runme job written from job 179's steps, dry-run passed (its rehearsal included), committed and handed to the
+- [x] A runme job written from job 179's steps, dry-run passed (its rehearsal included), committed and handed to the
   operator with the watcher armed
-- [ ] After the operator's run: the tag on origin, AEF and Greenfield told (version, tag, sha256, bytes, what it brings;
+- [x] After the operator's run: the tag on origin, AEF and Greenfield told (version, tag, sha256, bytes, what it brings;
   Greenfield first on the lane-documentation loss)
+  Evidence: notes 8dae62889 (`_t1425 --version 0.48.0 --check`: "shared-contract table agrees"); job 180 committed
+  2d40512b4, dry-run passed (all checks, step 1 rehearsed); run done rc=0 at 12:04:41Z (both calibrations PASS, browser
+  166/166 on the pool, core green on the pool and here); `designer-v0.48.0` on origin (95f53ae7); sha256
+  c0e0a18b8bef4387…a034c212, 1456958 B; Greenfield msg 0123f25c (the data loss first, with what to check), AEF msg
+  60d0659a (conversation 832-designer-release-0.48.0).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -287,6 +292,9 @@ roles), T-1492 (documentation shown in the panel, Greenfield's request 1) and T-
 # worker's uncommitted edit does not block your close; that drift is listed as
 # "in flight, not this task". The whole-tree `--check` stays for audit/pre-push.
 -->
+git ls-remote --exit-code --tags origin designer-v0.48.0 > /dev/null
+echo "c0e0a18b8bef43871520f4fee0509448c525b161d613e52aea978fdaa034c212  dist/aef-workflow-designer-0.48.0.html" | sha256sum -c --quiet
+test -f .context/runme/180-release-designer-0.48.0/done
 
 ## RCA
 
