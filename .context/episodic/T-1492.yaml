@@ -1,0 +1,114 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1492: Properties panel: show a step's bpmn:documentation read-only (one block per line prefix: Instruction, Rule, Keys, Mapping, Open, Detail, Decision, Notes) for tasks, gateways, events and lanes
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-24T10:28:15Z
+# ============================================================================
+
+task_id: T-1492
+task_name: "Properties panel: show a step's bpmn:documentation read-only (one block per line prefix: Instruction, Rule, Keys, Mapping, Open, Detail, Decision, Notes) for tasks, gateways, events and lanes"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-11-23T14:43:53Z
+completed: 2026-11-24T10:27:59Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-11-23T16:28:29+01:00
+last_commit: 2026-11-24T11:27:42+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Greenfield's panel requests registered with context and criteria (T-1492 documentation, T-1493 lane names, T-1495 catalog names; msg 2e879869). a selected step's, gateway's, event's or lane's bpmn:documentation is shown in the panel, read-only (Greenfield msg 2e879869, request 1): one block per line prefix in their order (Instruction, Rule, Keys, Mapping, Open, Detail, Decision), other short labels (a lane's 'Owner:') as their own blocks, other lines under Notes; indented/bulleted lines continue the item above; shown under every lens. Browser leg test_t1492_documentation_panel (D1-D6; 0.47.0 fails D1-D3, D6); shots at 1024/1440/1920. reviewer verdict. evidence and the reviewer's green before the close
+
+# Key outcomes
+outcomes:
+  - 'On a fixture with documentation on a task, a gateway, a start event and a lane, selecting each shows a Documentation'
+  - 'Read-only: the save of that fixture is byte-identical before and after selecting every element; the byte-identity'
+  - 'Long documentation (Greenfield''s longest step) stays inside the panel at 1024/1440/1920: no horizontal overflow,'
+  - 'A step''s documentation reads as what happens, the rules and the open points, grouped so a business reader finds them'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'a selected step''s, gateway''s, event''s or lane''s bpmn:documentation is shown in the panel, read-only (Greenfield msg 2e879869, request 1): one block per line prefix in their order (Instruction, Rule, Keys, Mapping, Open, Detail, Decision), other short labels (a lane''s ''Owner:'') as their own blocks, other lines under Notes; indented/bulleted lines continue the item above; shown under every lens. Browser leg test_t1492_documentation_panel (D1-D6; 0.47.0 fails D1-D3, D6); shots at 1024/1440/1920'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # 2 decision(s) below are recorded in the register (.context/project/decisions.yaml) for this task but absent from the task file's Decisions section (T-4193).
+  - decision: 'PD-472'
+    chose: 'a short label (one or two words before a colon, up to 20 characters, the second word starting with a'
+    rationale: 'Auto-captured from task file on completion'
+    id: 'PD-472'
+    source: register
+  - decision: 'PD-473'
+    chose: 'the Documentation section is shown whatever the lens.'
+    rationale: 'Auto-captured from task file on completion'
+    id: 'PD-473'
+    source: register
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1492/AC1-judge-t-1492-r3-c971048de9d6.md'
+  - '.context/reviews/evidence/T-1492/documentation-1024-judge-t-1492-r3-c971048de9d6.png'
+  - '.context/reviews/evidence/T-1492/documentation-1440-judge-t-1492-r3-c971048de9d6.png'
+  - '.context/reviews/evidence/T-1492/documentation-1920-judge-t-1492-r3-c971048de9d6.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1492-properties-panel-show-a-steps-bpmndocume.md'
+  - '.tasks/active/T-1493-properties-panel-the-lane-dropdown-lists.md'
+  - '.tasks/active/T-1495-properties-panel-an-io-field-shows-its-r.md'
+  - 'docs/reports/T-1492-shots/documentation-1024.png'
+  - 'docs/reports/T-1492-shots/documentation-1440.png'
+  - 'docs/reports/T-1492-shots/documentation-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1492-documentation-panel-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-23T16:28:29'
+    action: 'T-1492: Greenfield''s panel requests registered with context and criteria (T-1492 documentation, T-1493 lane names, T-1495 catalog names; msg 2e879869)'
+  - time: '2026-11-24T11:16:40'
+    action: 'T-1492: a selected step''s, gateway''s, event''s or lane''s bpmn:documentation is shown in the panel, read-only (Greenfield msg 2e879869, request 1): one block per line prefix in their order (Instruction, Rule, Keys, Mapping, Open, Detail, Decision), other short labels (a lane''s ''Owner:'') as their own blocks, other lines under Notes; indented/bulleted lines continue the item above; shown under every lens. Browser leg test_t1492_documentation_panel (D1-D6; 0.47.0 fails D1-D3, D6); shots at 1024/1440/1920'
+  - time: '2026-11-24T11:26:55'
+    action: 'T-1492: reviewer verdict'
+  - time: '2026-11-24T11:27:42'
+    action: 'T-1492: evidence and the reviewer''s green before the close'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 1184 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [designer, greenfield, panel]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1184
+  commits: 5
+  files_changed: 22
+  lines_added: 1609
+  lines_removed: 13
+  footprint_refreshed_at: '2026-11-24T10:28:20Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1492-properties-panel-show-a-steps-bpmndocume.md
+generated_by: context-agent-hybrid
