@@ -131,7 +131,7 @@ the phase names' baseline, styled quieter than a phase name so it reads as the r
   green". P8 runs again in the release's browser tier.
 
 ### Human
-- [ ] The two phase rows are told apart by their labels, and the labels read as the rows' names, not as phases
+- [x] The two phase rows are told apart by their labels, and the labels read as the rows' names, not as phases
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1498 --criterion 1`), who may escalate.
   **Steps:**
   1. `docs/reports/T-1498-shots/phases-{1024,1440,1920}.png`: Greenfield's sample as it opens (the opening zoom); `phases-fit-*.png` show the whole pool at Fit for context only
@@ -184,6 +184,7 @@ the phase names' baseline, styled quieter than a phase name so it reads as the r
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261124-99019930 — reviewer-judge-t-1498-r3-b6bafb575ba0:reviewer (rung rung-3-termlink-single-reviewer), digest 1fe493fe94f7; dispatch judge-t-1498-r3-b6bafb575ba0; evidence: .context/reviews/evidence/T-1498/AC1-judge-t-1498-r3-b6bafb575ba0.md, .context/reviews/evidence/T-1498/phases-1024-judge-t-1498-r3-b6bafb575ba0.png, .context/reviews/evidence/T-1498/phases-1440-judge-t-1498-r3-b6bafb575ba0.png, .context/reviews/evidence/T-1498/phases-1920-judge-t-1498-r3-b6bafb575ba0.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
