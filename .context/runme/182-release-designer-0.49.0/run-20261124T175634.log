@@ -1,0 +1,305 @@
+runme  182-release-designer-0.49.0   sha d906c0fd49c3   rehearsed 2026-11-24T16:14:13Z   log: /opt/832-Workflow-designer/.context/runme/182-release-designer-0.49.0/run-20261124T175634.log
+Job:   182-release-designer-0.49.0   (T-1512)
+What:  Release designer 0.49.0: bump, calibrate the kit (codex, GLM-5.3), cut, commit, tag designer-v0.49.0 locally, browser tier on the pool (4 shards), core tier, push
+       Release 0.49.0 (minor), as you agreed on 2026-11-24. Phases become editable (your T-1491 GO, slices A and D):
+       - select a phase or a phase row; rename it, write its documentation, delete it; undo works (T-1502);
+       - show or hide phases, all or per row, for the open map in this browser; never written to the file (T-1503).
+       A save changes only phases someone edits. Making phases and dragging boundaries wait for AEF's T-5381 be-tag.
+       Notes: docs/releases/RELEASE-NOTES-0.49.0.md.
+       Steps 2-3 calibrate the kit with live reviewers (a few minutes each, model time); if one does not PASS, nothing is
+       released and the agent brings it to you. Step 7 tags locally. Step 8 runs the browser tier on the pool, split in 4
+       (about 9-10 minutes; your option 1 for 0.45.0), and stops the job if red or without a result, with nothing pushed.
+       Step 9 runs the core tier (about 20 minutes, or cached); step 10 pushes bleeding-edge and the tag. Answer y at every
+       step. Afterwards the agent tells AEF and Greenfield.
+Steps (each asks y/N first):
+  1. Bump VERSION and APP_VERSION to 0.49.0 and commit (parity checked)
+  2. Calibrate with codex (OpenAI): build the 0.49.0 kit, loop.sh --calibrate, record the result (outward)
+  3. Calibrate with GLM-5.3 (Z.AI, opencode): build the 0.49.0 kit, loop.sh --calibrate, record the result (outward)
+  4. Release gate: the 0.49.0 kit carries a PASS calibration of its exact bytes (outward)
+  5. Cut release 0.49.0: scripts/release-designer.sh (render gate ON, announce ON; writes dist/) (outward)
+  6. Commit dist/aef-workflow-designer-0.49.0.html, dist/aef-authoring-kit-0.49.0, dist/MANIFEST.yaml and the calibration record (outward)
+  7. Tag designer-v0.49.0 (annotated) on the release commit, locally only (outward)
+  8. Browser tier on the pool, 4 shards (T1467_POOL_ONLY=1; about 7-12 min): stops here if red or no result, nothing pushed (outward)
+  9. Core tier (about 20 minutes, or cached), so the push finds it green (outward)
+  10. Push bleeding-edge and designer-v0.49.0 to origin (outward)
+
+ok    on bleeding-edge
+ok    ./VERSION is still 0.48.1 (step 1 bumps it)
+ok    APP_VERSION in src matches VERSION (T-808)
+ok    the release inputs are committed
+ok    release notes for 0.49.0 exist, are committed and are not a draft
+ok    the release notes name all five designer endpoints and whether AEF serves each (T-1289, T-1315)
+ok    the index holds nothing staged (T-1313: commits here name their paths, but say so up front)
+ok    the unwired-guard ratchet holds (the leg that stopped job 108 at step 8)
+ok    the dialect axis passes (the kit's class column comes from it)
+ok    tag designer-v0.49.0 does not exist locally
+ok    tag designer-v0.49.0 does not exist on origin
+ok    no 0.49.0 artifact or kit in dist/ yet
+ok    no 0.49.0 calibration record yet
+ok    T-1502 and T-1503 are closed (the changes this release carries)
+ok    /tmp has at least 4 GB free (job 128 stopped at the cut on a full /tmp)
+ok    the kit for 0.49.0 builds
+ok    codex is installed
+ok    opencode is installed and lists zai-coding-plan/glm-5.3
+
+Step 1/10: Bump VERSION and APP_VERSION to 0.49.0 and commit (parity checked)
+  runs: do_bump
+        | do_bump () 
+        | { 
+        |     printf '%s\n' "$V" > VERSION || return 1;
+        |     sed -i "s/^const APP_VERSION = '[0-9][0-9.]*';/const APP_VERSION = '$V';/" src/aef-workflow-designer.html || return 1;
+        |     bash tools/_t808-version-parity.sh || { 
+        |         echo "parity failed after the bump";
+        |         return 1
+        |     };
+        |     git add VERSION src/aef-workflow-designer.html || return 1;
+        |     git commit -q -m "T-1512: $V — VERSION and APP_VERSION bumped by the release job (parity ok)" -- VERSION src/aef-workflow-designer.html || return 1;
+        |     echo "ok  bumped to $V in $(git rev-parse --short HEAD)"
+        | }
+Run step 1/10? [y/N] ok: APP_VERSION and VERSION agree (0.49.0)
+
+FABRIC: 1 component(s) modified: aef-workflow-designer
+  High connectivity (239 edges) — consider: fw fabric blast-radius HEAD
+ok  bumped to 0.49.0 in d7676f9c5
+ok    step 1/10
+
+Step 2/10: Calibrate with codex (OpenAI): build the 0.49.0 kit, loop.sh --calibrate, record the result
+  runs: do_calibrate codex openai "$CODEX_CMD"
+        | do_calibrate () 
+        | { 
+        |     local name="$1" vendor="$2" cmd="$3" kit wd res rc;
+        |     kit=$(mktemp -d /tmp/t1512-kit-$name.XXXXXX) || return 1;
+        |     python3 tools/build-authoring-kit.py --version "$V" --out "$kit/kit" > /dev/null || { 
+        |         echo "kit build failed";
+        |         rm -rf "$kit";
+        |         return 1
+        |     };
+        |     wd="$OUT/calibrate-$name";
+        |     res="$OUT/calibrate-$name.out";
+        |     mkdir -p "$wd";
+        |     echo "kit: $kit/kit (sha256 of SHA256SUMS $(sha256sum "$kit/kit/SHA256SUMS" | cut -c1-16)...), reviewer: $cmd";
+        |     ( export PATH="$NODEBIN:$OCBIN:$PATH" KIT_REVIEWER_CMD="$cmd";
+        |     bash "$kit/kit/loop.sh" --calibrate "$PWD/$wd" ) 2>&1 | tee "$res";
+        |     python3 tools/kit-calibration-gate.py record --version "$V" --reviewer "$name" --vendor "$vendor" --result-file "$res";
+        |     rc=$?;
+        |     rm -rf "$kit";
+        |     grep -E 'CALIBRATION: (PASS|FAIL|COULD NOT MEASURE)' "$res" | tail -1;
+        |     [ "$rc" = 0 ] || { 
+        |         echo "$name did not PASS (recorded); nothing is released — the agent brings it to you";
+        |         return 1
+        |     }
+        | }
+Run step 2/10? [y/N] kit: /tmp/t1512-kit-codex.kAH9kW/kit (sha256 of SHA256SUMS 7ad136dd84bcea33...), reviewer: codex exec --skip-git-repo-check --sandbox workspace-write
+review prompt ~6718 tokens (reviewer context not declared)
+review prompt ~6738 tokens (reviewer context not declared)
+map evidence, clean map:
+  verify-findings: 0 verified, 0 absence, 0 unverified
+map evidence, planted map:
+    verified   Lane_warehouse (line 46 contains the quote)
+    verified   quality-inspection (line 271 contains the quote)
+    verified   send-payment-reminder (line 271 contains the quote)
+  verify-findings: 3 verified, 0 absence, 0 unverified
+recall: 3/3 planted defects caught
+  caught invented/citation                  send-payment-reminder
+  caught undeclared-unknown/invented        quality-inspection
+  caught wrong-authority                    Lane_warehouse
+false findings: 0 on the clean map, 0 on unplanted elements
+CALIBRATION: PASS
+0.49.0: codex PASS (openai) recall 3/3, false on clean 0
+CALIBRATION: PASS
+ok    step 2/10
+
+Step 3/10: Calibrate with GLM-5.3 (Z.AI, opencode): build the 0.49.0 kit, loop.sh --calibrate, record the result
+  runs: do_calibrate glm-5.3 zai "$GLM_CMD"
+        | do_calibrate () 
+        | { 
+        |     local name="$1" vendor="$2" cmd="$3" kit wd res rc;
+        |     kit=$(mktemp -d /tmp/t1512-kit-$name.XXXXXX) || return 1;
+        |     python3 tools/build-authoring-kit.py --version "$V" --out "$kit/kit" > /dev/null || { 
+        |         echo "kit build failed";
+        |         rm -rf "$kit";
+        |         return 1
+        |     };
+        |     wd="$OUT/calibrate-$name";
+        |     res="$OUT/calibrate-$name.out";
+        |     mkdir -p "$wd";
+        |     echo "kit: $kit/kit (sha256 of SHA256SUMS $(sha256sum "$kit/kit/SHA256SUMS" | cut -c1-16)...), reviewer: $cmd";
+        |     ( export PATH="$NODEBIN:$OCBIN:$PATH" KIT_REVIEWER_CMD="$cmd";
+        |     bash "$kit/kit/loop.sh" --calibrate "$PWD/$wd" ) 2>&1 | tee "$res";
+        |     python3 tools/kit-calibration-gate.py record --version "$V" --reviewer "$name" --vendor "$vendor" --result-file "$res";
+        |     rc=$?;
+        |     rm -rf "$kit";
+        |     grep -E 'CALIBRATION: (PASS|FAIL|COULD NOT MEASURE)' "$res" | tail -1;
+        |     [ "$rc" = 0 ] || { 
+        |         echo "$name did not PASS (recorded); nothing is released — the agent brings it to you";
+        |         return 1
+        |     }
+        | }
+Run step 3/10? [y/N] kit: /tmp/t1512-kit-glm-5.3.yiGKR6/kit (sha256 of SHA256SUMS 7ad136dd84bcea33...), reviewer: opencode run -m zai-coding-plan/glm-5.3
+review prompt ~6718 tokens (reviewer context not declared)
+review prompt ~6738 tokens (reviewer context not declared)
+map evidence, clean map:
+  verify-findings: 0 verified, 0 absence, 0 unverified
+map evidence, planted map:
+    verified   Lane_warehouse (line 46 contains the quote)
+    verified   quality-inspection (line 177 contains the quote)
+    verified   send-payment-reminder (line 271 contains the quote)
+  verify-findings: 3 verified, 0 absence, 0 unverified
+recall: 3/3 planted defects caught
+  caught invented/citation                  send-payment-reminder
+  caught undeclared-unknown/invented        quality-inspection
+  caught wrong-authority                    Lane_warehouse
+false findings: 0 on the clean map, 0 on unplanted elements
+CALIBRATION: PASS
+0.49.0: glm-5.3 PASS (zai) recall 3/3, false on clean 0
+CALIBRATION: PASS
+ok    step 3/10
+
+Step 4/10: Release gate: the 0.49.0 kit carries a PASS calibration of its exact bytes
+  runs: do_gate
+        | do_gate () 
+        | { 
+        |     cat "$REC";
+        |     python3 tools/kit-calibration-gate.py check --version "$V"
+        | }
+Run step 4/10? [y/N] # Calibration record for kit 0.49.0 (tools/kit-calibration-gate.py, T-1008). Bound to the
+# kit bytes by kit_sha256; any change to the kit voids it.
+version: 0.49.0
+kit_sha256: 7ad136dd84bcea33b585169820be4cb91f960147d6923e08c368da35e06688e4
+reviewers:
+- result: PASS
+  recall: 3/3
+  false_on_clean: 0
+  false_on_unplanted: 0
+  reviewer: codex
+  vendor: openai
+  at: '2026-11-24T17:22:19Z'
+- result: PASS
+  recall: 3/3
+  false_on_clean: 0
+  false_on_unplanted: 0
+  reviewer: glm-5.3
+  vendor: zai
+  at: '2026-11-24T17:33:09Z'
+kit 0.49.0 calibrated: codex (openai) 3/3, glm-5.3 (zai) 3/3
+ok    step 4/10
+
+Step 5/10: Cut release 0.49.0: scripts/release-designer.sh (render gate ON, announce ON; writes dist/)
+  runs: do_cut
+        | do_cut () 
+        | { 
+        |     PATH="$NODEBIN:$PATH" scripts/release-designer.sh || { 
+        |         echo "release-designer.sh failed (see above); dist/ may need a look";
+        |         return 1
+        |     };
+        |     { 
+        |         [ -f "$ART" ] && cmp -s src/aef-workflow-designer.html "$ART"
+        |     } || { 
+        |         echo "$ART missing or differs from src";
+        |         return 1
+        |     };
+        |     ( cd "$KIT" && sha256sum -c SHA256SUMS --quiet ) || { 
+        |         echo "the kit does not verify against its SHA256SUMS";
+        |         return 1
+        |     };
+        |     [ -f "$KIT/SKILL.md" ] || { 
+        |         echo "the kit has no SKILL.md (T-1376)";
+        |         return 1
+        |     };
+        |     grep -q 'Expense claim' "$KIT/exemplar.bpmn" || { 
+        |         echo "the kit does not ship the T-1418 exemplar";
+        |         return 1
+        |     };
+        |     echo "ok  artifact == src, kit verifies, ships SKILL.md and the new exemplar"
+        | }
+Run step 5/10? [y/N] ok: APP_VERSION and VERSION agree (0.49.0)
+kit 0.49.0 calibrated: codex (openai) 3/3, glm-5.3 (zai) 3/3
+authoring kit 0.49.0: would be created at /opt/832-Workflow-designer/dist/aef-authoring-kit-0.49.0
+Render gate: python3 tests/test_designer_render.py
+PASS: designer render-check (0.49.0) — render, T-177 markers, inspector dropdowns, and console all OK (whitelisted probes: /api/health, /favicon.ico, /api/instances)
+authoring kit 0.49.0: built at /opt/832-Workflow-designer/dist/aef-authoring-kit-0.49.0
+Released designer 0.49.0
+  artifact: dist/aef-workflow-designer-0.49.0.html
+  sha256:   bc6830534a9b9ac8168f6ae251ed218ecc3fe53f8704cfdf7a1f35fe58c1253a
+  bytes:    1472593
+  kit:      dist/aef-authoring-kit-0.49.0 (SHA256SUMS 7ad136dd84bcea33b585169820be4cb91f960147d6923e08c368da35e06688e4)
+Announced 0.49.0 to dm:0e7ee6cad65137fc:6a646ce8b1bc6560 (offset 42, cv_key=designer-release)
+
+WARNING: release 0.49.0 is NOT TAGGED — tag 'designer-v0.49.0' does not exist.
+WARNING: the release is INCOMPLETE. dist/ and the rail announcement name a
+WARNING: sha, but nothing names a REF it can be fetched at, and a branch tip
+WARNING: is not a release. AEF fetch the artifact by tag (rail 483).
+WARNING:
+WARNING: The tag must be applied AFTER the release commit exists — tagging
+WARNING: now would name the previous commit, which carries neither this
+WARNING: VERSION nor this artifact. So: commit first, then tag HEAD:
+WARNING:   cd /opt/832-Workflow-designer && git tag -a designer-v0.49.0 -m "designer 0.49.0 (sha256 bc6830534a9b9ac8168f6ae251ed218ecc3fe53f8704cfdf7a1f35fe58c1253a)" && git push origin designer-v0.49.0
+WARNING:
+WARNING: Verify with: cd /opt/832-Workflow-designer && python3 tools/_t382-release-lag.py
+Release 0.49.0: CUT and ANNOUNCED — NOT YET TAGGED
+ok  artifact == src, kit verifies, ships SKILL.md and the new exemplar
+ok    step 5/10
+
+Step 6/10: Commit dist/aef-workflow-designer-0.49.0.html, dist/aef-authoring-kit-0.49.0, dist/MANIFEST.yaml and the calibration record
+  runs: do_commit
+        | do_commit () 
+        | { 
+        |     git add "$ART" "$KIT" dist/MANIFEST.yaml "$REC" || return 1;
+        |     git commit -q -m "T-1512: release designer $V — phases editable (select, rename, document, delete) and shown or hidden per row; kit calibrated on its bytes" -m "Notes: docs/releases/RELEASE-NOTES-$V.md" -- "$ART" "$KIT" dist/MANIFEST.yaml "$REC" || return 1;
+        |     echo "ok  release commit $(git rev-parse --short HEAD)"
+        | }
+Run step 6/10? [y/N] 
+FABRIC: 8 new file(s) without component cards: dist/aef-authoring-kit-0.49.0/SHA256SUMS, dist/aef-authoring-kit-0.49.0/calibration/clean.bpmn, dist/aef-authoring-kit-0.49.0/calibration/planted.bpmn, dist/aef-authoring-kit-0.49.0/exemplar.bpmn, dist/aef-authoring-kit-0.49.0/loop.sh, dist/aef-authoring-kit-0.49.0/validate-workflow.py, dist/aef-authoring-kit-0.49.0/verify-findings.py, dist/aef-workflow-designer-0.49.0.html
+  Register: fw fabric register <path>
+ok  release commit e9a85518f
+ok    step 6/10
+
+Step 7/10: Tag designer-v0.49.0 (annotated) on the release commit, locally only
+  runs: do_tag
+        | do_tag () 
+        | { 
+        |     local rel sha;
+        |     rel=$(git log -1 --format=%H -- "$ART");
+        |     [ -n "$rel" ] || { 
+        |         echo "no commit carries $ART";
+        |         return 1
+        |     };
+        |     sha=$(sha256sum "$ART" | awk '{print $1}');
+        |     git tag -a "$TAG" "$rel" -m "designer $V (sha256 $sha) + authoring kit" || return 1;
+        |     echo "ok  tagged $TAG on $(git rev-parse --short "$rel") (local; pushed in the last step)"
+        | }
+Run step 7/10? [y/N] ok  tagged designer-v0.49.0 on e9a85518f (local; pushed in the last step)
+ok    step 7/10
+
+Step 8/10: Browser tier on the pool, 4 shards (T1467_POOL_ONLY=1; about 7-12 min): stops here if red or no result, nothing pushed
+  runs: do_browser
+        | do_browser () 
+        | { 
+        |     PATH="$NODEBIN:$PATH" T1467_POOL_ONLY=1 bash tools/pool/tier-gate.sh browser || { 
+        |         echo "browser tier RED or no pool result (build/tiergate/tier-browser.runs.log); nothing pushed, the tag is local only — the agent brings it to you";
+        |         return 1
+        |     };
+        |     echo "ok  browser tier green on the pool (split) for the release tree"
+        | }
+Run step 8/10? [y/N] T-1288 browser: T1467_POOL_ONLY=1: browser runs on the pool only (operator's choice for releases, 2026-11-20); high-risk change: src/aef-workflow-designer.html tests/run-bridge-tests.sh
+T-1288 browser: running the browser tier on ring20's POOL as 4 shards in parallel, the unsplit run as a non-gating shadow (T-1462, T-1467) ...
+tier browser GREEN: 41 passed, 0 failed, 0 flaky, 0 quarantined, 467 s   [pool: pool-w2, shard 1/4]
+tier browser GREEN: 41 passed, 0 failed, 0 flaky, 0 quarantined, 468 s   [pool: pool-w2, shard 3/4]
+tier browser GREEN: 48 passed, 0 failed, 0 flaky, 0 quarantined, 437 s   [pool: pool-w2, shard 2/4]
+tier browser GREEN: 43 passed, 0 failed, 0 flaky, 0 quarantined, 391 s   [pool: pool-132, shard 4/4]
+T-1288 browser: shard-coverage: ok — 4 shard(s) ran each of the 168 browser legs exactly once
+T-1288 browser: pool only: green
+ok  browser tier green on the pool (split) for the release tree
+ok    step 8/10
+
+Step 9/10: Core tier (about 20 minutes, or cached), so the push finds it green
+  runs: do_core
+        | do_core () 
+        | { 
+        |     PATH="$NODEBIN:$PATH" bash tools/_t1288-prepush-gate.sh || { 
+        |         echo "core tier RED (see .context/working/prepush-core.log); nothing pushed — the agent brings it to you";
+        |         return 1
+        |     };
+        |     echo "ok  core tier green for this tree; the push hook will find it cached"
+        | }
+Run step 9/10? [y/N] STOPPED: not confirmed at step 9/10 (received: an empty Enter; 10 character(s) typed before the prompt were discarded (typeahead never answers a step)); steps before it ran, nothing after

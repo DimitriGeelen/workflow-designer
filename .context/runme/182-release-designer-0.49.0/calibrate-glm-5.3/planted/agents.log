@@ -1,0 +1,106 @@
+[0m
+> build · glm-5.3
+[0m
+[0m→ [0mRead kit/REVIEW.md
+[0m→ [0mRead kit/RUBRIC.md
+[0m→ [0mRead SOURCE.md
+[0m→ [0mRead map.bpmn
+[0m
+[0m$ [0mls -la kit/
+total 212
+drwxrwxr-x+ 1 root root    196 Nov 24 18:28 .
+drwxrwxr-x+ 1 root root     76 Nov 24 18:28 ..
+-rw-r--r--+ 1 root root  27629 Nov 24 18:28 AUTHORING.md
+-rw-r--r--+ 1 root root  13727 Nov 24 18:28 CONFORMANCE.md
+-rw-r--r--+ 1 root root    841 Nov 24 18:28 CORRECT.md
+-rw-r--r--+ 1 root root    535 Nov 24 18:28 GENERATE.md
+-rw-r--r--+ 1 root root   1208 Nov 24 18:28 REVIEW.md
+-rw-r--r--+ 1 root root   5093 Nov 24 18:28 RUBRIC.md
+-rw-r--r--+ 1 root root  11780 Nov 24 18:28 exemplar.bpmn
+-rw-r--r--+ 1 root root 138795 Nov 24 18:28 validate-workflow.py
+[0m
+I'm the reviewing agent: review `map.bpmn` against `SOURCE.md` per `kit/RUBRIC.md`, then write `REVIEW.json`. Let me first see the kit contents (the rubric references AUTHORING.md §4/§5) and run the validator.
+[0m$ [0mpython3 kit/validate-workflow.py map.bpmn; echo "exit=$?"
+WARN  [W-XML-GW-AMBIGUOUS] exclusiveGateway 'credit-limit-exceeded': gw_ambiguous: exclusiveGateway has 2 outgoing flows without a conditionExpression: default flow 'credit-limit-exceeded--pick-parts' is declared; the other flow (credit-limit-exceeded--decide-whether-to-accept-order-anyway) has no conditionExpression
+WARN  [W-XML-GW-AMBIGUOUS] exclusiveGateway 'accept-order-anyway': gw_ambiguous: exclusiveGateway has 2 outgoing flows without a conditionExpression: no default flow is declared; none of them has a conditionExpression (accept-order-anyway--close-rejected-order, accept-order-anyway--pick-parts)
+WARN  [W-XML-UNREACHABLE] node 'labelling': node is not reachable from any startEvent
+WARN  [W-XML-DEADEND] node 'labelling': no endEvent is reachable from this node: either control is trapped, or the source does not record what follows it
+WARN  [W-XML-DISCONNECTED] <process>: the flow graph falls into 2 disconnected parts: 18 node(s) [order-arrives-by-email -> accepted-order-fulfilled, order-rejected]; 1 node(s) [no start -> no end]. Either these are separate processes sharing one pool, or some steps have no recorded place in one process (then annotate them, do not connect them)
+WARN  [W-LANE-NO-OWNER] node 'close-rejected-order': this task's authority 'none' names no owner; mapping-v1 §3 derives a task's owner from its lane, so this task has no derivable owner. Declared unknown is honest: do not guess one
+WARN  [W-LANE-NO-OWNER] node 'tell-customer': this task's authority 'none' names no owner; mapping-v1 §3 derives a task's owner from its lane, so this task has no derivable owner. Declared unknown is honest: do not guess one
+INFO  [I-XML-LANE-GEOMETRY-SKIP] laneSet: lane/geometry agreement not evaluated: 19 of 19 flow node(s) carry no <aef:position> y (e.g. accept-order-anyway, accepted-order-fulfilled, book-carrier). Geometry that does not exist cannot disagree with the declared lanes — this map is SKIPPED by lane_geometry, not passed by it
+WARN  map.bpmn -- 0 error(s), 7 warning(s), 1 note(s)
+exit=1
+[0m
+[0m$ [0mgrep -n "§4\|§5\|^## \|^### " kit/AUTHORING.md | head -40
+17:## 1. The loop
+45:## 1b. The loop: generate, review against the source, correct, learn
+97:## 2. What every map carries
+130:## 3. What a lane is, and which authority it gets
+156:## 4. Derive, never invent
+242:## 4b. The data a step reads and writes
+310:## 5. The honest end state: which warnings stay
+335:## 6. Say what kind of map it is
+347:## 7. Layout
+363:## 8. What the validator does NOT check
+379:## 9. Classes of finding
+[0m
+[0m$ [0mgrep -n 'laneMeta authority' map.bpmn; grep -n 'quality-inspection--pack-order\|pick-parts--quality-inspection' map.bpmn; grep -n 'send-payment-reminder' map.bpmn | cut -c1-160
+12:          <aef:laneMeta authority="sovereignty" />
+20:          <aef:laneMeta authority="sovereignty" />
+28:          <aef:laneMeta authority="sovereignty" />
+36:          <aef:laneMeta authority="none" />
+46:          <aef:laneMeta authority="authority" />
+57:          <aef:laneMeta authority="external" />
+65:          <aef:laneMeta authority="authority" />
+130:      <bpmn:incoming>credit-limit-exceeded--pick-parts</bpmn:incoming><bpmn:incoming>accept-order-anyway--pick-parts</bpmn:incoming><bpmn:outgoing>pick-parts--quality-inspection</bpmn:outgoing></bpmn:task>
+136:      <bpmn:incoming>quality-inspection--pack-order</bpmn:incoming><bpmn:outgoing>pack-order--book-carrier</bpmn:outgoing></bpmn:task>
+177:    <bpmn:incoming>pick-parts--quality-inspection</bpmn:incoming><bpmn:outgoing>quality-inspection--pack-order</bpmn:outgoing></bpmn:task>
+271:  <bpmn:sequenceFlow id="pick-parts--quality-inspection" sourceRef="pick-parts" targetRef="quality-inspection" /><bpmn:sequenceFlow id="quality-inspection--pack-order" sourceRef="quality-inspection" targetRef="pack-order" /><bpmn:task id="send-payment-reminder" name="Send payment reminder"><bpmn:documentation>source: "The ERP sends a payment reminder after seven days."</bpmn:documentation><bpmn:incoming>generate-and-send-invoice--send-payment-reminder</bpmn:incoming><bpmn:outgoing>send-payment-reminder--accepted-order-fulfilled</bpmn:outgoing></bpmn:task><bpmn:sequenceFlow id="send-payment-reminder--accepted-order-fulfilled" sourceRef="send-payment-reminder" targetRef="accepted-order-fulfilled" />
+69:      <bpmn:flowNodeRef>send-payment-reminder</bpmn:flowNodeRef></bpmn:lane>
+163:      <bpmn:incoming>collect-parcel--generate-and-send-invoice</bpmn:incoming><bpmn:outgoing>generate-and-send-invoice--send-payment-reminder</bpmn:outgoing
+170:      <bpmn:incoming>send-payment-reminder--accepted-order-fulfilled</bpmn:incoming>
+259:    <bpmn:sequenceFlow id="generate-and-send-invoice--send-payment-reminder" sourceRef="generate-and-send-invoice" targetRef="send-payment-reminder">
+261:        <aef:uid value="generate-and-send-invoice--send-payment-reminder" />
+271:  <bpmn:sequenceFlow id="pick-parts--quality-inspection" sourceRef="pick-parts" targetRef="quality-inspection" /><bpmn:sequenceFlow id="quality-inspection--
+[0m
+All validator warnings fall under the rubric's do-not-report list (ambiguous gateways with source-word branches, declared-unknown order/owner, geometry skip). Now let me check AUTHORING.md §4/§5, which the rubric references, and verify my candidate evidence lines.
+[0m→ [0mRead kit/AUTHORING.md[90m [offset=130, limit=250][0m
+Line numbers confirmed. Now let me read the relevant AUTHORING.md sections (§3 lanes/authority, §4 derive-never-invent, §5 honest warnings) to apply the rules correctly.
+[0m→ [0mRead kit/AUTHORING.md[90m [limit=129][0m
+AUTHORING.md §3 explicitly lists "warehouse" under `sovereignty` (named department) — confirming the lane-authority defect. §4 ("inspection and labelling also happen" is not a reasonable sequence to assert) confirms the quality-inspection defect. Let me quickly check §1b/§2 (citation requirements) to complete the picture.
+[0m→ [0mRead kit/CORRECT.md
+The picture is complete. Let me quickly check CORRECT.md (how findings are consumed) to make sure my findings are well-formed for the loop, then write REVIEW.json.
+[0m
+[0m← [0mWrite REVIEW.json
+Wrote file successfully.
+[0m
+Now writing `REVIEW.json` with the three findings (all major: wrong-authority, undeclared-unknown, invented).
+Now let me verify mechanically (JSON validity + each quote on its cited line), simulating `verify-findings.py`:
+[0m$ [0mpython3 - <<'EOF'
+import json
+findings = json.load(open('REVIEW.json'))
+lines = open('map.bpmn', encoding='utf-8').read().splitlines()
+print(f"{len(findings)} findings")
+for i, f in enumerate(findings, 1):
+    assert f['category'] in ('invented','missed','wrong-authority','undeclared-unknown','citation','readability','scope'), f['category']
+    assert f['severity'] in ('major','minor')
+    me = f['map_evidence']
+    ok = me['quote'] in lines[me['line']-1]
+    print(f"  {i}. {f['element']} [{f['category']}/{f['severity']}] line {me['line']}: quote-on-line={'OK' if ok else 'FAIL'}")
+    assert ok
+print("ALL VERIFIED")
+EOF
+3 findings
+  1. Lane_warehouse [wrong-authority/major] line 46: quote-on-line=OK
+  2. quality-inspection [undeclared-unknown/major] line 177: quote-on-line=OK
+  3. send-payment-reminder [invented/major] line 271: quote-on-line=OK
+ALL VERIFIED
+[0m
+Review complete. `REVIEW.json` written with 3 findings, all major, each verified quote-on-line:
+
+1. **`Lane_warehouse` / wrong-authority** (map.bpmn:46) — warehouse is a named department (AUTHORING.md §3 lists it as `sovereignty`) but the lane is marked `authority`, i.e. automated.
+2. **`quality-inspection` / undeclared-unknown** (map.bpmn:177) — the source explicitly says nobody could say whether inspection happens before or after packing, yet the map asserts `pick-parts -> quality-inspection -> pack-order`; labelling is treated honestly (unconnected + noted), inspection is not.
+3. **`send-payment-reminder` / invented** (map.bpmn:271) — a payment reminder "after seven days" appears nowhere in the source, and its citation is a fabricated quote not in SOURCE.md.
+
+Not reported, per the rubric's do-not-report list: the validator's GW-AMBIGUOUS (branches labelled in source words), UNREACHABLE/DEADEND/DISCONNECTED (declared unknown order for labelling), LANE-NO-OWNER (declared unknown owner), and the geometry-skip note; the default flow and the collect→{deliver, invoice} plain split are explicitly allowed "Not invented" constructs.

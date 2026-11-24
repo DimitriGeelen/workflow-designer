@@ -1,0 +1,118 @@
+[0m
+> build · glm-5.3
+[0m
+[0m→ [0mRead kit/REVIEW.md
+[0m
+[0m$ [0mls -la . kit/ 2>/dev/null && wc -l map.bpmn SOURCE.md kit/RUBRIC.md 2>/dev/null
+.:
+total 32
+drwxrwxr-x+ 1 root root    76 Nov 24 18:24 .
+drwxrwxr-x+ 1 root root    10 Nov 24 18:24 ..
+-rw-rw-r--+ 1 root root    59 Nov 24 18:24 LOOP.txt
+-rw-r--r--+ 1 root root   823 Nov 24 18:24 SOURCE.md
+-rw-rw-r--+ 1 root root    60 Nov 24 18:24 agents.log
+drwxrwxr-x+ 1 root root   196 Nov 24 18:24 kit
+-rw-r--r--+ 1 root root 19744 Nov 24 18:24 map.bpmn
+
+kit/:
+total 212
+drwxrwxr-x+ 1 root root    196 Nov 24 18:24 .
+drwxrwxr-x+ 1 root root     76 Nov 24 18:24 ..
+-rw-r--r--+ 1 root root  27629 Nov 24 18:24 AUTHORING.md
+-rw-r--r--+ 1 root root  13727 Nov 24 18:24 CONFORMANCE.md
+-rw-r--r--+ 1 root root    841 Nov 24 18:24 CORRECT.md
+-rw-r--r--+ 1 root root    535 Nov 24 18:24 GENERATE.md
+-rw-r--r--+ 1 root root   1208 Nov 24 18:24 REVIEW.md
+-rw-r--r--+ 1 root root   5093 Nov 24 18:24 RUBRIC.md
+-rw-r--r--+ 1 root root  11780 Nov 24 18:24 exemplar.bpmn
+-rw-r--r--+ 1 root root 138795 Nov 24 18:24 validate-workflow.py
+  313 map.bpmn
+   15 SOURCE.md
+   75 kit/RUBRIC.md
+  403 total
+[0m
+[0m→ [0mRead SOURCE.md
+[0m→ [0mRead kit/RUBRIC.md
+[0m→ [0mRead map.bpmn
+[0m→ [0mRead kit/AUTHORING.md
+[0m→ [0mRead kit/CORRECT.md
+Now let me read the remaining kit files to understand the conventions fully.
+[0m
+[0m$ [0mpython3 kit/validate-workflow.py map.bpmn; echo "EXIT: $?"
+WARN  [W-XML-GW-AMBIGUOUS] exclusiveGateway 'credit-limit-exceeded': gw_ambiguous: exclusiveGateway has 2 outgoing flows without a conditionExpression: default flow 'credit-limit-exceeded--pick-parts' is declared; the other flow (credit-limit-exceeded--decide-whether-to-accept-order-anyway) has no conditionExpression
+WARN  [W-XML-GW-AMBIGUOUS] exclusiveGateway 'accept-order-anyway': gw_ambiguous: exclusiveGateway has 2 outgoing flows without a conditionExpression: no default flow is declared; none of them has a conditionExpression (accept-order-anyway--close-rejected-order, accept-order-anyway--pick-parts)
+WARN  [W-XML-UNREACHABLE] node 'labelling': node is not reachable from any startEvent
+WARN  [W-XML-UNREACHABLE] node 'quality-inspection': node is not reachable from any startEvent
+WARN  [W-XML-DEADEND] node 'labelling': no endEvent is reachable from this node: either control is trapped, or the source does not record what follows it
+WARN  [W-XML-DEADEND] node 'quality-inspection': no endEvent is reachable from this node: either control is trapped, or the source does not record what follows it
+WARN  [W-XML-DISCONNECTED] <process>: the flow graph falls into 3 disconnected parts: 16 node(s) [order-arrives-by-email -> accepted-order-fulfilled, order-rejected]; 1 node(s) [no start -> no end]; 1 node(s) [no start -> no end]. Either these are separate processes sharing one pool, or some steps have no recorded place in one process (then annotate them, do not connect them)
+WARN  [W-LANE-NO-OWNER] node 'close-rejected-order': this task's authority 'none' names no owner; mapping-v1 §3 derives a task's owner from its lane, so this task has no derivable owner. Declared unknown is honest: do not guess one
+WARN  [W-LANE-NO-OWNER] node 'tell-customer': this task's authority 'none' names no owner; mapping-v1 §3 derives a task's owner from its lane, so this task has no derivable owner. Declared unknown is honest: do not guess one
+INFO  [I-XML-LANE-GEOMETRY-SKIP] laneSet: lane/geometry agreement not evaluated: 18 of 18 flow node(s) carry no <aef:position> y (e.g. accept-order-anyway, accepted-order-fulfilled, book-carrier). Geometry that does not exist cannot disagree with the declared lanes — this map is SKIPPED by lane_geometry, not passed by it
+WARN  map.bpmn -- 0 error(s), 9 warning(s), 1 note(s)
+EXIT: 1
+[0m
+[0m→ [0mRead kit/CONFORMANCE.md
+Now let me run the validator and check the exemplar for conventions.
+[0m→ [0mRead kit/exemplar.bpmn
+The validator's findings are all in the rubric's "Do not report" set. Let me check the exemplar for conventions, then scrutinize the map against the source.
+[0m→ [0mRead LOOP.txt
+[0m→ [0mRead agents.log
+All validator findings are in the rubric's "Do not report" set. Before concluding, let me mechanically verify every citation quote in the map is verbatim in the source.
+[0m
+[0m$ [0mpython3 - <<'EOF'
+import re, xml.etree.ElementTree as ET
+src = open('SOURCE.md').read()
+# whitespace-normalized source text
+norm = lambda s: re.sub(r'\s+', ' ', s).strip()
+srcn = norm(src)
+tree = ET.parse('map.bpmn')
+ns = {'bpmn': 'http://www.omg.org/spec/BPMN/20100524/MODEL'}
+bad = []
+count = 0
+for el in tree.iter():
+    doc = el.find('bpmn:documentation', ns)
+    if doc is None or not (doc.text or '').strip():
+        continue
+    for line in (doc.text or '').splitlines():
+        line = line.strip()
+        if not line.startswith('source:'):
+            continue
+        count += 1
+        m = re.match(r'source:\s*"(.*)"\s*$', line)
+        if m:
+            q = norm(m.group(1))
+            if q not in srcn:
+                bad.append((el.get('id'), 'NOT VERBATIM', m.group(1)))
+        elif 'unstated' in line:
+            pass
+        else:
+            bad.append((el.get('id'), 'UNPARSEABLE', line))
+print(f"checked {count} source: lines")
+for b in bad: print(b)
+print("OK" if not bad else "PROBLEMS FOUND")
+# also check gateway branch labels against source words
+for f in tree.iter('{http://www.omg.org/spec/BPMN/20100524/MODEL}sequenceFlow'):
+    n = f.get('name')
+    if n:
+        print("branch label:", repr(n), "-> in source:", norm(n) in srcn)
+EOF
+checked 27 source: lines
+OK
+branch label: 'limit is exceeded' -> in source: True
+branch label: 'a rejected order' -> in source: True
+branch label: 'accept the order anyway' -> in source: True
+[0m
+[0m← [0mWrite REVIEW.json
+Wrote file successfully.
+[0m
+I've completed a full review of `map.bpmn` against `SOURCE.md` under `RUBRIC.md`:
+
+- **Citations**: all 27 `source:` quotes verified mechanically as verbatim substrings of the source; both `unstated` declarations are the honest pattern.
+- **Invented**: nothing — every element, edge, and branch condition traces to source text; the fork after `collect-parcel` (delivery + invoice) matches "After shipment…" with both successors stated; the unlabelled default flow and the pick→pack→book order fall squarely in the rubric's "Not invented" section.
+- **Missed**: nothing — every source statement maps to an element, a note, or the declared returns exclusion.
+- **Wrong-authority**: all lanes correct (human roles/departments → `sovereignty`, carrier → `external`, ERP as actor of the automatic invoice → `authority`, unnamed performers → `none`; "enters the order into the ERP" correctly stays with the sales employee, not an ERP lane).
+- **Undeclared-unknown**: both unknowns (order of quality inspection/labelling; owner of close/tell) are properly declared.
+- **Scope**: returns excluded with a quoting note.
+- **Validator**: all 9 warnings are exactly the ones the rubric says an honest map keeps.
+Wrote `./REVIEW.json` — `[]` (no findings). The map is honest against its source: nothing invented, nothing missed, authorities and unknowns correct, all citations verbatim, and every validator warning is one the rubric says an honest map keeps.

@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Authoring-kit exemplar (T-1418). Hand-authored for the kit, from the synthetic source below, following every rule
+  of AUTHORING.md: a source: citation on every lane and flow node, ids and uids derived from what each element is
+  (never a counter), v1.1 io on every system step, positions inside each lane's band in flow order. It validates
+  CLEAN, and the kit build refuses it otherwise.
+
+  SOURCE (synthetic, invented for this exemplar; every quote below is taken from it):
+    An employee submits an expense claim in the expense system. The expense system checks the claim against the
+    travel policy. If the claim breaks the travel policy, the employee's manager decides whether to approve it
+    anyway. If it does not break the policy, the expense system approves the claim. The manager returns a rejected
+    claim to the employee. The payroll system pays every approved claim.
+-->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_expense-claim"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+
+  <bpmn:collaboration id="Collaboration_expense-claim">
+    <bpmn:participant id="Pool_expense-claim" name="Expense claim" processRef="Process_expense-claim"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_expense-claim" isExecutable="false">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="expense-claim" version="1" schemaVersion="2" title="Expense claim"/>
+      <aef:meta mappingVersion="1.1">
+        <aef:prefixes>
+          <aef:prefix name="exp" iri="https://example.org/expense#" system="sys:expense" kind="field"/>
+          <aef:prefix name="pay" iri="https://example.org/payroll#" system="sys:payroll" kind="field"/>
+        </aef:prefixes>
+      </aef:meta>
+    </bpmn:extensionElements>
+
+    <bpmn:laneSet id="LaneSet_expense-claim">
+      <bpmn:lane id="lane_employee" name="Employee">
+        <bpmn:documentation>source: "An employee submits an expense claim in the expense system."</bpmn:documentation>
+        <bpmn:extensionElements><aef:laneMeta abbr="emp" authority="sovereignty" height="120"/></bpmn:extensionElements>
+        <bpmn:flowNodeRef>claim-to-submit</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>submit-claim</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="lane_expense_system" name="Expense system">
+        <bpmn:documentation>source: "The expense system checks the claim against the travel policy."</bpmn:documentation>
+        <bpmn:extensionElements><aef:laneMeta abbr="exp" authority="authority" height="120"/></bpmn:extensionElements>
+        <bpmn:flowNodeRef>check-claim-against-policy</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>claim-breaks-policy</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>approve-claim</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="lane_manager" name="Manager">
+        <bpmn:documentation>source: "the employee's manager decides whether to approve it anyway"</bpmn:documentation>
+        <bpmn:extensionElements><aef:laneMeta abbr="mgr" authority="sovereignty" height="120"/></bpmn:extensionElements>
+        <bpmn:flowNodeRef>decide-approve-anyway</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>manager-approves</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>return-claim-to-employee</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>claim-returned</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="lane_payroll_system" name="Payroll system">
+        <bpmn:documentation>source: "The payroll system pays every approved claim."</bpmn:documentation>
+        <bpmn:extensionElements><aef:laneMeta abbr="pay" authority="authority" height="120"/></bpmn:extensionElements>
+        <bpmn:flowNodeRef>pay-claim</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>claim-paid</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="claim-to-submit">
+      <bpmn:documentation>source: unstated - marks where the stated chain begins; the source names no trigger</bpmn:documentation>
+      <bpmn:extensionElements><aef:uid value="claim-to-submit"/><aef:position x="120.0" y="100.0"/></bpmn:extensionElements>
+    </bpmn:startEvent>
+
+    <bpmn:userTask id="submit-claim" name="Submit expense claim">
+      <bpmn:documentation>source: "An employee submits an expense claim in the expense system."</bpmn:documentation>
+      <bpmn:extensionElements><aef:uid value="submit-claim"/><aef:position x="260.0" y="100.0"/></bpmn:extensionElements>
+    </bpmn:userTask>
+
+    <bpmn:serviceTask id="check-claim-against-policy" name="Check claim against travel policy">
+      <bpmn:documentation>source: "The expense system checks the claim against the travel policy."
+Instruction: compare the claim with the travel policy</bpmn:documentation>
+      <bpmn:extensionElements>
+        <aef:uid value="check-claim-against-policy"/>
+        <aef:io><aef:input name="claim" typeRef="exp:Claim" operation="read"><aef:field fieldRef="exp:Claim.Amount" role="read"/></aef:input></aef:io>
+        <aef:position x="420.0" y="220.0"/>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+
+    <bpmn:exclusiveGateway id="claim-breaks-policy" name="Claim breaks the travel policy?" default="claim-breaks-policy--approve-claim">
+      <bpmn:documentation>source: "If the claim breaks the travel policy"</bpmn:documentation>
+      <bpmn:extensionElements><aef:uid value="claim-breaks-policy"/><aef:position x="580.0" y="220.0"/></bpmn:extensionElements>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:serviceTask id="approve-claim" name="Approve claim">
+      <bpmn:documentation>source: "If it does not break the policy, the expense system approves the claim."</bpmn:documentation>
+      <bpmn:extensionElements>
+        <aef:uid value="approve-claim"/>
+        <aef:io><aef:output name="claim" typeRef="exp:Claim" targetSystem="sys:expense" operation="update"><aef:field fieldRef="exp:Claim.Number" role="match"/><aef:field fieldRef="exp:Claim.Status" role="write"/></aef:output></aef:io>
+        <aef:position x="740.0" y="220.0"/>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+
+    <bpmn:userTask id="decide-approve-anyway" name="Decide whether to approve anyway">
+      <bpmn:documentation>source: "the employee's manager decides whether to approve it anyway"
+Decision: approve the claim despite the policy, or reject it</bpmn:documentation>
+      <bpmn:extensionElements><aef:uid value="decide-approve-anyway"/><aef:position x="740.0" y="340.0"/></bpmn:extensionElements>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="manager-approves" name="Manager approves?" default="manager-approves--return-claim-to-employee">
+      <bpmn:documentation>source: "decides whether to approve it anyway"</bpmn:documentation>
+      <bpmn:extensionElements><aef:uid value="manager-approves"/><aef:position x="900.0" y="340.0"/></bpmn:extensionElements>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="return-claim-to-employee" name="Return claim to employee">
+      <bpmn:documentation>source: "The manager returns a rejected claim to the employee."</bpmn:documentation>
+      <bpmn:extensionElements><aef:uid value="return-claim-to-employee"/><aef:position x="1060.0" y="340.0"/></bpmn:extensionElements>
+    </bpmn:userTask>
+
+    <bpmn:endEvent id="claim-returned">
+      <bpmn:documentation>source: unstated - marks where the stated chain for a rejected claim ends</bpmn:documentation>
+      <bpmn:extensionElements><aef:uid value="claim-returned"/><aef:position x="1220.0" y="340.0"/></bpmn:extensionElements>
+    </bpmn:endEvent>
+
+    <bpmn:serviceTask id="pay-claim" name="Pay claim">
+      <bpmn:documentation>source: "The payroll system pays every approved claim."</bpmn:documentation>
+      <bpmn:extensionElements>
+        <aef:uid value="pay-claim"/>
+        <aef:io><aef:output name="payment" typeRef="pay:Payment" targetSystem="sys:payroll" operation="create"><aef:field fieldRef="pay:Payment.Amount" role="write"/></aef:output></aef:io>
+        <aef:position x="1060.0" y="460.0"/>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+
+    <bpmn:endEvent id="claim-paid">
+      <bpmn:documentation>source: unstated - marks where the stated chain for an approved claim ends</bpmn:documentation>
+      <bpmn:extensionElements><aef:uid value="claim-paid"/><aef:position x="1220.0" y="460.0"/></bpmn:extensionElements>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="claim-to-submit--submit-claim" sourceRef="claim-to-submit" targetRef="submit-claim">
+      <bpmn:extensionElements><aef:uid value="claim-to-submit--submit-claim"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="submit-claim--check-claim-against-policy" sourceRef="submit-claim" targetRef="check-claim-against-policy">
+      <bpmn:extensionElements><aef:uid value="submit-claim--check-claim-against-policy"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="check-claim-against-policy--claim-breaks-policy" sourceRef="check-claim-against-policy" targetRef="claim-breaks-policy">
+      <bpmn:extensionElements><aef:uid value="check-claim-against-policy--claim-breaks-policy"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="claim-breaks-policy--decide-approve-anyway" name="breaks the policy" sourceRef="claim-breaks-policy" targetRef="decide-approve-anyway">
+      <bpmn:extensionElements><aef:uid value="claim-breaks-policy--decide-approve-anyway"/></bpmn:extensionElements>
+      <bpmn:conditionExpression>the claim breaks the travel policy</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="claim-breaks-policy--approve-claim" sourceRef="claim-breaks-policy" targetRef="approve-claim">
+      <bpmn:extensionElements><aef:uid value="claim-breaks-policy--approve-claim"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="manager-approves--pay-claim" name="approved" sourceRef="manager-approves" targetRef="pay-claim">
+      <bpmn:extensionElements><aef:uid value="manager-approves--pay-claim"/></bpmn:extensionElements>
+      <bpmn:conditionExpression>the manager approves the claim</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="manager-approves--return-claim-to-employee" sourceRef="manager-approves" targetRef="return-claim-to-employee">
+      <bpmn:extensionElements><aef:uid value="manager-approves--return-claim-to-employee"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="decide-approve-anyway--manager-approves" sourceRef="decide-approve-anyway" targetRef="manager-approves">
+      <bpmn:extensionElements><aef:uid value="decide-approve-anyway--manager-approves"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="approve-claim--pay-claim" sourceRef="approve-claim" targetRef="pay-claim">
+      <bpmn:extensionElements><aef:uid value="approve-claim--pay-claim"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="return-claim-to-employee--claim-returned" sourceRef="return-claim-to-employee" targetRef="claim-returned">
+      <bpmn:extensionElements><aef:uid value="return-claim-to-employee--claim-returned"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="pay-claim--claim-paid" sourceRef="pay-claim" targetRef="claim-paid">
+      <bpmn:extensionElements><aef:uid value="pay-claim--claim-paid"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+</bpmn:definitions>
