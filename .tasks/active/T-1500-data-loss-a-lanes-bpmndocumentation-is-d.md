@@ -101,11 +101,14 @@ in the lane, in file order, so open → save keeps it.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] A lane's bpmn:documentation (one or several, with id and textFormat when present) is written back on save, before
+- [x] A lane's bpmn:documentation (one or several, with id and textFormat when present) is written back on save, before
   the lane's extensionElements, text identical — a browser leg on Greenfield's sample with lane documentation added,
   failed by 0.47.0
-- [ ] A lane without documentation saves byte-identically (byte-identity goldens unchanged); the browser tier green on a
+- [x] A lane without documentation saves byte-identically (byte-identity goldens unchanged); the browser tier green on a
   round
+  Evidence (2026-11-24): _t1500 K1-K3 PASS; 0.47.0 fails K1 (both lanes' documentation empty on save). Byte-identity
+  (_t358-byteid-thirdparty) PASS locally. Round at 99aab1706 (high-risk): browser "pool and local both green",
+  165/165 legs incl. test_t1500_lane_docs_kept; core "pool and local both green".
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
