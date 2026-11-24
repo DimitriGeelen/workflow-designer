@@ -24071,3 +24071,21 @@ scan_id: R-c842fe1f
 task_id: T-1492
 payload:
   task_file: .tasks/active/T-1492-properties-panel-show-a-steps-bpmndocume.md
+---
+kind: scan_emitted
+timestamp: '2026-11-24T10:46:57Z'
+scan_id: R-d2479d80
+task_id: T-1498
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-24T10:46:57Z'
+scan_id: R-d2479d80
+task_id: T-1498
+payload:
+  task_file: .tasks/active/T-1498-phases-each-phase-row-carries-its-catego.md

@@ -1,0 +1,120 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1498: Phases: each phase row carries its category's name as a row label ('Fase', 'Fase in Salesforce'), so a reader can tell the rows apart
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-24T10:47:05Z
+# ============================================================================
+
+task_id: T-1498
+task_name: "Phases: each phase row carries its category's name as a row label ('Fase', 'Fase in Salesforce'), so a reader can tell the rows apart"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-24T09:34:28Z
+completed: 2026-11-24T10:46:44Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-24T10:34:44+01:00
+last_commit: 2026-11-24T11:46:27+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Greenfield's observations on 0.47.0's phases registered (T-1498 row labels, T-1499 notes vs phase rows; msg ee60b420). each phase row carries its category's name at its left ('Fase', 'Fase in Salesforce'; Greenfield msg ee60b420): right-aligned before the row's brackets on the names' baseline, quieter than a phase name, counted in the opening zoom's readable floor. Leg P7 in _t1473 (0.47.0 fails it at all three widths); shots at 1024/1440/1920 and Fit. leg P8 (a phase row whose category has no name draws no row label) and the evidence for both Agent criteria (round green at 5d409618c). reviewer verdict. criterion restated to the opening zoom (operator's approval, 2026-11-24, as the reviewer proposed: Fit shrinks every text alike). the reviewer's green before the close
+
+# Key outcomes
+outcomes:
+  - 'On Greenfield''s sample at 1024/1440/1920: row 1 labelled "Fase", row 2 "Fase in Salesforce", each ending left of'
+  - 'A row with no category name draws no label; maps without phases unchanged (P4); saves unchanged (P3); the browser'
+  - 'The two phase rows are told apart by their labels, and the labels read as the rows'' names, not as phases'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1498/AC1-judge-t-1498-r3-2ac5d690d18b.md'
+  - '.context/reviews/evidence/T-1498/AC1-judge-t-1498-r3-b6bafb575ba0.md'
+  - '.context/reviews/evidence/T-1498/AC1-judge-t-1498-r3-eacbac3ab363.md'
+  - '.context/reviews/evidence/T-1498/phases-1024-judge-t-1498-r3-2ac5d690d18b.png'
+  - '.context/reviews/evidence/T-1498/phases-1024-judge-t-1498-r3-b6bafb575ba0.png'
+  - '.context/reviews/evidence/T-1498/phases-1440-judge-t-1498-r3-2ac5d690d18b.png'
+  - '.context/reviews/evidence/T-1498/phases-1440-judge-t-1498-r3-b6bafb575ba0.png'
+  - '.context/reviews/evidence/T-1498/phases-1440-judge-t-1498-r3-eacbac3ab363.png'
+  - '.context/reviews/evidence/T-1498/phases-1920-judge-t-1498-r3-2ac5d690d18b.png'
+  - '.context/reviews/evidence/T-1498/phases-1920-judge-t-1498-r3-b6bafb575ba0.png'
+  - '.context/reviews/evidence/T-1498/phases-fit-1024-judge-t-1498-r3-2ac5d690d18b.png'
+  - '.context/reviews/evidence/T-1498/phases-fit-1024-judge-t-1498-r3-eacbac3ab363.png'
+  - '.context/reviews/evidence/T-1498/phases-fit-1440-judge-t-1498-r3-2ac5d690d18b.png'
+  - '.context/reviews/evidence/T-1498/phases-fit-1920-judge-t-1498-r3-2ac5d690d18b.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1498-phases-each-phase-row-carries-its-catego.md'
+  - '.tasks/active/T-1499-phases-notes-above-the-pool-collide-with.md'
+  - 'docs/reports/T-1498-shots/phases-1024.png'
+  - 'docs/reports/T-1498-shots/phases-1440.png'
+  - 'docs/reports/T-1498-shots/phases-1920.png'
+  - 'docs/reports/T-1498-shots/phases-fit-1024.png'
+  - 'docs/reports/T-1498-shots/phases-fit-1440.png'
+  - 'docs/reports/T-1498-shots/phases-fit-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tools/_t1473-phases-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-24T10:34:44'
+    action: 'T-1498: Greenfield''s observations on 0.47.0''s phases registered (T-1498 row labels, T-1499 notes vs phase rows; msg ee60b420)'
+  - time: '2026-11-24T11:28:52'
+    action: 'T-1498: each phase row carries its category''s name at its left (''Fase'', ''Fase in Salesforce''; Greenfield msg ee60b420): right-aligned before the row''s brackets on the names'' baseline, quieter than a phase name, counted in the opening zoom''s readable floor. Leg P7 in _t1473 (0.47.0 fails it at all three widths); shots at 1024/1440/1920 and Fit'
+  - time: '2026-11-24T11:40:19'
+    action: 'T-1498: leg P8 (a phase row whose category has no name draws no row label) and the evidence for both Agent criteria (round green at 5d409618c)'
+  - time: '2026-11-24T11:41:45'
+    action: 'T-1498: reviewer verdict'
+  - time: '2026-11-24T11:45:15'
+    action: 'T-1498: criterion restated to the opening zoom (operator''s approval, 2026-11-24, as the reviewer proposed: Fit shrinks every text alike)'
+  - time: '2026-11-24T11:45:58'
+    action: 'T-1498: reviewer verdict'
+  - time: '2026-11-24T11:46:27'
+    action: 'T-1498: the reviewer''s green before the close'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 7 commit(s), 72 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [designer, greenfield, phases]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 72
+  commits: 8
+  files_changed: 34
+  lines_added: 1090
+  lines_removed: 26
+  footprint_refreshed_at: '2026-11-24T10:47:12Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1498-phases-each-phase-row-carries-its-catego.md
+generated_by: context-agent-hybrid
