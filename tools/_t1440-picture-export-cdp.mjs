@@ -39,7 +39,7 @@ const py = spawn('python3', ['-m', 'http.server', String(port), '--bind', '127.0
 const cache = join(homedir(), '.cache', 'ms-playwright');
 const chrome = readdirSync(cache).filter(d => d.startsWith('chromium-')).sort().reverse().map(d => join(cache, d, 'chrome-linux64', 'chrome')).find(existsSync);
 const udd = makeProfileDir('t1440-');
-const br = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--window-size=1440,900', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: 'ignore' });
+const br = spawn(chrome, ['--headless=new', '--disable-dev-shm-usage', '--no-sandbox', '--disable-gpu', '--window-size=1440,900', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: 'ignore' });
 const events = [];
 let cl;
 const lum = c => { c = String(c).trim(); let r, g, b; const h = /^#([0-9a-f]{6})$/i.exec(c); if (h) { const n = parseInt(h[1], 16); r = n >> 16; g = (n >> 8) & 255; b = n & 255; } else { const m = c.match(/[\d.]+/g); if (!m) return 1; [r, g, b] = m.map(Number); } return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255; };

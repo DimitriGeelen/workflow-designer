@@ -90,7 +90,7 @@ const stopBrowser = async () => {
 const startBrowser = async W => {
   await stopBrowser();
   udd = makeProfileDir('t1465-'); profiles.push(udd);   // a fresh profile: no storage carried over either
-  br = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', `--window-size=${W},900`, '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: 'ignore' });
+  br = spawn(chrome, ['--headless=new', '--disable-dev-shm-usage', '--no-sandbox', '--disable-gpu', `--window-size=${W},900`, '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: 'ignore' });
   let dp; for (let i = 0; i < 150 && !dp; i++) { try { dp = parseInt(readFileSync(join(udd, 'DevToolsActivePort'), 'utf8').split('\n')[0], 10); } catch (_) { await sleep(100); } }
   // T-1395's rule: a JavaScript dialog blocks every Runtime.evaluate until answered: accept it at once, and NAME it.
   const c = cdp(await pageWsUrl(dp), { cmdMs: 60000, onEvent: m => {

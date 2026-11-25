@@ -38,7 +38,7 @@ const py = spawn('python3', ['-m', 'http.server', String(port), '--bind', '127.0
 const cache = join(homedir(), '.cache', 'ms-playwright');
 const chrome = readdirSync(cache).filter(d => d.startsWith('chromium-')).sort().reverse().map(d => join(cache, d, 'chrome-linux64', 'chrome')).find(existsSync);
 const udd = makeProfileDir('t1441-');
-const br = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--window-size=1440,900', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: 'ignore' });
+const br = spawn(chrome, ['--headless=new', '--disable-dev-shm-usage', '--no-sandbox', '--disable-gpu', '--window-size=1440,900', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: 'ignore' });
 const events = [];
 let cl;
 // The comparable shape of a map, by PERMANENT identity (aef:uid): steps as uid | name | type | lane, flows as

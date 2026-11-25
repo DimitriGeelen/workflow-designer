@@ -5414,6 +5414,20 @@ fi
 }
 leg core "test_t1288_tiers" _leg_t1288
 
+# ── T-1523: every tool that starts Chrome passes --disable-dev-shm-usage (a small /dev/shm on a pool node crashed the
+# renderer: T-1504, ring20-live, 3/3 runs); the check's own teeth run first, so a dead check cannot read as clean ──
+_leg_t1523() {
+if python3 "$ROOT/tools/_t1523-chrome-shm-flag.py" --teeth > "$TMP/leg-_t1523.out" 2>&1 \
+   && python3 "$ROOT/tools/_t1523-chrome-shm-flag.py" >> "$TMP/leg-_t1523.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a tool starts Chrome without --disable-dev-shm-usage (its renderer can crash on a pool node with a small /dev/shm), or the check stopped biting (run 'python3 tools/_t1523-chrome-shm-flag.py'; T-1523)"
+  show_output "$TMP/leg-_t1523.out" "_t1523-chrome-shm-flag.py"
+  fail=$((fail + 1))
+fi
+}
+leg core "test_t1523_chrome_shm_flag" _leg_t1523
+
 [ "$T1288_LIST" = 1 ] && { [ -z "${_T1288_NOTIER:-}" ]; exit; }
 t1288_finish
 echo

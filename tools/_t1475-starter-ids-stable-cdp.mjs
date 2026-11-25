@@ -45,7 +45,7 @@ try {
   for (let i = 0; i < 3; i++) {
     await stop();
     const udd = makeProfileDir('t1475-'); profiles.push(udd);   // a fresh profile: no autosave, the starter map loads
-    br = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--window-size=1440,900', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: 'ignore' });
+    br = spawn(chrome, ['--headless=new', '--disable-dev-shm-usage', '--no-sandbox', '--disable-gpu', '--window-size=1440,900', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: 'ignore' });
     let dp; for (let k = 0; k < 150 && !dp; k++) { try { dp = parseInt(readFileSync(join(udd, 'DevToolsActivePort'), 'utf8').split('\n')[0], 10); } catch (_) { await sleep(100); } }
     if (!dp) throw new Error('no devtools port');
     cl = cdp(await pageWsUrl(dp), { cmdMs: 60000 }); await cl.ready;
