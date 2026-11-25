@@ -43,7 +43,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-24T11:08:18Z
-last_update: 2026-11-25T08:57:49Z
+last_update: 2026-11-25T08:58:22Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -129,6 +129,22 @@ select the new phase so the panel (slice A) renames it.
   nobody adds phases to saves byte-identically; the browser tier green on a round
 
 ### Human
+- [ ] Adding phases from the left panel reads like adding a lane: a person finds the Phases section, understands what
+  "Add phase row" and "Add phase" do, and sees where the split will land before clicking
+  **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1504 --criterion 1`), who may escalate.
+  **Steps:**
+  1. `docs/reports/T-1504-shots/palette-{1024,1440,1920}.png` (Greenfield's sample without phases, just opened: the
+     Phases section under Lanes), `row-added-{1024,1440,1920}.png` (after "Add phase row": one bracket across the pool,
+     row label "Phases", the new phase selected in the panel), `split-preview-{1024,1440,1920}.png` (after "Add phase",
+     the pointer over a step gap: the palette item highlighted, the status "add phase: click where it starts", the dashed
+     line where the split would land; it may be off-screen to the right in a shot, the harness asserts it is drawn),
+     `five-phases-{1024,1440,1920}.png` (after four splits: five brackets, dividers at the gaps, the last one selected)
+  2. Judge: are the two palette items' names and hints clear; is the new row and the selected phase obvious; is
+     anything clipped or overlapping
+  **Expected:** a person who has added a lane can add a phase row and split it without help; the new phase is visibly
+  selected and its panel (slice A) is where its name is typed. Splitting snaps to the nearest gap between steps by design
+  (T-1491: a phase is a range of steps); moving a boundary afterwards is slice C (T-1505).
+  **If not:** say what reads wrong; the agent adjusts.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
