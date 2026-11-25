@@ -2504,6 +2504,20 @@ else
 fi
 }
 leg browser "test_t1499_notes_vs_phases" _leg_t1499
+_leg_t1504() {
+
+# ── T-1504 (T-1491 GO, slice B): the left panel's Phases section adds a phase row and splits a phase at a step gap, on
+# the starter map and Greenfield's sample stripped of its phases; the save is standard BPMN read back the same here and
+# by dist 0.49.0; a map nobody adds phases to saves as 0.49.0 saves it. ~30 s.
+if node "$ROOT/tools/_t1504-phase-add-cdp.mjs" > "$TMP/leg-_t1504.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "Adding a phase row or a phase from the left panel no longer works, or its save is not read back the same (_t1504-phase-add-cdp.mjs; T-1504)"
+  show_output "$TMP/leg-_t1504.out" "_t1504-phase-add-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1504_phase_add" _leg_t1504
 _leg_t1470() {
 
 # ── T-1470 (Greenfield): an association between two steps that line up is drawn straight (Solution - Product ->

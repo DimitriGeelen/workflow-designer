@@ -43,7 +43,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-24T11:08:18Z
-last_update: 2026-11-24T20:42:23Z
+last_update: 2026-11-25T08:57:49Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -118,9 +118,12 @@ select the new phase so the panel (slice A) renames it.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] On a map without phases (Greenfield's sample stripped; the starter map): the left panel's Phases section adds a
+- [x] On a map without phases (Greenfield's sample stripped; the starter map): the left panel's Phases section adds a
   row with one phase spanning the pool; "Add phase" + a click splits the phase under the click at the nearest step gap;
   the new phase is selected; undo removes it — a browser leg, failed by 0.49.0 (no Phases section)
+  **Evidence:** `tools/_t1504-phase-add-cdp.mjs` B1, B2 and B5 green (real clicks on the palette and the map; four splits make
+  five phases, each boundary a step gap; undo 5→4, redo 4→5; Esc leaves Add phase without a change; the dashed preview
+  line drawn on hover). Teeth: `T1504_EDITOR=dist/aef-workflow-designer-0.49.0.html` fails B1 (no Phases section).
 - [ ] The save writes standard BPMN (root category with values, groups with categoryValueRef, full-pool-height group
   shapes, no aef extension); reopened here and by dist 0.49.0 it draws the same phases at the same boundaries; a map
   nobody adds phases to saves byte-identically; the browser tier green on a round
@@ -172,6 +175,22 @@ select the new phase so the panel (slice A) renames it.
 -->
 
 ## Verification
+
+node tools/_t1504-phase-add-cdp.mjs > /tmp/.t1504.out 2>&1 && grep -q "all legs passed" /tmp/.t1504.out
+grep -q 'test_t1504_phase_add' tests/run-bridge-tests.sh
+
+## Visual Verification
+
+Shots: `docs/reports/T-1504-shots/` (`T1504_SHOTS=… node tools/_t1504-phase-add-cdp.mjs`), Greenfield's sample stripped
+of its phases, at 1024/1440/1920: `palette-*` (opened), `row-added-*`, `split-preview-*` (Add phase on, pointer over a
+gap), `five-phases-*` (after four splits).
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| opened | Phases section (Add phase row, Add phase) under Lanes | ok | ok | ok | left panel scrolls at 1024, as for every section |
+| row added | one bracket across the pool, "Phases" row label, panel "phase" Name/Row/Documentation | ok | ok | ok | |
+| Add phase on | palette item highlighted, status "add phase: click where it starts", col-resize cursor | ok | ok | ok | preview line asserted by B2 (the shot's gap is off-screen at 1440) |
+| five phases | brackets and dashed dividers at step gaps, last phase selected | ok | ok | ok | |
 
 <!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
      headings; the completion gate strips HTML comments before running anything.
@@ -380,6 +399,19 @@ select the new phase so the panel (slice A) renames it.
 -->
 
 ## Decisions
+
+### 2026-11-25 — prefixes of the new elements
+- **Chose:** `bpmn:`/`bpmndi:`/`dc:` for every element the designer adds (a split keeps the row's own prefix for the new value).
+- **Why:** every designer save declares exactly these; a source's prefix may be declared only on the source's root,
+  which the designer rewrites.
+- **Rejected:** the kept XML's prefix (the plan's first idea): it may name a namespace the save does not declare.
+
+### 2026-11-25 — the new group's height
+- **Chose:** the pool as drawn, joined with the file's own phase band when it has one (`pk.poolBand`).
+- **Why:** the group must span the band in this session (F3) and after a save and reopen, where the band is the steps'
+  (T-1510); the drawn pool contains both.
+- **Known limit:** a lane added below AFTER the phases makes the pool taller than the groups; after a reopen the steps in
+  that lane fall outside them and the phases are not drawn (the T-1510 rule). Follow-up: T-1513.
 
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
