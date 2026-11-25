@@ -17045,6 +17045,22 @@ function _dropGroups(pk, groupIds) {
 function phaseDelete(id) {
   const f = phaseFind(id), pk = phaseKept(); if (!f || !pk) return;
   pushHistory();
+  // T-1515 (T-1491 walkthrough step 7): the neighbour that shares an edge with the deleted phase takes its range — the
+  // left one widens to its end; else (a row's first phase, or no left one touching) the right one starts where it
+  // started. Only that neighbour's
+  // Bounds x/width change. A phase that touches no neighbour leaves its stretch empty, as before.
+  const ps = f.row.phases, i = ps.findIndex(p => p.id === id), p = f.phase;
+  const L = i > 0 ? ps[i - 1] : null, R = i < ps.length - 1 ? ps[i + 1] : null;
+  const touches = (a, b) => Math.abs(a.x + a.w - b.x) <= 2;
+  const setB = (gid, attrs) => {
+    const k = (pk.di || []).findIndex(d => d.ref === gid); if (k < 0) return;
+    const xml = pk.di[k].xml, m = /<(?:[\w.-]+:)?Bounds\b[^>]*>/.exec(xml); if (!m) return;
+    let tag = m[0];
+    for (const [a, v] of Object.entries(attrs)) tag = tag.replace(new RegExp(`(\\s${a}=")[^"]*(")`), `$1${_r1(v)}$2`);
+    pk.di[k] = { ...pk.di[k], xml: xml.slice(0, m.index) + tag + xml.slice(m.index + m[0].length) };
+  };
+  if (L && touches(L, p)) setB(L.id, { width: p.x + p.w - L.x });
+  else if (R && touches(p, R)) setB(R.id, { x: p.x, width: R.x + R.w - p.x });   // the first phase, or no left one touching
   _dropGroups(pk, [id]);
   const vid = f.phase.valueId;
   pk.categories = pk.categories.map(x => {

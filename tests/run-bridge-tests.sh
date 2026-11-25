@@ -2558,6 +2558,20 @@ else
 fi
 }
 leg browser "test_t1525_lane_undo" _leg_t1525
+_leg_t1515() {
+
+# ── T-1515 (T-1491 step 7): deleting a phase gives its range to the neighbour it shares an edge with (left, else right);
+# a phase touching no neighbour leaves its stretch empty; one undo; the save changes only the deleted elements and that
+# neighbour's Bounds; read back the same by dist 0.50.0. ~20 s.
+if node "$ROOT/tools/_t1515-phase-delete-neighbour-cdp.mjs" > "$TMP/leg-_t1515.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "Deleting a phase no longer gives its range to its neighbour, or changes more than that (_t1515-phase-delete-neighbour-cdp.mjs; T-1515)"
+  show_output "$TMP/leg-_t1515.out" "_t1515-phase-delete-neighbour-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1515_phase_delete_neighbour" _leg_t1515
 _leg_t1470() {
 
 # ── T-1470 (Greenfield): an association between two steps that line up is drawn straight (Solution - Product ->

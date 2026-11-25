@@ -1,13 +1,18 @@
 ---
 id: T-1515
-name: "Phases: deleting a phase gives its range to a neighbour instead of leaving a hole (T-1491 walkthrough step 7)"
+name: "Phases: deleting a phase gives its range to a neighbour instead of leaving
+  a hole (T-1491 walkthrough step 7)"
 description: >
-  T-1491 design step 7: delete a phase, its neighbour takes its range. phaseDelete (T-1502) drops the group, its shape and value, leaving a gap in the row's brackets. Fix: widen the left neighbour (or the right one for the first phase) over the deleted range; one undo step.
+  T-1491 design step 7: delete a phase, its neighbour takes its range. phaseDelete
+  (T-1502) drops the group, its shape and value, leaving a gap in the row's brackets.
+  Fix: widen the left neighbour (or the right one for the first phase) over the deleted
+  range; one undo step.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [designer, phases, bug]
 components: []
 related_tasks: []
@@ -38,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-25T09:04:20Z
-last_update: 2026-11-25T09:04:20Z
-date_finished: null
+last_update: 2026-11-25T16:12:51Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +55,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-25T16:09:09Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 1
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=1 (body:fix-without-learning); D2=0 (no-signal); D3=0 (no-signal);
+      D4=0 (no-signal); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=0 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1515: Phases: deleting a phase gives its range to a neighbour instead of leaving a hole (T-1491 walkthrough step 7)
@@ -57,22 +82,47 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** the T-1491 design (docs/reports/T-1491-phases-editing.md, walkthrough step 7): "Delete a
+phase (its neighbour takes its range)". Slice A (T-1502) deletes the phase and leaves its stretch without a phase; the
+0.49.0 release notes promised the neighbour with slice C, and it was split off as this task (T-1505).
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** after deleting a phase the row has a gap: the steps under it belong to no phase, which a
+person then has to repair by dragging (slice C) — and only if the neighbours touch.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** deleting a phase gives its range to the neighbour it shares an edge with: the left neighbour widens to the
+deleted phase's end; for the first phase of a row, the right neighbour starts where it started. Only that neighbour's
+Bounds `x`/`width` change; still one undo step. A phase that shares no edge (a row whose phases do not touch, as
+Greenfield's 'Fase in Salesforce') is deleted as before. Deleting the last phase of a row still deletes the row.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** a row has no hole after a delete.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] On Greenfield's sample: deleting a middle phase of 'Fase' (Delete key) widens its left neighbour over its range;
+  deleting the first widens the second to the left; deleting a 'Fase in Salesforce' phase leaves its neighbours as they
+  were; one undo restores each; the save changes only the deleted elements and the neighbour's Bounds `x`/`width`;
+  read back here and by dist 0.50.0 the same — a browser leg, failed by 0.50.0
+  **Evidence:** `tools/_t1515-phase-delete-neighbour-cdp.mjs` D1-D4 green (D1 'Fase' 2 widens to 562..1754 over phase 3;
+  D2 'Fase' 2 starts at 92; D3 'Fase in Salesforce' neighbours unchanged; D4 four changed lines, all the deleted phase's
+  or Group_f2's Bounds, read back the same here and by 0.50.0). Teeth: `T1515_EDITOR=dist/…0.50.0.html` fails D1, D2.
+- [ ] The browser tier green on a round; the slice A harness (T-1502) still green
+  (T-1502's A6 expectation updated deliberately: after it deletes 'Productie & service', 'Order & levering' now ends
+  where that phase ended.)
 
 ### Human
+- [ ] Deleting a phase reads as its neighbour taking over: a person sees no gap in the row afterwards
+  **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1515 --criterion 1`), who may escalate.
+  **Steps:**
+  1. In `docs/reports/T-1515-shots/`, at 1024/1440/1920, the pair `before-delete-{W}.png` / `after-delete-{W}.png` in
+     the same view (Greenfield's sample `tests/fixtures/greenfield/ws-otb-fasen-voorbeeld.bpmn`, process
+     `process_nooteboom`; zoomed out only until 'Fase' phases 2 and 3 are in view): before, 'Offerte & onderhandeling'
+     selected beside 'Configuratie' with the dashed divider between them; after the Delete key, 'Configuratie' spans
+     both ranges and that divider is gone
+  2. Judge: is it clear the neighbour took the range; is anything clipped or overlapping
+  **Expected:** no hole in the row; the neighbour's bracket and name cover the deleted range. By design (T-1491 step 7)
+  the left neighbour takes it; a row's first phase gives it to the right one; a phase touching no neighbour leaves a gap.
+  **If not:** say what reads wrong; the agent adjusts.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -119,6 +169,19 @@ date_finished: null
 -->
 
 ## Verification
+
+node tools/_t1515-phase-delete-neighbour-cdp.mjs > /tmp/.t1515.out 2>&1 && grep -q "all legs passed" /tmp/.t1515.out
+grep -q 'test_t1515_phase_delete_neighbour' tests/run-bridge-tests.sh
+
+## Visual Verification
+
+Shots: `docs/reports/T-1515-shots/` (`T1515_SHOTS=… node tools/_t1515-phase-delete-neighbour-cdp.mjs`), Greenfield's
+sample, at 1024/1440/1920, the before/after pair in the same view.
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| before delete | 'Offerte & onderhandeling' selected, divider between it and 'Configuratie' | ok | ok | ok | |
+| after delete | 'Configuratie' bracket and name over both ranges, no divider between | ok | ok | ok | zoomed out only to fit phases 2-3 |
 
 <!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
      headings; the completion gate strips HTML comments before running anything.
@@ -353,3 +416,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1515-phases-deleting-a-phase-gives-its-range-.md
 - **Context:** Initial task creation
+
+### 2026-11-25T16:09:08Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

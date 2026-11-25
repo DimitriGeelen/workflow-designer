@@ -139,14 +139,18 @@ try {
   // A6
   const back = await ev(`(function(x){ adoptImportedXml(x, { userImport: true }); renderAll(); return ${PHASES}; })(${JSON.stringify(after)})`);
   const want = ['Opportunity', 'Configuratie', 'Offerte & onderhandeling', 'Order & levering'];
-  const sameX = back.every(p => { const o = phasesBefore.find(q => q.id === p.id); return o && o.x1 === p.x1 && o.x2 === p.x2; });
+  // T-1515: deleting 'Productie & service' (Group_f5) gives its range to its left neighbour, so 'Order & levering'
+  // (Group_f4) now ends where Group_f5 ended; every other phase keeps its x range
+  const f5 = phasesBefore.find(q => q.id === 'Group_f5');
+  const sameX = back.every(p => { const o = phasesBefore.find(q => q.id === p.id);
+    return o && o.x1 === p.x1 && (p.id === 'Group_f4' ? f5 && p.x2 === f5.x2 : o.x2 === p.x2); });
   let reader = null;
   if (existsSync(join(doc, 'reader.html'))) {
     await open('reader.html');
     reader = await ev(`(function(x){ adoptImportedXml(x, { userImport: true }); renderAll(); return ${PHASES}; })(${JSON.stringify(after)})`);
   }
   leg(JSON.stringify(back.map(p => p.name)) === JSON.stringify(want) && sameX && reader && JSON.stringify(reader.map(p => p.name)) === JSON.stringify(want),
-    `A6 read back here and by the released 0.48.1: one row, the four phases with the new name, at the same x ranges`,
+    `A6 read back here and by the released 0.48.1: one row, the four phases with the new name, at the same x ranges (Order & levering taking deleted Productie & service's range, T-1515)`,
     JSON.stringify({ here: back.map(p => p.name), sameX, reader: reader && reader.map(p => p.name) }).slice(0, 240));
   if (process.env.T1502_SHOTS) {
     mkdirSync(process.env.T1502_SHOTS, { recursive: true });
