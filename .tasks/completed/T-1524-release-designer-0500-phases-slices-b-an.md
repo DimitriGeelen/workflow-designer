@@ -4,12 +4,13 @@ name: "Release designer 0.50.0: phases slices B and C (add phase rows and phases
 description: >
   Release 0.50.0 (minor): T-1504 (add phase row / add phase at a step gap), T-1505 (drag a shared phase edge, snapping to step gaps), T-1499 (notes above the pool drawn clear of the phase rows), plus harness hardening (T-1523). Release notes, contracts table, runme job; announce to AEF and Greenfield.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [release, designer]
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-25T12:01:02Z
-last_update: 2026-11-25T12:03:20Z
-date_finished: null
+last_update: 2026-11-25T15:21:12Z
+date_finished: 2026-11-25T15:21:12Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -70,11 +71,15 @@ after slice C ("Proceed as you see fit", 2026-11-25; earlier: "release … then 
 ## Acceptance Criteria
 
 ### Agent
-- [ ] `docs/releases/RELEASE-NOTES-0.50.0.md` committed: the changes, what changes in stored maps, the AEF section with
+- [x] `docs/releases/RELEASE-NOTES-0.50.0.md` committed: the changes, what changes in stored maps, the AEF section with
   the five endpoints, the shared-contracts table (`tools/_t1425-shared-contracts.py --version 0.50.0 --check` passes)
-- [ ] A release job, dry-run (rehearsed) and committed, handed to the operator with the watcher armed
-- [ ] After the operator's run: tag `designer-v0.50.0` on origin, `dist/aef-workflow-designer-0.50.0.html` equal to src
+- [x] A release job, dry-run (rehearsed) and committed, handed to the operator with the watcher armed
+  **Evidence:** job 184 (sha 76ee9b22219e), dry-run passed (step 1 rehearsed, real repo unchanged), committed 09b15a1d7.
+- [x] After the operator's run: tag `designer-v0.50.0` on origin, `dist/aef-workflow-designer-0.50.0.html` equal to src
   at the tag; AEF and Greenfield told (version, tag, sha256, bytes, what it brings, what changes in what they store)
+  **Evidence:** job 184 done rc=0 (2026-11-25 15:19Z; calibrations codex and GLM-5.3 PASS, browser tier green on 4 pool
+  shards, core green); tag on origin (ed3503b8, release commit 850394c00); artifact sha256 23a8d4d0…a71d42, 1493171 B,
+  identical to src; announced to AEF (msg bd2cad5f, conversation 832-designer-release-0.50.0) and Greenfield (b16a3e25).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -123,6 +128,11 @@ after slice C ("Proceed as you see fit", 2026-11-25; earlier: "release … then 
 -->
 
 ## Verification
+
+git ls-remote --exit-code --tags origin designer-v0.50.0
+cmp -s dist/aef-workflow-designer-0.50.0.html "$(git rev-parse --show-toplevel)/dist/aef-workflow-designer-0.50.0.html" && git cat-file -e designer-v0.50.0:dist/aef-workflow-designer-0.50.0.html
+python3 tools/_t1425-shared-contracts.py --version 0.50.0 --check
+test -f .context/runme/184-release-designer-0.50.0/done
 
 <!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
      headings; the completion gate strips HTML comments before running anything.
@@ -357,3 +367,16 @@ after slice C ("Proceed as you see fit", 2026-11-25; earlier: "release … then 
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1524-release-designer-0500-phases-slices-b-an.md
 - **Context:** Initial task creation
+
+### 2026-11-25T15:21:12Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-fe5f633c
+- **Timestamp:** 2026-11-25T15:21:14Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

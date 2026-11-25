@@ -1,0 +1,108 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1524: Release designer 0.50.0: phases slices B and C (add phase rows and phases, drag boundaries), notes clear of phase rows (T-1499)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-25T15:21:24Z
+# ============================================================================
+
+task_id: T-1524
+task_name: "Release designer 0.50.0: phases slices B and C (add phase rows and phases, drag boundaries), notes clear of phase rows (T-1499)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-25T12:01:02Z
+completed: 2026-11-25T15:21:12Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-11-25T13:02:29+01:00
+last_commit: 2026-11-25T15:39:29+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  release notes 0.50.0 (phases slices B and C, notes clear of the phase rows); contracts table checked. release job 184 (0.50.0), dry-run passed (job.sh sha 76ee9b22219e). 0.50.0 — VERSION and APP_VERSION bumped by the release job (parity ok). release designer 0.50.0 — phases made from the left panel (add a row, split at step gaps) and moved (drag a shared edge, snapping to step gaps); notes clear of the phase rows; kit calibrated on its bytes
+
+# Key outcomes
+outcomes:
+  - '`docs/releases/RELEASE-NOTES-0.50.0.md` committed: the changes, what changes in stored maps, the AEF section with'
+  - 'A release job, dry-run (rehearsed) and committed, handed to the operator with the watcher armed'
+  - 'After the operator''s run: tag `designer-v0.50.0` on origin, `dist/aef-workflow-designer-0.50.0.html` equal to src'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/184-release-designer-0.50.0/dryrun.ok'
+  - '.context/runme/184-release-designer-0.50.0/job.sh'
+  - '.tasks/active/T-1524-release-designer-0500-phases-slices-b-an.md'
+  - 'VERSION'
+  - 'dist/MANIFEST.yaml'
+  - 'dist/aef-authoring-kit-0.50.0/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.50.0/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.50.0/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.50.0/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.50.0/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.50.0/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.50.0/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.50.0/SKILL.md'
+  - 'dist/aef-authoring-kit-0.50.0/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.50.0/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.50.0/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.50.0/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.50.0/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.50.0/loop.sh'
+  - 'dist/aef-authoring-kit-0.50.0/validate-workflow.py'
+  - 'dist/aef-authoring-kit-0.50.0/verify-findings.py'
+  - 'dist/aef-workflow-designer-0.50.0.html'
+  - 'docs/authoring-kit/calibration-records/0.50.0.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.50.0.md'
+  - 'src/aef-workflow-designer.html'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-25T13:02:29'
+    action: 'T-1524: release notes 0.50.0 (phases slices B and C, notes clear of the phase rows); contracts table checked'
+  - time: '2026-11-25T13:03:20'
+    action: 'T-1524: release job 184 (0.50.0), dry-run passed (job.sh sha 76ee9b22219e)'
+  - time: '2026-11-25T13:48:45'
+    action: 'T-1524: 0.50.0 — VERSION and APP_VERSION bumped by the release job (parity ok)'
+  - time: '2026-11-25T15:39:29'
+    action: 'T-1524: release designer 0.50.0 — phases made from the left panel (add a row, split at step gaps) and moved (drag a shared edge, snapping to step gaps); notes clear of the phase rows; kit calibrated on its bytes'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 200 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [release, designer]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 200
+  commits: 5
+  files_changed: 28
+  lines_added: 23909
+  lines_removed: 21
+  footprint_refreshed_at: '2026-11-25T15:21:30Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1524-release-designer-0500-phases-slices-b-an.md
+generated_by: context-agent-hybrid
