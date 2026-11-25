@@ -243,6 +243,8 @@ try {
       await open('designer.html');
       await cl.cmd('Emulation.setDeviceMetricsOverride', { width: W, height: 900, deviceScaleFactor: 2, mobile: false });
       await adopt(STRIPPED); await frames();
+      // the Phases section in view: the left panel scrolls at 1024 (T-1504 review: palette-1024 did not show it)
+      await ev(`(function(){ document.getElementById('palette-phases').scrollIntoView({ block: 'center' }); return true; })()`); await frames();
       let s = await cl.cmd('Page.captureScreenshot', { format: 'png' });
       writeFileSync(join(D, `palette-${W}.png`), Buffer.from(s.data, 'base64'));
       await click('#palette-add-phase-row'); await sleep(300);
@@ -267,6 +269,13 @@ try {
       await ev(`(function(){ var sc = svg.parentElement; sc.scrollLeft = 0; sc.scrollTop = 0; return true; })()`); await frames();
       s = await cl.cmd('Page.captureScreenshot', { format: 'png' });
       writeFileSync(join(D, `five-phases-${W}.png`), Buffer.from(s.data, 'base64'));
+      // the same at 100%, readable: the left end (phases 1-2) and the right end (phases 4-5) of the row
+      await click('#zoom-level'); await sleep(400);
+      for (const [end, left] of [['left', 0], ['right', 1e6]]) {
+        await ev(`(function(){ var sc = svg.parentElement; sc.scrollLeft = ${left}; sc.scrollTop = 0; return true; })()`); await frames(); await sleep(200);
+        s = await cl.cmd('Page.captureScreenshot', { format: 'png' });
+        writeFileSync(join(D, `five-phases-100-${end}-${W}.png`), Buffer.from(s.data, 'base64'));
+      }
     }
     await cl.cmd('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
   }

@@ -43,7 +43,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-24T11:08:18Z
-last_update: 2026-11-25T10:38:39Z
+last_update: 2026-11-25T10:41:16Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -139,12 +139,15 @@ select the new phase so the panel (slice A) renames it.
   "Add phase row" and "Add phase" do, and sees where the split will land before clicking
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1504 --criterion 1`), who may escalate.
   **Steps:**
-  1. `docs/reports/T-1504-shots/palette-{1024,1440,1920}.png` (Greenfield's sample without phases, just opened: the
-     Phases section under Lanes), `row-added-{1024,1440,1920}.png` (after "Add phase row": one bracket across the pool,
+  1. The map in every shot is Greenfield's sample `tests/fixtures/greenfield/ws-otb-fasen-voorbeeld.bpmn` (its process is
+     `process_nooteboom`, "[WS-OTO] Workshop 6-11-2026 …"), with its phases removed by the harness.
+     `docs/reports/T-1504-shots/palette-{1024,1440,1920}.png` (just opened, the left panel scrolled to the Phases section
+     under Lanes), `row-added-{1024,1440,1920}.png` (after "Add phase row": one bracket across the pool,
      row label "Phases", the new phase selected in the panel), `split-preview-{1024,1440,1920}.png` (after "Add phase",
      the pointer over a step gap: the palette item highlighted, the status "add phase: click where it starts", the dashed
-     line where the split would land; it may be off-screen to the right in a shot, the harness asserts it is drawn),
-     `five-phases-{1024,1440,1920}.png` (after four splits: five brackets, dividers at the gaps, the last one selected)
+     line where the split would land), `five-phases-{1024,1440,1920}.png` (after four splits, Fit whole diagram: all five
+     brackets and the dividers at the gaps, the last one selected; names small at that zoom), and the same at 100%,
+     readable: `five-phases-100-left-{W}.png` (phases 1-2) and `five-phases-100-right-{W}.png` (phases 4-5)
   2. Judge: are the two palette items' names and hints clear; is the new row and the selected phase obvious; is
      anything clipped or overlapping
   **Expected:** a person who has added a lane can add a phase row and split it without help; the new phase is visibly
