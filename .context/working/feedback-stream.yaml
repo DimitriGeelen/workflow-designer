@@ -24349,3 +24349,39 @@ scan_id: R-fe5f633c
 task_id: T-1524
 payload:
   task_file: .tasks/active/T-1524-release-designer-0500-phases-slices-b-an.md
+---
+kind: scan_emitted
+timestamp: '2026-11-25T16:00:55Z'
+scan_id: R-1c52e993
+task_id: T-1525
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-25T16:00:55Z'
+scan_id: R-1c52e993
+task_id: T-1525
+payload:
+  task_file: .tasks/active/T-1525-adding-or-deleting-a-lane-records-no-und.md
+---
+kind: scan_emitted
+timestamp: '2026-11-25T16:01:39Z'
+scan_id: R-4ef6a14d
+task_id: T-1513
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-25T16:01:39Z'
+scan_id: R-4ef6a14d
+task_id: T-1513
+payload:
+  task_file: .tasks/active/T-1513-phases-vanish-after-reopen-when-a-lane-w.md

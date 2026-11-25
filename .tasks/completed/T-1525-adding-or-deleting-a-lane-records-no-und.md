@@ -8,13 +8,13 @@ description: >
   restores the snapshot taken before the previous recorded action, losing that action
   too. Fix: pushHistory() at the start of both; a browser leg.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [designer, undo, bug, lanes]
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -43,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-25T15:30:57Z
-last_update: 2026-11-25T15:39:13Z
-date_finished:
+last_update: 2026-11-25T16:00:49Z
+date_finished: 2026-11-25T16:00:49Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -98,9 +98,14 @@ no dead undo step, as the move/clean buttons do with commitHistory).
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Adding a lane (Add Lane button), deleting a lane, and a real drag of a lane's resize handle are each undone by one
+- [x] Adding a lane (Add Lane button), deleting a lane, and a real drag of a lane's resize handle are each undone by one
   undo (the map before it, the actions before it kept) and redone by one redo — a browser leg, failed by 0.50.0
-- [ ] A press on a lane's resize handle without moving records no undo step; the browser tier green on a round
+  **Evidence:** `tools/_t1525-lane-undo-cdp.mjs` U1-U3 green (a phase row added first stays through each undo; lane
+  heights compared rounded: a drag leaves a fractional height, the saved map keeps it rounded); teeth:
+  `T1525_EDITOR=dist/aef-workflow-designer-0.50.0.html` fails U1, U2, U3.
+- [x] A press on a lane's resize handle without moving records no undo step; the browser tier green on a round
+  **Evidence:** U4 (undo depth 4 before and after a still press). Round at 521361c09: browser green (868 s), core green
+  (1153 s).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -149,6 +154,9 @@ no dead undo step, as the move/clean buttons do with commitHistory).
 -->
 
 ## Verification
+
+node tools/_t1525-lane-undo-cdp.mjs > /tmp/.t1525.out 2>&1 && grep -q "all legs passed" /tmp/.t1525.out
+grep -q 'test_t1525_lane_undo' tests/run-bridge-tests.sh
 
 <!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
      headings; the completion gate strips HTML comments before running anything.
@@ -303,6 +311,18 @@ no dead undo step, as the move/clean buttons do with commitHistory).
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
+**Symptom:** Ctrl+Z right after adding, deleting or resizing a lane also undid the action before it (found in T-1513,
+whose undo check removed a phase split instead of the lane change).
+
+**Root cause:** undo is a stack of snapshots that each mutation must push before it changes state (T-132). Three lane
+mutations (`addLane`, `deleteLane`, the lane-resize gesture) never pushed; the pool's width resize, beside them, did.
+
+**Why structurally allowed:** the push is a convention each mutation remembers, not something the state change enforces,
+and no leg tested undo on lane changes, so the missing pushes were invisible for as long as lanes have been editable.
+
+**Prevention:** browser leg `test_t1525_lane_undo` pins one undo step per lane change and none for a still press. A
+general guard (every function that mutates `state` records history) would need a census of mutators; not done here.
+
 ## Evolution
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
@@ -387,3 +407,16 @@ no dead undo step, as the move/clean buttons do with commitHistory).
 ### 2026-11-25T15:35:34Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-25T16:00:49Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-1c52e993
+- **Timestamp:** 2026-11-25T16:00:55Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1525: Adding or deleting a lane records no undo step (addLane/deleteLane never call pushHistory): Ctrl+Z after adding a lane undoes the action before it as well
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-25T16:01:10Z
+# ============================================================================
+
+task_id: T-1525
+task_name: "Adding or deleting a lane records no undo step (addLane/deleteLane never call pushHistory): Ctrl+Z after adding a lane undoes the action before it as well"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-25T15:30:57Z
+completed: 2026-11-25T16:00:49Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-25T16:39:13+01:00
+last_commit: 2026-11-25T16:39:13+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  adding, deleting and resizing a lane are each one undo step (addLane/deleteLane push; a resize snapshots at the press and records at the release only when a height changed). Browser leg test_t1525_lane_undo (U1-U4; 0.50.0 fails U1-U3)
+
+# Key outcomes
+outcomes:
+  - 'Adding a lane (Add Lane button), deleting a lane, and a real drag of a lane''s resize handle are each undone by one'
+  - 'A press on a lane''s resize handle without moving records no undo step; the browser tier green on a round'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1525-adding-or-deleting-a-lane-records-no-und.md'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1525-lane-undo-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-25T16:39:13'
+    action: 'T-1525: adding, deleting and resizing a lane are each one undo step (addLane/deleteLane push; a resize snapshots at the press and records at the release only when a height changed). Browser leg test_t1525_lane_undo (U1-U4; 0.50.0 fails U1-U3)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 29 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [designer, undo, bug, lanes]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 29
+  commits: 2
+  files_changed: 7
+  lines_added: 749
+  lines_removed: 9
+  footprint_refreshed_at: '2026-11-25T16:02:02Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1525-adding-or-deleting-a-lane-records-no-und.md
+generated_by: context-agent-hybrid
