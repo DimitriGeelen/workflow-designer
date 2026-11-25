@@ -16879,16 +16879,49 @@ function phasesParse(pk) {
   _phasesParsed.set(pk, out);
   return out;
 }
+// T-1513: a phase that spans the pool keeps spanning it. When an edit makes the pool taller than it was at the last
+// render (a lane added below, a lane made taller), each drawn phase whose shape reached the old pool bottom is stretched
+// to the new one (only its Bounds `height`), and the session band (pk.poolBand) grows with it. Before, a step placed
+// in the new space put the saved file's step band (T-1510) below the groups, and after a reopen every phase vanished.
+// Never on the first render of a map (that only records the pool), nor when the pool did not grow by more than 2 px,
+// so a map nobody edits is not changed. The stretch belongs to the edit that grew the pool (its undo step).
+function _phasesFollowPool(pk, poolBottom) {
+  const prev = pk._poolSeenBottom;
+  pk._poolSeenBottom = poolBottom;
+  if (prev == null || !(poolBottom > prev + 2)) return false;
+  const rows = phasesParse(pk);
+  let changed = false;
+  for (const r of rows) for (const p of r.phases) {
+    const i = (pk.di || []).findIndex(d => d.ref === p.id); if (i < 0) continue;
+    const xml = pk.di[i].xml, m = /<(?:[\w.-]+:)?Bounds\b[^>]*>/.exec(xml); if (!m) continue;
+    const a = k => { const v = new RegExp(`\\s${k}="([^"]*)"`).exec(m[0]); return v ? parseFloat(v[1]) : NaN; };
+    const y = a('y'), h = a('height');
+    if (!Number.isFinite(y) || !Number.isFinite(h)) continue;
+    if (y + h < prev - 2 || y + h >= poolBottom - 2) continue;   // did not reach the old bottom, or already reaches the new
+    const tag = m[0].replace(/(\sheight=")[^"]*(")/, `$1${_r1(poolBottom - y)}$2`);
+    pk.di[i] = { ...pk.di[i], xml: xml.slice(0, m.index) + tag + xml.slice(m.index + m[0].length) };
+    changed = true;
+  }
+  if (changed) {
+    const b = pk.poolBand;
+    if (b && b.y + b.h < poolBottom) pk.poolBand = { ...b, h: poolBottom - b.y };
+    _phasesChanged(pk);
+    if (typeof scheduleAutosave === 'function') scheduleAutosave();
+  }
+  return changed;
+}
 function renderPhases() {
   const g = $('g-phases'); if (!g) return;
   g.innerHTML = '';
   const pk = state && state.procKept;
   if (!pk || !(pk.categories || []).length) return;
-  const rows = phasesParse(pk);
   const pb = gPool.querySelector('.pool-border');
-  if (!rows.length || !pb) return;
+  if (!pb) return;
   const px = parseFloat(pb.getAttribute('x')), py = parseFloat(pb.getAttribute('y'));
   const pw = parseFloat(pb.getAttribute('width')), ph = parseFloat(pb.getAttribute('height'));
+  _phasesFollowPool(pk, py + ph);   // T-1513: before the parse, so the stretched shapes are what is drawn
+  const rows = phasesParse(pk);
+  if (!rows.length) return;
   const left = px + LANE_HEADER, right = px + pw, top = py + POOL_HEADER, bottom = py + ph;
   // T-1503: the view this map asked for — all phases off, or some rows off. A hidden row takes no space (the rows above
   // it move down); the dividers belong to the file's first row only, so they go when that row is hidden.

@@ -2532,6 +2532,20 @@ else
 fi
 }
 leg browser "test_t1505_phase_boundary" _leg_t1505
+_leg_t1513() {
+
+# ── T-1513: a phase that spans the pool keeps spanning it when an edit makes the pool taller: lanes (with steps) added
+# after phases, saved and reopened here and by dist 0.50.0, keep every phase; a lane-resize drag stretches the phases'
+# shapes (height only) and undo restores them; a map nobody edits is not changed. ~40 s.
+if node "$ROOT/tools/_t1513-phases-follow-pool-cdp.mjs" > "$TMP/leg-_t1513.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "Phases vanish after a lane is added below them (save and reopen), or a map nobody edits changed (_t1513-phases-follow-pool-cdp.mjs; T-1513)"
+  show_output "$TMP/leg-_t1513.out" "_t1513-phases-follow-pool-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1513_phases_follow_pool" _leg_t1513
 _leg_t1525() {
 
 # ── T-1525: adding, deleting and resizing a lane are each one undo step (a resize press without moving records none). ~15 s.

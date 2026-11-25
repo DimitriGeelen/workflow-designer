@@ -1,13 +1,19 @@
 ---
 id: T-1513
-name: "Phases vanish after reopen when a lane was added below after the phases (group height not following the pool)"
+name: "Phases vanish after reopen when a lane was added below after the phases (group
+  height not following the pool)"
 description: >
-  T-1504 known limit: a phase group's shape is as tall as the pool when added; a lane added later makes the pool taller, and after save+reopen the steps' band (T-1510) reaches below the groups, so no phase is drawn. Fix: a group that spans the pool keeps spanning it when lanes are added/resized (stretch its Bounds), or judge the steps' band leniently.
+  T-1504 known limit: a phase group's shape is as tall as the pool when added; a lane
+  added later makes the pool taller, and after save+reopen the steps' band (T-1510)
+  reaches below the groups, so no phase is drawn. Fix: a group that spans the pool
+  keeps spanning it when lanes are added/resized (stretch its Bounds), or judge the
+  steps' band leniently.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [designer, phases]
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-25T08:57:22Z
-last_update: 2026-11-25T08:57:22Z
-date_finished: null
+last_update: 2026-11-25T15:39:38Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +56,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-25T15:29:47Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=1 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L1:keyword=lane); F3=0 (basis:
+      task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=0 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1513: Phases vanish after reopen when a lane was added below after the phases (group height not following the pool)
@@ -57,20 +83,29 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** found while building T-1504 (its Decisions, "Known limit"); listed as the first known limit in
+the 0.50.0 release notes ("add lanes before phases"). Greenfield is the field user most likely to hit it.
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** a phase is a group whose shape spans the pool's full height (T-1461 F3). A group keeps the
+height it had when it was made or opened. When an edit later makes the pool taller (a lane added below, a lane made
+taller) and a step is placed in the new space, the saved file's step band (T-1510, the band a designer-saved file is
+judged against) reaches below the groups, so after a reopen no group spans it and every phase vanishes.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** a phase that spans the pool keeps spanning it: when an edit makes the pool taller than the drawn phases, their
+group shapes are stretched to the new pool bottom (only `y`/`height` of their Bounds), as part of that edit (its undo
+step). A map nobody edits is never changed by this (no stretch on open or on a render that changes nothing).
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** lanes can be added after phases; phases survive a save and reopen, here and in released readers.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] On a map with phases (Greenfield's sample; a row made with slice B on the starter map): add a lane below and a step
+  in it, save, reopen here and in dist 0.50.0: every phase is still drawn, at the same x ranges — a browser leg, failed
+  by 0.50.0 as the editor
+- [ ] Only the drawn phases' group Bounds `y`/`height` change, only after the pool grows; undo of the lane add restores
+  them; a map nobody edits saves exactly as before (Greenfield's sample, the starter map, opened and saved: no change)
+- [ ] The browser tier green on a round; the earlier phase harnesses (T-1473, T-1499, T-1502-T-1505) still green
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -353,3 +388,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1513-phases-vanish-after-reopen-when-a-lane-w.md
 - **Context:** Initial task creation
+
+### 2026-11-25T15:29:46Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
