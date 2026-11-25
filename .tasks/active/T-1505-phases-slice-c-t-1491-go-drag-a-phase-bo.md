@@ -42,7 +42,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-24T11:08:18Z
-last_update: 2026-11-25T11:27:48Z
+last_update: 2026-11-25T11:36:16Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -147,10 +147,12 @@ to a neighbour (walkthrough step 7).
   **Steps:**
   1. The map is Greenfield's sample `tests/fixtures/greenfield/ws-otb-fasen-voorbeeld.bpmn` (process `process_nooteboom`;
      row 1 'Fase', row 2 'Fase in Salesforce'). In `docs/reports/T-1505-shots/`, at 1024/1440/1920:
-     `handle-hover-{W}.png` and `handle-hover-closeup-{W}.png` (the pointer on the edge Configuratie | Offerte &
-     onderhandeling: the accent bar that says it can be dragged), `dragging-{W}.png` (mid-drag: the dashed line where
-     the boundary will land, at a gap between steps), `moved-{W}.png` (after the release: the brackets and the dashed
-     divider through the lanes at the new place)
+     `handle-idle-closeup-{W}.png` (the edge Configuratie | Offerte & onderhandeling with the pointer away: the
+     baseline), `handle-hover-{W}.png` and `handle-hover-closeup-{W}.png` (the pointer on that edge: the accent bar that
+     says it can be dragged; a screenshot never draws the pointer itself, so the cursor is asserted instead: harness C1
+     reads `col-resize` on the handle), `dragging-{W}.png` (mid-drag: the dashed line where the boundary will land, at a
+     gap between steps), `moved-{W}.png` (after the release, centred on the new boundary and zoomed out until both
+     neighbouring phase names are in view: the brackets and the dashed divider through the lanes at the new place)
   2. Judge: is the handle discoverable on hover; is the landing place clear before release; does the result read; is
      anything clipped or overlapping
   **Expected:** a person who wants a phase to end later finds the edge, drags it, and sees it land between two steps.

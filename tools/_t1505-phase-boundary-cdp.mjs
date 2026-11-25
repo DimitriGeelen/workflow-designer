@@ -152,10 +152,12 @@ try {
   const H = await handles();
   const row1 = H.filter(h => h.row === 'Category_fase'), row2 = H.filter(h => h.row !== 'Category_fase');
   const pairs = [['Group_f1', 'Group_f2'], ['Group_f2', 'Group_f3'], ['Group_f3', 'Group_f4'], ['Group_f4', 'Group_f5']];
+  // the cursor a person sees on the handle (a screenshot never shows the pointer; T-1505 review asked for it)
+  const cursor = await ev(`(function(){ var h = document.querySelector('#g-phases .phase-boundary'); return h ? getComputedStyle(h).cursor : null; })()`);
   const c1 = pairs.every(([l, r]) => row1.some(h => h.l === l && h.r === r && !h.tall) && row1.some(h => h.l === l && h.r === r && h.tall))
-    && row1.length === 8 && row2.length === 0;
-  leg(c1, `C1 a handle on each shared edge: row 1 four (bracket band and divider), row 2 none (its phases are 6 px apart)`,
-    JSON.stringify({ row1: row1.length, row2: row2.length }));
+    && row1.length === 8 && row2.length === 0 && cursor === 'col-resize';
+  leg(c1, `C1 a handle on each shared edge: row 1 four (bracket band and divider), row 2 none (its phases are 6 px apart); its cursor is col-resize`,
+    JSON.stringify({ row1: row1.length, row2: row2.length, cursor }));
 
   // C2
   const gaps = await ev(`phaseStepGaps(state)`);
@@ -233,6 +235,10 @@ try {
       // hover the Fase 2|3 handle (its highlight), then mid-drag (the preview line), then after the release
       const h = await ev(`(function(){ var h = Array.from(document.querySelectorAll('#g-phases .phase-boundary')).find(function(h){ return h.getAttribute('data-phase-left') === 'Group_f2' && +h.getAttribute('height') < 40; }); return { x: +h.getAttribute('x') + 3, y: +h.getAttribute('y') + 10 }; })()`);
       const a = await toScreen(h.x, h.y);
+      // the same place with the pointer away: the baseline for the hover shots (T-1505 review)
+      await cl.cmd('Input.dispatchMouseEvent', { type: 'mouseMoved', x: a.x - 200, y: a.y + 200 }); await frames(); await sleep(150);
+      let s0 = await cl.cmd('Page.captureScreenshot', { format: 'png', clip: { x: a.x - 160, y: a.y - 70, width: 320, height: 140, scale: 2 } });
+      writeFileSync(join(D, `handle-idle-closeup-${W}.png`), Buffer.from(s0.data, 'base64'));
       // away first, then onto the handle, then wait until the page reports the hover (after the drag legs a move to the
       // same point may not re-evaluate :hover)
       await cl.cmd('Input.dispatchMouseEvent', { type: 'mouseMoved', x: a.x - 200, y: a.y + 200 }); await frames();
@@ -251,6 +257,19 @@ try {
       writeFileSync(join(D, `dragging-${W}.png`), Buffer.from(s.data, 'base64'));
       await cl.cmd('Input.dispatchMouseEvent', { type: 'mouseReleased', x: a.x + 150 * a.mx, y: a.y, button: 'left', clickCount: 1 });
       await sleep(300);
+      // the result as a whole: both phase names beside the moved edge in view (T-1505 review: at 1024 they were not) —
+      // centre on the boundary, zoom out a step at a time until both names fit inside the canvas
+      for (let z = 0; z < 4; z++) {
+        const fits = await ev(`(function(){ var sc = svg.parentElement, b = sc.getBoundingClientRect();
+          var g2 = document.querySelector('#g-phases [data-phase="Group_f2"] text'), g3 = document.querySelector('#g-phases [data-phase="Group_f3"] text');
+          var d = document.querySelector('#g-phases [data-phase-divider="Group_f3"]'); if (!g2 || !g3 || !d) return true;
+          var m = svg.getScreenCTM(), dx = m.a * +d.getAttribute('x1') + m.e; sc.scrollLeft += dx - (b.left + b.width / 2);
+          var r2 = g2.getBoundingClientRect(), r3 = g3.getBoundingClientRect();
+          return r2.left >= b.left + 4 && r3.right <= b.right - 4; })()`);
+        if (fits) break;
+        await click('#btn-zoom-out'); await sleep(250);
+      }
+      await frames();
       s = await cl.cmd('Page.captureScreenshot', { format: 'png' });
       writeFileSync(join(D, `moved-${W}.png`), Buffer.from(s.data, 'base64'));
     }
