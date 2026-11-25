@@ -20,7 +20,9 @@ mistakes agents and people have already made. Every rule names where it was lear
 2. **List the performers; each becomes one lane, and the lane is the authority split** (who proposes, who gates, who
    decides). Lane names unique. [AEF #5; T-1493, T-1088: same-named lanes are told apart only by id.]
 3. **Give the map its identity before the first save:** an `aef:workflowMeta` with `id` and `uuid`. A map without one
-   gets a fresh uuid every time it is opened, so two saves of "the same" map do not match. [T-1089, PL-046, T-1504 B6.]
+   gets a fresh uuid every time it is opened, so two saves of "the same" map do not match. The kit's AUTHORING 2 does
+   not name the uuid; this rule comes from how the designer behaves. [designer: `mintUuid()` when the uuid is absent;
+   T-1089, PL-046, T-1504 B6.]
 
 ## Start fast
 
@@ -48,8 +50,12 @@ mistakes agents and people have already made. Every rule names where it was lear
 ## While editing
 
 6. **Short step names; detail goes in documentation lines** (`Instruction:`, `Rule:`, `Open:`, `Decision:`,
-   `Mapping:` …, kit AUTHORING 4b). Long names are cut or crowd their neighbours; the panel shows documentation lines
-   as blocks. [PL-003, T-1305, T-1469, T-1492.]
+   `Mapping:` …, kit AUTHORING 4b). Long names are cut or crowd their neighbours.
+   - The panel shows documentation lines as blocks for `Instruction:`, `Rule:`, `Keys:`, `Mapping:`, `Open:`,
+     `Detail:` and `Decision:`.
+   - `Screen:` and `Master:` lines (kit AUTHORING 4b) are valid, but they are shown under Notes until T-1522.
+
+   [PL-003, T-1305, T-1469, T-1492.]
 7. **Name every start and end event**, and label every branch of a gateway in the source's words. [T-1218; AEF #5;
    kit SKILL.md step 4.]
 8. **Phases** (Phases section of the left panel): add every lane first, then Add phase row, then Add phase and click
