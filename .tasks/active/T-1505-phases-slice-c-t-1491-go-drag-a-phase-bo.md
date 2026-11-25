@@ -42,7 +42,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-24T11:08:18Z
-last_update: 2026-11-25T11:39:31Z
+last_update: 2026-11-25T11:42:09Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -141,7 +141,7 @@ to a neighbour (walkthrough step 7).
   the new boundary; the browser tier green on a round
 
 ### Human
-- [ ] Moving where one phase ends and the next starts reads as dragging an edge: a person sees that the edge can be
+- [x] Moving where one phase ends and the next starts reads as dragging an edge: a person sees that the edge can be
   dragged, sees where it will land, and sees the result
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1505 --criterion 1`), who may escalate.
   **Steps:**
@@ -206,6 +206,7 @@ to a neighbour (walkthrough step 7).
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261125-2f79a83e — reviewer-judge-t-1505-r3-4e79f784d47b:reviewer (rung rung-3-termlink-single-reviewer), digest 5303e5fe7222; dispatch judge-t-1505-r3-4e79f784d47b; evidence: .context/reviews/evidence/T-1505/AC1-judge-t-1505-r3-4e79f784d47b.md, .context/reviews/evidence/T-1505/handle-hover-closeup-1920-judge-t-1505-r3-4e79f784d47b.png, .context/reviews/evidence/T-1505/handle-idle-closeup-1920-judge-t-1505-r3-4e79f784d47b.png, .context/reviews/evidence/T-1505/dragging-1920-judge-t-1505-r3-4e79f784d47b.png, .context/reviews/evidence/T-1505/before-1920-judge-t-1505-r3-4e79f784d47b.png, .context/reviews/evidence/T-1505/moved-1920-judge-t-1505-r3-4e79f784d47b.png, .context/reviews/evidence/T-1505/dragging-1440-judge-t-1505-r3-4e79f784d47b.png, .context/reviews/evidence/T-1505/moved-1440-judge-t-1505-r3-4e79f784d47b.png, .context/reviews/evidence/T-1505/dragging-1024-judge-t-1505-r3-4e79f784d47b.png, .context/reviews/evidence/T-1505/moved-1024-judge-t-1505-r3-4e79f784d47b.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 

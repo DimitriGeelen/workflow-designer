@@ -22,6 +22,7 @@ import net from 'node:net';
 import { makeProfileDir, removeProfileDir } from './_cdp-profile.mjs';
 import { pageWsUrl } from './_cdp-attach.mjs';
 import { cdp } from './_cdp-client.mjs';
+import { clearShot } from './_cdp-clear-shot.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const EDITOR = process.env.T1505_EDITOR || join(ROOT, 'src', 'aef-workflow-designer.html');
@@ -237,8 +238,10 @@ try {
       const a = await toScreen(h.x, h.y);
       // the same place with the pointer away: the baseline for the hover shots (T-1505 review)
       await cl.cmd('Input.dispatchMouseEvent', { type: 'mouseMoved', x: a.x - 200, y: a.y + 200 }); await frames(); await sleep(150);
-      let s0 = await cl.cmd('Page.captureScreenshot', { format: 'png', clip: { x: a.x - 160, y: a.y - 70, width: 320, height: 140, scale: 2 } });
-      writeFileSync(join(D, `handle-idle-closeup-${W}.png`), Buffer.from(s0.data, 'base64'));
+      // close-ups through clearShot (T-1429): it refuses unless the handle itself is what is painted at its centre
+      const HSEL = '#g-phases .phase-boundary[data-phase-left="Group_f2"]';
+      const shotOf = () => clearShot((m, p) => cl.cmd(m, p), (c, e) => ev(e), HSEL, { pad: 150, padTop: 60, widen: false, scale: 2 });
+      writeFileSync(join(D, `handle-idle-closeup-${W}.png`), await shotOf());
       // away first, then onto the handle, then wait until the page reports the hover (after the drag legs a move to the
       // same point may not re-evaluate :hover)
       await cl.cmd('Input.dispatchMouseEvent', { type: 'mouseMoved', x: a.x - 200, y: a.y + 200 }); await frames();
@@ -248,8 +251,7 @@ try {
       let s = await cl.cmd('Page.captureScreenshot', { format: 'png' });
       writeFileSync(join(D, `handle-hover-${W}.png`), Buffer.from(s.data, 'base64'));
       // a close-up of the hovered handle: in the full shot it is a few pixels wide
-      s = await cl.cmd('Page.captureScreenshot', { format: 'png', clip: { x: a.x - 160, y: a.y - 70, width: 320, height: 140, scale: 2 } });
-      writeFileSync(join(D, `handle-hover-closeup-${W}.png`), Buffer.from(s.data, 'base64'));
+      writeFileSync(join(D, `handle-hover-closeup-${W}.png`), await shotOf());
       await cl.cmd('Input.dispatchMouseEvent', { type: 'mousePressed', x: a.x, y: a.y, button: 'left', clickCount: 1 });
       for (let i = 1; i <= 6; i++) await cl.cmd('Input.dispatchMouseEvent', { type: 'mouseMoved', x: a.x + 25 * a.mx * i, y: a.y, button: 'left', buttons: 1 });
       await sleep(200);
