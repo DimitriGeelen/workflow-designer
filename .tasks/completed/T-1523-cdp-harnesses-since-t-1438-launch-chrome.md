@@ -12,13 +12,13 @@ description: >
   _t1493, _t1494, _t1499, _t1500, _t1502, _t1503 …) do not. Fix: add the flag; a core
   leg greps every tools/*.mjs that spawns chrome for it.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [tests, pool, cdp, harness]
-components: []
+components: [tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -47,8 +47,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-25T09:56:11Z
-last_update: 2026-11-25T11:05:14Z
-date_finished:
+last_update: 2026-11-25T11:17:10Z
+date_finished: 2026-11-25T11:17:10Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -110,7 +110,8 @@ not, so each can crash the same way on such a node.
   launcher without the flag refused, one with it admitted, an attach-only file ignored, the live set non-empty); with
   `_t1502-phase-edit-cdp.mjs` stashed back to its pre-fix text it printed "FAIL tools/_t1502-phase-edit-cdp.mjs starts
   Chrome without --disable-dev-shm-usage"; exit 2 "NOT EVALUATED" if the launch pattern ever matches nothing.
-- [ ] The browser tier green on a round with the changed harnesses
+- [x] The browser tier green on a round with the changed harnesses
+  **Evidence:** round at 657dcf6ca: browser green (591 s, pool split and local), core green (694 s, incl. the new leg).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -400,3 +401,16 @@ grep -q 'test_t1523_chrome_shm_flag' tests/run-bridge-tests.sh
 
 ### 2026-11-25T11:03:21Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-25T11:17:10Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-ee6f67df
+- **Timestamp:** 2026-11-25T11:17:13Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

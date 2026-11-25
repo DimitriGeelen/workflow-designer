@@ -1,0 +1,102 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1523: CDP harnesses since T-1438 launch Chrome without --disable-dev-shm-usage: renderer crash on a pool node with a small /dev/shm (T-1504 crashed 3/3 on ring20-live); add the flag and a leg that refuses a harness without it
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-25T11:17:23Z
+# ============================================================================
+
+task_id: T-1523
+task_name: "CDP harnesses since T-1438 launch Chrome without --disable-dev-shm-usage: renderer crash on a pool node with a small /dev/shm (T-1504 crashed 3/3 on ring20-live); add the flag and a leg that refuses a harness without it"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-25T09:56:11Z
+completed: 2026-11-25T11:17:10Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-25T12:05:14+01:00
+last_commit: 2026-11-25T12:05:14+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  --disable-dev-shm-usage on the 22 CDP harnesses that lacked it (the T-1504 renderer crash on ring20-live), and core leg test_t1523_chrome_shm_flag refusing any Chrome launcher without it (teeth first; 187 launchers)
+
+# Key outcomes
+outcomes:
+  - 'Every `tools/*.mjs` (and `tools/*.py`/`*.sh`) that starts Chrome passes `--disable-dev-shm-usage`'
+  - 'A core leg lists every tool that starts Chrome without the flag and fails if there is one; proven to fail on a'
+  - 'The browser tier green on a round with the changed harnesses'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1523-cdp-harnesses-since-t-1438-launch-chrome.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1438-instance-counts-cdp.mjs'
+  - 'tools/_t1439-io-menu-cdp.mjs'
+  - 'tools/_t1440-picture-export-cdp.mjs'
+  - 'tools/_t1441-text-bridges-cdp.mjs'
+  - 'tools/_t1442-excel-cdp.mjs'
+  - 'tools/_t1446-pdf-pages-cdp.mjs'
+  - 'tools/_t1447-notes-cdp.mjs'
+  - 'tools/_t1456-routing-lanes-sides-cdp.mjs'
+  - 'tools/_t1465-label-strip-cdp.mjs'
+  - 'tools/_t1469-io-badge-clear-cdp.mjs'
+  - 'tools/_t1470-assoc-straight-cdp.mjs'
+  - 'tools/_t1472-opening-zoom-default-cdp.mjs'
+  - 'tools/_t1473-phases-cdp.mjs'
+  - 'tools/_t1474-label-places-zoom-free-cdp.mjs'
+  - 'tools/_t1475-starter-ids-stable-cdp.mjs'
+  - 'tools/_t1492-documentation-panel-cdp.mjs'
+  - 'tools/_t1493-lane-names-cdp.mjs'
+  - 'tools/_t1494-plain-task-title-cdp.mjs'
+  - 'tools/_t1499-notes-vs-phases-cdp.mjs'
+  - 'tools/_t1500-lane-docs-kept-cdp.mjs'
+  - 'tools/_t1502-phase-edit-cdp.mjs'
+  - 'tools/_t1503-phase-view-cdp.mjs'
+  - 'tools/_t1523-chrome-shm-flag.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-25T12:05:14'
+    action: 'T-1523: --disable-dev-shm-usage on the 22 CDP harnesses that lacked it (the T-1504 renderer crash on ring20-live), and core leg test_t1523_chrome_shm_flag refusing any Chrome launcher without it (teeth first; 187 launchers)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 80 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [tests, pool, cdp, harness]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 80
+  commits: 2
+  files_changed: 28
+  lines_added: 658
+  lines_removed: 29
+  footprint_refreshed_at: '2026-11-25T11:17:30Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1523-cdp-harnesses-since-t-1438-launch-chrome.md
+generated_by: context-agent-hybrid
