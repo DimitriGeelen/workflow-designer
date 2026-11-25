@@ -8,13 +8,13 @@ description: >
   names the be-tag carrying T-5381 (thread 832-phases-editing-T-1491); AEF T-5387
   carries group shapes through regenerate, not blocking.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_3_run
-owner: human
-horizon: now
+current_node: frw_end_task
+owner: agent
+horizon: null
 tags: [designer, phases, greenfield, aef-dependent]
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -43,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-24T11:08:18Z
-last_update: 2026-11-25T10:41:16Z
-date_finished:
+last_update: 2026-11-25T10:43:06Z
+date_finished: 2026-11-25T10:43:06Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -135,7 +135,7 @@ select the new phase so the panel (slice A) renames it.
   ring20-live (fixed: --disable-dev-shm-usage; class fix T-1523).
 
 ### Human
-- [ ] Adding phases from the left panel reads like adding a lane: a person finds the Phases section, understands what
+- [x] Adding phases from the left panel reads like adding a lane: a person finds the Phases section, understands what
   "Add phase row" and "Add phase" do, and sees where the split will land before clicking
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1504 --criterion 1`), who may escalate.
   **Steps:**
@@ -198,6 +198,7 @@ select the new phase so the panel (slice A) renames it.
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261125-86b712e7 — reviewer-judge-t-1504-r3-6894b7aa7b65:reviewer (rung rung-3-termlink-single-reviewer), digest 42cc132cff8a; dispatch judge-t-1504-r3-6894b7aa7b65; evidence: .context/reviews/evidence/T-1504/AC1-judge-t-1504-r3-6894b7aa7b65.md, .context/reviews/evidence/T-1504/palette-1024-judge-t-1504-r3-6894b7aa7b65.png, .context/reviews/evidence/T-1504/row-added-1440-judge-t-1504-r3-6894b7aa7b65.png, .context/reviews/evidence/T-1504/split-preview-1440-judge-t-1504-r3-6894b7aa7b65.png, .context/reviews/evidence/T-1504/five-phases-1920-judge-t-1504-r3-6894b7aa7b65.png, .context/reviews/evidence/T-1504/five-phases-100-left-1024-judge-t-1504-r3-6894b7aa7b65.png, .context/reviews/evidence/T-1504/five-phases-100-right-1920-judge-t-1504-r3-6894b7aa7b65.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -467,3 +468,16 @@ gap), `five-phases-*` (after four splits).
 ### 2026-11-24T20:42:23Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-25T10:43:06Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-037299dc
+- **Timestamp:** 2026-11-25T10:43:21Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

@@ -1,0 +1,195 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1504: Phases slice B (T-1491 GO): a Phases section in the left panel adds a phase row and adds a phase at a step gap
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-25T10:43:29Z
+# ============================================================================
+
+task_id: T-1504
+task_name: "Phases slice B (T-1491 GO): a Phases section in the left panel adds a phase row and adds a phase at a step gap"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-11-24T11:08:18Z
+completed: 2026-11-25T10:43:06Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-11-24T21:43:13+01:00
+last_commit: 2026-11-25T11:42:21+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  slice B scoped for the next session (AEF's T-5381 shipped in be.64: unblocked): context, plan (data, geometry, step gaps, palette, tests) and criteria; no code yet (session budget Red). Phases section in the left panel — Add phase row (one phase across the pool), Add phase + click splits at the nearest step gap; standard BPMN category/value/group/shape; harness B1-B6 + browser leg; shots. the reviewer criterion (screenshots of the Phases section, row added, split preview, five phases at 1024/1440/1920). reviewer verdict. split-preview shots scroll the hovered gap into view (reviewer amber V-20261125-3fe3f753: the landing line was off-screen); T-1505 scoped; T-1514/T-1515 split off. harness opens each page via about:blank and clears the origin's storage by CDP — the pool run at c1800044a hung in B5 (a ready check read the page being left); with 1.5 s navigation latency the old open() also let an autosave land after the clear (*_v2 renames, B6 red). Fixed run green plain and under latency; 0.49.0 still fails. harness records and dismisses any dialog and records a page crash, and names them in its result — the pool run at 8618e0661 hung again at the start of B5 (Input.dispatchMouseEvent, 60 s), so the about:blank fix was not the cause; this makes the next pool run name it. launch Chrome with --disable-dev-shm-usage — the pool run at 4b6fcb8ee recorded the cause: the renderer CRASHED at the start of B5 on ring20-live (3/3 runs), not a dialog; JS heap ~5 MB, so no designer leak; 164 harnesses carry the flag, this one (copied from _t1502) did not. Class fix filed separately. five-phases shots fit the whole diagram, so all five brackets are in view (reviewer amber: the scrolled view showed two). shots — palette scrolled to the Phases section (1024), five phases also at 100% (left and right ends); criterion names the fixture file (reviewer amber: sample name, palette-1024, label size)
+
+# Key outcomes
+outcomes:
+  - 'On a map without phases (Greenfield''s sample stripped; the starter map): the left panel''s Phases section adds a'
+  - 'The save writes standard BPMN (root category with values, groups with categoryValueRef, full-pool-height group'
+  - 'Adding phases from the left panel reads like adding a lane: a person finds the Phases section, understands what'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'shots — palette scrolled to the Phases section (1024), five phases also at 100% (left and right ends); criterion names the fixture file (reviewer amber: sample name, palette-1024, label size)'
+    source: git-mined
+  - description: 'launch Chrome with --disable-dev-shm-usage — the pool run at 4b6fcb8ee recorded the cause: the renderer CRASHED at the start of B5 on ring20-live (3/3 runs), not a dialog; JS heap ~5 MB, so no designer leak; 164 harnesses carry the flag, this one (copied from _t1502) did not. Class fix filed separately'
+    source: git-mined
+  - description: 'harness records and dismisses any dialog and records a page crash, and names them in its result — the pool run at 8618e0661 hung again at the start of B5 (Input.dispatchMouseEvent, 60 s), so the about:blank fix was not the cause; this makes the next pool run name it'
+    source: git-mined
+  - description: 'harness opens each page via about:blank and clears the origin''s storage by CDP — the pool run at c1800044a hung in B5 (a ready check read the page being left); with 1.5 s navigation latency the old open() also let an autosave land after the clear (*_v2 renames, B6 red). Fixed run green plain and under latency; 0.49.0 still fails'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  - decision: '2026-11-25 — prefixes of the new elements'
+    chose: '`bpmn:`/`bpmndi:`/`dc:` for every element the designer adds (a split keeps the row''s own prefix for the new value).'
+    rationale: 'every designer save declares exactly these; a source''s prefix may be declared only on the source''s root, which the designer rewrites.'
+    alternatives_rejected: ['the kept XML''s prefix (the plan''s first idea): it may name a namespace the save does not declare.']
+  - decision: '2026-11-25 — the new group''s height'
+    chose: 'the pool as drawn, joined with the file''s own phase band when it has one (`pk.poolBand`).'
+    rationale: 'the group must span the band in this session (F3) and after a save and reopen, where the band is the steps'' (T-1510); the drawn pool contains both.'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1504/AC1-judge-t-1504-r3-4a63e7d3c4f5.md'
+  - '.context/reviews/evidence/T-1504/AC1-judge-t-1504-r3-4bc41872746e.md'
+  - '.context/reviews/evidence/T-1504/AC1-judge-t-1504-r3-6894b7aa7b65.md'
+  - '.context/reviews/evidence/T-1504/AC1-judge-t-1504-r3-997c3df1bd03.md'
+  - '.context/reviews/evidence/T-1504/AC1-judge-t-1504-r3-d15f5921b781.md'
+  - '.context/reviews/evidence/T-1504/five-phases-100-left-1024-judge-t-1504-r3-6894b7aa7b65.png'
+  - '.context/reviews/evidence/T-1504/five-phases-100-right-1920-judge-t-1504-r3-6894b7aa7b65.png'
+  - '.context/reviews/evidence/T-1504/five-phases-1024-judge-t-1504-r3-997c3df1bd03.png'
+  - '.context/reviews/evidence/T-1504/five-phases-1024-judge-t-1504-r3-d15f5921b781.png'
+  - '.context/reviews/evidence/T-1504/five-phases-1440-judge-t-1504-r3-4a63e7d3c4f5.png'
+  - '.context/reviews/evidence/T-1504/five-phases-1440-judge-t-1504-r3-4bc41872746e.png'
+  - '.context/reviews/evidence/T-1504/five-phases-1440-judge-t-1504-r3-997c3df1bd03.png'
+  - '.context/reviews/evidence/T-1504/five-phases-1440-judge-t-1504-r3-d15f5921b781.png'
+  - '.context/reviews/evidence/T-1504/five-phases-1920-judge-t-1504-r3-6894b7aa7b65.png'
+  - '.context/reviews/evidence/T-1504/five-phases-1920-judge-t-1504-r3-997c3df1bd03.png'
+  - '.context/reviews/evidence/T-1504/five-phases-1920-judge-t-1504-r3-d15f5921b781.png'
+  - '.context/reviews/evidence/T-1504/palette-1024-judge-t-1504-r3-4bc41872746e.png'
+  - '.context/reviews/evidence/T-1504/palette-1024-judge-t-1504-r3-6894b7aa7b65.png'
+  - '.context/reviews/evidence/T-1504/palette-1024-judge-t-1504-r3-997c3df1bd03.png'
+  - '.context/reviews/evidence/T-1504/palette-1024-judge-t-1504-r3-d15f5921b781.png'
+  - '.context/reviews/evidence/T-1504/palette-1440-judge-t-1504-r3-4a63e7d3c4f5.png'
+  - '.context/reviews/evidence/T-1504/palette-1440-judge-t-1504-r3-4bc41872746e.png'
+  - '.context/reviews/evidence/T-1504/palette-1440-judge-t-1504-r3-997c3df1bd03.png'
+  - '.context/reviews/evidence/T-1504/palette-1440-judge-t-1504-r3-d15f5921b781.png'
+  - '.context/reviews/evidence/T-1504/palette-1920-judge-t-1504-r3-997c3df1bd03.png'
+  - '.context/reviews/evidence/T-1504/palette-1920-judge-t-1504-r3-d15f5921b781.png'
+  - '.context/reviews/evidence/T-1504/row-added-1024-judge-t-1504-r3-997c3df1bd03.png'
+  - '.context/reviews/evidence/T-1504/row-added-1024-judge-t-1504-r3-d15f5921b781.png'
+  - '.context/reviews/evidence/T-1504/row-added-1440-judge-t-1504-r3-4a63e7d3c4f5.png'
+  - '.context/reviews/evidence/T-1504/row-added-1440-judge-t-1504-r3-4bc41872746e.png'
+  - '.context/reviews/evidence/T-1504/row-added-1440-judge-t-1504-r3-6894b7aa7b65.png'
+  - '.context/reviews/evidence/T-1504/row-added-1440-judge-t-1504-r3-997c3df1bd03.png'
+  - '.context/reviews/evidence/T-1504/row-added-1440-judge-t-1504-r3-d15f5921b781.png'
+  - '.context/reviews/evidence/T-1504/row-added-1920-judge-t-1504-r3-997c3df1bd03.png'
+  - '.context/reviews/evidence/T-1504/row-added-1920-judge-t-1504-r3-d15f5921b781.png'
+  - '.context/reviews/evidence/T-1504/split-preview-1024-judge-t-1504-r3-4a63e7d3c4f5.png'
+  - '.context/reviews/evidence/T-1504/split-preview-1024-judge-t-1504-r3-4bc41872746e.png'
+  - '.context/reviews/evidence/T-1504/split-preview-1024-judge-t-1504-r3-997c3df1bd03.png'
+  - '.context/reviews/evidence/T-1504/split-preview-1024-judge-t-1504-r3-d15f5921b781.png'
+  - '.context/reviews/evidence/T-1504/split-preview-1440-judge-t-1504-r3-4a63e7d3c4f5.png'
+  - '.context/reviews/evidence/T-1504/split-preview-1440-judge-t-1504-r3-6894b7aa7b65.png'
+  - '.context/reviews/evidence/T-1504/split-preview-1440-judge-t-1504-r3-997c3df1bd03.png'
+  - '.context/reviews/evidence/T-1504/split-preview-1440-judge-t-1504-r3-d15f5921b781.png'
+  - '.context/reviews/evidence/T-1504/split-preview-1920-judge-t-1504-r3-4a63e7d3c4f5.png'
+  - '.context/reviews/evidence/T-1504/split-preview-1920-judge-t-1504-r3-997c3df1bd03.png'
+  - '.context/reviews/evidence/T-1504/split-preview-1920-judge-t-1504-r3-d15f5921b781.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1504-phases-slice-b-t-1491-go-a-phases-sectio.md'
+  - '.tasks/active/T-1505-phases-slice-c-t-1491-go-drag-a-phase-bo.md'
+  - '.tasks/active/T-1513-phases-vanish-after-reopen-when-a-lane-w.md'
+  - '.tasks/active/T-1514-phases-boundaries-follow-the-steps-when-.md'
+  - '.tasks/active/T-1515-phases-deleting-a-phase-gives-its-range-.md'
+  - 'docs/reports/T-1504-shots/five-phases-100-left-1024.png'
+  - 'docs/reports/T-1504-shots/five-phases-100-left-1440.png'
+  - 'docs/reports/T-1504-shots/five-phases-100-left-1920.png'
+  - 'docs/reports/T-1504-shots/five-phases-100-right-1024.png'
+  - 'docs/reports/T-1504-shots/five-phases-100-right-1440.png'
+  - 'docs/reports/T-1504-shots/five-phases-100-right-1920.png'
+  - 'docs/reports/T-1504-shots/five-phases-1024.png'
+  - 'docs/reports/T-1504-shots/five-phases-1440.png'
+  - 'docs/reports/T-1504-shots/five-phases-1920.png'
+  - 'docs/reports/T-1504-shots/palette-1024.png'
+  - 'docs/reports/T-1504-shots/palette-1440.png'
+  - 'docs/reports/T-1504-shots/palette-1920.png'
+  - 'docs/reports/T-1504-shots/row-added-1024.png'
+  - 'docs/reports/T-1504-shots/row-added-1440.png'
+  - 'docs/reports/T-1504-shots/row-added-1920.png'
+  - 'docs/reports/T-1504-shots/split-preview-1024.png'
+  - 'docs/reports/T-1504-shots/split-preview-1440.png'
+  - 'docs/reports/T-1504-shots/split-preview-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1504-phase-add-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-24T21:43:13'
+    action: 'T-1504: slice B scoped for the next session (AEF''s T-5381 shipped in be.64: unblocked): context, plan (data, geometry, step gaps, palette, tests) and criteria; no code yet (session budget Red)'
+  - time: '2026-11-25T09:57:49'
+    action: 'T-1504: Phases section in the left panel — Add phase row (one phase across the pool), Add phase + click splits at the nearest step gap; standard BPMN category/value/group/shape; harness B1-B6 + browser leg; shots'
+  - time: '2026-11-25T09:58:22'
+    action: 'T-1504: the reviewer criterion (screenshots of the Phases section, row added, split preview, five phases at 1024/1440/1920)'
+  - time: '2026-11-25T10:04:13'
+    action: 'T-1504: reviewer verdict'
+  - time: '2026-11-25T10:05:37'
+    action: 'T-1504: split-preview shots scroll the hovered gap into view (reviewer amber V-20261125-3fe3f753: the landing line was off-screen); T-1505 scoped; T-1514/T-1515 split off'
+  - time: '2026-11-25T10:06:31'
+    action: 'T-1504: reviewer verdict'
+  - time: '2026-11-25T10:29:33'
+    action: 'T-1504: harness opens each page via about:blank and clears the origin''s storage by CDP — the pool run at c1800044a hung in B5 (a ready check read the page being left); with 1.5 s navigation latency the old open() also let an autosave land after the clear (*_v2 renames, B6 red). Fixed run green plain and under latency; 0.49.0 still fails'
+  - time: '2026-11-25T10:44:20'
+    action: 'T-1504: harness records and dismisses any dialog and records a page crash, and names them in its result — the pool run at 8618e0661 hung again at the start of B5 (Input.dispatchMouseEvent, 60 s), so the about:blank fix was not the cause; this makes the next pool run name it'
+  - time: '2026-11-25T10:56:28'
+    action: 'T-1504: launch Chrome with --disable-dev-shm-usage — the pool run at 4b6fcb8ee recorded the cause: the renderer CRASHED at the start of B5 on ring20-live (3/3 runs), not a dialog; JS heap ~5 MB, so no designer leak; 164 harnesses carry the flag, this one (copied from _t1502) did not. Class fix filed separately'
+  - time: '2026-11-25T11:37:23'
+    action: 'T-1504: reviewer verdict'
+  - time: '2026-11-25T11:38:39'
+    action: 'T-1504: five-phases shots fit the whole diagram, so all five brackets are in view (reviewer amber: the scrolled view showed two)'
+  - time: '2026-11-25T11:39:38'
+    action: 'T-1504: reviewer verdict'
+  - time: '2026-11-25T11:41:16'
+    action: 'T-1504: shots — palette scrolled to the Phases section (1024), five phases also at 100% (left and right ends); criterion names the fixture file (reviewer amber: sample name, palette-1024, label size)'
+  - time: '2026-11-25T11:42:21'
+    action: 'T-1504: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 14 commit(s), 1414 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [designer, phases, greenfield, aef-dependent]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1414
+  commits: 15
+  files_changed: 82
+  lines_added: 2122
+  lines_removed: 56
+  footprint_refreshed_at: '2026-11-25T10:43:42Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1504-phases-slice-b-t-1491-go-a-phases-sectio.md
+generated_by: context-agent-hybrid
