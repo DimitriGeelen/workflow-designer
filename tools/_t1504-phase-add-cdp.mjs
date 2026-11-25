@@ -66,11 +66,17 @@ try {
   await cl.cmd('Page.enable'); await cl.cmd('Runtime.enable');
   await cl.cmd('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
   const open = async page => {
-    for (const pass of [0, 1]) {
-      await cl.cmd('Page.navigate', { url: `http://127.0.0.1:${port}/${page}` });
-      for (let k = 0; k < 150; k++) { if (await ev(`typeof _appReady!=='undefined'&&_appReady===true`).catch(() => false)) break; await sleep(150); }
-      if (!pass) await ev(`(function(){ try { localStorage.clear(); sessionStorage.clear(); } catch (e) {} return true; })()`);
-    }
+    // Leave the current page first (about:blank), so it can neither autosave into storage after the clear nor answer a
+    // ready check meant for the next page; then clear the origin's storage (designer and reader share it); then load.
+    // Before: clear-then-reload raced both (pool run at c1800044a: CDP TIMEOUT in B5's first open after B4's reader;
+    // with 1.5 s navigation latency locally: the starter and the sample saved as *_v2, a library entry written after
+    // the clear).
+    const origin = `http://127.0.0.1:${port}`;
+    await cl.cmd('Page.navigate', { url: 'about:blank' });
+    for (let k = 0; k < 100; k++) { if (await ev(`location.href === 'about:blank'`).catch(() => false)) break; await sleep(100); }
+    await cl.cmd('Storage.clearDataForOrigin', { origin, storageTypes: 'local_storage,session_storage,indexeddb,cache_storage' });
+    await cl.cmd('Page.navigate', { url: `${origin}/${page}` });
+    for (let k = 0; k < 200; k++) { if (await ev(`typeof _appReady!=='undefined'&&_appReady===true`).catch(() => false)) break; await sleep(150); }
     await ev(`document.fonts.ready`);
   };
   const frames = () => ev(`new Promise(function(r){ requestAnimationFrame(function(){ requestAnimationFrame(function(){ r(); }); }); })`);

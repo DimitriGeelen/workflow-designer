@@ -43,7 +43,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-24T11:08:18Z
-last_update: 2026-11-25T09:05:37Z
+last_update: 2026-11-25T09:29:33Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -129,7 +129,7 @@ select the new phase so the panel (slice A) renames it.
   nobody adds phases to saves byte-identically; the browser tier green on a round
 
 ### Human
-- [ ] Adding phases from the left panel reads like adding a lane: a person finds the Phases section, understands what
+- [x] Adding phases from the left panel reads like adding a lane: a person finds the Phases section, understands what
   "Add phase row" and "Add phase" do, and sees where the split will land before clicking
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1504 --criterion 1`), who may escalate.
   **Steps:**
@@ -189,6 +189,7 @@ select the new phase so the panel (slice A) renames it.
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261125-b3023118 — reviewer-judge-t-1504-r3-997c3df1bd03:reviewer (rung rung-3-termlink-single-reviewer), digest f23b4a747e15; dispatch judge-t-1504-r3-997c3df1bd03; evidence: .context/reviews/evidence/T-1504/AC1-judge-t-1504-r3-997c3df1bd03.md, .context/reviews/evidence/T-1504/palette-1024-judge-t-1504-r3-997c3df1bd03.png, .context/reviews/evidence/T-1504/palette-1440-judge-t-1504-r3-997c3df1bd03.png, .context/reviews/evidence/T-1504/palette-1920-judge-t-1504-r3-997c3df1bd03.png, .context/reviews/evidence/T-1504/row-added-1024-judge-t-1504-r3-997c3df1bd03.png, .context/reviews/evidence/T-1504/row-added-1440-judge-t-1504-r3-997c3df1bd03.png, .context/reviews/evidence/T-1504/row-added-1920-judge-t-1504-r3-997c3df1bd03.png, .context/reviews/evidence/T-1504/split-preview-1024-judge-t-1504-r3-997c3df1bd03.png, .context/reviews/evidence/T-1504/split-preview-1440-judge-t-1504-r3-997c3df1bd03.png, .context/reviews/evidence/T-1504/split-preview-1920-judge-t-1504-r3-997c3df1bd03.png, .context/reviews/evidence/T-1504/five-phases-1024-judge-t-1504-r3-997c3df1bd03.png, .context/reviews/evidence/T-1504/five-phases-1440-judge-t-1504-r3-997c3df1bd03.png, .context/reviews/evidence/T-1504/five-phases-1920-judge-t-1504-r3-997c3df1bd03.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
