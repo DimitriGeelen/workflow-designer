@@ -2518,6 +2518,20 @@ else
 fi
 }
 leg browser "test_t1504_phase_add" _leg_t1504
+_leg_t1505() {
+
+# ── T-1505 (T-1491 GO, slice C): a real mouse drag of the edge two phases share moves the boundary to the nearest step
+# gap, never into a step or past either phase's end; a drag that ends where it started changes nothing; undo; the save
+# rewrites only the moved groups' Bounds, read back the same by dist 0.49.0. ~30 s.
+if node "$ROOT/tools/_t1505-phase-boundary-cdp.mjs" > "$TMP/leg-_t1505.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "Dragging a phase boundary no longer snaps to a step gap, or it changes more than the two phases (_t1505-phase-boundary-cdp.mjs; T-1505)"
+  show_output "$TMP/leg-_t1505.out" "_t1505-phase-boundary-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1505_phase_boundary" _leg_t1505
 _leg_t1470() {
 
 # ── T-1470 (Greenfield): an association between two steps that line up is drawn straight (Solution - Product ->

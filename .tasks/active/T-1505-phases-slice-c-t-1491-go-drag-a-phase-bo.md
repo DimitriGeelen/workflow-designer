@@ -7,10 +7,11 @@ description: >
   is a range of steps); steps never move; boundaries follow moved steps. Rewrites
   group bounds, so it ships with or after slice B, after AEF's be-tag.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [designer, phases, greenfield, aef-dependent]
 components: []
 related_tasks: []
@@ -41,7 +42,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-24T11:08:18Z
-last_update: '2026-11-24T11:08:27Z'
+last_update: 2026-11-25T11:27:48Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -72,6 +73,25 @@ bvp_scores_proposed:
       body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
       F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
       about,L0: no signal)'
+    rubric_sha: e4a00f38e801
+  - ts: '2026-11-25T11:21:27Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 2
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=2 (body:lightly-promoted); F2=0 (no-signal); F4=1 (basis: task body
+      — no hypothesis, so this score has no claim to be wrong about,L1:keyword=lane);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=0 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L0: no signal)'
     rubric_sha: e4a00f38e801
 ---
 
@@ -108,14 +128,36 @@ to a neighbour (walkthrough step 7).
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] On Greenfield's sample and on a map with phases made by slice B, a real mouse drag of the shared edge of two
+- [x] On Greenfield's sample and on a map with phases made by slice B, a real mouse drag of the shared edge of two
   phases (and of a row-1 divider) moves the boundary to the step gap nearest the pointer, never into a step or past
   either phase's far end; a drag that ends where it started changes no byte; undo restores the boundary — a browser
   leg, failed by 0.49.0 (no boundary handle)
+  **Evidence:** `tools/_t1505-phase-boundary-cdp.mjs` C1-C5 green: handles only on shared edges (row 1 four, bracket band
+  and divider; row 2 none, its phases are 6 px apart); a real drag of Fase 2|3 lands on the gap nearest the release
+  (1310), previewed; dragged along the divider far past Fase 4's end it stops at the last gap inside the pair (2070),
+  no boundary inside a step; a still press changes no byte, nor a slice-B boundary dragged onto its own gap; undo/redo.
+  Teeth: `T1505_EDITOR=dist/aef-workflow-designer-0.49.0.html` fails C1. T-1473/1499/1502/1503/1504 harnesses still green.
 - [ ] The save rewrites only the two groups' Bounds x/width; reopened here and by dist 0.49.0 the phases are drawn at
   the new boundary; the browser tier green on a round
 
 ### Human
+- [ ] Moving where one phase ends and the next starts reads as dragging an edge: a person sees that the edge can be
+  dragged, sees where it will land, and sees the result
+  **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1505 --criterion 1`), who may escalate.
+  **Steps:**
+  1. The map is Greenfield's sample `tests/fixtures/greenfield/ws-otb-fasen-voorbeeld.bpmn` (process `process_nooteboom`;
+     row 1 'Fase', row 2 'Fase in Salesforce'). In `docs/reports/T-1505-shots/`, at 1024/1440/1920:
+     `handle-hover-{W}.png` and `handle-hover-closeup-{W}.png` (the pointer on the edge Configuratie | Offerte &
+     onderhandeling: the accent bar that says it can be dragged), `dragging-{W}.png` (mid-drag: the dashed line where
+     the boundary will land, at a gap between steps), `moved-{W}.png` (after the release: the brackets and the dashed
+     divider through the lanes at the new place)
+  2. Judge: is the handle discoverable on hover; is the landing place clear before release; does the result read; is
+     anything clipped or overlapping
+  **Expected:** a person who wants a phase to end later finds the edge, drags it, and sees it land between two steps.
+  The boundary snaps to gaps between steps by design (T-1491 IW-2: a phase is a range of steps). Only edges two phases
+  share are draggable (row 2 of this sample has none: its phases do not touch); a row's outer ends are not dragged in
+  this slice.
+  **If not:** say what reads wrong; the agent adjusts.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -162,6 +204,20 @@ to a neighbour (walkthrough step 7).
 -->
 
 ## Verification
+
+node tools/_t1505-phase-boundary-cdp.mjs > /tmp/.t1505.out 2>&1 && grep -q "all legs passed" /tmp/.t1505.out
+grep -q 'test_t1505_phase_boundary' tests/run-bridge-tests.sh
+
+## Visual Verification
+
+Shots: `docs/reports/T-1505-shots/` (`T1505_SHOTS=… node tools/_t1505-phase-boundary-cdp.mjs`), Greenfield's sample, at
+1024/1440/1920.
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| hover | boundary handle on the shared edge (accent bar, col-resize) | ok | ok | ok | close-up shots; 6 px wide by design, on top of the phases' hit areas |
+| dragging | dashed landing line at the snapped gap | ok | ok | ok | through all lanes |
+| moved | brackets and row-1 divider at the new boundary | ok | ok | ok | |
 
 <!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
      headings; the completion gate strips HTML comments before running anything.
@@ -396,3 +452,7 @@ to a neighbour (walkthrough step 7).
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1505-phases-slice-c-t-1491-go-drag-a-phase-bo.md
 - **Context:** Initial task creation
+
+### 2026-11-25T11:21:26Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
