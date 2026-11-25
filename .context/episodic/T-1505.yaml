@@ -1,0 +1,154 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1505: Phases slice C (T-1491 GO): drag a phase boundary left or right, snapping to the gaps between step columns
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-25T11:57:38Z
+# ============================================================================
+
+task_id: T-1505
+task_name: "Phases slice C (T-1491 GO): drag a phase boundary left or right, snapping to the gaps between step columns"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-24T11:08:18Z
+completed: 2026-11-25T11:57:21Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-11-25T12:27:49+01:00
+last_commit: 2026-11-25T12:44:17+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  phases slice C — drag the edge two phases share; it snaps to the nearest gap between steps (never into a step or past either phase's end), previewed while dragging; only the two groups' Bounds x/width are rewritten; one undo step. Harness C1-C6 + browser leg; shots; reviewer criterion. reviewer verdict. shots — idle baseline close-up, moved shot centred and zoomed until both phase names fit (1024); C1 asserts the handle's col-resize cursor (reviewer amber: no pointer in the shots, 1024 result out of view). before/moved shot pairs in the same view (undo, capture, redo, capture; scroll and zoom kept) — reviewer amber: moved-1920 alone could not be read with confidence. handle close-ups through clearShot (T-1429 census: a clipped shot must prove its element is what is painted there)
+
+# Key outcomes
+outcomes:
+  - 'On Greenfield''s sample and on a map with phases made by slice B, a real mouse drag of the shared edge of two'
+  - 'The save rewrites only the two groups'' Bounds x/width; reopened here and by dist 0.49.0 the phases are drawn at'
+  - 'Moving where one phase ends and the next starts reads as dragging an edge: a person sees that the edge can be'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1505/AC1-judge-t-1505-r3-26c0d4fb6ed5.md'
+  - '.context/reviews/evidence/T-1505/AC1-judge-t-1505-r3-497dddbd304b.md'
+  - '.context/reviews/evidence/T-1505/AC1-judge-t-1505-r3-4e79f784d47b.md'
+  - '.context/reviews/evidence/T-1505/AC1-judge-t-1505-r3-b15d8845befb.md'
+  - '.context/reviews/evidence/T-1505/before-1024-judge-t-1505-r3-497dddbd304b.png'
+  - '.context/reviews/evidence/T-1505/before-1920-judge-t-1505-r3-497dddbd304b.png'
+  - '.context/reviews/evidence/T-1505/before-1920-judge-t-1505-r3-4e79f784d47b.png'
+  - '.context/reviews/evidence/T-1505/dragging-1024-judge-t-1505-r3-4e79f784d47b.png'
+  - '.context/reviews/evidence/T-1505/dragging-1440-judge-t-1505-r3-26c0d4fb6ed5.png'
+  - '.context/reviews/evidence/T-1505/dragging-1440-judge-t-1505-r3-4e79f784d47b.png'
+  - '.context/reviews/evidence/T-1505/dragging-1440-judge-t-1505-r3-b15d8845befb.png'
+  - '.context/reviews/evidence/T-1505/dragging-1920-judge-t-1505-r3-26c0d4fb6ed5.png'
+  - '.context/reviews/evidence/T-1505/dragging-1920-judge-t-1505-r3-497dddbd304b.png'
+  - '.context/reviews/evidence/T-1505/dragging-1920-judge-t-1505-r3-4e79f784d47b.png'
+  - '.context/reviews/evidence/T-1505/handle-hover-1440-judge-t-1505-r3-26c0d4fb6ed5.png'
+  - '.context/reviews/evidence/T-1505/handle-hover-closeup-1024-judge-t-1505-r3-497dddbd304b.png'
+  - '.context/reviews/evidence/T-1505/handle-hover-closeup-1440-judge-t-1505-r3-497dddbd304b.png'
+  - '.context/reviews/evidence/T-1505/handle-hover-closeup-1440-judge-t-1505-r3-b15d8845befb.png'
+  - '.context/reviews/evidence/T-1505/handle-hover-closeup-1920-judge-t-1505-r3-497dddbd304b.png'
+  - '.context/reviews/evidence/T-1505/handle-hover-closeup-1920-judge-t-1505-r3-4e79f784d47b.png'
+  - '.context/reviews/evidence/T-1505/handle-idle-closeup-1920-judge-t-1505-r3-497dddbd304b.png'
+  - '.context/reviews/evidence/T-1505/handle-idle-closeup-1920-judge-t-1505-r3-4e79f784d47b.png'
+  - '.context/reviews/evidence/T-1505/moved-1024-judge-t-1505-r3-26c0d4fb6ed5.png'
+  - '.context/reviews/evidence/T-1505/moved-1024-judge-t-1505-r3-497dddbd304b.png'
+  - '.context/reviews/evidence/T-1505/moved-1024-judge-t-1505-r3-4e79f784d47b.png'
+  - '.context/reviews/evidence/T-1505/moved-1024-judge-t-1505-r3-b15d8845befb.png'
+  - '.context/reviews/evidence/T-1505/moved-1440-judge-t-1505-r3-26c0d4fb6ed5.png'
+  - '.context/reviews/evidence/T-1505/moved-1440-judge-t-1505-r3-497dddbd304b.png'
+  - '.context/reviews/evidence/T-1505/moved-1440-judge-t-1505-r3-4e79f784d47b.png'
+  - '.context/reviews/evidence/T-1505/moved-1440-judge-t-1505-r3-b15d8845befb.png'
+  - '.context/reviews/evidence/T-1505/moved-1920-judge-t-1505-r3-26c0d4fb6ed5.png'
+  - '.context/reviews/evidence/T-1505/moved-1920-judge-t-1505-r3-497dddbd304b.png'
+  - '.context/reviews/evidence/T-1505/moved-1920-judge-t-1505-r3-4e79f784d47b.png'
+  - '.context/reviews/evidence/T-1505/moved-1920-judge-t-1505-r3-b15d8845befb.png'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1505-phases-slice-c-t-1491-go-drag-a-phase-bo.md'
+  - 'docs/reports/T-1505-shots/before-1024.png'
+  - 'docs/reports/T-1505-shots/before-1440.png'
+  - 'docs/reports/T-1505-shots/before-1920.png'
+  - 'docs/reports/T-1505-shots/dragging-1024.png'
+  - 'docs/reports/T-1505-shots/dragging-1440.png'
+  - 'docs/reports/T-1505-shots/dragging-1920.png'
+  - 'docs/reports/T-1505-shots/handle-hover-1024.png'
+  - 'docs/reports/T-1505-shots/handle-hover-1440.png'
+  - 'docs/reports/T-1505-shots/handle-hover-1920.png'
+  - 'docs/reports/T-1505-shots/handle-hover-closeup-1024.png'
+  - 'docs/reports/T-1505-shots/handle-hover-closeup-1440.png'
+  - 'docs/reports/T-1505-shots/handle-hover-closeup-1920.png'
+  - 'docs/reports/T-1505-shots/handle-idle-closeup-1024.png'
+  - 'docs/reports/T-1505-shots/handle-idle-closeup-1440.png'
+  - 'docs/reports/T-1505-shots/handle-idle-closeup-1920.png'
+  - 'docs/reports/T-1505-shots/moved-1024.png'
+  - 'docs/reports/T-1505-shots/moved-1440.png'
+  - 'docs/reports/T-1505-shots/moved-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1505-phase-boundary-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-25T12:27:49'
+    action: 'T-1505: phases slice C — drag the edge two phases share; it snaps to the nearest gap between steps (never into a step or past either phase''s end), previewed while dragging; only the two groups'' Bounds x/width are rewritten; one undo step. Harness C1-C6 + browser leg; shots; reviewer criterion'
+  - time: '2026-11-25T12:34:03'
+    action: 'T-1505: reviewer verdict'
+  - time: '2026-11-25T12:36:16'
+    action: 'T-1505: shots — idle baseline close-up, moved shot centred and zoomed until both phase names fit (1024); C1 asserts the handle''s col-resize cursor (reviewer amber: no pointer in the shots, 1024 result out of view)'
+  - time: '2026-11-25T12:37:58'
+    action: 'T-1505: reviewer verdict'
+  - time: '2026-11-25T12:39:31'
+    action: 'T-1505: before/moved shot pairs in the same view (undo, capture, redo, capture; scroll and zoom kept) — reviewer amber: moved-1920 alone could not be read with confidence'
+  - time: '2026-11-25T12:40:50'
+    action: 'T-1505: reviewer verdict'
+  - time: '2026-11-25T12:42:09'
+    action: 'T-1505: handle close-ups through clearShot (T-1429 census: a clipped shot must prove its element is what is painted there)'
+  - time: '2026-11-25T12:44:17'
+    action: 'T-1505: reviewer verdict'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 8 commit(s), 1489 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [designer, phases, greenfield, aef-dependent]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1489
+  commits: 9
+  files_changed: 66
+  lines_added: 859
+  lines_removed: 29
+  footprint_refreshed_at: '2026-11-25T11:57:43Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1505-phases-slice-c-t-1491-go-drag-a-phase-bo.md
+generated_by: context-agent-hybrid

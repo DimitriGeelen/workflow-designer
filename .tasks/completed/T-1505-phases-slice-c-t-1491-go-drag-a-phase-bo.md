@@ -7,13 +7,13 @@ description: >
   is a range of steps); steps never move; boundaries follow moved steps. Rewrites
   group bounds, so it ships with or after slice B, after AEF's be-tag.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [designer, phases, greenfield, aef-dependent]
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -42,8 +42,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-24T11:08:18Z
-last_update: 2026-11-25T11:42:09Z
-date_finished:
+last_update: 2026-11-25T11:57:21Z
+date_finished: 2026-11-25T11:57:21Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -137,8 +137,12 @@ to a neighbour (walkthrough step 7).
   (1310), previewed; dragged along the divider far past Fase 4's end it stops at the last gap inside the pair (2070),
   no boundary inside a step; a still press changes no byte, nor a slice-B boundary dragged onto its own gap; undo/redo.
   Teeth: `T1505_EDITOR=dist/aef-workflow-designer-0.49.0.html` fails C1. T-1473/1499/1502/1503/1504 harnesses still green.
-- [ ] The save rewrites only the two groups' Bounds x/width; reopened here and by dist 0.49.0 the phases are drawn at
+- [x] The save rewrites only the two groups' Bounds x/width; reopened here and by dist 0.49.0 the phases are drawn at
   the new boundary; the browser tier green on a round
+  **Evidence:** harness C6: the save's changed lines are only the moved groups' Bounds (Group_f2/f3/f4 after two moves);
+  read back here and by dist 0.49.0, row 1 at the new boundaries. Round at d55116670: browser green (745 s), core green
+  (896 s). (The round before it, at bb5be649e, was red only on the T-1429 clip-shot census: the handle close-ups now go
+  through clearShot.)
 
 ### Human
 - [x] Moving where one phase ends and the next starts reads as dragging an edge: a person sees that the edge can be
@@ -206,7 +210,7 @@ to a neighbour (walkthrough step 7).
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
-  **Reviewer verdict:** green V-20261125-2f79a83e — reviewer-judge-t-1505-r3-4e79f784d47b:reviewer (rung rung-3-termlink-single-reviewer), digest 5303e5fe7222; dispatch judge-t-1505-r3-4e79f784d47b; evidence: .context/reviews/evidence/T-1505/AC1-judge-t-1505-r3-4e79f784d47b.md, .context/reviews/evidence/T-1505/handle-hover-closeup-1920-judge-t-1505-r3-4e79f784d47b.png, .context/reviews/evidence/T-1505/handle-idle-closeup-1920-judge-t-1505-r3-4e79f784d47b.png, .context/reviews/evidence/T-1505/dragging-1920-judge-t-1505-r3-4e79f784d47b.png, .context/reviews/evidence/T-1505/before-1920-judge-t-1505-r3-4e79f784d47b.png, .context/reviews/evidence/T-1505/moved-1920-judge-t-1505-r3-4e79f784d47b.png, .context/reviews/evidence/T-1505/dragging-1440-judge-t-1505-r3-4e79f784d47b.png, .context/reviews/evidence/T-1505/moved-1440-judge-t-1505-r3-4e79f784d47b.png, .context/reviews/evidence/T-1505/dragging-1024-judge-t-1505-r3-4e79f784d47b.png, .context/reviews/evidence/T-1505/moved-1024-judge-t-1505-r3-4e79f784d47b.png; ledger .context/reviews/verdicts.jsonl
+  **Reviewer verdict:** green V-20261125-adea4a45 — reviewer-judge-t-1505-r3-497dddbd304b:reviewer (rung rung-3-termlink-single-reviewer), digest 5303e5fe7222; dispatch judge-t-1505-r3-497dddbd304b; evidence: .context/reviews/evidence/T-1505/AC1-judge-t-1505-r3-497dddbd304b.md, .context/reviews/evidence/T-1505/handle-idle-closeup-1920-judge-t-1505-r3-497dddbd304b.png, .context/reviews/evidence/T-1505/handle-hover-closeup-1920-judge-t-1505-r3-497dddbd304b.png, .context/reviews/evidence/T-1505/dragging-1920-judge-t-1505-r3-497dddbd304b.png, .context/reviews/evidence/T-1505/before-1920-judge-t-1505-r3-497dddbd304b.png, .context/reviews/evidence/T-1505/moved-1920-judge-t-1505-r3-497dddbd304b.png, .context/reviews/evidence/T-1505/handle-hover-closeup-1024-judge-t-1505-r3-497dddbd304b.png, .context/reviews/evidence/T-1505/before-1024-judge-t-1505-r3-497dddbd304b.png, .context/reviews/evidence/T-1505/moved-1024-judge-t-1505-r3-497dddbd304b.png, .context/reviews/evidence/T-1505/handle-hover-closeup-1440-judge-t-1505-r3-497dddbd304b.png, .context/reviews/evidence/T-1505/moved-1440-judge-t-1505-r3-497dddbd304b.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -461,3 +465,16 @@ Shots: `docs/reports/T-1505-shots/` (`T1505_SHOTS=… node tools/_t1505-phase-bo
 ### 2026-11-25T11:21:26Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-25T11:57:21Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-52915f49
+- **Timestamp:** 2026-11-25T11:57:31Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none
