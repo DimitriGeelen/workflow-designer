@@ -14,7 +14,7 @@ related_tasks: []
 waiting_on: agent
 revisit_at: 2026-12-02
 created: 2026-11-25T09:24:41Z
-last_update: 2026-11-25T09:24:41Z
+last_update: 2026-11-25T10:15:44Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -138,6 +138,7 @@ We will know that we are successful when we see <measurable signal>.
 ### Human
 <!-- @auto-tick-on-decide -->
 - [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+  **Why you:** direction — a new attribute in the two-party map contract with AEF is a contract change, and `fw inception decide` is the operator's
   **Steps:**
   1. Run: `fw task review T-XXX` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
