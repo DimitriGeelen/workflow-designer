@@ -54,6 +54,7 @@ const PHASES = `(function(){ return Array.from(document.querySelectorAll('#g-pha
   return { id: g.getAttribute('data-phase'), row: g.getAttribute('data-phase-row'), name: t ? t.textContent : n.textContent,
            x1: Math.round(p.x), x2: Math.round(p.x + p.width) }; }); })()`;
 const profiles = [];
+const dialogs = [];
 let br = null, cl = null;
 const stop = async () => { try { cl && cl.close(); } catch (_) {} if (br) { const d = new Promise(r => br.once('exit', r)); try { br.kill('SIGKILL'); } catch (_) {} await Promise.race([d, sleep(3000)]); } cl = null; br = null; };
 try {
@@ -62,8 +63,16 @@ try {
   br = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '--remote-debugging-port=0', `--user-data-dir=${udd}`, 'about:blank'], { stdio: 'ignore' });
   let dp; for (let k = 0; k < 150 && !dp; k++) { try { dp = parseInt(readFileSync(join(udd, 'DevToolsActivePort'), 'utf8').split('\n')[0], 10); } catch (_) { await sleep(100); } }
   if (!dp) throw new Error('no devtools port');
-  cl = cdp(await pageWsUrl(dp), { cmdMs: 60000 }); await cl.ready;
-  await cl.cmd('Page.enable'); await cl.cmd('Runtime.enable');
+  // a dialog (alert/confirm) blocks the page, and every later command waits on it: record its text, dismiss it, and
+  // report it (pool runs at c1800044a and 8618e0661 hung 60 s in B5, a page call and then a mouse event)
+  cl = cdp(await pageWsUrl(dp), { cmdMs: 60000, onEvent: m => {
+    if (m.method === 'Page.javascriptDialogOpening') {
+      dialogs.push(`${m.params.type}: ${String(m.params.message).slice(0, 200)}`);
+      cl.cmd('Page.handleJavaScriptDialog', { accept: true }).catch(() => {});
+    }
+    if (m.method === 'Inspector.targetCrashed') dialogs.push('CRASH: the page crashed');
+  } }); await cl.ready;
+  await cl.cmd('Page.enable'); await cl.cmd('Runtime.enable'); await cl.cmd('Inspector.enable').catch(() => {});
   await cl.cmd('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
   const open = async page => {
     // Leave the current page first (about:blank), so it can neither autosave into storage after the clear nor answer a
@@ -259,8 +268,9 @@ try {
     await cl.cmd('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
   }
 } catch (e) {
-  leg(false, 'harness error', String(e && e.message || e).slice(0, 300));
+  leg(false, 'harness error', String(e && e.message || e).slice(0, 300) + (dialogs.length ? '  dialogs: ' + JSON.stringify(dialogs) : ''));
 } finally {
+  if (dialogs.length) leg(false, 'no dialog opened during the run', JSON.stringify(dialogs).slice(0, 400));
   await stop(); py.kill('SIGKILL');
   for (const d of profiles) removeProfileDir(d);
   try { rmSync(doc, { recursive: true, force: true }); } catch (_) {}
