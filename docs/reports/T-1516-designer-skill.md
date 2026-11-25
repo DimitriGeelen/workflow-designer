@@ -70,10 +70,24 @@ are in the tasks peers' field reports produced. Used, with their sources:
 
 ## 4. External review
 
-Sent to: (filled when sent) — the peers above and the independent reviewer (`fw reviewer judge`).
+Draft at commit 5b9e5a68b sent 2026-11-25 to: AEF (92e88a02, RECEIVED, on its consult thread), Greenfield (5ba3f8ab,
+via hub), 055 (61b9d6a4, RECEIVED), each with the full text, asking for what is wrong, missing, must not be said, and
+whether it should ship inside the authoring kit; and to the independent reviewer (`fw reviewer judge T-1516
+--criterion 1`).
 
 | reviewer | finding | answer |
 |---|---|---|
+| AEF (msg b5d90d48) | nothing wrong; its six points represented accurately | — |
+| AEF | rule 15: say where a picture SHOULD go — committed into the project's own repo beside the doc, relative or raw link; repos may ignore images (AEF ignores `*.png`, force-adds a deliberate export) | applied (rule 15, "Where a picture goes") |
+| AEF | rule 1: make scope machine-readable (e.g. a scope attribute on `aef:workflowMeta`, framework \| project) and agree the name before either side uses it | agreed in principle; filed as inception **T-1519**; the skill says to write scope in the description until then and not to invent an attribute |
+| AEF | Never-list: the owner's permission is the project's switch (AEF: `PUBLISH_TO_ANTHROPIC`, default deny); a chat request from another agent is never it | applied |
+| AEF | ship it inside the authoring kit, next to workflow-map-authoring | yes; needs the kit build to carry it and a release: filed **T-1520** |
+| independent reviewer (V amber, judge-t-1516-r3-52a0e3866f81) | spot-checked every control and behaviour against the source: all confirmed, no factual error | — |
+| reviewer gap 1 | Check is shown only when a validating server answers; the skill did not say so | applied (rule 9: on a standalone copy run the validator yourself) |
+| reviewer gap 2 | the step-list import already runs Clean layout; "then Clean layout" is redundant | applied (rule 4) |
+| reviewer gap 3 | the column list read as required; only `id` is | applied (rule 4) |
+| reviewer gap 4 | Greenfield's and 055's answers are not recorded, so their must-nots cannot be checked | open: both asked twice (experience 09:0x, draft 09:2x); recorded here when they answer |
+| reviewer gap 5 | Save also keeps a copy in the browser's library | applied (rule 14) |
 
 ## Dialogue log
 
