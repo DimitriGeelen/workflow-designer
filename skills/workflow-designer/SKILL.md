@@ -74,9 +74,9 @@ mistakes agents and people have already made. Every rule names where it was lear
     - A difference is a defect, in the map or in the designer. Report it to 832; do not work around it.
     - A loss can keep every count the same: a node moved into a sub-process keeps the node count, the flow count and
       its uid. [PL-030, PL-218, T-1217, T-1500; kit SKILL.md step 10.]
-13. **Look at it, control by control, at more than one width:** every step in its lane, no name cut, nothing
-    overlapping, documents under their steps. A screenshot read "for the layout" is not a look. [PL-403, T-1174; kit
-    SKILL.md step 11.]
+13. **Look at it** (kit SKILL.md step 11 takes the screenshot; this is how to read it). Take a screenshot at more
+    than one width, then check each element in it: every step in its lane, no name cut, nothing overlapping,
+    documents under their steps. A glance at the overall layout is not a look. [PL-403, T-1174.]
 14. **Save:**
     - **Save** downloads the BPMN file, and keeps a copy in the browser's own map library.
     - **⤓ Save to project** writes a new version to the project store. It appears only when the write-capable server
@@ -103,7 +103,11 @@ mistakes agents and people have already made. Every rule names where it was lear
 16. **Use a fresh browser profile every run.** A draft from an earlier session is kept in browser storage and can be
     restored over the map you open. [PL-018, the T-1502 harness: renamed maps and restored drafts.]
 17. **Wait for the app, then work through its own functions, not through pixel guesses:**
-    - Wait until `_appReady === true` before doing anything.
+    - Opened with `?load=`, wait until `window._deepLinkSettled` is set, not for `_appReady` (which turns true before
+      the map has been fetched). It is `'adopted'` when your map is in. It is `'suppressed'` when autosaved edits
+      from browser storage were kept instead: that means rule 16 was not followed. It is `'failed'` when the load
+      failed, and `'none'` when there was no `?load`. [T-1061; reviewer, second judgement.]
+    - Opened without `?load=`, wait until `_appReady === true`.
     - Open a map with `adoptImportedXml(xml, { userImport: true })`, then `renderAll()`.
     - Read the save with `buildBpmnXml(state)`.
     - For a picture, call the Export functions.

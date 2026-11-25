@@ -88,6 +88,9 @@ whether it should ship inside the authoring kit; and to the independent reviewer
 | reviewer gap 3 | the column list read as required; only `id` is | applied (rule 4) |
 | reviewer gap 4 | Greenfield's and 055's answers are not recorded, so their must-nots cannot be checked | open: both asked twice (experience 09:0x, draft 09:2x); recorded here when they answer |
 | reviewer gap 5 | Save also keeps a copy in the browser's library | applied (rule 14) |
+| reviewer, second judgement (amber), finding 1 | rule 17 was wrong: `_appReady` turns true before a `?load=` map is fetched; the settled signal is `window._deepLinkSettled` ('adopted' / 'suppressed' / 'failed' / 'none'; src T-1061) | applied (rule 17), with what 'suppressed' means (rule 16 not followed) |
+| reviewer, second judgement, finding 2 | rule 13 read as contradicting kit step 11 (take a screenshot) | applied: rule 13 now says it is how to read the kit's screenshot |
+| reviewer, second judgement, finding 3 | Greenfield's and 055's must-nots not recorded | outstanding, stated: neither has answered the experience consult nor the draft (Greenfield via hub, no receipt; 055 RECEIVED, no reply); the skill is offered with AEF's must-nots only, and is revised when they answer |
 
 ## Dialogue log
 
