@@ -235,8 +235,12 @@ try {
       writeFileSync(join(D, `row-added-${W}.png`), Buffer.from(s.data, 'base64'));
       const gaps = await ev(`phaseStepGaps(state)`); const Q = await poolSpan();
       await click('#palette-add-phase');
-      const g = gaps[Math.floor(gaps.length / 2)];
-      const r = await ev(`(function(){ var m = svg.getScreenCTM(); return { x: m.a * ${g + 3} + m.e, y: m.d * ${Q.y + 70} + m.f }; })()`);
+      // the gap nearest the visible canvas's middle, scrolled to the middle, so the landing line is in the shot
+      // (T-1504 review, first judgement amber: the line was off-screen in every split-preview shot)
+      const g = gaps[1] != null ? gaps[1] : gaps[0];
+      const r = await ev(`(function(){ var sc = svg.parentElement, m = svg.getScreenCTM(), b = sc.getBoundingClientRect();
+        sc.scrollLeft += (m.a * ${g + 3} + m.e) - (b.left + b.width / 2); m = svg.getScreenCTM();
+        return { x: m.a * ${g + 3} + m.e, y: m.d * ${Q.y + 70} + m.f }; })()`);
       await cl.cmd('Input.dispatchMouseEvent', { type: 'mouseMoved', x: r.x, y: r.y }); await sleep(200);
       s = await cl.cmd('Page.captureScreenshot', { format: 'png' });
       writeFileSync(join(D, `split-preview-${W}.png`), Buffer.from(s.data, 'base64'));

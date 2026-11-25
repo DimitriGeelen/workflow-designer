@@ -80,20 +80,40 @@ bvp_scores_proposed:
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** T-1491 GO (operator, 2026-11-24): "drag them to the left, to the right, and the configuration
+where the phase ends and starts". Design: docs/reports/T-1491-phases-editing.md walkthrough step 5 and IW-2.
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** after slices A, B and D a phase can be added, split, renamed, hidden and deleted, but where
+one phase ends and the next starts cannot be changed except by deleting and splitting again.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** drag the boundary between two neighbouring phases of a row (the shared edge of their brackets; in row 1 also
+the dashed divider through the lanes) left or right; it snaps to the gaps between step columns (`phaseStepGaps`, T-1504),
+never into a step, and never past the far end of either phase. While dragging, a dashed line shows the snapped place;
+on release the left group's shape width and the right group's x and width are rewritten (only those Bounds
+attributes), one undo step. Steps never move.
 
-**Expected outcome:** <what will be different when this is done>
+**Plan:** in renderPhases a transparent `.phase-boundary` hit strip (6 px wide, col-resize) at each shared edge (the
+two shapes' edges within 2 px of each other), over the bracket band and, for row 1, the divider; `data-left`/`data-right`
+group ids. mousedown (select mode) → `phaseBoundaryDrag = { row, left, right }`; window mousemove → nearest gap strictly
+inside (left.x + 12, right.x + right.w − 12), preview in gPreview; mouseup → `phaseBoundaryMove(leftId, rightId, x)`
+(pushHistory, rewrite both shapes' Bounds, `_phasesChanged`, renderAll). A boundary of a file's phases that is not at a
+gap (Greenfield's own) snaps on its first drag. Outer ends of a row are not dragged in this slice.
+
+**Out of scope (own tasks):** boundaries following moved steps (IW-2's last sentence); deleting a phase gives its range
+to a neighbour (walkthrough step 7).
+
+**Expected outcome:** Mira completes scenario step 5 in the designer.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] On Greenfield's sample and on a map with phases made by slice B, a real mouse drag of the shared edge of two
+  phases (and of a row-1 divider) moves the boundary to the step gap nearest the pointer, never into a step or past
+  either phase's far end; a drag that ends where it started changes no byte; undo restores the boundary — a browser
+  leg, failed by 0.49.0 (no boundary handle)
+- [ ] The save rewrites only the two groups' Bounds x/width; reopened here and by dist 0.49.0 the phases are drawn at
+  the new boundary; the browser tier green on a round
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
