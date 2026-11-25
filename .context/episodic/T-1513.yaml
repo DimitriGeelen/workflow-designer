@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1513: Phases vanish after reopen when a lane was added below after the phases (group height not following the pool)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-25T16:01:53Z
+# ============================================================================
+
+task_id: T-1513
+task_name: "Phases vanish after reopen when a lane was added below after the phases (group height not following the pool)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-25T08:57:22Z
+completed: 2026-11-25T16:01:27Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-25T16:39:38+01:00
+last_commit: 2026-11-25T16:39:38+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  phases follow the pool — when an edit makes the pool taller, each drawn phase that reached the old bottom is stretched to the new one (Bounds height only; part of that edit's undo step); never on a first render or without growth, so a map nobody edits is unchanged. Lanes (with steps) added after phases now survive save and reopen here and in 0.50.0. Browser leg test_t1513_phases_follow_pool (P1-P4; 0.50.0 fails P1-P3)
+
+# Key outcomes
+outcomes:
+  - 'On a map with phases (Greenfield''s sample; a row made with slice B on the starter map): add a lane below and a step'
+  - 'Only the drawn phases'' group Bounds `y`/`height` change, only after the pool grows; undo of the lane add restores'
+  - 'The browser tier green on a round; the earlier phase harnesses (T-1473, T-1499, T-1502-T-1505) still green'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1513-phases-vanish-after-reopen-when-a-lane-w.md'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1513-phases-follow-pool-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-25T16:39:38'
+    action: 'T-1513: phases follow the pool — when an edit makes the pool taller, each drawn phase that reached the old bottom is stretched to the new one (Bounds height only; part of that edit''s undo step); never on a first render or without growth, so a map nobody edits is unchanged. Lanes (with steps) added after phases now survive save and reopen here and in 0.50.0. Browser leg test_t1513_phases_follow_pool (P1-P4; 0.50.0 fails P1-P3)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 424 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [designer, phases]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 424
+  commits: 2
+  files_changed: 6
+  lines_added: 450
+  lines_removed: 24
+  footprint_refreshed_at: '2026-11-25T16:02:05Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1513-phases-vanish-after-reopen-when-a-lane-w.md
+generated_by: context-agent-hybrid

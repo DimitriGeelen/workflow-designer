@@ -9,13 +9,13 @@ description: >
   keeps spanning it when lanes are added/resized (stretch its Bounds), or judge the
   steps' band leniently.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [designer, phases]
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -44,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-25T08:57:22Z
-last_update: 2026-11-25T15:39:38Z
-date_finished:
+last_update: 2026-11-25T16:01:27Z
+date_finished: 2026-11-25T16:01:27Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -100,12 +100,20 @@ step). A map nobody edits is never changed by this (no stretch on open or on a r
 ## Acceptance Criteria
 
 ### Agent
-- [ ] On a map with phases (Greenfield's sample; a row made with slice B on the starter map): add a lane below and a step
+- [x] On a map with phases (Greenfield's sample; a row made with slice B on the starter map): add a lane below and a step
   in it, save, reopen here and in dist 0.50.0: every phase is still drawn, at the same x ranges — a browser leg, failed
   by 0.50.0 as the editor
-- [ ] Only the drawn phases' group Bounds `y`/`height` change, only after the pool grows; undo of the lane add restores
+  **Evidence:** `tools/_t1513-phases-follow-pool-cdp.mjs` P1 (starter map, three phases, a lane added by a real click and
+  a step in it) and P2 (Greenfield's sample, eleven phases, two lanes and steps) green, read back here and by dist
+  0.50.0; teeth: `T1513_EDITOR=dist/aef-workflow-designer-0.50.0.html` fails P1, P2, P3.
+- [x] Only the drawn phases' group Bounds `y`/`height` change, only after the pool grows; undo of the lane add restores
   them; a map nobody edits saves exactly as before (Greenfield's sample, the starter map, opened and saved: no change)
-- [ ] The browser tier green on a round; the earlier phase harnesses (T-1473, T-1499, T-1502-T-1505) still green
+  **Evidence:** P3: a real lane-resize drag (642 → 829) stretches the shapes to the new bottom, only `height` changed,
+  undo restores them (compared by value). The undo is tested through the resize, because adding, deleting and resizing
+  a lane recorded no undo step at all; that was its own bug, fixed as T-1525 (committed first). P4: Greenfield's sample
+  and a reopened designer save with phases, re-rendered at 1024/1920/1440, save exactly as opened.
+- [x] The browser tier green on a round; the earlier phase harnesses (T-1473, T-1499, T-1502-T-1505) still green
+  **Evidence:** round at 521361c09: browser green (868 s, every phase leg in it), core green (1153 s).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -154,6 +162,9 @@ step). A map nobody edits is never changed by this (no stretch on open or on a r
 -->
 
 ## Verification
+
+node tools/_t1513-phases-follow-pool-cdp.mjs > /tmp/.t1513.out 2>&1 && grep -q "all legs passed" /tmp/.t1513.out
+grep -q 'test_t1513_phases_follow_pool' tests/run-bridge-tests.sh
 
 <!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
      headings; the completion gate strips HTML comments before running anything.
@@ -308,6 +319,21 @@ step). A map nobody edits is never changed by this (no stretch on open or on a r
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
+**Symptom:** after a lane was added below a map's phases and a step placed in it, a save and reopen drew no phases.
+
+**Root cause:** a phase is a group whose shape spans the pool's full height (T-1461 F3). A designer-saved file has no
+pool shape, so on reopen the band is the steps' (T-1510). The groups kept the height they had when made or opened, and
+the new step reached below them, so no group spanned the band.
+
+**Why structurally allowed:** the phase rule is judged against a band that is re-derived on every open, while the group
+heights were fixed at creation; nothing tied the two together when the pool changed, and no test changed the pool after
+adding phases (T-1504's tests only added phases to a finished map). It was found at build time and released as a known
+limit in 0.50.0, not hit in the field.
+
+**Prevention:** groups that span the pool now follow it when an edit makes it taller; browser leg
+`test_t1513_phases_follow_pool` pins lanes-and-steps-after-phases through save and reopen in two readers, and that an
+untouched map does not change.
+
 ## Evolution
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
@@ -392,3 +418,16 @@ step). A map nobody edits is never changed by this (no stretch on open or on a r
 ### 2026-11-25T15:29:46Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-25T16:01:27Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-4ef6a14d
+- **Timestamp:** 2026-11-25T16:01:39Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none
