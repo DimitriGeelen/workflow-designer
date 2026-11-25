@@ -262,6 +262,9 @@ try {
       await cl.cmd('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
       await cl.cmd('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
       await splitFour(); await sleep(300);
+      // the whole row in view (T-1504 review, fourth judgement amber: the scrolled view showed two of the five brackets)
+      await click('#btn-zoom-fit'); await sleep(400);
+      await ev(`(function(){ var sc = svg.parentElement; sc.scrollLeft = 0; sc.scrollTop = 0; return true; })()`); await frames();
       s = await cl.cmd('Page.captureScreenshot', { format: 'png' });
       writeFileSync(join(D, `five-phases-${W}.png`), Buffer.from(s.data, 'base64'));
     }

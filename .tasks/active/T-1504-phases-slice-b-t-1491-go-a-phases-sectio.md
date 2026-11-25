@@ -10,8 +10,8 @@ description: >
 
 status: started-work
 workflow_type: build
-current_node: frw_1_start
-owner: agent
+current_node: frw_3_run
+owner: human
 horizon: now
 tags: [designer, phases, greenfield, aef-dependent]
 components: []
@@ -43,7 +43,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-24T11:08:18Z
-last_update: 2026-11-25T09:56:28Z
+last_update: 2026-11-25T10:38:39Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -124,12 +124,18 @@ select the new phase so the panel (slice A) renames it.
   **Evidence:** `tools/_t1504-phase-add-cdp.mjs` B1, B2 and B5 green (real clicks on the palette and the map; four splits make
   five phases, each boundary a step gap; undo 5→4, redo 4→5; Esc leaves Add phase without a change; the dashed preview
   line drawn on hover). Teeth: `T1504_EDITOR=dist/aef-workflow-designer-0.49.0.html` fails B1 (no Phases section).
-- [ ] The save writes standard BPMN (root category with values, groups with categoryValueRef, full-pool-height group
+- [x] The save writes standard BPMN (root category with values, groups with categoryValueRef, full-pool-height group
   shapes, no aef extension); reopened here and by dist 0.49.0 it draws the same phases at the same boundaries; a map
   nobody adds phases to saves byte-identically; the browser tier green on a round
+  **Evidence:** harness B3 (one category, five values, five groups, five full-height shapes, no aef:), B4/B5 (read back
+  here and by dist 0.49.0: same names, same x ranges; starter and Greenfield's stripped sample), B6 (starter and
+  stripped sample save as 0.49.0 saves them, uuid aside). Browser tier GREEN on the round at 3ad426ffd (pool split and
+  local); core green on the push gate (e32ae2f6d pushed). Three pool reds before it were the harness, not the designer:
+  a page-switch race and an autosave-after-clear (fixed: about:blank + CDP storage clear), then a renderer crash on
+  ring20-live (fixed: --disable-dev-shm-usage; class fix T-1523).
 
 ### Human
-- [x] Adding phases from the left panel reads like adding a lane: a person finds the Phases section, understands what
+- [ ] Adding phases from the left panel reads like adding a lane: a person finds the Phases section, understands what
   "Add phase row" and "Add phase" do, and sees where the split will land before clicking
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1504 --criterion 1`), who may escalate.
   **Steps:**
@@ -189,7 +195,6 @@ select the new phase so the panel (slice A) renames it.
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
-  **Reviewer verdict:** green V-20261125-b3023118 — reviewer-judge-t-1504-r3-997c3df1bd03:reviewer (rung rung-3-termlink-single-reviewer), digest f23b4a747e15; dispatch judge-t-1504-r3-997c3df1bd03; evidence: .context/reviews/evidence/T-1504/AC1-judge-t-1504-r3-997c3df1bd03.md, .context/reviews/evidence/T-1504/palette-1024-judge-t-1504-r3-997c3df1bd03.png, .context/reviews/evidence/T-1504/palette-1440-judge-t-1504-r3-997c3df1bd03.png, .context/reviews/evidence/T-1504/palette-1920-judge-t-1504-r3-997c3df1bd03.png, .context/reviews/evidence/T-1504/row-added-1024-judge-t-1504-r3-997c3df1bd03.png, .context/reviews/evidence/T-1504/row-added-1440-judge-t-1504-r3-997c3df1bd03.png, .context/reviews/evidence/T-1504/row-added-1920-judge-t-1504-r3-997c3df1bd03.png, .context/reviews/evidence/T-1504/split-preview-1024-judge-t-1504-r3-997c3df1bd03.png, .context/reviews/evidence/T-1504/split-preview-1440-judge-t-1504-r3-997c3df1bd03.png, .context/reviews/evidence/T-1504/split-preview-1920-judge-t-1504-r3-997c3df1bd03.png, .context/reviews/evidence/T-1504/five-phases-1024-judge-t-1504-r3-997c3df1bd03.png, .context/reviews/evidence/T-1504/five-phases-1440-judge-t-1504-r3-997c3df1bd03.png, .context/reviews/evidence/T-1504/five-phases-1920-judge-t-1504-r3-997c3df1bd03.png; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
