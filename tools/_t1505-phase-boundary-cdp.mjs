@@ -270,6 +270,18 @@ try {
         await click('#btn-zoom-out'); await sleep(250);
       }
       await frames();
+      // before and after in the SAME view, so the move reads by comparison (T-1505 review: moved-1920 alone could not be
+      // read with confidence): undo, capture 'before', redo, capture 'moved'; the scroll and zoom are kept, and checked
+      const view = () => ev(`(function(){ var sc = svg.parentElement; return [sc.scrollLeft, sc.scrollTop, document.getElementById('zoom-level').textContent]; })()`);
+      const v1 = await view();
+      await ev(`undo()`); await frames();
+      await ev(`(function(v){ var sc = svg.parentElement; sc.scrollLeft = v[0]; sc.scrollTop = v[1]; return true; })(${JSON.stringify(v1)})`); await frames(); await sleep(200);
+      s = await cl.cmd('Page.captureScreenshot', { format: 'png' });
+      writeFileSync(join(D, `before-${W}.png`), Buffer.from(s.data, 'base64'));
+      await ev(`redo()`); await frames();
+      await ev(`(function(v){ var sc = svg.parentElement; sc.scrollLeft = v[0]; sc.scrollTop = v[1]; return true; })(${JSON.stringify(v1)})`); await frames(); await sleep(200);
+      const v2 = await view();
+      if (JSON.stringify(v1) !== JSON.stringify(v2)) console.log(`NOTE shots ${W}: view moved ${JSON.stringify(v1)} -> ${JSON.stringify(v2)}`);
       s = await cl.cmd('Page.captureScreenshot', { format: 'png' });
       writeFileSync(join(D, `moved-${W}.png`), Buffer.from(s.data, 'base64'));
     }

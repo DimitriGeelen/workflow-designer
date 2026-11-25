@@ -42,7 +42,7 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-24T11:08:18Z
-last_update: 2026-11-25T11:36:16Z
+last_update: 2026-11-25T11:39:31Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -151,8 +151,10 @@ to a neighbour (walkthrough step 7).
      baseline), `handle-hover-{W}.png` and `handle-hover-closeup-{W}.png` (the pointer on that edge: the accent bar that
      says it can be dragged; a screenshot never draws the pointer itself, so the cursor is asserted instead: harness C1
      reads `col-resize` on the handle), `dragging-{W}.png` (mid-drag: the dashed line where the boundary will land, at a
-     gap between steps), `moved-{W}.png` (after the release, centred on the new boundary and zoomed out until both
-     neighbouring phase names are in view: the brackets and the dashed divider through the lanes at the new place)
+     gap between steps), and the pair `before-{W}.png` / `moved-{W}.png`: the SAME view (scroll and zoom kept; centred on
+     the new boundary, zoomed out until both neighbouring phase names are in view), first with the move undone, then
+     redone — compare the brackets and the dashed divider through the lanes (at 1920: before between Firm Ready and Send
+     Proposal, moved between Send Proposal and Opportunity (Proposal + doc. sturen))
   2. Judge: is the handle discoverable on hover; is the landing place clear before release; does the result read; is
      anything clipped or overlapping
   **Expected:** a person who wants a phase to end later finds the edge, drags it, and sees it land between two steps.
