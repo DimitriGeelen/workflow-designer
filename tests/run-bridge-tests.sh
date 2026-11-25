@@ -2532,6 +2532,18 @@ else
 fi
 }
 leg browser "test_t1505_phase_boundary" _leg_t1505
+_leg_t1525() {
+
+# ── T-1525: adding, deleting and resizing a lane are each one undo step (a resize press without moving records none). ~15 s.
+if node "$ROOT/tools/_t1525-lane-undo-cdp.mjs" > "$TMP/leg-_t1525.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "Adding, deleting or resizing a lane is no longer one undo step (_t1525-lane-undo-cdp.mjs; T-1525)"
+  show_output "$TMP/leg-_t1525.out" "_t1525-lane-undo-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1525_lane_undo" _leg_t1525
 _leg_t1470() {
 
 # ── T-1470 (Greenfield): an association between two steps that line up is drawn straight (Solution - Product ->

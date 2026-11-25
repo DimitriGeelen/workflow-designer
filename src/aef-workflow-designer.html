@@ -10912,6 +10912,8 @@ window.addEventListener('mouseup', e => {
   }
   if (laneResizeDrag) {
     document.querySelectorAll('.lane-resize-handle.dragging').forEach(el => el.classList.remove('dragging'));
+    const ln = findLane(laneResizeDrag.laneId);   // T-1525: one undo step per gesture that changed a height
+    if (ln && ln.height !== laneResizeDrag.startHeight) commitHistory(laneResizeDrag.before);
   }
   if (poolResizeDrag) {
     poolResizeDrag = null; // clear BEFORE renderAll so the handle re-renders without .dragging
@@ -10945,7 +10947,8 @@ function onLaneResizeMouseDown(ev, laneId) {
   const lane = findLane(laneId);
   if (!lane) return;
   const pt = clientToSvg(ev.clientX, ev.clientY);
-  laneResizeDrag = { laneId, startY: pt.y, startHeight: lane.height };
+  // T-1525: the map before the gesture, recorded at the release only when a lane's height changed (no dead undo step)
+  laneResizeDrag = { laneId, startY: pt.y, startHeight: lane.height, before: snapshotState() };
   // visual feedback while dragging
   ev.currentTarget.classList.add('dragging');
 }
@@ -12613,6 +12616,7 @@ function deleteEdge(id) {
 
 // ----- Lane CRUD -----
 function addLane() {
+  pushHistory();   // T-1525: one undo step (before, Ctrl+Z undid the previous recorded action as well)
   if (!state.lanes) state.lanes = defaultLanes();
   // generate a fresh id that doesn't collide with existing ones
   let suffix = state.lanes.length + 1;
@@ -12639,6 +12643,7 @@ function addLane() {
 
 function deleteLane(id) {
   if (!state.lanes || state.lanes.length <= 1) return;
+  pushHistory();   // T-1525: one undo step
   const remaining = state.lanes.filter(l => l.id !== id);
   // reassign nodes from deleted lane to the first remaining lane
   const fallbackId = remaining[0].id;
