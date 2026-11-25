@@ -170,11 +170,14 @@ try {
       await cl.cmd('Emulation.setDeviceMetricsOverride', { width: W, height: 900, deviceScaleFactor: 2, mobile: false });
       await adopt(xml); await frames();
       // the same view before and after: centred on 'Fase' phases 2-3, zoomed out only until both are in view
+      // the side panels folded (the toolbar's own toggles), so the canvas has the width for both phases at a readable zoom
+      // (T-1515 review: at 1024 the brackets' outer ends were clipped at the canvas edge)
+      await click('#btn-toggle-palette'); await click('#btn-toggle-props'); await sleep(300);
       for (let z = 0; z < 4; z++) {
         const fits = await ev(`(function(){ var sc = svg.parentElement, b = sc.getBoundingClientRect();
           var t2 = document.querySelector('#g-phases [data-phase="Group_f2"] path'), t4 = document.querySelector('#g-phases [data-phase="Group_f4"] path'), t3 = document.querySelector('#g-phases [data-phase="Group_f3"] path');
           var r3 = t3.getBoundingClientRect(), r2a = t2.getBoundingClientRect(); sc.scrollLeft += ((r2a.left + r3.right) / 2) - (b.left + b.width / 2); sc.scrollTop = 0; r3 = t3.getBoundingClientRect();
-          var r2 = t2.getBoundingClientRect(), r4 = t4.getBoundingClientRect(); return r2.left >= b.left + 4 && r3.right <= b.right - 4; })()`);
+          var r2 = t2.getBoundingClientRect(), r4 = t4.getBoundingClientRect(); return r2.left >= b.left + 40 && r3.right <= b.right - 40; })()`);   /* 40 px: clear of the panel-collapse arrows (T-1515 review, 1024) */
         if (fits) break;
         await click('#btn-zoom-out'); await sleep(250);
       }
