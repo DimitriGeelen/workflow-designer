@@ -8,13 +8,13 @@ description: >
   Fix: widen the left neighbour (or the right one for the first phase) over the deleted
   range; one undo step.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [designer, phases, bug]
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -43,8 +43,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-25T09:04:20Z
-last_update: 2026-11-25T16:20:50Z
-date_finished:
+last_update: 2026-11-25T16:42:52Z
+date_finished: 2026-11-25T16:42:52Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -99,19 +99,22 @@ Greenfield's 'Fase in Salesforce') is deleted as before. Deleting the last phase
 ## Acceptance Criteria
 
 ### Agent
-- [ ] On Greenfield's sample: deleting a middle phase of 'Fase' (Delete key) widens its left neighbour over its range;
+- [x] On Greenfield's sample: deleting a middle phase of 'Fase' (Delete key) widens its left neighbour over its range;
   deleting the first widens the second to the left; deleting a 'Fase in Salesforce' phase leaves its neighbours as they
   were; one undo restores each; the save changes only the deleted elements and the neighbour's Bounds `x`/`width`;
   read back here and by dist 0.50.0 the same — a browser leg, failed by 0.50.0
   **Evidence:** `tools/_t1515-phase-delete-neighbour-cdp.mjs` D1-D4 green (D1 'Fase' 2 widens to 562..1754 over phase 3;
   D2 'Fase' 2 starts at 92; D3 'Fase in Salesforce' neighbours unchanged; D4 four changed lines, all the deleted phase's
   or Group_f2's Bounds, read back the same here and by 0.50.0). Teeth: `T1515_EDITOR=dist/…0.50.0.html` fails D1, D2.
-- [ ] The browser tier green on a round; the slice A harness (T-1502) still green
+- [x] The browser tier green on a round; the slice A harness (T-1502) still green
   (T-1502's A6 expectation updated deliberately: after it deletes 'Productie & service', 'Order & levering' now ends
   where that phase ended.)
+  **Evidence:** round at adc092297: browser green (583 s, T-1502 and T-1515 legs in it), core green (914 s). The round
+  before it (3fa425f9e) was red only on `_t1273-signal-restore-teeth` on this host at load 31-42 (pool green): the
+  T-1294 race recurring, filed as T-1526; standalone 3/3 green.
 
 ### Human
-- [ ] Deleting a phase reads as its neighbour taking over: a person sees no gap in the row afterwards
+- [x] Deleting a phase reads as its neighbour taking over: a person sees no gap in the row afterwards
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1515 --criterion 1`), who may escalate.
   **Steps:**
   1. In `docs/reports/T-1515-shots/`, at 1024/1440/1920, the pair `before-delete-{W}.png` / `after-delete-{W}.png` in
@@ -168,6 +171,7 @@ Greenfield's 'Fase in Salesforce') is deleted as before. Deleting the last phase
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261125-f2c60406 — reviewer-judge-t-1515-r3-a5d4f0527bda:codex (rung rung-3-termlink-single-reviewer), digest 3db9e3d832b8; dispatch judge-t-1515-r3-a5d4f0527bda; evidence: .context/reviews/evidence/T-1515/AC1-judge-t-1515-r3-a5d4f0527bda.md; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -337,6 +341,18 @@ sample, at 1024/1440/1920, the before/after pair in the same view.
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
+**Symptom:** deleting a phase left its stretch of the row without a phase; the steps under it belonged to none.
+
+**Root cause:** slice A (T-1502) implemented delete as "remove the group, its shape and its value" and deferred the
+design's "its neighbour takes its range" (T-1491 step 7) to slice C, where boundaries could be moved; slice C split it
+off again as this task. It was a deliberate, documented deferral (0.49.0 notes), not an accident.
+
+**Why structurally allowed:** a design step can be deferred across slices with only release-note prose to carry it; no
+check ties the walkthrough's steps to the slices that build them.
+
+**Prevention:** browser leg `test_t1515_phase_delete_neighbour` pins the behaviour; T-1502's A6 now asserts the neighbour
+takes the range.
+
 ## Evolution
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
@@ -421,3 +437,16 @@ sample, at 1024/1440/1920, the before/after pair in the same view.
 ### 2026-11-25T16:09:08Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-25T16:42:52Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-8e5057b5
+- **Timestamp:** 2026-11-25T16:43:01Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none
