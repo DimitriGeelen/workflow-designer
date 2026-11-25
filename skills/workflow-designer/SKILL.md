@@ -34,9 +34,16 @@ mistakes agents and people have already made. Every rule names where it was lear
    The import lays the map out itself (Clean layout). Then enrich each step in the panel. Import → Mermaid works the
    same way. [T-1441, T-1442.] To change an existing map, open the **published** version, never a regenerated one:
    its ids are its identity (kit SKILL.md "Update a map").
-5. **Open a specific version by URL** when the designer is served with a project store:
-   `…/designer/app?load=/api/version?id=<map-id>&v=<n>`. Maps are stored per project; a map in one project's store is
-   not visible from another project's designer. [AEF #1, #4.]
+5. **Open a specific version by URL** when the designer is served with a project store. Percent-encode the `load`
+   value:
+   `…/designer/app?load=%2Fapi%2Fversion%3Fid%3D<map-id>%26v%3D<n>`, that is, `load=` +
+   `encodeURIComponent('/api/version?id=<map-id>&v=<n>')`.
+   - Unencoded, the `&v=<n>` belongs to the designer page, not to `load`. The designer then opens the **latest**
+     version, with no error (T-1521).
+   - After opening, check the version shown beside the title.
+   - Maps are stored per project: a map in one project's store is not visible from another project's designer.
+
+   [AEF #1, #4; reviewer, third judgement.]
 
 ## While editing
 

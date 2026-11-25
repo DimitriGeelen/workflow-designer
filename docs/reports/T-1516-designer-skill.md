@@ -90,6 +90,7 @@ whether it should ship inside the authoring kit; and to the independent reviewer
 | reviewer gap 5 | Save also keeps a copy in the browser's library | applied (rule 14) |
 | reviewer, second judgement (amber), finding 1 | rule 17 was wrong: `_appReady` turns true before a `?load=` map is fetched; the settled signal is `window._deepLinkSettled` ('adopted' / 'suppressed' / 'failed' / 'none'; src T-1061) | applied (rule 17), with what 'suppressed' means (rule 16 not followed) |
 | reviewer, second judgement, finding 2 | rule 13 read as contradicting kit step 11 (take a screenshot) | applied: rule 13 now says it is how to read the kit's screenshot |
+| reviewer, third judgement (amber), defect | rule 5's URL was wrong: unencoded, `&v=<n>` is a parameter of the designer page, which reads only `load`, so the LATEST version opens with no error (verified: `URLSearchParams` reads only `load`, src ~14896; no `get('v')` anywhere) | applied (rule 5: percent-encode the `load` value; check the version shown); designer bug filed **T-1521**; AEF told (they use this URL form) |
 | reviewer, second judgement, finding 3 | Greenfield's and 055's must-nots not recorded | outstanding, stated: neither has answered the experience consult nor the draft (Greenfield via hub, no receipt; 055 RECEIVED, no reply); the skill is offered with AEF's must-nots only, and is revised when they answer |
 
 ## Dialogue log
