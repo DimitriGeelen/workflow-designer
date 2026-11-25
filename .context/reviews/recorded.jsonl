@@ -302,3 +302,4 @@
 {"ac":1,"outcome":"amber","task":"T-1499","ts":"2026-11-24T20:08:36Z","verdict_id":"V-20261124-593d1d33"}
 {"ac":1,"outcome":"green","task":"T-1499","ts":"2026-11-24T20:10:33Z","verdict_id":"V-20261124-01892087"}
 {"ac":1,"outcome":"green","task":"T-1474","ts":"2026-11-24T22:48:18Z","verdict_id":"V-20261124-a898f278"}
+{"ac":1,"outcome":"amber","task":"T-1504","ts":"2026-11-25T09:04:13Z","verdict_id":"V-20261125-3fe3f753"}
