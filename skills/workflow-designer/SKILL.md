@@ -99,8 +99,9 @@ mistakes agents and people have already made. Every rule names where it was lear
     - For a quick look on screen: close the banners, then **⤢ Fit whole diagram**.
 
     **Where a picture goes:** commit it into the project's own repository, beside the document that uses it, and link
-    it by a relative path (or the hosting site's raw link). That is not an outside service. A repository may ignore
-    image files: AEF ignores `*.png` and force-adds a deliberate export.
+    it by a relative path. A repository may ignore image files: AEF ignores `*.png` and force-adds a deliberate export.
+    If that repository is public, or you link the picture through a hosting site's public raw link, you are publishing
+    it. That falls under the first rule in "Never": only with the owner's permission, through the project's switch.
 
     [AEF #2, #3, #4, and its draft review. Known bugs: the exported file can carry another version's number in its name
     (T-1517); in Focus mode Fit may not be clickable (T-1518).]
@@ -115,7 +116,7 @@ mistakes agents and people have already made. Every rule names where it was lear
       from browser storage were kept instead: that means rule 16 was not followed. It is `'failed'` when the load
       failed, and `'none'` when there was no `?load`. [T-1061; reviewer, second judgement.]
     - Opened without `?load=`, wait until `_appReady === true`.
-    - Open a map with `adoptImportedXml(xml, { userImport: true })`, then `renderAll()`.
+    - Open a map with `adoptImportedXml(xml, { userImport: true })`. It draws the map itself.
     - Read the save with `buildBpmnXml(state)`.
     - For a picture, call the Export functions.
 
