@@ -14910,7 +14910,7 @@ document.addEventListener('mousedown', e => {
 // not a `let`: this handler starts running before the script's later `let` bindings exist.
 window._deepLinkSettled = null;
 // T-1109 (aef-greenfield-test's 0.16.0 re-test): a portal that opens a project's map through the
-// project API — ?load=/api/version?id=X[&v=N] — is opening project X, exactly like Versions -> open,
+// project API — ?load=/api/version?id=X[&v=N], encoded or not (T-1521) — is opening project X, exactly like Versions -> open,
 // so it gets the same T-1089 treatment (a file that declares no workflow id takes X; a declared id
 // still wins, T-263). Same origin only, and only that endpoint: any other ?load stays a plain import.
 function projectIdFromLoadSrc(src) {
@@ -14922,7 +14922,7 @@ function projectIdFromLoadSrc(src) {
   } catch (_) { return null; }   // not a URL at all: not a project load (a plain import follows)
 }
 (async () => {
-  const src = new URLSearchParams(location.search).get('load');
+  const src = currentLoadSrc();   // T-1521: an unencoded &v= is carried into an /api/version load
   // T-884: ?instance=T-XXX pre-selects an instance once the map (and its snapshot) is in.
   instanceView.pending = new URLSearchParams(location.search).get('instance');
   if (!src) { loadInstanceSnapshot(); window._deepLinkSettled = 'none'; return; }
@@ -18424,8 +18424,22 @@ try { _autosaveRestore = JSON.parse(localStorage.getItem(AUTOSAVE_KEY) || 'null'
 // The ?load deep-link src this session was opened with (stable — we never rewrite
 // the URL). Recorded in the autosave so a reload of the SAME deep-link restores the
 // in-progress edits, while a deep-link to a DIFFERENT map is respected instead.
+// T-1521: written unencoded, ?load=/api/version?id=X&v=N gives the PAGE the `v` (the `load` value ends at the `&`), and
+// the latest version was fetched without a word. When `load` is this server's /api/version without a `v` of its own and
+// the page carries one, the author meant that version: it is carried into `load`. One definition, so the fetch and the
+// autosave's deep-link identity (T-234) agree. An encoded link, a `load` with its own `v`, and any other `load` are as
+// they were.
 function currentLoadSrc() {
-  try { return new URLSearchParams(location.search).get('load') || null; } catch (_) { return null; }
+  try {
+    const qs = new URLSearchParams(location.search);
+    const src = qs.get('load') || null;
+    const pageV = qs.get('v');
+    if (!src || !pageV || !projectIdFromLoadSrc(src)) return src;
+    const u = new URL(src, location.href);
+    if (u.searchParams.has('v')) return src;
+    u.searchParams.set('v', pageV);
+    return /^[a-z][a-z0-9+.-]*:/i.test(src) ? u.href : u.pathname + u.search;
+  } catch (_) { return null; }
 }
 
 // T-264: canonical map-name stem of a ?load src path, for comparing the load source

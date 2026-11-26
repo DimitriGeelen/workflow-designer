@@ -1,11 +1,19 @@
 ---
 id: T-1521
-name: "?load=/api/version?id=X&v=N written unencoded opens the LATEST version silently: the page never reads v (AEF's URL form, and the source's own comment)"
+name: "?load=/api/version?id=X&v=N written unencoded opens the LATEST version silently:
+  the page never reads v (AEF's URL form, and the source's own comment)"
 description: >
-  T-1516 reviewer (third judgement): parse_qs('/designer/app?load=/api/version?id=ABC&v=3') -> load='/api/version?id=ABC', v='3'; the designer reads only load (src ~14896), so the latest version is fetched with no error. AEF uses this form (T-1516 consult #1) and the comment at the T-1109 block documents it. Fix: when load is a same-origin /api/version without v and the page URL has v, carry it into the fetch (or refuse with a message); show the loaded version. Likely related to T-1517 (export named v1 while v3 loaded).
+  T-1516 reviewer (third judgement): parse_qs('/designer/app?load=/api/version?id=ABC&v=3')
+  -> load='/api/version?id=ABC', v='3'; the designer reads only load (src ~14896),
+  so the latest version is fetched with no error. AEF uses this form (T-1516 consult
+  #1) and the comment at the T-1109 block documents it. Fix: when load is a same-origin
+  /api/version without v and the page URL has v, carry it into the fetch (or refuse
+  with a message); show the loaded version. Likely related to T-1517 (export named
+  v1 while v3 loaded).
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
 horizon: now
 tags: [designer, deeplink, bug, aef]
@@ -38,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-25T09:35:35Z
-last_update: 2026-11-25T09:35:35Z
-date_finished: null
+last_update: 2026-11-26T09:38:27Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +58,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-26T09:36:06Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 1
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 2
+    rationale: 'D1=1 (body:fix-without-learning); D2=0 (no-signal); D3=0 (no-signal);
+      D4=0 (no-signal); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=2 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L2:keyword=export)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1521: ?load=/api/version?id=X&v=N written unencoded opens the LATEST version silently: the page never reads v (AEF's URL form, and the source's own comment)
@@ -57,20 +85,27 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** the T-1516 reviewer (third judgement, 2026-11-25) followed `?load=/api/version?id=ABC&v=3`
+through a URL parser: `load` is `/api/version?id=ABC`, and `v=3` is a parameter of the designer page, which reads only
+`load` (the deep-link handler; no `get('v')` anywhere). The designer's own comment on the T-1109 block documents the
+unencoded form, and AEF uses `?load=` deep links (their scripts encode it, msg 458fd92b).
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** written unencoded, a link to a specific version opens the latest version, with no error.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** when `load` is a same-origin `/api/version` URL without a `v` of its own and the page URL carries `v`, the
+designer fetches that version (`v` carried into the fetch). An encoded link behaves as before; a `load` that already has
+`v` keeps its own; any other `load` ignores the page's `v`.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** both forms of a version link open the version they name.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] Against a project API serving versions 1-3 of a map (latest 3): `?load=/api/version?id=M&v=1` (unencoded) opens
+  version 1; the encoded form opens version 1; `?load=/api/version?id=M` opens the latest; a `load` with its own `v=2`
+  plus a page `v=1` opens 2 — a browser leg, failed by 0.51.0 on the unencoded case
+- [ ] The skill (`skills/workflow-designer/SKILL.md` rule 5) and the code comment say both forms work; the browser tier
+  green on a round
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -119,6 +154,10 @@ date_finished: null
 -->
 
 ## Verification
+
+node tools/_t1521-deeplink-version-cdp.mjs > /tmp/.t1521.out 2>&1 && grep -q "all legs passed" /tmp/.t1521.out
+grep -q 'test_t1521_deeplink_version' tests/run-bridge-tests.sh
+grep -q 'both forms work (T-1521)' skills/workflow-designer/SKILL.md
 
 <!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
      headings; the completion gate strips HTML comments before running anything.
@@ -353,3 +392,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1521-loadapiversionidxvn-written-unencoded-op.md
 - **Context:** Initial task creation
+
+### 2026-11-26T09:36:06Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

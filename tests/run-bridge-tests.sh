@@ -2572,6 +2572,19 @@ else
 fi
 }
 leg browser "test_t1515_phase_delete_neighbour" _leg_t1515
+_leg_t1521() {
+
+# ── T-1521: a deep link to a version opens that version whether `load` is encoded or not (an unencoded &v= is carried
+# into an /api/version load); a load with its own v keeps it; no v opens the latest. Own small project API. ~15 s.
+if node "$ROOT/tools/_t1521-deeplink-version-cdp.mjs" > "$TMP/leg-_t1521.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "A deep link to a map version no longer opens that version (encoded or not) (_t1521-deeplink-version-cdp.mjs; T-1521)"
+  show_output "$TMP/leg-_t1521.out" "_t1521-deeplink-version-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1521_deeplink_version" _leg_t1521
 _leg_t1470() {
 
 # ── T-1470 (Greenfield): an association between two steps that line up is drawn straight (Solution - Product ->

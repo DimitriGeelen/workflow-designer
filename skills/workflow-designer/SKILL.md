@@ -40,8 +40,9 @@ mistakes agents and people have already made. Every rule names where it was lear
    value:
    `…/designer/app?load=%2Fapi%2Fversion%3Fid%3D<map-id>%26v%3D<n>`, that is, `load=` +
    `encodeURIComponent('/api/version?id=<map-id>&v=<n>')`.
-   - Unencoded, the `&v=<n>` belongs to the designer page, not to `load`. The designer then opens the **latest**
-     version, with no error (T-1521).
+   - Unencoded, the `&v=<n>` belongs to the designer page, not to `load`. Designers up to 0.51.0 then open the
+     **latest** version, with no error. From the release after 0.51.0 the designer carries that `v` into the load, so
+     both forms work (T-1521). Encoding still works everywhere, so keep encoding.
    - After opening, check the version shown beside the title.
    - Maps are stored per project: a map in one project's store is not visible from another project's designer.
 
