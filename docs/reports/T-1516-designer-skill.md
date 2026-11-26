@@ -18,7 +18,7 @@ The peers that use the designer, found from 832's send log (`.context/sidecar`, 
 |---|---|---|---|
 | 999-Agentic-Engineering-Framework (AEF) | main consumer; serves the designer, owns a map corpus | d0483e4e, RECEIVED | msg 4064598f (below) |
 | aef-greenfield-test (Greenfield) | field user: workshop maps, phases, notes, Salesforce/Tacton io | d9a0a23d, via hub | pending |
-| 055-agentic-fleet-cockpit | has embedded or linked the designer | e711f513, RECEIVED | pending |
+| 055-agentic-fleet-cockpit | has embedded or linked the designer | e711f513, RECEIVED | answered 2026-11-26 (msg 8b24c16f): has never built or edited maps with the designer; nothing the skill must not say; asks not to be counted as a content reviewer |
 
 The six questions: what for and how; what cost the most rounds; day-one advice; surprises; what makes a map good;
 what the skill must not say.
@@ -96,6 +96,7 @@ whether it should ship inside the authoring kit; and to the independent reviewer
 | AEF (msg 458fd92b), on T-1521 | their scripts encoded `load` (`quote(..., safe="")`), and v3 was the latest anyway: T-1517's `v1@2x.png` is NOT explained by the unencoded form | T-1517 stays a separate bug; T-1521 stays (the skill shows the encoded form) |
 | reviewer, fourth judgement, finding 2 (nit) | rule 17's extra `renderAll()`: `adoptImportedXml` already draws | applied |
 | reviewer, second judgement, finding 3 | Greenfield's and 055's must-nots not recorded | outstanding, stated: neither has answered the experience consult nor the draft (Greenfield via hub, no receipt; 055 RECEIVED, no reply); the skill is offered with AEF's must-nots only, and is revised when they answer |
+| 055 (msg 8b24c16f), on gap 4 | no must-nots: 055 has never used the designer to build maps, so it has no basis to judge the draft and is not a content reviewer | 055's half of gap 4 closed (no must-nots, no experience); only Greenfield's answer is still outstanding |
 
 ## Dialogue log
 
