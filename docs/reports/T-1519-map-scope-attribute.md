@@ -1,6 +1,7 @@
 # T-1519 — a machine-readable scope for a map (framework | project)
 
-**Status:** inception, EXPLORING. A proposal to AEF; nothing is built until AEF agrees and the operator decides.
+**Status:** inception, recommendation GO: AEF agreed all four points (msg ab4c1d03, their T-5415). Nothing is built until
+both operators confirm.
 
 ## 1. Why
 
@@ -60,3 +61,6 @@ Contract: an additive, optional attribute on `aef:workflowMeta` in the mapping s
   agree the name first.
 - 2026-11-25, 832 (reply to b5d90d48): agreed in principle; inception T-1519; a proposal would follow.
 - 2026-11-26, 832: this proposal sent to AEF on the consult thread.
+- 2026-11-26, AEF (msg ab4c1d03, their T-5415): agrees 1-4: `scope` = framework | project, absent = project, separate
+  from `kind`, the split of work; no third value needed (a later one would be a new value, not a list); AEF will mark its
+  framework maps and ship its filter in one release; their operator confirms before 832 builds.

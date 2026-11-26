@@ -17,7 +17,7 @@ related_tasks: []
 waiting_on: agent
 revisit_at: 2026-12-02
 created: 2026-11-25T09:24:41Z
-last_update: 2026-11-26T09:40:14Z
+last_update: 2026-11-26T09:42:03Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -142,21 +142,21 @@ the map that shipped by mistake (their T-5393) no longer ships.
 -->
 
 - **IW-1: What is the attribute called, and which values does it take?**
-  confidence: 1
-  disposition: deferred
-  rationale: proposed `scope` = `framework` | `project` (report §2); waiting on AEF's answer (proposal sent on the T-1516 consult thread)
+  confidence: 3
+  disposition: answered
+  rationale: `aef:workflowMeta/@scope` = `framework` | `project`, agreed by AEF (msg ab4c1d03, their T-5415; their operator to confirm); no third value needed, a later one would be a new value, not a list (report §2, §6)
 - **IW-2: What does a map with no attribute mean?**
-  confidence: 2
-  disposition: deferred
-  rationale: proposed `project` (fail safe: an unmarked map does not ship); every existing map is unmarked, so a vendoring step must not read absence as `framework` (report §3)
+  confidence: 3
+  disposition: answered
+  rationale: `project` (fail safe), agreed by AEF (msg ab4c1d03); AEF marks its framework maps and ships its filter in one release so nothing silently stops shipping (report §3)
 - **IW-3: Where does it live: a new attribute, or a new value of `kind`?**
-  confidence: 2
-  disposition: deferred
-  rationale: proposed a new attribute: `kind` says what sort of map it is (a process, an overview, a work plan; AUTHORING 6), scope says who it belongs to; a framework overview map needs both (report §4)
+  confidence: 3
+  disposition: answered
+  rationale: a separate attribute, agreed by AEF (msg ab4c1d03): kind = what sort of map, scope = whose (report §4)
 - **IW-4: What do the validator, the designer and the kit do with it?**
-  confidence: 1
-  disposition: deferred
-  rationale: proposed: validator checks only the value (like `kind`), designer shows a Scope field in the workflow panel and keeps it through save, kit documents it in AUTHORING 6 (report §5); AEF owns the vendoring filter
+  confidence: 3
+  disposition: answered
+  rationale: agreed split (msg ab4c1d03): 832 validator checks the value, designer Scope select, AUTHORING 6 and the skill document it; AEF's fw vendor filter and its test are AEF's (report §5)
 
 ## Exploration Plan
 
@@ -219,11 +219,21 @@ the map that shipped by mistake (their T-5393) no longer ships.
 
 ## Recommendation
 
-**Recommendation:** EXPLORING
+**Recommendation:** GO
 
-**Rationale:**
+**Rationale:** both sides agree the whole proposal (report `docs/reports/T-1519-map-scope-attribute.md`; AEF msg
+ab4c1d03, their T-5415): `aef:workflowMeta/@scope` = `framework` | `project`, absent read as `project`, separate from
+`kind`, 832 builds the validator check, the designer's Scope select and the docs; AEF builds the vendoring filter. It is
+additive and optional, so no stored map changes or becomes invalid. Building waits for both operators: AEF's operator
+confirms on their side; ours decides here.
 
-AEF review of the T-1516 skill (msg b5d90d48): an AEF-development map shipped to every consumer because nothing marks scope (their T-5393); AEF asks to agree the attribute name before either side uses it. Open: name and values, workflowMeta attribute vs kind, validator rule, designer field, default when absent.
+**Evidence:**
+- An AEF-development map shipped to every consumer because nothing marks scope (AEF T-5393, msg b5d90d48).
+- AEF agreed all four questions and needs no third value (msg ab4c1d03).
+- No `workflowMeta` attribute is called `scope` today (validator and designer checked); `kind` stays as it is.
+
+**If GO:** one 832 build task (validator value check + designer Scope select + AUTHORING 6 + skill rule 1), released
+with AEF's filter release in mind (AEF ships marks and filter together).
 
 **Evidence:**
 
