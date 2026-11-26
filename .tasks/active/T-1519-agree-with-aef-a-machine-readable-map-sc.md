@@ -1,11 +1,14 @@
 ---
 id: T-1519
-name: "Agree with AEF a machine-readable map scope attribute (framework | project) on aef:workflowMeta, so vendoring can ship only framework maps"
+name: "Agree with AEF a machine-readable map scope attribute (framework | project)
+  on aef:workflowMeta, so vendoring can ship only framework maps"
 description: >
-  Inception: Agree with AEF a machine-readable map scope attribute (framework | project) on aef:workflowMeta, so vendoring can ship only framework maps
+  Inception: Agree with AEF a machine-readable map scope attribute (framework | project)
+  on aef:workflowMeta, so vendoring can ship only framework maps
 
-status: captured
+status: started-work
 workflow_type: inception
+current_node: frw_1_start
 owner: human
 horizon: now
 tags: []
@@ -14,8 +17,8 @@ related_tasks: []
 waiting_on: agent
 revisit_at: 2026-12-02
 created: 2026-11-25T09:24:41Z
-last_update: 2026-11-25T10:15:44Z
-date_finished: null
+last_update: 2026-11-26T09:40:14Z
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -35,13 +38,40 @@ target_blast_radius: 3            # int 0..9. Anticipated component count of the
                                   # Guide: 0=docs only, 1=single file, 3=small subsystem (S), 5=cross-subsystem (M), 7=multi-arc (L), 9=framework-wide (XL).
 voi_score: 0.5                    # float 0..1. Value of Information — expected value of resolving this question,
                                   # independent of build cost. Higher when answer affects many tasks or unblocks a strategic decision. Required.
+bvp_scores_proposed:
+  - ts: '2026-11-26T09:39:37Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 1
+      D2: 1
+      D3: 1
+      D4: 1
+      F-RECALL: 1
+      F2: 1
+      F4: 1
+      F3: 1
+      F1: 1
+    rationale: D1=1 (voi:no-leverage-signal (measured low, not unassessed)); 
+      D2=1 (voi:no-leverage-signal (measured low, not unassessed)); D3=1 
+      (voi:no-leverage-signal (measured low, not unassessed)); D4=1 
+      (voi:no-leverage-signal (measured low, not unassessed)); F-RECALL=1 
+      (voi:no-leverage-signal (measured low, not unassessed)); F2=1 
+      (voi:no-leverage-signal (measured low, not unassessed)); F4=1 
+      (voi:no-leverage-signal (measured low, not unassessed)); F3=1 
+      (voi:no-leverage-signal (measured low, not unassessed)); F1=1 
+      (voi:no-leverage-signal (measured low, not unassessed))
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1519: Agree with AEF a machine-readable map scope attribute (framework | project) on aef:workflowMeta, so vendoring can ship only framework maps
 
 ## Problem Statement
 
-<!-- What problem are we exploring? For whom? Why now? -->
+AEF's review of the T-1516 skill (msg b5d90d48): an AEF-development map shipped to every consuming project because
+nothing in a map says whether it is a framework process (ships to every project) or one project's own (must not ship).
+AEF wants a machine-readable mark so a vendoring step can ship only framework maps (their T-5393), and asked to agree
+the attribute with 832 before either side uses it. It is a change to the two-party map contract (mapping v1/v1.1), so it
+is agreed first and decided by the operator. Research and dialogue: `docs/reports/T-1519-map-scope-attribute.md`.
 
 ## Hypothesis
 
@@ -83,9 +113,11 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
      correction is sticky — set `hypothesis_source: human` in the frontmatter and no
      automatic pass will ever overwrite it. -->
 
-We believe that <change>,
-we will achieve <outcome>.
-We will know that we are successful when we see <measurable signal>.
+We believe that a `scope` attribute on `aef:workflowMeta` (`framework` | `project`, absent read as `project`),
+checked by the validator and editable in the designer,
+we will achieve that only framework maps ship to consuming projects.
+We will know that we are successful when we see AEF's vendoring step ship 0 maps whose `scope` is not `framework`, and
+the map that shipped by mistake (their T-5393) no longer ships.
 
 ## Assumptions
 
@@ -108,6 +140,23 @@ We will know that we are successful when we see <measurable signal>.
      §Disposition Gate. Bypass: --skip-disposition-gate "rationale" (direct) or
      FW_SKIP_DISPOSITION_GATE=1 (env-var, T-1890 producer/consumer parity).
 -->
+
+- **IW-1: What is the attribute called, and which values does it take?**
+  confidence: 1
+  disposition: deferred
+  rationale: proposed `scope` = `framework` | `project` (report §2); waiting on AEF's answer (proposal sent on the T-1516 consult thread)
+- **IW-2: What does a map with no attribute mean?**
+  confidence: 2
+  disposition: deferred
+  rationale: proposed `project` (fail safe: an unmarked map does not ship); every existing map is unmarked, so a vendoring step must not read absence as `framework` (report §3)
+- **IW-3: Where does it live: a new attribute, or a new value of `kind`?**
+  confidence: 2
+  disposition: deferred
+  rationale: proposed a new attribute: `kind` says what sort of map it is (a process, an overview, a work plan; AUTHORING 6), scope says who it belongs to; a framework overview map needs both (report §4)
+- **IW-4: What do the validator, the designer and the kit do with it?**
+  confidence: 1
+  disposition: deferred
+  rationale: proposed: validator checks only the value (like `kind`), designer shows a Scope field in the workflow panel and keeps it through save, kit documents it in AUTHORING 6 (report §5); AEF owns the vendoring filter
 
 ## Exploration Plan
 
@@ -201,3 +250,6 @@ AEF review of the T-1516 skill (msg b5d90d48): an AEF-development map shipped to
 
 <!-- Auto-populated by git mining at task completion.
      Manual entries optional during execution. -->
+
+### 2026-11-26T09:39:36Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
