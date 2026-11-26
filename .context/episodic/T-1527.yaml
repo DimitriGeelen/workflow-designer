@@ -1,0 +1,108 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1527: Release designer 0.51.0: lanes after phases (T-1513), lane changes undoable (T-1525), a deleted phase's range to its neighbour (T-1515)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-26T09:32:58Z
+# ============================================================================
+
+task_id: T-1527
+task_name: "Release designer 0.51.0: lanes after phases (T-1513), lane changes undoable (T-1525), a deleted phase's range to its neighbour (T-1515)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-25T20:12:40Z
+completed: 2026-11-26T09:32:50Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-11-25T21:13:34+01:00
+last_commit: 2026-11-25T23:28:48+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  release notes 0.51.0 (phases follow the pool, lane undo, a deleted phase's range to its neighbour); contracts table checked. release job 185 (0.51.0), dry-run passed (job.sh sha bab91e0a34f0). 0.51.0 — VERSION and APP_VERSION bumped by the release job (parity ok). release designer 0.51.0 — phases follow the pool when lanes are added or made taller; lane add/delete/resize undoable; a deleted phase's range goes to its neighbour; kit calibrated on its bytes
+
+# Key outcomes
+outcomes:
+  - '`docs/releases/RELEASE-NOTES-0.51.0.md` committed: the changes, what changes in stored maps, the AEF section with'
+  - 'A release job, dry-run (rehearsed) and committed, handed to the operator with the watcher armed'
+  - 'After the operator''s run: tag `designer-v0.51.0` on origin, `dist/aef-workflow-designer-0.51.0.html` equal to src'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/185-release-designer-0.51.0/dryrun.ok'
+  - '.context/runme/185-release-designer-0.51.0/job.sh'
+  - '.tasks/active/T-1527-release-designer-0510-lanes-after-phases.md'
+  - 'VERSION'
+  - 'dist/MANIFEST.yaml'
+  - 'dist/aef-authoring-kit-0.51.0/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.51.0/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.51.0/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.51.0/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.51.0/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.51.0/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.51.0/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.51.0/SKILL.md'
+  - 'dist/aef-authoring-kit-0.51.0/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.51.0/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.51.0/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.51.0/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.51.0/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.51.0/loop.sh'
+  - 'dist/aef-authoring-kit-0.51.0/validate-workflow.py'
+  - 'dist/aef-authoring-kit-0.51.0/verify-findings.py'
+  - 'dist/aef-workflow-designer-0.51.0.html'
+  - 'docs/authoring-kit/calibration-records/0.51.0.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.51.0.md'
+  - 'src/aef-workflow-designer.html'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-25T21:13:34'
+    action: 'T-1527: release notes 0.51.0 (phases follow the pool, lane undo, a deleted phase''s range to its neighbour); contracts table checked'
+  - time: '2026-11-25T21:14:20'
+    action: 'T-1527: release job 185 (0.51.0), dry-run passed (job.sh sha bab91e0a34f0)'
+  - time: '2026-11-25T22:07:18'
+    action: 'T-1527: 0.51.0 — VERSION and APP_VERSION bumped by the release job (parity ok)'
+  - time: '2026-11-25T23:28:48'
+    action: 'T-1527: release designer 0.51.0 — phases follow the pool when lanes are added or made taller; lane add/delete/resize undoable; a deleted phase''s range goes to its neighbour; kit calibrated on its bytes'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 800 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [release, designer]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 800
+  commits: 5
+  files_changed: 28
+  lines_added: 23952
+  lines_removed: 21
+  footprint_refreshed_at: '2026-11-26T09:33:06Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1527-release-designer-0510-lanes-after-phases.md
+generated_by: context-agent-hybrid

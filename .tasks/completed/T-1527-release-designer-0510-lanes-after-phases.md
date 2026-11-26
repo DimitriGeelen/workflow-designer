@@ -4,12 +4,13 @@ name: "Release designer 0.51.0: lanes after phases (T-1513), lane changes undoab
 description: >
   Release 0.51.0 (minor): T-1513, T-1525, T-1515 (+ harness T-1526 filed). Operator: 'Okay, go' (2026-11-25). Release notes, contracts table, runme job 185; announce to AEF (their T-5419 can take 0.51.0 directly) and Greenfield.
 
-status: started-work
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [release, designer]
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +39,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-25T20:12:40Z
-last_update: 2026-11-25T20:14:20Z
-date_finished: null
+last_update: 2026-11-26T09:32:50Z
+date_finished: 2026-11-26T09:32:50Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -69,11 +70,16 @@ date_finished: null
 ## Acceptance Criteria
 
 ### Agent
-- [ ] `docs/releases/RELEASE-NOTES-0.51.0.md` committed: the changes, what changes in stored maps, the AEF section with
+- [x] `docs/releases/RELEASE-NOTES-0.51.0.md` committed: the changes, what changes in stored maps, the AEF section with
   the five endpoints, the shared-contracts table (`tools/_t1425-shared-contracts.py --version 0.51.0 --check` passes)
-- [ ] A release job, dry-run (rehearsed) and committed, handed to the operator with the watcher armed
-- [ ] After the operator's run: tag `designer-v0.51.0` on origin, `dist/aef-workflow-designer-0.51.0.html` equal to src
+- [x] A release job, dry-run (rehearsed) and committed, handed to the operator with the watcher armed
+  **Evidence:** job 185 (sha bab91e0a34f0), dry-run passed (step 1 rehearsed, real repo unchanged), committed 5a0ff4875.
+- [x] After the operator's run: tag `designer-v0.51.0` on origin, `dist/aef-workflow-designer-0.51.0.html` equal to src
   at the tag; AEF and Greenfield told (version, tag, sha256, bytes, what it brings, what changes in what they store)
+  **Evidence:** job 185 done rc=0 (2026-11-26 09:31Z; both calibrations PASS, browser tier green on 4 pool shards, core
+  green); tag on origin (6b78f47f, release commit 960086290); artifact sha256 6b3e2a49…b55866, 1496964 B, identical to
+  src; announced to AEF (msg 49602d6f, conversation 832-designer-release-0.50.0, their T-5419 can take 0.51.0) and
+  Greenfield (8f97e2bb).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -122,6 +128,11 @@ date_finished: null
 -->
 
 ## Verification
+
+git ls-remote --exit-code --tags origin designer-v0.51.0
+git cat-file -e designer-v0.51.0:dist/aef-workflow-designer-0.51.0.html
+python3 tools/_t1425-shared-contracts.py --version 0.51.0 --check
+test -f .context/runme/185-release-designer-0.51.0/done
 
 <!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
      headings; the completion gate strips HTML comments before running anything.
@@ -356,3 +367,16 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1527-release-designer-0510-lanes-after-phases.md
 - **Context:** Initial task creation
+
+### 2026-11-26T09:32:50Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-b041b19c
+- **Timestamp:** 2026-11-26T09:32:52Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none
