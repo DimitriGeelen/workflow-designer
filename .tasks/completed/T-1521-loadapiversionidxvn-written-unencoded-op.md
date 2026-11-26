@@ -11,13 +11,13 @@ description: >
   with a message); show the loaded version. Likely related to T-1517 (export named
   v1 while v3 loaded).
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [designer, deeplink, bug, aef]
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tools/_t821-swallowed-failure-census.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -46,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-25T09:35:35Z
-last_update: 2026-11-26T09:46:27Z
-date_finished:
+last_update: 2026-11-26T18:39:26Z
+date_finished: 2026-11-26T18:39:26Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -101,11 +101,11 @@ designer fetches that version (`v` carried into the fetch). An encoded link beha
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Against a project API serving versions 1-3 of a map (latest 3): `?load=/api/version?id=M&v=1` (unencoded) opens
+- [x] Against a project API serving versions 1-3 of a map (latest 3): `?load=/api/version?id=M&v=1` (unencoded) opens
   version 1; the encoded form opens version 1; `?load=/api/version?id=M` opens the latest; a `load` with its own `v=2`
   plus a page `v=1` opens 2 — a browser leg, failed by 0.51.0 on the unencoded case
-- [ ] The skill (`skills/workflow-designer/SKILL.md` rule 5) and the code comment say both forms work; the browser tier
-  green on a round
+- [x] The skill (`skills/workflow-designer/SKILL.md` rule 5) and the code comment say both forms work; the browser tier
+  green on a round (round at 0c564eff2: browser green 1204 s, core green; ring20-live out of the relay, msg 5f852279)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -312,6 +312,15 @@ grep -q 'both forms work (T-1521)' skills/workflow-designer/SKILL.md
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
+**Symptom:** `?load=/api/version?id=M&v=1` written unencoded opened the latest version, with no error; the person saw
+the wrong map and believed it was v1.
+**Root cause:** the deep-link reader read only `load` from the page URL. An unencoded `&v=1` became a page parameter
+that nothing read, so the fetch went to `/api/version?id=M` (the latest).
+**Why structurally allowed:** no browser leg loaded a non-latest version via a deep link, and the source comment
+described the unencoded form as working. Only the reviewer's check of the skill's rule 5 against the code found it.
+**Prevention:** browser leg `test_t1521_deeplink_version` (V1-V5: unencoded, encoded, no v, own v wins, autosave
+identity) is red on 0.51.0 and green after the fix; skill rule 5 says to check the version shown after opening.
+
 ## Evolution
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
@@ -395,3 +404,16 @@ grep -q 'both forms work (T-1521)' skills/workflow-designer/SKILL.md
 
 ### 2026-11-26T09:36:06Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-26T18:39:26Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-9e6a9188
+- **Timestamp:** 2026-11-26T18:39:31Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

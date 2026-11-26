@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1521: ?load=/api/version?id=X&v=N written unencoded opens the LATEST version silently: the page never reads v (AEF's URL form, and the source's own comment)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-26T18:39:38Z
+# ============================================================================
+
+task_id: T-1521
+task_name: "?load=/api/version?id=X&v=N written unencoded opens the LATEST version silently: the page never reads v (AEF's URL form, and the source's own comment)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-25T09:35:35Z
+completed: 2026-11-26T18:39:26Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-11-26T10:38:27+01:00
+last_commit: 2026-11-26T10:46:27+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  a deep link to a version opens that version encoded or not — an unencoded &v= on the page is carried into an /api/version load without its own v (one currentLoadSrc() for the fetch and the autosave identity). Browser leg test_t1521_deeplink_version (V1-V5; 0.51.0 fails V1, V5); skill rule 5 updated. currentLoadSrc records a malformed page URL (aefRecordFault 'load-src') instead of swallowing it; the T-821 excuse for the old one-line reader removed (its line is gone) — the round at 4135a67cc was red on the swallowed-failure census
+
+# Key outcomes
+outcomes:
+  - 'Against a project API serving versions 1-3 of a map (latest 3): `?load=/api/version?id=M&v=1` (unencoded) opens'
+  - 'The skill (`skills/workflow-designer/SKILL.md` rule 5) and the code comment say both forms work; the browser tier'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1521-loadapiversionidxvn-written-unencoded-op.md'
+  - 'skills/workflow-designer/SKILL.md'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1521-deeplink-version-cdp.mjs'
+  - 'tools/_t821-swallowed-failure-census.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-26T10:38:27'
+    action: 'T-1521: a deep link to a version opens that version encoded or not — an unencoded &v= on the page is carried into an /api/version load without its own v (one currentLoadSrc() for the fetch and the autosave identity). Browser leg test_t1521_deeplink_version (V1-V5; 0.51.0 fails V1, V5); skill rule 5 updated'
+  - time: '2026-11-26T10:46:27'
+    action: 'T-1521: currentLoadSrc records a malformed page URL (aefRecordFault ''load-src'') instead of swallowing it; the T-821 excuse for the old one-line reader removed (its line is gone) — the round at 4135a67cc was red on the swallowed-failure census'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 1983 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [designer, deeplink, bug, aef]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1983
+  commits: 3
+  files_changed: 9
+  lines_added: 319
+  lines_removed: 31
+  footprint_refreshed_at: '2026-11-26T18:39:47Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1521-loadapiversionidxvn-written-unencoded-op.md
+generated_by: context-agent-hybrid
