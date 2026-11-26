@@ -18439,7 +18439,7 @@ function currentLoadSrc() {
     if (u.searchParams.has('v')) return src;
     u.searchParams.set('v', pageV);
     return /^[a-z][a-z0-9+.-]*:/i.test(src) ? u.href : u.pathname + u.search;
-  } catch (_) { return null; }
+  } catch (e) { aefRecordFault('load-src', e); return null; }   // a malformed page URL: recorded, then no deep link
 }
 
 // T-264: canonical map-name stem of a ?load src path, for comparing the load source

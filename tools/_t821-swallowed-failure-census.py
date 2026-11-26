@@ -70,8 +70,6 @@ EXCUSES = {
     "function _aefEmbedded() { try { return !!window.parent && window.parent !== window; } catch (_) { return true; } }":
         (1, "a cross-origin parent throws on access; that throw is precisely how you learn "
             "you ARE embedded. Reporting it would record a fault on the healthy path."),
-    "try { return new URLSearchParams(location.search).get('load') || null; } catch (_) { return null; }":
-        (1, "no ?load parameter is the common case, not a fault."),
     "} catch (_) { return null; } // not a URL at all: not a project load (a plain import follows)":
         (1, "T-1109's projectIdFromLoadSrc: a ?load= value that is not a URL is a plain file path, "
             "so 'not a project link' is the answer and the plain import that follows reports its own "
