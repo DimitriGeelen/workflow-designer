@@ -11,13 +11,13 @@ description: >
   try (a ready-file), or give the timeout headroom proportional to load; teeth must
   still bite.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [tests, flaky, core, bug]
-components: []
+components: [tools/_t392-safelist-shadow-gate.py, tools/_t606-render-escaping.py, tools/_t607-drift-gate-reach.py, tools/_t886-writer-mutation.py]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -46,8 +46,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-25T16:26:21Z
-last_update: '2026-11-27T20:55:22Z'
-date_finished:
+last_update: 2026-11-27T21:33:32Z
+date_finished: 2026-11-27T21:33:32Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -114,7 +114,8 @@ pattern (and the static guard) say how to close it.
 - [x] The static guard (`_t1273-mutation-signal-guard.py`, `py_term_ok`) requires the hardened handler and flags the
   lambda form; the four real python mutation scripts (`_t392`, `_t606`, `_t607`, `_t886`) carry it; the guard passes
   (8 in-place scripts, 0 unsafe)
-- [ ] The teeth pass 20/20 under synthetic load (done: 20/20 at load 19-79, 48 busy loops on 24 cores); core round green
+- [x] The teeth pass 20/20 under synthetic load (20/20 at load 19-79, 48 busy loops on 24 cores); round green at
+  f162e675a (browser 1889 s, core 1134 s)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -417,3 +418,16 @@ script, wired in core.
 
 ### 2026-11-27T20:55:21Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-27T21:33:32Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-4aeb9f4b
+- **Timestamp:** 2026-11-27T21:33:40Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

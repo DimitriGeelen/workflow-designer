@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1526: _t1273 signal-restore teeth: the T-1294 race recurred — FIXED python dummy killed before writing its file under load 31-42 (local core red, pool green, 2026-11-25)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-27T21:33:47Z
+# ============================================================================
+
+task_id: T-1526
+task_name: "_t1273 signal-restore teeth: the T-1294 race recurred — FIXED python dummy killed before writing its file under load 31-42 (local core red, pool green, 2026-11-25)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-25T16:26:21Z
+completed: 2026-11-27T21:33:32Z
+duration_days: 2
+updates_count: 3
+first_commit: 2026-11-27T22:01:52+01:00
+last_commit: 2026-11-27T22:01:52+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the _t1273 flake was a second TERM, not start-up — GNU timeout signals the child and its group (strace); a second TERM inside the python restore (truncate, then write) left the file empty. Handlers now ignore further TERMs (SIG_IGN) before exiting: the teeth dummy, the four real python mutation scripts; the guard requires it (py_term_ok); a teeth leg sends a second TERM into a slow restore (lambda loses the file, hardened keeps it); 20/20 at load 19-79
+
+# Key outcomes
+outcomes:
+  - 'Measured: how many TERMs `timeout` delivers to the child on expiry, recorded here. strace of GNU timeout 9.4 on'
+  - 'The FIXED python pattern survives a second TERM during its restore (the handler sets SIGTERM to SIG_IGN, then'
+  - 'The static guard (`_t1273-mutation-signal-guard.py`, `py_term_ok`) requires the hardened handler and flags the'
+  - 'The teeth pass 20/20 under synthetic load (20/20 at load 19-79, 48 busy loops on 24 cores); round green at'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1526-t1273-signal-restore-teeth-the-t-1294-ra.md'
+  - 'tools/_t1273-mutation-signal-guard.py'
+  - 'tools/_t1273-signal-restore-teeth.sh'
+  - 'tools/_t392-safelist-shadow-gate.py'
+  - 'tools/_t606-render-escaping.py'
+  - 'tools/_t607-drift-gate-reach.py'
+  - 'tools/_t886-writer-mutation.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-27T22:01:52'
+    action: 'T-1526: the _t1273 flake was a second TERM, not start-up — GNU timeout signals the child and its group (strace); a second TERM inside the python restore (truncate, then write) left the file empty. Handlers now ignore further TERMs (SIG_IGN) before exiting: the teeth dummy, the four real python mutation scripts; the guard requires it (py_term_ok); a teeth leg sends a second TERM into a slow restore (lambda loses the file, hardened keeps it); 20/20 at load 19-79'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3187 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [tests, flaky, core, bug]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 3187
+  commits: 2
+  files_changed: 10
+  lines_added: 616
+  lines_removed: 20
+  footprint_refreshed_at: '2026-11-27T21:33:54Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1526-t1273-signal-restore-teeth-the-t-1294-ra.md
+generated_by: context-agent-hybrid
