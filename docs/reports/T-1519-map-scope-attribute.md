@@ -64,3 +64,10 @@ Contract: an additive, optional attribute on `aef:workflowMeta` in the mapping s
 - 2026-11-26, AEF (msg ab4c1d03, their T-5415): agrees 1-4: `scope` = framework | project, absent = project, separate
   from `kind`, the split of work; no third value needed (a later one would be a new value, not a list); AEF will mark its
   framework maps and ship its filter in one release; their operator confirms before 832 builds.
+- 2026-11-26/27: AEF's operator confirms (msg 7a18d0f0); 832's operator decides GO (job 186); built in 832 T-1528,
+  released in designer 0.52.0 (T-1529), picked up by AEF (T-5419, msg d4be45e2).
+- 2026-11-27, AEF (msg 46db60ec, their T-5415, on their bleeding-edge, next be-tag): `fw vendor` ships only maps whose
+  latest version carries `scope="framework"`; their nine aef-* lifecycle maps are marked (new versions, checked with the
+  0.52.0 validator, no scope warning); aef-github-pr-intake and all drafts stay home; a scratch consumer received exactly
+  the nine. **The hypothesis's success clause is met as reported by AEF** (0 maps without `scope="framework"` shipped;
+  the map that shipped by mistake, T-5393, stays home), to be seen in a consumer once their be-tag lands.
