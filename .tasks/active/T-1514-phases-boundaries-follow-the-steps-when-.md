@@ -123,9 +123,9 @@ Rule (decided here, within IW-2):
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1514 --criterion 1`), who may escalate.
   **Steps:**
   1. In `docs/reports/T-1514-shots/`, at 1024/1440/1920, the pair `before-drag-{W}.png` / `after-drag-{W}.png` in the same
-     view (Greenfield's sample; both side panels folded; zoomed out only until 'Fase' phases Configuratie and
-     Offerte & onderhandeling are in view): before, "Send Proposal ? ('onder water')" is the first step under
-     'Offerte & onderhandeling'; after it is dragged left (and one lane down, into the empty NOVIS lane, so it covers
+     view (Greenfield's sample; a crop of the map from the gap before 'Configuratie' to the gap after the next phase's
+     first column, phase rows to pool bottom): before, "Send Proposal ? ('onder water')" is the first step under
+     'Offerte & onderhandeling'; after it is dragged left (and two lanes down, into the empty NAV lane, so it touches
      nothing in the picture), it sits under 'Configuratie', and the Configuratie | Offerte boundary (bracket ends and the
      dashed divider through the lanes) has moved to the gap to its right
   2. Judge: is it clear the step changed phase and the boundary followed; is anything clipped or overlapping
@@ -192,7 +192,11 @@ panels folded, the same view before and after dragging "Send Proposal" from 'Off
 | before | phase brackets, divider | ok | ok | ok | Send Proposal first under Offerte |
 | after | phase brackets, divider, moved step | ok | ok | ok | step under Configuratie; boundary and divider in the gap to its right; Salesforce row's '2 Needs Analysis' ends after its own last step |
 
-Read: 1024 after, 1440 before (an earlier take dropped the step onto 'Firm Ready'; retaken one lane down).
+Read: 1024 after, 1440 after. Review 1 (amber, codex): the moved card not fully inside its lane, cards cut at the canvas
+edge. Retaken: the card dropped in the middle of the empty NAV lane (two lanes down); the shots are crops through
+clearShot (T-1429) of map x 550..1918, edges in the gaps before 'Configuratie' and after the next phase's first column,
+from the phase rows to the pool bottom. Only id labels of edge cards that run into those gaps ("sal_6_opportunity",
+"tac_5_open") are cut; every card, bracket and divider is whole.
 
 <!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
      headings; the completion gate strips HTML comments before running anything.

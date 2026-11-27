@@ -21,6 +21,7 @@ import net from 'node:net';
 import { makeProfileDir, removeProfileDir } from './_cdp-profile.mjs';
 import { pageWsUrl } from './_cdp-attach.mjs';
 import { cdp } from './_cdp-client.mjs';
+import { clearShot } from './_cdp-clear-shot.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const EDITOR = process.env.T1514_EDITOR || join(ROOT, 'src', 'aef-workflow-designer.html');
@@ -229,25 +230,40 @@ try {
       await cl.cmd('Emulation.setDeviceMetricsOverride', { width: W, height: 900, deviceScaleFactor: 2, mobile: false });
       await adopt(xml); await frames();
       await click('#btn-toggle-palette'); await click('#btn-toggle-props'); await sleep(300);
-      // the same view before and after: 'Fase' phases 2 and 3 in view (zoomed out only until they fit)
-      for (let z = 0; z < 5; z++) {
+      // the shot's region (map x 550..1918, see below) in view, zoomed out only until it fits with 20 px to spare
+      for (let z = 0; z < 6; z++) {
         const fits = await ev(`(function(){ var sc = svg.parentElement, b = sc.getBoundingClientRect();
-          var a = document.querySelector('#g-phases [data-phase="Group_f2"] path').getBoundingClientRect(), c = document.querySelector('#g-phases [data-phase="Group_f3"] path').getBoundingClientRect();
-          sc.scrollLeft += ((a.left + c.right) / 2) - (b.left + b.width / 2); sc.scrollTop = 0;
-          a = document.querySelector('#g-phases [data-phase="Group_f2"] path').getBoundingClientRect(); c = document.querySelector('#g-phases [data-phase="Group_f3"] path').getBoundingClientRect();
-          return a.left >= b.left + 40 && c.right <= b.right - 40; })()`);
+          var sx = function(x){ var m = svg.getScreenCTM(); return m.a * x + m.e; };
+          sc.scrollLeft += ((sx(550) + sx(1918)) / 2) - (b.left + b.width / 2); sc.scrollTop = 0;
+          return sx(550) >= b.left + 20 && sx(1918) <= b.right - 20; })()`);
         if (fits) break;
         await click('#btn-zoom-out'); await sleep(250);
       }
       const v = await ev(`(function(){ var sc = svg.parentElement; return [sc.scrollLeft, sc.scrollTop]; })()`);
-      let sh = await cl.cmd('Page.captureScreenshot', { format: 'png' });
-      writeFileSync(join(D, `before-drag-${W}.png`), Buffer.from(sh.data, 'base64'));
-      // shown one lane lower (the empty 'NOVIS' lane), so the dropped step does not cover 'Firm Ready' in the picture
-      const laneH = await ev(`(function(){ var n = findNode('n_2d825dab'); var l = findLane(n.lane); return l ? l.height : 200; })()`);
-      await dragNode('n_2d825dab', e0.Group_f3[0] - 1234 - 40, laneH);
+      // a crop whose edges fall in empty space (T-1514 review: cards cut at the canvas edge): from the middle of the gap
+      // before 'Configuratie' to the gap after the next phase's first column (the gateway's label in full), from the phase rows to the pool's
+      // bottom; shot through clearShot (T-1429) on an invisible rectangle drawn over that region
+      const region = `(function(){ var old = document.getElementById('t1514-region'); if (old) old.remove();
+        var pb = gPool.querySelector('.pool-border'), py = +pb.getAttribute('y'), ph = +pb.getAttribute('height');
+        var r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        r.setAttribute('id', 't1514-region'); r.setAttribute('x', 550); r.setAttribute('width', 1918 - 550);
+        r.setAttribute('y', py - 8 - PHASE_ROW_H - 26); r.setAttribute('height', ph + 8 + PHASE_ROW_H + 26 + 6);
+        r.setAttribute('fill', 'none'); r.setAttribute('pointer-events', 'none'); gPool.appendChild(r); return true; })()`;   // in the pool's group: map coordinates
+      const shotRegion = async () => { await ev(region); await frames();
+        const png = await clearShot((m, q) => cl.cmd(m, q), (c, e) => ev(e), '#t1514-region', { pad: 0, padTop: 0, widen: false, scale: 2, rerender: region });
+        // the rectangle catches pointer events: gone before the drag, or the drag presses it instead of the step
+        await ev(`(function(){ var r = document.getElementById('t1514-region'); if (r) r.remove(); return true; })()`);
+        return png; };
+      let png = await shotRegion();
+      writeFileSync(join(D, `before-drag-${W}.png`), png);
+      // shown two lanes lower (the empty 'NAV' lane), so the dropped step and its labels touch nothing in the picture
+      // dropped at the middle of the lane two down (T-1514 review: the card and its labels fully inside one lane)
+      const dy = await ev(`(function(){ var n = findNode('n_2d825dab'), d = dims(n), i = state.lanes.findIndex(function(l){ return l.id === n.lane; });
+        var nxt = state.lanes[i + 2] || state.lanes[i + 1]; return (laneTop(nxt.id) + nxt.height / 2) - (n.y + d.h / 2); })()`);
+      await dragNode('n_2d825dab', e0.Group_f3[0] - 1234 - 40, dy);
       await ev(`(function(v){ var sc = svg.parentElement; sc.scrollLeft = v[0]; sc.scrollTop = v[1]; selection = null; renderAll(); return true; })(${JSON.stringify(v)})`); await frames(); await sleep(200);
-      sh = await cl.cmd('Page.captureScreenshot', { format: 'png' });
-      writeFileSync(join(D, `after-drag-${W}.png`), Buffer.from(sh.data, 'base64'));
+      png = await shotRegion();
+      writeFileSync(join(D, `after-drag-${W}.png`), png);
     }
     await cl.cmd('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
   }
