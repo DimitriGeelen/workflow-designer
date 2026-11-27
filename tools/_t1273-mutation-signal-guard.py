@@ -116,6 +116,17 @@ def bash_unsafe(text):
             if ({"INT", "TERM"} & set(s)) and not action_exits(a)]
 
 
+# T-1526: a handler that exits on the first TERM is not enough. GNU timeout sends TERM twice (kill(child), then kill(0) to
+# the group), and a second one landing inside `finally` stops the restore between its truncate and its write: the file is
+# left EMPTY. So the handler must ignore further TERMs (SIG_IGN) before it exits; the one-line lambda form fails.
+TERM_IGN_RE = re.compile(r"signal\.signal\(\s*signal\.SIGTERM\s*,\s*signal\.SIG_IGN\s*\)")
+TERM_LAMBDA_RE = re.compile(r"signal\.signal\(\s*signal\.SIGTERM\s*,\s*lambda\b")
+
+
+def py_term_ok(text):
+    return bool(SIGTERM_RE.search(text)) and bool(TERM_IGN_RE.search(text)) and not TERM_LAMBDA_RE.search(text)
+
+
 def py_in_place(text):
     for m in re.finditer(r"^([ \t]*)finally:[ \t]*\n((?:\1[ \t]+.*\n|[ \t]*\n)+)", text, re.M):
         if FINALLY_WRITE_RE.search(m.group(2)):
@@ -152,11 +163,13 @@ def main():
         if text is None:
             fails.append(f"{rel}: listed in the T-1273 census but not found — the guard is blind to it")
             continue
-        ok = bool(SIGTERM_RE.search(text))
+        ok = py_term_ok(text)
+        has = bool(SIGTERM_RE.search(text))
         checked.append(rel)
-        print(f"  [{'ok  ' if ok else 'FAIL'}] python {rel} ({why})" + ("" if ok else ": restores in finally, no SIGTERM handler"))
+        why_bad = "no SIGTERM handler" if not has else "its SIGTERM handler does not ignore a second TERM (T-1526)"
+        print(f"  [{'ok  ' if ok else 'FAIL'}] python {rel} ({why})" + ("" if ok else f": restores in finally, {why_bad}"))
         if not ok:
-            fails.append(f"{rel}: restore in `finally` without a SIGTERM handler -> TERM leaves the mutant")
+            fails.append(f"{rel}: restore in `finally` with {why_bad} -> TERM leaves the mutant, or a second TERM an empty file")
 
     print(f"checked {len(checked)} in-place scripts ({len(bash_set)} bash, {len(py_set)} python); {len(fails)} unsafe")
     for f in fails:

@@ -185,5 +185,8 @@ def main():
 if __name__ == "__main__":
     # T-1273: an unhandled SIGTERM skips `finally`, so a sweep's timeout would leave the in-place
     # mutation behind. Turn it into SystemExit so the restore in `finally` runs.
-    signal.signal(signal.SIGTERM, lambda s, f: sys.exit(128 + s))
+    def _term_once(s, _f):   # T-1526: ignore a second TERM (timeout sends one to the child, then one to the group), so it
+        signal.signal(signal.SIGTERM, signal.SIG_IGN)   # cannot cut the restore in `finally` short and leave the file empty
+        sys.exit(128 + s)
+    signal.signal(signal.SIGTERM, _term_once)
     sys.exit(main())

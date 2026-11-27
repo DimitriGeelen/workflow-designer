@@ -11,7 +11,8 @@
 #   OLD bash   (trap cleanup EXIT INT TERM, _t910's)            -> resumes, plants mutant-2, cannot restore it;
 #   FIXED bash (trap cleanup EXIT; trap 'exit 143' TERM ...)     -> original, nothing runs after the signal;
 #   OLD py     (restore in finally)                             -> mutant-1 left;
-#   FIXED py   (signal.signal(SIGTERM, -> sys.exit))            -> original, nothing runs after the signal.
+#   FIXED py   (SIGTERM handler: ignore further TERMs, sys.exit) -> original, nothing runs after the signal;
+#   and a SECOND TERM inside the restore (T-1526): the lambda handler loses the file, the FIXED one keeps it.
 # CONTROL: every dummy, NOT killed, ends with the original bytes, so the difference above is the signal alone.
 # The static guard (_t1273-mutation-signal-guard.py) must also flag the OLD dummies and pass the FIXED ones.
 # Exit 0 = all assertions hold; 1 = any failed.
@@ -50,10 +51,27 @@ PY
 python3 - "$WORK/old.py" "$WORK/fixed.py" <<'PY'
 import sys
 s = open(sys.argv[1]).read()
-s = s.replace("import sys, time\n", "import signal, sys, time\nsignal.signal(signal.SIGTERM, lambda s, f: sys.exit(128 + s))\n", 1)
-open(sys.argv[2], "w").write(s)
+# T-1526: the handler ignores further TERMs before it exits. GNU timeout sends TERM twice (kill(child), then kill(0) to
+# the group; strace, 2026-11-27); under load the second can land inside `finally`, between its truncate and its write,
+# and leave the file EMPTY (rc=124 file=, rounds at 3fa425f9e and de49287cc). The lambda form, kept as lambda.py, does.
+HARD = ("import signal, sys, time\n"
+        "def _term_once(s, f):\n"
+        "    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n"
+        "    sys.exit(128 + s)\n"
+        "signal.signal(signal.SIGTERM, _term_once)\n")
+LAMBDA = "import signal, sys, time\nsignal.signal(signal.SIGTERM, lambda s, f: sys.exit(128 + s))\n"
+open(sys.argv[2], "w").write(s.replace("import sys, time\n", HARD, 1))
+open(sys.argv[2].replace("fixed.py", "lambda.py"), "w").write(s.replace("import sys, time\n", LAMBDA, 1))
+# slow-restore twins: the restore truncates, says so, waits, then writes (a slow disk), so a second TERM can be sent
+# into exactly the window that emptied the file
+slow = lambda t: t.replace('    open(f, "w").write(orig)\n',
+    '    g = open(f, "w"); open(log, "a").write("restoring\\n"); time.sleep(0.5); g.write(orig); g.close()\n', 1)
+for n in ("fixed.py", "lambda.py"):
+    q = sys.argv[2].replace("fixed.py", n)
+    open(q.replace(".py", "-slow.py"), "w").write(slow(open(q).read()))
 PY
-grep -q "trap 'exit 143' TERM" "$WORK/fixed.sh" && grep -q "signal.SIGTERM" "$WORK/fixed.py" \
+grep -q "trap 'exit 143' TERM" "$WORK/fixed.sh" && grep -q "SIG_IGN" "$WORK/fixed.py" && grep -q "lambda s, f" "$WORK/lambda.py" \
+  && grep -q restoring "$WORK/fixed-slow.py" && grep -q restoring "$WORK/lambda-slow.py" \
   || { echo "SETUP BROKEN: the fixed dummies were not derived"; exit 1; }
 
 run() {  # run <dummy> <nap> [kill]  -> sets RC, CONTENT, LOG_TEXT
@@ -93,6 +111,22 @@ run fixed.py 5 kill
 ok "FIXED python runs finally and nothing after TERM (rc=$RC file=$CONTENT)" \
    "$([ "$RC" = 124 ] && [ "$CONTENT" = original ] && [ -z "${LOG_TEXT// /}" ] && echo 0 || echo 1)" "log: $LOG_TEXT"
 
+echo "a second TERM inside the restore (T-1526: timeout sends TERM to the child, then to its group)"
+twice() {  # twice <dummy>  -> TERM once armed, TERM again once the restore has truncated; sets CONTENT
+  local d="$1" f="$WORK/victim-$RANDOM" log="$WORK/log-$RANDOM" p i
+  echo original > "$f"; : > "$log"
+  python3 "$WORK/$d" "$f" "$log" 5 >/dev/null 2>&1 & p=$!
+  for i in $(seq 1 1200); do [ "$(cat "$f" 2>/dev/null)" = mutant-1 ] && break; sleep 0.05; done
+  kill -TERM "$p" 2>/dev/null
+  for i in $(seq 1 1200); do grep -q restoring "$log" && break; sleep 0.01; done
+  kill -TERM "$p" 2>/dev/null; wait "$p"
+  CONTENT="$(cat "$f")"
+}
+twice lambda-slow.py
+ok "the lambda handler loses the file to a second TERM in its restore (file='$CONTENT')" "$([ "$CONTENT" != original ] && echo 0 || echo 1)"
+twice fixed-slow.py
+ok "the hardened handler keeps the original through a second TERM (file='$CONTENT')" "$([ "$CONTENT" = original ] && echo 0 || echo 1)"
+
 echo "the static guard agrees with the behaviour"
 verdict="$(python3 - "$ROOT/tools/_t1273-mutation-signal-guard.py" "$WORK" <<'PY'
 import importlib.util, sys
@@ -103,11 +137,12 @@ print(" ".join([
     "old.sh=" + ("flagged" if g.bash_in_place(t("old.sh")) and g.bash_unsafe(t("old.sh")) else "missed"),
     "fixed.sh=" + ("clean" if not g.bash_unsafe(t("fixed.sh")) else "wrong"),
     "old.py=" + ("flagged" if g.py_in_place(t("old.py")) and not g.SIGTERM_RE.search(t("old.py")) else "missed"),
-    "fixed.py=" + ("clean" if g.py_in_place(t("fixed.py")) and g.SIGTERM_RE.search(t("fixed.py")) else "wrong"),
+    "fixed.py=" + ("clean" if g.py_in_place(t("fixed.py")) and g.py_term_ok(t("fixed.py")) else "wrong"),
+    "lambda.py=" + ("flagged" if g.py_in_place(t("lambda.py")) and not g.py_term_ok(t("lambda.py")) else "missed"),
 ]))
 PY
 )"
-ok "guard: $verdict" "$([ "$verdict" = "old.sh=flagged fixed.sh=clean old.py=flagged fixed.py=clean" ] && echo 0 || echo 1)"
+ok "guard: $verdict" "$([ "$verdict" = "old.sh=flagged fixed.sh=clean old.py=flagged fixed.py=clean lambda.py=flagged" ] && echo 0 || echo 1)"
 
 echo "RESULT: $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ]
