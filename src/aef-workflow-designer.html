@@ -8446,13 +8446,17 @@ function _renderPropsInto(props, details) {
     // stays in this repository. Unset is read as project (fail safe), and the leading '' keeps a way back to unset, as
     // for Kind. Unlike the other panel selects this one is an undo step: it changes what AEF's vendoring ships.
     // A value outside the set (from a hand-edited file) is shown as is rather than silently replaced.
-    const scopeOpts = ['', 'framework', 'project'];
-    if (wm.scope && !scopeOpts.includes(wm.scope)) scopeOpts.push(wm.scope);
+    // Each option says what it does (T-1528 review: "unset = project · framework ships" did not tell a person who does
+    // not know T-1519 what the choice changes); the hint is the question the choice answers.
+    const scopeOpts = [{ value: '', label: 'unset — this project only' },
+                       { value: 'framework', label: 'framework — ships to every project' },
+                       { value: 'project', label: 'project — this project only' }];
+    if (wm.scope && !scopeOpts.some(o => o.value === wm.scope)) scopeOpts.push({ value: wm.scope, label: `${wm.scope} — not a scope; read as this project only` });
     sMeta.appendChild(selectField('Scope', wm.scope || '', scopeOpts, v => {
       if ((v || null) === (wm.scope || null)) return;
       pushHistory();
       wm.scope = v || null;
-    }, 'unset = project · framework ships'));
+    }, 'which projects get this map'));
     props.appendChild(sMeta);
     const sMap = wfV11Section(state);   // T-1249: mappingVersion + aef:prefixes, read-only
     if (sMap) props.appendChild(sMap);

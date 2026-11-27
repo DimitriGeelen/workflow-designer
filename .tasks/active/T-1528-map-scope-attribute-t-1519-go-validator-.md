@@ -116,8 +116,10 @@ it in the workflow panel; a bad value is a validator warning; the kit and the sk
   **Why you:** render-surface — a new control a person reads and sets; judged by the independent reviewer (PD-357)
   **Steps:**
   1. Open `docs/reports/T-1528-shots/workflow-panel-unset-{1024,1440,1920}.png` and `workflow-panel-framework-{1024,1440,1920}.png`
-  2. In each: the Scope label, its hint ("unset = project · framework ships") and the select are visible, unclipped,
-     not overlapping, and consistent with the Kind field above; the select shows nothing (unset) or `framework`
+  2. In each: the Scope label, its hint ("which projects get this map") and the select are visible, unclipped,
+     not overlapping, and consistent with the Kind field above; the select shows "unset — this project only" or
+     "framework — ships to every project" (first review, amber: the old hint "unset = project · framework ships" did
+     not say what the choice does; each option now says it)
   3. The hint tells a person who does not know T-1519 what the choice does (whether the map ships to other projects)
   **Expected:** all six ok; the hint understandable
   **If not:** name the shot and the control; the agent fixes the field or its hint and re-takes the shots
@@ -321,8 +323,8 @@ Shots: `docs/reports/T-1528-shots/workflow-panel-{unset,framework}-{1024,1440,19
 
 | state | control | 1024 | 1440 | 1920 | note |
 |-------|---------|------|------|------|------|
-| unset | Scope select + hint | ok | ok | ok | empty select like Kind; hint on one line with the label |
-| framework | Scope select | ok | ok | ok | shows `framework`; Kind above unchanged |
+| unset | Scope select + hint | ok | ok | ok | shows "unset — this project only"; hint "which projects get this map" on one line |
+| framework | Scope select | ok | ok | ok | shows "framework — ships to every project", unclipped at 1024; Kind above unchanged |
 | both | panel below (Recently opened, Tips) | ok | ok | ok | moved down by one field, nothing clipped |
 
 Read: 1024 framework (label, hint, value, Kind above, Recently opened below, toolbar intact), 1920 unset.
