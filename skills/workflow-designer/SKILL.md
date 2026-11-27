@@ -14,9 +14,10 @@ mistakes agents and people have already made. Every rule names where it was lear
 
 1. **Say what the map is about, in one sentence:** whose process, which question it answers, and whether it is a
    framework process (ships to every project) or one project's own. One question per map. [AEF, T-1516 #3, #5: an
-   AEF-development map shipped to every consumer because nothing marked it as AEF's own.] Until a machine-readable
-   scope attribute is agreed between AEF and 832 (T-1519), write the scope in the map's description, and do not invent
-   an attribute for it.
+   AEF-development map shipped to every consumer because nothing marked it as AEF's own.] Mark it on the map: in the
+   workflow panel, set **Scope** to `framework` for a framework process, or `project` (or leave it unset, which reads as
+   `project`) for a project's own. This writes `aef:workflowMeta/@scope`; only `framework` maps ship (AUTHORING 6).
+   Designers before 0.52.0 drop the attribute on save. [T-1519, agreed with AEF; T-1528.]
 2. **List the performers; each becomes one lane, and the lane is the authority split** (who proposes, who gates, who
    decides). Lane names unique. [AEF #5; T-1493, T-1088: same-named lanes are told apart only by id.]
 3. **Give the map its identity before the first save:** an `aef:workflowMeta` with `id` and `uuid`. A map without one

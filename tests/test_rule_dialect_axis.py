@@ -192,6 +192,11 @@ CARRIER_CLASS = {
     # read by R1-R3. Semantic (they say what a step does to which instance and field) and optional (a map need not
     # carry them). UNRATIFIED because they come from AEF's v1.1 spec (T-4415), not the frozen v1 standard here.
     "aef:io v1.1":                  SEMANTIC_OPTIONAL,  # UNRATIFIED
+    # T-1528: the scope marker (T-1519, agreed with AEF). Semantic (it says whose map it is, and AEF's vendoring
+    # reads it) and optional (absent is read as project). UNRATIFIED for the same reason as kind: the frozen standard
+    # has no document-level class.
+    "workflowMeta.scope":           SEMANTIC_OPTIONAL,  # UNRATIFIED
+    "aef:workflowMeta/@scope":      SEMANTIC_OPTIONAL,  # UNRATIFIED
 }
 
 # Carriers whose class above is this file's reading rather than the standard's
@@ -220,8 +225,13 @@ UNRATIFIED_CARRIERS = {
     # R1-R3 as lint; docs/standards/aef-bpmn-mapping-v1.md is v1 and does not contain them yet.
     "aef:io v1.1":            "mapping v1.1 (AEF T-4415) is not in the frozen v1 standard; read as semantic and "
                               "optional because the v1.1 spec says what each attribute means and mandates none (T-1303)",
+    # T-1528: 6 -> 8, a decision. The scope marker agreed with AEF under T-1519 (msg ab4c1d03), both forms.
+    "workflowMeta.scope":     "§1 has no document-level class at all; read as semantic and optional: it says whose "
+                              "map it is, AEF's vendoring reads it, absent is read as project (T-1519/T-1528)",
+    "aef:workflowMeta/@scope": "§1 has no document-level class at all; XML-form twin of workflowMeta.scope, same "
+                               "reading (T-1519/T-1528)",
 }
-EXPECTED_UNRATIFIED = 6
+EXPECTED_UNRATIFIED = 8
 
 
 # --------------------------------------------------------------------------
@@ -315,6 +325,9 @@ RULE_CARRIERS = {
     # on both forms — same predicate, two carriers, so a genuine PAIR rather than a gap.
     "E-WORKFLOW-KIND":          (("workflowMeta.kind",), CONSTRAINS),
     "E-XML-WORKFLOW-KIND":      (("aef:workflowMeta/@kind",), CONSTRAINS),
+    # T-1528: the scope marker (T-1519), same predicate on both carriers, so a PAIR.
+    "W-WORKFLOW-SCOPE":         (("workflowMeta.scope",), CONSTRAINS),
+    "W-XML-WORKFLOW-SCOPE":     (("aef:workflowMeta/@scope",), CONSTRAINS),
     "E-XML-LANE-AUTHORING-DEFAULT": (("aef:laneMeta/@authoringDefault",), CONSTRAINS),
     # T-894 (T-888 clause 4, CI half): reports an element authority that DIFFERS from its
     # lane default. Two carriers, because the finding is about their RELATION — which is

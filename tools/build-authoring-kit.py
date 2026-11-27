@@ -163,6 +163,8 @@ def conformance_md(version):
                 - set(val.AUTHORITY_NO_OWNER_DERIVABLE)))),
         '- Map `kind` (workflowMeta): %s; absent = an ordinary process' % ', '.join(
             '`%s`' % k for k in sorted(val.WORKFLOW_KINDS)),
+        '- Map `scope` (workflowMeta): %s; absent = `project` (does not ship to other projects; T-1519)' % ', '.join(
+            '`%s`' % k for k in sorted(val.WORKFLOW_SCOPES)),
         '- Flow-node elements accepted: %s' % ', '.join(
             '`%s`' % t for t in sorted(val.XML_NODE_TYPES)),
         '',

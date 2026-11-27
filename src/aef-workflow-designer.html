@@ -8442,6 +8442,17 @@ function _renderPropsInto(props, details) {
       // it. Three words in option order, so each still maps to the entry beside it, and the full
       // gloss lives on the canvas badge where there is room for it.
     }, 'unset · illustrative · actionable'));
+    // T-1528 (T-1519 GO): whose map it is. framework = ships to every project that vendors the framework; project =
+    // stays in this repository. Unset is read as project (fail safe), and the leading '' keeps a way back to unset, as
+    // for Kind. Unlike the other panel selects this one is an undo step: it changes what AEF's vendoring ships.
+    // A value outside the set (from a hand-edited file) is shown as is rather than silently replaced.
+    const scopeOpts = ['', 'framework', 'project'];
+    if (wm.scope && !scopeOpts.includes(wm.scope)) scopeOpts.push(wm.scope);
+    sMeta.appendChild(selectField('Scope', wm.scope || '', scopeOpts, v => {
+      if ((v || null) === (wm.scope || null)) return;
+      pushHistory();
+      wm.scope = v || null;
+    }, 'unset = project · framework ships'));
     props.appendChild(sMeta);
     const sMap = wfV11Section(state);   // T-1249: mappingVersion + aef:prefixes, read-only
     if (sMap) props.appendChild(sMap);
@@ -15645,6 +15656,10 @@ function buildBpmnXml(s) {
   // and pageWidth — absent when unset, so every map that does not carry it
   // exports byte-identically and the UNSET default stays genuinely inert.
   if (wm.kind) wmAttrs.push(`kind="${escAttr(wm.kind)}"`);
+  // T-1528 (T-1519 GO, agreed with AEF): whose map it is, framework | project. Same additive pattern as kind: written
+  // only when set, so an unmarked map exports byte-identically. Before this the attribute was not read, so a scope
+  // AEF wrote was dropped by the next save here.
+  if (wm.scope) wmAttrs.push(`scope="${escAttr(wm.scope)}"`);
   // T-358 (AB): a map with no lanes says how it came to have none, so the next import (ours or a peer's) does not have
   // to guess. Written ONLY while there are no lanes: once a person adds one the map is authored and the marker goes.
   // Inert to other tools: an attribute of our own aef:workflowMeta inside bpmn:extensionElements.
@@ -17578,6 +17593,8 @@ function parseBpmnXml(text) {
     // not emit is dropped on the first save — which would make the marker worse
     // than absent, since it would survive review and vanish in use.
     kind: aefMetaEl?.getAttribute('kind') || null,
+    // T-1528: the scope marker (framework | project), read so a save keeps it; null = unset, read as project.
+    scope: aefMetaEl?.getAttribute('scope') || null,
   };
 
   // ---- lanes ----

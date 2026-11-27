@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- T-1528 (T-1519 GO). aef:workflowMeta/@scope is 'everyone', outside the agreed set {framework, project}
+     (tools/validate-workflow.py WORKFLOW_SCOPES, read by both forms). A WARNING: the map stays valid and is read as
+     project, so it does not ship. Absent is legal and silent (read as project), so the stimulus is a bogus value. -->
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <bpmn:process id="Pool_t" name="t">
+
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="t" version="1" schemaVersion="2" scope="everyone"/>
+    </bpmn:extensionElements>
+
+    <bpmn:laneSet id="LaneSet_t">
+      <bpmn:lane id="framework" name="Framework">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="130"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_a</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_z</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="n_a" name="Start">
+      <bpmn:extensionElements>
+        <aef:uid value="n_a"/>
+        <aef:position x="100" y="100"/>
+      </bpmn:extensionElements>
+    </bpmn:startEvent>
+
+    <!-- T-1043: an end event and its flow, so this fixture carries ONE defect (the bogus scope).
+         Since T-993 (K1) a process with no end event also draws W-XML-NO-END-EVENT. -->
+    <bpmn:endEvent id="n_z" name="End">
+      <bpmn:extensionElements>
+        <aef:uid value="n_z"/>
+        <aef:position x="300" y="100"/>
+      </bpmn:extensionElements>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="e_az" sourceRef="n_a" targetRef="n_z">
+      <bpmn:extensionElements><aef:uid value="e_az"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+  </bpmn:process>
+</bpmn:definitions>

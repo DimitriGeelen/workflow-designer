@@ -1,0 +1,15 @@
+# T-1528 (T-1519 GO). workflowMeta.scope is 'everyone', outside the agreed set {framework, project}
+# (tools/validate-workflow.py WORKFLOW_SCOPES). A WARNING, not an error: the map stays valid and is read as project.
+# ABSENT IS NOT THE DEFECT: a map with no scope is read as project, legal and silent. So the stimulus is a bogus value.
+workflowMeta: {id: t, version: 1, schemaVersion: 2, scope: everyone}
+pool: {id: Pool_t, name: t}
+lanes:
+  - {id: framework, name: Framework, abbr: frw, authority: authority, height: 130}
+nodes:
+  - {uid: n_a, type: startEvent, name: Start, lane: framework, x: 100, y: 100}
+  - {uid: n_z, type: endEvent, name: End, lane: framework, x: 300, y: 100}
+# T-1043: an end event and its flow, so this fixture carries ONE defect (the bogus scope).
+# Since T-993 (K1) a process with no end event also draws W-NO-END-EVENT, which made the
+# T-826 teeth's "exactly W-WORKFLOW-SCOPE" legs fail for a reason that is not this fixture's.
+edges:
+  - {uid: e_az, source: n_a, target: n_z}

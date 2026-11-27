@@ -190,11 +190,12 @@ def emit(workflow):
     # NOT A WHITELIST, deliberately. T-060 is the precedent this seam was settled on: the
     # node-level <aef:meta> channel emitted from its own fixed META_KEYS list and silently
     # lost agentType/triggeredBy/emits, with no failing test anywhere. So every scalar
-    # present is emitted. The canonical ten lead in fixed order for byte-stability against
+    # present is emitted. The canonical eleven lead in fixed order for byte-stability against
     # the designer's own exporter; anything else follows, sorted, so the output is
     # deterministic rather than dict-ordered.
     _WM_CANONICAL = ("id", "uuid", "version", "schemaVersion", "title",
-                     "description", "source", "tier_default", "pageWidth", "kind")
+                     "description", "source", "tier_default", "pageWidth", "kind",
+                     "scope")   # T-1528: right after kind, as the designer writes it
     _wm_scalar = lambda v: not isinstance(v, (dict, list))
     _wm_pairs = ['%s=%s' % (k, _attr(meta[k]))
                  for k in _WM_CANONICAL if k in meta and _wm_scalar(meta[k])]

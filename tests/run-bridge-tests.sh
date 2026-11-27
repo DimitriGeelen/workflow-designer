@@ -2572,6 +2572,20 @@ else
 fi
 }
 leg browser "test_t1515_phase_delete_neighbour" _leg_t1515
+_leg_t1528() {
+
+# ── T-1528 (T-1519 GO): aef:workflowMeta/@scope = framework | project. An unmarked map saves byte-identically to 0.51.0;
+# both values survive open + save; the workflow panel's Scope select sets it (undoable) and clears it; a value outside
+# the set is kept, shown, and warned on by the validator (W-XML-WORKFLOW-SCOPE). 0.51.0 fails S2-S4. ~15 s.
+if node "$ROOT/tools/_t1528-workflow-scope-cdp.mjs" > "$TMP/leg-_t1528.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "The map scope attribute is dropped on save, or the Scope select does not set, undo or clear it (_t1528-workflow-scope-cdp.mjs; T-1528)"
+  show_output "$TMP/leg-_t1528.out" "_t1528-workflow-scope-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1528_workflow_scope" _leg_t1528
 _leg_t1521() {
 
 # ── T-1521: a deep link to a version opens that version whether `load` is encoded or not (an unencoded &v= is carried

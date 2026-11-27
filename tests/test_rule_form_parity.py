@@ -236,6 +236,9 @@ PARITY = {
     # registered them; classifying adds NO gap.
     "E-WORKFLOW-KIND":      (PAIRED, "E-XML-WORKFLOW-KIND (T-875/T-903)"),
     "E-XML-WORKFLOW-KIND":  (PAIRED, "E-WORKFLOW-KIND (T-875/T-903)"),
+    # T-1528: the scope marker built on both forms at once from one WORKFLOW_SCOPES set; adds no gap.
+    "W-WORKFLOW-SCOPE":     (PAIRED, "W-XML-WORKFLOW-SCOPE (T-1528)"),
+    "W-XML-WORKFLOW-SCOPE": (PAIRED, "W-WORKFLOW-SCOPE (T-1528)"),
     "E-XML-ABBR-DUP":       (PAIRED, "E-ABBR-DUP (T-816)"),
     "E-XML-FLOW-DANGLING":  (PAIRED, "E-EDGE-DANGLING"),
     "W-XML-GW-OUTGOING":    (PAIRED, "W-GW-OUTGOING"),

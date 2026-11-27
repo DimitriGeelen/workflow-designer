@@ -125,6 +125,8 @@ ANCHOR = {
     # -- named .bpmn, not .xml like its ten siblings, because bpmn_documents() walks
     # for ".bpmn" alone and an .xml fixture is invisible to this axis (T-926).
     "E-XML-WORKFLOW-KIND":       "DOC-META",
+    # T-1528: the scope marker sits on the same element as kind, so it anchors the same way.
+    "W-XML-WORKFLOW-SCOPE":      "DOC-META",
     # T-972. LANE: the location names the lane's own id, which is unique and drawn, so
     # the canvas can point at exactly the lane that states no authority.
     "W-XML-LANE-NO-AUTHORITY":   "LANE",

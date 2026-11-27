@@ -118,6 +118,8 @@ PAIRS = {
     # AC2 drift guard was failing -- and until it did, "the two forms agree on
     # kind" was a claim no comparison had ever made.
     "E-WORKFLOW-KIND":      {"E-XML-WORKFLOW-KIND"},
+    # T-1528: the bridge carries scope (canonical, right after kind), so both forms see the same value.
+    "W-WORKFLOW-SCOPE":     {"W-XML-WORKFLOW-SCOPE"},
 }
 
 # AC4: untestable in PRINCIPLE -- no cross-form document exists to compare.

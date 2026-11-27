@@ -344,6 +344,18 @@ value is valid, and every rule still applies to an overview map. Declare it anyw
 only carrier for the fact, and tools that honour it can only honour what you wrote.
 `isExecutable` is not read by anything here; `false` is the honest value for a captured process.
 
+Say also **whose map it is**, with `scope` on the same `aef:workflowMeta`:
+
+- **A framework process**, one that every project vendoring the framework should receive: `scope="framework"`.
+- **One project's own process:** `scope="project"`, or leave `scope` out. A map without it is read as `project`, so it
+  does not ship to other projects.
+
+`scope` and `kind` are independent: a framework overview map carries both `kind="documentation"` and
+`scope="framework"`. The validator only warns on a value other than these two. Shipping is decided by the framework's
+vendoring step, which ships only `scope="framework"` maps (agreed with AEF, T-1519). Do not write the scope in the
+description instead. Designers before 0.52.0 drop `scope` when they save a map, so open and save marked maps in 0.52.0
+or later.
+
 ## 7. Layout
 
 Positions are presentational: they never change what a map means. They do decide whether a
