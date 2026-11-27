@@ -168,7 +168,8 @@ const STRUCTKEYS = ['emits', 'compensates', 'aggregation', 'multiInstance', 'tim
 // with a reason. WMSPEC is still a list someone typed — what makes it honest is that
 // checkWmDenominator() fails when it disagrees with the emitter, so the next attribute added to
 // the writer (T-889's aef:meta authority work is the immediate one) cannot enter unnoticed.
-const WMSPEC = ['id', 'version', 'schemaVersion', 'uuid', 'title', 'description', 'tier_default', 'pageWidth', 'kind'];
+// T-1528: + scope (T-1519, framework | project), written right after kind and read back since 0.52.0.
+const WMSPEC = ['id', 'version', 'schemaVersion', 'uuid', 'title', 'description', 'tier_default', 'pageWidth', 'kind', 'scope'];
 // EXCLUSIONS ARE DATA AND CARRY A REASON — same contract as EXCLUDED above.
 const WM_EXCLUDED = {
   poolProvenance: 'COMPARED ELSEWHERE (T-358 pool half, 2026-11-09): written only for a map whose source declared no participant, from state.poolDeclared (a parse-level field, not state.workflowMeta, so this projection would read null on both sides); its round trip (marked, read back as poolDeclared false, the invented collaboration not written) is asserted by leg 227 _t358-laneless-render-cdp.mjs (L4)',
