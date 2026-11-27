@@ -7,13 +7,13 @@ description: >
   move with them (each boundary stays at the gap between the last step of one phase
   and the first of the next). Split from T-1505 (slice C: drag a boundary).
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: [designer, phases]
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -42,8 +42,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-25T09:04:19Z
-last_update: '2026-11-27T14:40:17Z'
-date_finished:
+last_update: 2026-11-27T15:50:06Z
+date_finished: 2026-11-27T15:50:06Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -108,18 +108,21 @@ Rule (decided here, within IW-2):
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Dragging a step (Greenfield's sample): within its phase, the shared edge next to it follows (midpoint rule); dropped
-  in the neighbour phase, it joins that phase and the boundary moves to the new gap; the rest of the row unchanged; one
-  undo restores steps and phases
-- [ ] Clean layout on a map with phases: every step keeps its phase; each shared edge sits between the two phases' steps;
-  one undo restores
-- [ ] Non-shared edges ('Fase in Salesforce', 6 px apart) keep their distance to their members; a phase with no members
-  and a row out of order are left unchanged; opening and re-rendering without an edit changes nothing (byte-identical save)
-- [ ] The save carries only `dc:Bounds` x/width changes on group shapes besides the moved steps; read back the same by
-  0.52.0; browser leg wired; round green; person-sees gate 0
+- [x] Dragging a step (Greenfield's sample): within its phase, the shared edge next to it follows (keeping its place in
+  the gap: the rule changed from "midpoint" while building, because Greenfield's edges are off-centre and a midpoint
+  rule would move every edge of the row on any drag); dropped in the neighbour phase, it joins that phase and the
+  boundary moves to the new gap; the rest of the row unchanged; one undo restores steps and phases (F1, F2)
+- [x] Clean layout on a map with phases: every step keeps its phase; each shared edge sits between the two phases' steps;
+  one undo restores (F3; holds on 0.52.0 too, Clean's x moves on this sample being small column snaps)
+- [x] Non-shared edges ('Fase in Salesforce', 6 px apart) keep their distance to their members (F3); a phase with no
+  members and a row out of order are left unchanged (F5); opening and re-rendering without an edit changes nothing
+  (byte-identical save, F4)
+- [x] The save carries only `dc:Bounds` x/width changes on group shapes besides the moved steps; read back the same by
+  0.52.0 (F4); browser leg wired; round green (7d5ab6f3b: browser 2190 s after a pool-w2 Chrome-attach failure at
+  390c3bdea, investigated, not code; core 1312 s); person-sees gate 0
 
 ### Human
-- [ ] Dragging a step into the neighbour phase reads as the phase taking it: the boundary moves to the gap beside it
+- [x] Dragging a step into the neighbour phase reads as the phase taking it: the boundary moves to the gap beside it
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1514 --criterion 1`), who may escalate.
   **Steps:**
   1. In `docs/reports/T-1514-shots/`, at 1024/1440/1920, the pair `before-drag-{W}.png` / `after-drag-{W}.png` in the same
@@ -174,6 +177,7 @@ Rule (decided here, within IW-2):
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261127-121bfd83 — reviewer-judge-t-1514-r3-eed6f04f910f:codex (rung rung-3-termlink-single-reviewer), digest bd513dd6e3fb; dispatch judge-t-1514-r3-eed6f04f910f; evidence: .context/reviews/evidence/T-1514/AC1-judge-t-1514-r3-eed6f04f910f.md; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -434,3 +438,16 @@ its right edge: nothing is cut; captured at 2x so the text stays readable.
 ### 2026-11-27T14:40:16Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-11-27T15:50:06Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-26750582
+- **Timestamp:** 2026-11-27T15:50:18Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none

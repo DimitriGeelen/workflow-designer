@@ -10,6 +10,7 @@
 //   F4 no edit (open, re-render, zoom) changes nothing: the save is byte-identical to the released designer's
 //      (T1514_READER, default dist 0.52.0); the F2 save changes only group Bounds x/width and the moved step's lines,
 //      and reads back the same here and by the released reader
+//   F5 nothing is guessed: steps out of phase order leave the row as it was; a phase with no steps keeps its edges
 // Teeth: T1514_EDITOR=<dist 0.52.0> fails F1 and F2. F3 also holds on 0.52.0: on this sample Clean's x moves are column
 // snaps of a few px that never take a step out from under its phase, so F3 guards the rule rather than the change.
 import { readFileSync, mkdtempSync, copyFileSync, existsSync, readdirSync, rmSync, mkdirSync, writeFileSync } from 'node:fs';
@@ -223,6 +224,24 @@ try {
   leg(save0 === save0b && !!readerSave && nu(readerSave) === nu(save0) && semOk && gOk && sameE(here) && sameE(rd),
     `F4 no edit changes nothing (byte-identical to the released designer); the F2 save changes only the moved step and the groups' x/width; read back the same here and by the released reader`,
     JSON.stringify({ noEdit: save0 === save0b, asReader: !!readerSave && nu(readerSave) === nu(save0), semStray: semGone.filter(l => !/aef:position|n_2d825dab/.test(l)).map(l => l.trim().slice(0, 90)).slice(0, 3), groupsYH: gOk, here: sameE(here), reader: sameE(rd) }));
+  // F5 nothing is guessed: (a) a move that puts a phase's steps out of order leaves the row as it was; (b) a phase that
+  // holds no steps keeps its edges, and so does the edge it shares (the follow rule called directly, as the edits do)
+  await open('designer.html'); await adopt(xml); await frames();
+  const f5 = await ev(`(function(){
+    var E = function(){ return JSON.stringify(phasesParse(phaseKept()).map(function(r){ return r.phases.map(function(p){ return [p.id, p.x, p.w]; }); })); };
+    var e0 = E();
+    var b = phaseMembership(); var n = findNode('n_33e2dcb8'), x0 = n.x;
+    n.x = 1500;   // phase 2's first step beyond phase 3's first: out of order in both rows
+    var ca = _phasesFollowSteps(b, null), ea = E(); n.x = x0;
+    var b2 = phaseMembership(); var m = b2.byRow.get('Category_fase');
+    ['n_7d3db646', 'n_13dcbea2', 'n_6a5f74bf'].forEach(function(id){ m.delete(id); });   // phase 1 holds nothing
+    findNode('n_33e2dcb8').x += 20;   // phase 2's first step moves right: its left edge is shared with phase 1
+    var cb = _phasesFollowSteps(b2, null), r = phasesParse(phaseKept())[0].phases;
+    var f1 = r.find(function(p){ return p.id === 'Group_f1'; }), f2 = r.find(function(p){ return p.id === 'Group_f2'; });
+    return { outOfOrder: { changed: ca, same: ea === e0 }, empty: { f1: [f1.x, f1.w], f2x: f2.x } }; })()`);
+  leg(!f5.outOfOrder.changed && f5.outOfOrder.same && f5.empty.f1[0] === 50 && f5.empty.f1[1] === 510 && f5.empty.f2x === 560,
+    'F5 nothing is guessed: steps moved out of phase order leave the row as it was; a phase with no steps keeps its edges and the edge it shares',
+    JSON.stringify(f5));
   if (process.env.T1514_SHOTS) {
     const D = process.env.T1514_SHOTS; mkdirSync(D, { recursive: true });
     for (const W of [1024, 1440, 1920]) {

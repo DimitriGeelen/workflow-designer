@@ -1,0 +1,109 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1514: Phases: boundaries follow the steps when steps move (Clean layout, dragging a step) — T-1491 IW-2
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-27T15:50:26Z
+# ============================================================================
+
+task_id: T-1514
+task_name: "Phases: boundaries follow the steps when steps move (Clean layout, dragging a step) — T-1491 IW-2"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-25T09:04:19Z
+completed: 2026-11-27T15:50:06Z
+duration_days: 2
+updates_count: 3
+first_commit: 2026-11-27T15:47:24+01:00
+last_commit: 2026-11-27T16:01:13+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  phase boundaries follow moved steps (T-1491 IW-2) — a drag or Clean layout recomputes each row from the steps each phase held before (a dropped step joins the phase under it); a shared edge keeps its place in the gap, a non-shared one its distance; nothing guessed when order breaks; same undo step; browser leg test_t1514_phases_follow_steps (F1-F4; 0.52.0 fails F1, F2). reviewer verdict (codex seat codex, recorded by the runtime). shots retaken after review 1 (amber): the card dropped mid-lane in the empty NAV lane, crops through clearShot (T-1429) with edges in the gaps; harness legs unchanged. shots are the whole pool after review 2 (amber, cut id labels): no free vertical line exists right of 'Offerte' on this sample, measured; harness legs unchanged
+
+# Key outcomes
+outcomes:
+  - 'Dragging a step (Greenfield''s sample): within its phase, the shared edge next to it follows (keeping its place in'
+  - 'Clean layout on a map with phases: every step keeps its phase; each shared edge sits between the two phases'' steps;'
+  - 'Non-shared edges (''Fase in Salesforce'', 6 px apart) keep their distance to their members (F3); a phase with no'
+  - 'The save carries only `dc:Bounds` x/width changes on group shapes besides the moved steps; read back the same by'
+  - 'Dragging a step into the neighbour phase reads as the phase taking it: the boundary moves to the gap beside it'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1514/AC1-judge-t-1514-r3-bcb49b292b5d.md'
+  - '.context/reviews/evidence/T-1514/AC1-judge-t-1514-r3-eccc5c465d3e.md'
+  - '.context/reviews/evidence/T-1514/AC1-judge-t-1514-r3-eed6f04f910f.md'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.tasks/active/T-1514-phases-boundaries-follow-the-steps-when-.md'
+  - 'docs/reports/T-1514-shots/after-drag-1024.png'
+  - 'docs/reports/T-1514-shots/after-drag-1440.png'
+  - 'docs/reports/T-1514-shots/after-drag-1920.png'
+  - 'docs/reports/T-1514-shots/before-drag-1024.png'
+  - 'docs/reports/T-1514-shots/before-drag-1440.png'
+  - 'docs/reports/T-1514-shots/before-drag-1920.png'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t1514-phases-follow-steps-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-27T15:47:24'
+    action: 'T-1514: phase boundaries follow moved steps (T-1491 IW-2) — a drag or Clean layout recomputes each row from the steps each phase held before (a dropped step joins the phase under it); a shared edge keeps its place in the gap, a non-shared one its distance; nothing guessed when order breaks; same undo step; browser leg test_t1514_phases_follow_steps (F1-F4; 0.52.0 fails F1, F2)'
+  - time: '2026-11-27T15:48:35'
+    action: 'T-1514: reviewer verdict (codex seat codex, recorded by the runtime)'
+  - time: '2026-11-27T15:52:56'
+    action: 'T-1514: shots retaken after review 1 (amber): the card dropped mid-lane in the empty NAV lane, crops through clearShot (T-1429) with edges in the gaps; harness legs unchanged'
+  - time: '2026-11-27T15:54:17'
+    action: 'T-1514: reviewer verdict (codex seat codex, recorded by the runtime)'
+  - time: '2026-11-27T15:59:11'
+    action: 'T-1514: shots are the whole pool after review 2 (amber, cut id labels): no free vertical line exists right of ''Offerte'' on this sample, measured; harness legs unchanged'
+  - time: '2026-11-27T16:01:13'
+    action: 'T-1514: reviewer verdict (codex seat codex, recorded by the runtime)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 3285 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [designer, phases]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 3285
+  commits: 7
+  files_changed: 23
+  lines_added: 827
+  lines_removed: 59
+  footprint_refreshed_at: '2026-11-27T15:50:38Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1514-phases-boundaries-follow-the-steps-when-.md
+generated_by: context-agent-hybrid
