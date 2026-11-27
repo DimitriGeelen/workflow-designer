@@ -112,7 +112,8 @@ it in the workflow panel; a bad value is a validator warning; the kit and the sk
 - [ ] The person-sees gate exits 0; the round (browser + core) is green
 
 ### Human
-- [ ] [REVIEW] The workflow panel's new Scope field reads well at every width
+- [ ] The workflow panel's new Scope field reads well at every width
+  **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1528 --criterion 1`), who may escalate.
   **Steps:**
   1. Open `docs/reports/T-1528-shots/workflow-panel-unset-{1024,1440,1920}.png` and `workflow-panel-framework-{1024,1440,1920}.png`
   2. In each: the Scope label, its hint ("which projects get this map") and the select are visible, unclipped,
