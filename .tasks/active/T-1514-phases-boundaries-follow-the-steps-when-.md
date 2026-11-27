@@ -1,13 +1,17 @@
 ---
 id: T-1514
-name: "Phases: boundaries follow the steps when steps move (Clean layout, dragging a step) — T-1491 IW-2"
+name: "Phases: boundaries follow the steps when steps move (Clean layout, dragging
+  a step) — T-1491 IW-2"
 description: >
-  T-1491 IW-2 last sentence: a phase is a range of steps, so when steps move the boundaries move with them (each boundary stays at the gap between the last step of one phase and the first of the next). Split from T-1505 (slice C: drag a boundary).
+  T-1491 IW-2 last sentence: a phase is a range of steps, so when steps move the boundaries
+  move with them (each boundary stays at the gap between the last step of one phase
+  and the first of the next). Split from T-1505 (slice C: drag a boundary).
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [designer, phases]
 components: []
 related_tasks: []
@@ -38,8 +42,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-25T09:04:19Z
-last_update: 2026-11-25T09:04:19Z
-date_finished: null
+last_update: '2026-11-27T14:40:17Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +54,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-27T14:40:17Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 2
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=2 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L2:keyword=clean layout); F3=0
+      (basis: task body — no hypothesis, so this score has no claim to be wrong about,L0:
+      no signal); F1=0 (basis: task body — no hypothesis, so this score has no claim
+      to be wrong about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1514: Phases: boundaries follow the steps when steps move (Clean layout, dragging a step) — T-1491 IW-2
@@ -57,22 +81,56 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** T-1491 (operator GO) IW-2: a phase is a range of steps (T-1461 F4); "when steps move (Clean
+layout, dragging a step), the boundaries follow the steps". Slices A–C (T-1502, T-1504, T-1505) shipped in 0.49.0–0.50.0
+without it; listed as a known limit in the 0.51.0 and 0.52.0 notes.
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** a phase's group shape is a fixed rectangle. When Clean layout or a drag moves steps, the
+rectangles stay, so steps end up under the wrong phase or a boundary cuts through a step.
 
-**Goal:** <what we are trying to achieve>
+**Goal:** after an edit that moves steps, each phase row's boundaries are recomputed from the steps each phase held
+BEFORE the edit (a dragged step joins the phase it is dropped in), in the same undo step.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** Clean layout and dragging keep each step under its phase; boundaries sit in the gaps between
+phases' steps; a map nobody edits is unchanged.
+
+Rule (decided here, within IW-2):
+- Membership: a step (flow node in the pool) belongs to the phase of its row whose x range holds its centre. Taken before
+  the edit; a DRAGGED step takes the phase under its centre where it is dropped (old boundaries); others keep theirs.
+- A shared edge (two phases touching, within 2 px) moves to the midpoint between the left phase's rightmost member and
+  the right phase's leftmost member.
+- An edge that is not shared keeps its distance to that phase's nearest member, and stays at the pool edge if it was at
+  it (within 2 px); clamped inside the pool.
+- A phase without members, or a row whose members are no longer in phase order after the edit, is left as it was
+  (nothing is guessed); a phase that would get width under 20 px is left as it was.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] Dragging a step (Greenfield's sample): within its phase, the shared edge next to it follows (midpoint rule); dropped
+  in the neighbour phase, it joins that phase and the boundary moves to the new gap; the rest of the row unchanged; one
+  undo restores steps and phases
+- [ ] Clean layout on a map with phases: every step keeps its phase; each shared edge sits between the two phases' steps;
+  one undo restores
+- [ ] Non-shared edges ('Fase in Salesforce', 6 px apart) keep their distance to their members; a phase with no members
+  and a row out of order are left unchanged; opening and re-rendering without an edit changes nothing (byte-identical save)
+- [ ] The save carries only `dc:Bounds` x/width changes on group shapes besides the moved steps; read back the same by
+  0.52.0; browser leg wired; round green; person-sees gate 0
 
 ### Human
+- [ ] Dragging a step into the neighbour phase reads as the phase taking it: the boundary moves to the gap beside it
+  **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1514 --criterion 1`), who may escalate.
+  **Steps:**
+  1. In `docs/reports/T-1514-shots/`, at 1024/1440/1920, the pair `before-drag-{W}.png` / `after-drag-{W}.png` in the same
+     view (Greenfield's sample; both side panels folded; zoomed out only until 'Fase' phases Configuratie and
+     Offerte & onderhandeling are in view): before, "Send Proposal ? ('onder water')" is the first step under
+     'Offerte & onderhandeling'; after it is dragged left (and one lane down, into the empty NOVIS lane, so it covers
+     nothing in the picture), it sits under 'Configuratie', and the Configuratie | Offerte boundary (bracket ends and the
+     dashed divider through the lanes) has moved to the gap to its right
+  2. Judge: is it clear the step changed phase and the boundary followed; is anything clipped or overlapping
+  **Expected:** the step under 'Configuratie', the boundary in the gap after it, nothing clipped
+  **If not:** name the shot and what reads wrong; the agent fixes the behaviour or the shot
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -119,6 +177,22 @@ date_finished: null
 -->
 
 ## Verification
+
+node tools/_t1514-phases-follow-steps-cdp.mjs > /tmp/.t1514.out 2>&1 && grep -q "all legs passed" /tmp/.t1514.out
+grep -q 'test_t1514_phases_follow_steps' tests/run-bridge-tests.sh
+
+## Visual Verification
+
+Shots: `docs/reports/T-1514-shots/{before,after}-drag-{1024,1440,1920}.png` (`T1514_SHOTS`), Greenfield's sample, side
+panels folded, the same view before and after dragging "Send Proposal" from 'Offerte & onderhandeling' into
+'Configuratie' (one lane down for the picture).
+
+| state | control | 1024 | 1440 | 1920 | note |
+|-------|---------|------|------|------|------|
+| before | phase brackets, divider | ok | ok | ok | Send Proposal first under Offerte |
+| after | phase brackets, divider, moved step | ok | ok | ok | step under Configuratie; boundary and divider in the gap to its right; Salesforce row's '2 Needs Analysis' ends after its own last step |
+
+Read: 1024 after, 1440 before (an earlier take dropped the step onto 'Firm Ready'; retaken one lane down).
 
 <!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
      headings; the completion gate strips HTML comments before running anything.
@@ -353,3 +427,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1514-phases-boundaries-follow-the-steps-when-.md
 - **Context:** Initial task creation
+
+### 2026-11-27T14:40:16Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

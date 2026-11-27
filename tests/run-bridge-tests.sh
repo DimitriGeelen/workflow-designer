@@ -2586,6 +2586,20 @@ else
 fi
 }
 leg browser "test_t1528_workflow_scope" _leg_t1528
+_leg_t1514() {
+
+# ── T-1514 (T-1491 IW-2): phase boundaries follow the steps. A dragged step inside its phase moves the shared edge with it
+# (its place in the gap kept); dropped in the neighbour phase it joins it; Clean layout keeps every step under its phase;
+# non-shared edges keep their distance; no edit changes nothing; read back the same by dist 0.52.0. ~25 s.
+if node "$ROOT/tools/_t1514-phases-follow-steps-cdp.mjs" > "$TMP/leg-_t1514.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "Phase boundaries no longer follow moved steps, or change without an edit (_t1514-phases-follow-steps-cdp.mjs; T-1514)"
+  show_output "$TMP/leg-_t1514.out" "_t1514-phases-follow-steps-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1514_phases_follow_steps" _leg_t1514
 _leg_t1521() {
 
 # ── T-1521: a deep link to a version opens that version whether `load` is encoded or not (an unencoded &v= is carried
