@@ -112,6 +112,15 @@ it in the workflow panel; a bad value is a validator warning; the kit and the sk
 - [ ] The person-sees gate exits 0; the round (browser + core) is green
 
 ### Human
+- [ ] [REVIEW] The workflow panel's new Scope field reads well at every width
+  **Why you:** render-surface — a new control a person reads and sets; judged by the independent reviewer (PD-357)
+  **Steps:**
+  1. Open `docs/reports/T-1528-shots/workflow-panel-unset-{1024,1440,1920}.png` and `workflow-panel-framework-{1024,1440,1920}.png`
+  2. In each: the Scope label, its hint ("unset = project · framework ships") and the select are visible, unclipped,
+     not overlapping, and consistent with the Kind field above; the select shows nothing (unset) or `framework`
+  3. The hint tells a person who does not know T-1519 what the choice does (whether the map ships to other projects)
+  **Expected:** all six ok; the hint understandable
+  **If not:** name the shot and the control; the agent fixes the field or its hint and re-takes the shots
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
