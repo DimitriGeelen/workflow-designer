@@ -123,8 +123,7 @@ Rule (decided here, within IW-2):
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1514 --criterion 1`), who may escalate.
   **Steps:**
   1. In `docs/reports/T-1514-shots/`, at 1024/1440/1920, the pair `before-drag-{W}.png` / `after-drag-{W}.png` in the same
-     view (Greenfield's sample; a crop of the map from the gap before 'Configuratie' to the gap after the next phase's
-     first column, phase rows to pool bottom): before, "Send Proposal ? ('onder water')" is the first step under
+     view (Greenfield's sample; the whole pool with its phase rows, nothing cut, captured at 2x): before, "Send Proposal ? ('onder water')" is the first step under
      'Offerte & onderhandeling'; after it is dragged left (and two lanes down, into the empty NAV lane, so it touches
      nothing in the picture), it sits under 'Configuratie', and the Configuratie | Offerte boundary (bracket ends and the
      dashed divider through the lanes) has moved to the gap to its right
@@ -193,10 +192,10 @@ panels folded, the same view before and after dragging "Send Proposal" from 'Off
 | after | phase brackets, divider, moved step | ok | ok | ok | step under Configuratie; boundary and divider in the gap to its right; Salesforce row's '2 Needs Analysis' ends after its own last step |
 
 Read: 1024 after, 1440 after. Review 1 (amber, codex): the moved card not fully inside its lane, cards cut at the canvas
-edge. Retaken: the card dropped in the middle of the empty NAV lane (two lanes down); the shots are crops through
-clearShot (T-1429) of map x 550..1918, edges in the gaps before 'Configuratie' and after the next phase's first column,
-from the phase rows to the pool bottom. Only id labels of edge cards that run into those gaps ("sal_6_opportunity",
-"tac_5_open") are cut; every card, bracket and divider is whole.
+edge. Retaken: the card dropped in the middle of the empty NAV lane (two lanes down). Review 2 (amber): id labels cut at
+a crop edge. On this sample no vertical line right of 'Offerte & onderhandeling' is free of an id label or a phase
+bracket (measured), so the shots are now crops through clearShot (T-1429) of the WHOLE pool, from the phase-row labels to
+its right edge: nothing is cut; captured at 2x so the text stays readable.
 
 <!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
      headings; the completion gate strips HTML comments before running anything.

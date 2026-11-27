@@ -230,12 +230,21 @@ try {
       await cl.cmd('Emulation.setDeviceMetricsOverride', { width: W, height: 900, deviceScaleFactor: 2, mobile: false });
       await adopt(xml); await frames();
       await click('#btn-toggle-palette'); await click('#btn-toggle-props'); await sleep(300);
-      // the shot's region (map x 550..1918, see below) in view, zoomed out only until it fits with 20 px to spare
-      for (let z = 0; z < 6; z++) {
+      // the whole pool, from its phase-row labels to its right edge (T-1514 review 2: no heading or id cut; on this sample
+      // no vertical line right of 'Offerte & onderhandeling' is free of an id label or a phase bracket, so a narrower crop
+      // always cuts one). The 2x capture keeps the text readable.
+      const edgesX = await ev(`(function(){ var m = svg.getScreenCTM().inverse(), pt = svg.createSVGPoint();
+        var toMap = function(x, y){ pt.x = x; pt.y = y; var q = pt.matrixTransform(m); return q.x; };
+                var pb = gPool.querySelector('.pool-border'), L = +pb.getAttribute('x');
+        Array.from(svg.querySelectorAll('.phase-row-label')).forEach(function(t){ var b = t.getBoundingClientRect(); L = Math.min(L, toMap(b.left, b.top)); });
+        L -= 4;
+        return [L, +pb.getAttribute('x') + +pb.getAttribute('width') + 4]; })()`);
+      // the shot's region (edgesX) in view, zoomed out only until it fits with 20 px to spare
+      for (let z = 0; z < 10; z++) {
         const fits = await ev(`(function(){ var sc = svg.parentElement, b = sc.getBoundingClientRect();
           var sx = function(x){ var m = svg.getScreenCTM(); return m.a * x + m.e; };
-          sc.scrollLeft += ((sx(550) + sx(1918)) / 2) - (b.left + b.width / 2); sc.scrollTop = 0;
-          return sx(550) >= b.left + 20 && sx(1918) <= b.right - 20; })()`);
+          sc.scrollLeft += ((sx(${edgesX[0]}) + sx(${edgesX[1]})) / 2) - (b.left + b.width / 2); sc.scrollTop = 0;
+          return sx(${edgesX[0]}) >= b.left + 20 && sx(${edgesX[1]}) <= b.right - 20; })()`);
         if (fits) break;
         await click('#btn-zoom-out'); await sleep(250);
       }
@@ -246,7 +255,7 @@ try {
       const region = `(function(){ var old = document.getElementById('t1514-region'); if (old) old.remove();
         var pb = gPool.querySelector('.pool-border'), py = +pb.getAttribute('y'), ph = +pb.getAttribute('height');
         var r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        r.setAttribute('id', 't1514-region'); r.setAttribute('x', 550); r.setAttribute('width', 1918 - 550);
+        r.setAttribute('id', 't1514-region'); r.setAttribute('x', ${edgesX[0]}); r.setAttribute('width', ${edgesX[1] - edgesX[0]});
         r.setAttribute('y', py - 8 - PHASE_ROW_H - 26); r.setAttribute('height', ph + 8 + PHASE_ROW_H + 26 + 6);
         r.setAttribute('fill', 'none'); r.setAttribute('pointer-events', 'none'); gPool.appendChild(r); return true; })()`;   // in the pool's group: map coordinates
       const shotRegion = async () => { await ev(region); await frames();
