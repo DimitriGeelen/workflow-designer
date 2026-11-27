@@ -1,15 +1,18 @@
 ---
 id: T-1529
-name: "Release designer 0.52.0 (T-1521 version deep link, T-1528 map scope) and announce to AEF and Greenfield"
+name: "Release designer 0.52.0 (T-1521 version deep link, T-1528 map scope) and announce
+  to AEF and Greenfield"
 description: >
-  Cut, tag and push designer 0.52.0 via a runme release job; tell AEF (they skip 0.51.0 and ship their vendor filter and scope markings with this pickup) and Greenfield.
+  Cut, tag and push designer 0.52.0 via a runme release job; tell AEF (they skip 0.51.0
+  and ship their vendor filter and scope markings with this pickup) and Greenfield.
 
-status: captured
+status: work-completed
 workflow_type: build
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html]
 related_tasks: []
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -38,8 +41,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-27T10:23:33Z
-last_update: 2026-11-27T10:23:33Z
-date_finished: null
+last_update: 2026-11-27T14:20:25Z
+date_finished: 2026-11-27T14:20:25Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +53,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-27T12:14:59Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1529: Release designer 0.52.0 (T-1521 version deep link, T-1528 map scope) and announce to AEF and Greenfield
@@ -73,9 +96,11 @@ AEF and Greenfield told (version, tag, sha256, bytes, what changes in stored map
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Release notes `docs/releases/RELEASE-NOTES-0.52.0.md` committed; the shared-contracts table agrees
-- [ ] Job 187 dry-run passed and was run by the operator to `done` rc=0; tag `designer-v0.52.0` on origin
-- [ ] AEF and Greenfield told: version, tag, sha256, bytes, what it brings, what changes in stored maps
+- [x] Release notes `docs/releases/RELEASE-NOTES-0.52.0.md` committed; the shared-contracts table agrees
+- [x] Job 187 dry-run passed and was run by the operator to `done` rc=0; tag `designer-v0.52.0` on origin
+  (2026-11-27 14:19Z; commit fa0b725a8; sha256 3de8ff55…85eedf2, 1499756 bytes; kit calibrated PASS codex + GLM-5.3)
+- [x] AEF and Greenfield told: version, tag, sha256, bytes, what it brings, what changes in stored maps (msgs
+  6e13f104, b8ea4c08)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -124,6 +149,11 @@ AEF and Greenfield told (version, tag, sha256, bytes, what changes in stored map
 -->
 
 ## Verification
+
+test -f .context/runme/187-release-designer-0.52.0/done
+git ls-remote --exit-code --tags origin designer-v0.52.0 > /dev/null
+echo "3de8ff55d109b6b491c3c1cb8fee0c206b9d5e5aec3f59bb2f1948dbd85eedf2  dist/aef-workflow-designer-0.52.0.html" | sha256sum -c --quiet
+python3 tools/_t1425-shared-contracts.py --check > /tmp/.t1529.out 2>&1
 
 <!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
      headings; the completion gate strips HTML comments before running anything.
@@ -358,3 +388,24 @@ AEF and Greenfield told (version, tag, sha256, bytes, what changes in stored map
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1529-release-designer-0520-t-1521-version-dee.md
 - **Context:** Initial task creation
+
+### 2026-11-27T12:14:58Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+### 2026-11-27T14:20:25Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-bcada156
+- **Timestamp:** 2026-11-27T14:20:27Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 2
+     - evidence: `git ls-remote --exit-code --tags origin designer-v0.52.0 > /dev/null`

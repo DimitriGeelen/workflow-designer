@@ -1,0 +1,108 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1529: Release designer 0.52.0 (T-1521 version deep link, T-1528 map scope) and announce to AEF and Greenfield
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-27T14:20:33Z
+# ============================================================================
+
+task_id: T-1529
+task_name: "Release designer 0.52.0 (T-1521 version deep link, T-1528 map scope) and announce to AEF and Greenfield"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-27T10:23:33Z
+completed: 2026-11-27T14:20:25Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-27T11:24:47+01:00
+last_commit: 2026-11-27T14:05:56+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  release notes for designer 0.52.0 (T-1528 map scope, T-1521 version deep link); shared-contracts table agrees. runme job 187 — release designer 0.52.0 (dry-run passed, sha de70e993e75e). 0.52.0 — VERSION and APP_VERSION bumped by the release job (parity ok). release designer 0.52.0 — map scope (aef:workflowMeta/@scope framework | project) kept on save, Scope select, validator warning; a deep link opens the version it names, encoded or not; kit calibrated on its bytes
+
+# Key outcomes
+outcomes:
+  - 'Release notes `docs/releases/RELEASE-NOTES-0.52.0.md` committed; the shared-contracts table agrees'
+  - 'Job 187 dry-run passed and was run by the operator to `done` rc=0; tag `designer-v0.52.0` on origin'
+  - 'AEF and Greenfield told: version, tag, sha256, bytes, what it brings, what changes in stored maps (msgs'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/187-release-designer-0.52.0/dryrun.ok'
+  - '.context/runme/187-release-designer-0.52.0/job.sh'
+  - '.tasks/active/T-1529-release-designer-0520-t-1521-version-dee.md'
+  - 'VERSION'
+  - 'dist/MANIFEST.yaml'
+  - 'dist/aef-authoring-kit-0.52.0/AUTHORING.md'
+  - 'dist/aef-authoring-kit-0.52.0/CONFORMANCE.md'
+  - 'dist/aef-authoring-kit-0.52.0/CORRECT.md'
+  - 'dist/aef-authoring-kit-0.52.0/GENERATE.md'
+  - 'dist/aef-authoring-kit-0.52.0/REVIEW.md'
+  - 'dist/aef-authoring-kit-0.52.0/RUBRIC.md'
+  - 'dist/aef-authoring-kit-0.52.0/SHA256SUMS'
+  - 'dist/aef-authoring-kit-0.52.0/SKILL.md'
+  - 'dist/aef-authoring-kit-0.52.0/calibration/SOURCE.md'
+  - 'dist/aef-authoring-kit-0.52.0/calibration/clean.bpmn'
+  - 'dist/aef-authoring-kit-0.52.0/calibration/expected.json'
+  - 'dist/aef-authoring-kit-0.52.0/calibration/planted.bpmn'
+  - 'dist/aef-authoring-kit-0.52.0/exemplar.bpmn'
+  - 'dist/aef-authoring-kit-0.52.0/loop.sh'
+  - 'dist/aef-authoring-kit-0.52.0/validate-workflow.py'
+  - 'dist/aef-authoring-kit-0.52.0/verify-findings.py'
+  - 'dist/aef-workflow-designer-0.52.0.html'
+  - 'docs/authoring-kit/calibration-records/0.52.0.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.52.0.md'
+  - 'src/aef-workflow-designer.html'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-27T11:24:47'
+    action: 'T-1529: release notes for designer 0.52.0 (T-1528 map scope, T-1521 version deep link); shared-contracts table agrees'
+  - time: '2026-11-27T13:15:39'
+    action: 'T-1529: runme job 187 — release designer 0.52.0 (dry-run passed, sha de70e993e75e)'
+  - time: '2026-11-27T13:19:28'
+    action: 'T-1529: 0.52.0 — VERSION and APP_VERSION bumped by the release job (parity ok)'
+  - time: '2026-11-27T14:05:56'
+    action: 'T-1529: release designer 0.52.0 — map scope (aef:workflowMeta/@scope framework | project) kept on save, Scope select, validator warning; a deep link opens the version it names, encoded or not; kit calibrated on its bytes'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 236 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 236
+  commits: 5
+  files_changed: 29
+  lines_added: 24065
+  lines_removed: 22
+  footprint_refreshed_at: '2026-11-27T14:20:35Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1529-release-designer-0520-t-1521-version-dee.md
+generated_by: context-agent-hybrid
