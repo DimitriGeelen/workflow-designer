@@ -24465,3 +24465,21 @@ task_id: T-1519
 payload:
   overall: CONTRADICTED
   claim_count: 3
+---
+kind: scan_emitted
+timestamp: '2026-11-27T12:11:29Z'
+scan_id: R-cce6286e
+task_id: T-1528
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-27T12:11:29Z'
+scan_id: R-cce6286e
+task_id: T-1528
+payload:
+  task_file: .tasks/active/T-1528-map-scope-attribute-t-1519-go-validator-.md

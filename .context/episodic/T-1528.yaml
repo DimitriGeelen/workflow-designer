@@ -1,0 +1,143 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1528: Map scope attribute (T-1519 GO): validator checks aef:workflowMeta/@scope, designer Scope select, AUTHORING 6 and skill rule 1
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-27T12:11:36Z
+# ============================================================================
+
+task_id: T-1528
+task_name: "Map scope attribute (T-1519 GO): validator checks aef:workflowMeta/@scope, designer Scope select, AUTHORING 6 and skill rule 1"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-27T10:06:51Z
+completed: 2026-11-27T12:11:14Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-11-27T11:12:42+01:00
+last_commit: 2026-11-27T13:10:33+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  aef:workflowMeta/@scope (T-1519 GO) — validator warns on a value outside {framework, project} on both forms (W-WORKFLOW-SCOPE / W-XML-WORKFLOW-SCOPE, registered PAIRED); the bridge carries it; the designer reads and writes it (before: dropped on save) and has an undoable Scope select; AUTHORING 6 and skill rule 1; browser leg test_t1528_workflow_scope (S1-S4; 0.51.0 fails S2-S4). [REVIEW] criterion for the Scope field's screenshots (six shots, three widths). reviewer verdict (codex seat codex, recorded by the runtime). each Scope option says what it does ('framework — ships to every project', 'unset/project — this project only'), hint 'which projects get this map' — reviewer amber (codex): the old hint did not explain the outcome; shots retaken. the round-trip guard compares workflowMeta scope (WMSPEC + scope): the emitter now writes it, and the derived denominator refused it unclassified — round at 793f18393 red on that alone (4 legs, pool and local agree). refusal-mapping pin 713cb005 -> edc34c1d (the two scope codes added, prevents: [], design_only; sent to AEF for their copy); the [REVIEW] criterion is the reviewer's, so no Why-you line; 0.52.0 notes say the pin moved — round at de49287cc red on these two (+ the T-1526 flake). the Scope criterion written for the reviewer (Judged by), as T-1515's — no [REVIEW] prefix, so the T-1066 lint does not ask for an operator carve-out. reviewer verdict (antigravity seat antigravity, recorded by the runtime)
+
+# Key outcomes
+outcomes:
+  - 'Validator: `scope` other than `framework`/`project` on `aef:workflowMeta` (XML) or `workflowMeta.scope` (YAML) is a'
+  - 'Designer: `scope` is read and written (after `kind`, only when set), so a marked map survives open+save'
+  - 'A browser leg asserts: round-trip of both values, setting and clearing via the select, and the validator''s warning'
+  - 'AUTHORING 6 gains the scope paragraph; skill rule 1 points to the attribute (not the description)'
+  - 'The person-sees gate exits 0; the round (browser + core) is green (round at e1e7edddf: browser 3219 s, core 1306 s)'
+  - 'The workflow panel''s new Scope field reads well at every width'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the Scope criterion written for the reviewer (Judged by), as T-1515''s — no [REVIEW] prefix, so the T-1066 lint does not ask for an operator carve-out'
+    source: git-mined
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/reviews/applied.jsonl'
+  - '.context/reviews/evidence/T-1528/AC1-judge-t-1528-r5-antigravity-db4f98e78c6d.md'
+  - '.context/reviews/evidence/T-1528/AC1-judge-t-1528-r5-codex-4ba7dc1c4dd5.md'
+  - '.context/reviews/evidence/T-1528/AC1-judge-t-1528-r5-codex-75f1678168d8.md'
+  - '.context/reviews/evidence/T-1528/AC1-judge-t-1528-r5-codex-cc3cd74dcbc4.md'
+  - '.context/reviews/evidence/T-1528/AC1-judge-t-1528-r5-codex-e8028d2247e6.md'
+  - '.context/reviews/evidence/T-1528/AC1-judge-t-1528-r5-codex-fc973078f268.md'
+  - '.context/reviews/recorded.jsonl'
+  - '.context/reviews/refusals-interim.jsonl'
+  - '.context/reviews/review-completions.jsonl'
+  - '.context/reviews/review-dispatches.jsonl'
+  - '.context/reviews/review-runs.jsonl'
+  - '.context/reviews/verdicts.jsonl'
+  - '.context/runme/186-decide-t1519-go/done'
+  - '.tasks/active/T-1528-map-scope-attribute-t-1519-go-validator-.md'
+  - 'docs/authoring-kit/AUTHORING.md'
+  - 'docs/contracts/aef-v2/validator-refusal-mapping.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.52.0.md'
+  - 'docs/reports/T-1528-shots/workflow-panel-framework-1024.png'
+  - 'docs/reports/T-1528-shots/workflow-panel-framework-1440.png'
+  - 'docs/reports/T-1528-shots/workflow-panel-framework-1920.png'
+  - 'docs/reports/T-1528-shots/workflow-panel-unset-1024.png'
+  - 'docs/reports/T-1528-shots/workflow-panel-unset-1440.png'
+  - 'docs/reports/T-1528-shots/workflow-panel-unset-1920.png'
+  - 'skills/workflow-designer/SKILL.md'
+  - 'src/aef-workflow-designer.html'
+  - 'tests/fixtures/t1528/unmarked.bpmn'
+  - 'tests/fixtures/warn/W-WORKFLOW-SCOPE.yaml'
+  - 'tests/fixtures/warn/W-XML-WORKFLOW-SCOPE.bpmn'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_finding_anchorability.py'
+  - 'tests/test_harness_cross_form_agreement.py'
+  - 'tests/test_rule_dialect_axis.py'
+  - 'tests/test_rule_form_parity.py'
+  - 'tools/_roundtrip-serialization-cdp.mjs'
+  - 'tools/_t1425-shared-contracts.py'
+  - 'tools/_t1528-workflow-scope-cdp.mjs'
+  - 'tools/build-authoring-kit.py'
+  - 'tools/validate-workflow.py'
+  - 'tools/yaml-to-bpmn.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-27T11:12:42'
+    action: 'T-1528: aef:workflowMeta/@scope (T-1519 GO) — validator warns on a value outside {framework, project} on both forms (W-WORKFLOW-SCOPE / W-XML-WORKFLOW-SCOPE, registered PAIRED); the bridge carries it; the designer reads and writes it (before: dropped on save) and has an undoable Scope select; AUTHORING 6 and skill rule 1; browser leg test_t1528_workflow_scope (S1-S4; 0.51.0 fails S2-S4)'
+  - time: '2026-11-27T11:17:02'
+    action: 'T-1528: [REVIEW] criterion for the Scope field''s screenshots (six shots, three widths)'
+  - time: '2026-11-27T11:18:08'
+    action: 'T-1528: reviewer verdict (codex seat codex, recorded by the runtime)'
+  - time: '2026-11-27T11:18:54'
+    action: 'T-1528: reviewer verdict (codex seat codex, recorded by the runtime)'
+  - time: '2026-11-27T11:20:02'
+    action: 'T-1528: each Scope option says what it does (''framework — ships to every project'', ''unset/project — this project only''), hint ''which projects get this map'' — reviewer amber (codex): the old hint did not explain the outcome; shots retaken'
+  - time: '2026-11-27T11:20:56'
+    action: 'T-1528: reviewer verdict (codex seat codex, recorded by the runtime)'
+  - time: '2026-11-27T11:23:05'
+    action: 'T-1528: reviewer verdict (codex seat codex, recorded by the runtime)'
+  - time: '2026-11-27T11:54:09'
+    action: 'T-1528: the round-trip guard compares workflowMeta scope (WMSPEC + scope): the emitter now writes it, and the derived denominator refused it unclassified — round at 793f18393 red on that alone (4 legs, pool and local agree)'
+  - time: '2026-11-27T12:14:01'
+    action: 'T-1528: refusal-mapping pin 713cb005 -> edc34c1d (the two scope codes added, prevents: [], design_only; sent to AEF for their copy); the [REVIEW] criterion is the reviewer''s, so no Why-you line; 0.52.0 notes say the pin moved — round at de49287cc red on these two (+ the T-1526 flake)'
+  - time: '2026-11-27T12:14:13'
+    action: 'T-1528: the Scope criterion written for the reviewer (Judged by), as T-1515''s — no [REVIEW] prefix, so the T-1066 lint does not ask for an operator carve-out'
+  - time: '2026-11-27T13:08:49'
+    action: 'T-1528: reviewer verdict (codex seat codex, recorded by the runtime)'
+  - time: '2026-11-27T13:10:33'
+    action: 'T-1528: reviewer verdict (antigravity seat antigravity, recorded by the runtime)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 12 commit(s), 124 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 124
+  commits: 13
+  files_changed: 43
+  lines_added: 1617
+  lines_removed: 32
+  footprint_refreshed_at: '2026-11-27T12:11:42Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1528-map-scope-attribute-t-1519-go-validator-.md
+generated_by: context-agent-hybrid

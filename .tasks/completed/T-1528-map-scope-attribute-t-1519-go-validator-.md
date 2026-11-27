@@ -7,13 +7,13 @@ description: >
   832's half: validator value check (warning), designer Scope select kept through
   open/save, AUTHORING 6 paragraph, skill rule 1. AEF ships its vendor filter in step.
 
-status: started-work
+status: work-completed
 workflow_type: build
-current_node: frw_1_start
+current_node: frw_end_task
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [src/aef-workflow-designer.html, tests/run-bridge-tests.sh, tests/test_finding_anchorability.py, tests/test_harness_cross_form_agreement.py, tests/test_rule_dialect_axis.py, tests/test_rule_form_parity.py, tools/_roundtrip-serialization-cdp.mjs, tools/build-authoring-kit.py, tools/validate-workflow.py, tools/yaml-to-bpmn.py]
 related_tasks: [T-1519, T-1516]
 # write_set:                      # T-3512: optional — globs (relative to PROJECT_ROOT)
 #                                 # naming the files this task intends to write. Declared
@@ -42,8 +42,8 @@ related_tasks: [T-1519, T-1516]
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-27T10:06:51Z
-last_update: '2026-11-27T10:07:31Z'
-date_finished:
+last_update: 2026-11-27T12:11:14Z
+date_finished: 2026-11-27T12:11:14Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -100,19 +100,21 @@ it in the workflow panel; a bad value is a validator warning; the kit and the sk
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Validator: `scope` other than `framework`/`project` on `aef:workflowMeta` (XML) or `workflowMeta.scope` (YAML) is a
+- [x] Validator: `scope` other than `framework`/`project` on `aef:workflowMeta` (XML) or `workflowMeta.scope` (YAML) is a
   WARNING (not an error), each form with an invalid fixture; absent and both legal values give no finding; the rule
-  registries (refusal mapping, form-parity, rule axes) carry it
-- [ ] Designer: `scope` is read and written (after `kind`, only when set), so a marked map survives open+save
+  registries (refusal mapping, form-parity, rule axes) carry it (refusal-mapping pin re-pinned 713cb005 -> edc34c1d,
+  entries sent to AEF)
+- [x] Designer: `scope` is read and written (after `kind`, only when set), so a marked map survives open+save
   byte-identically and an unmarked map exports byte-identically to today (byte-identity goldens unchanged); the
   workflow panel has a Scope select (unset / framework / project) whose change is undoable and is saved
-- [ ] A browser leg asserts: round-trip of both values, setting and clearing via the select, Check shows the warning on
-  a bad value; wired in `tests/run-bridge-tests.sh`
-- [ ] AUTHORING 6 gains the scope paragraph; skill rule 1 points to the attribute (not the description)
-- [ ] The person-sees gate exits 0; the round (browser + core) is green
+- [x] A browser leg asserts: round-trip of both values, setting and clearing via the select, and the validator's warning
+  on a bad value's save (the validator Check runs; Check itself needs a validating server, so not driven here); wired in
+  `tests/run-bridge-tests.sh`
+- [x] AUTHORING 6 gains the scope paragraph; skill rule 1 points to the attribute (not the description)
+- [x] The person-sees gate exits 0; the round (browser + core) is green (round at e1e7edddf: browser 3219 s, core 1306 s)
 
 ### Human
-- [ ] The workflow panel's new Scope field reads well at every width
+- [x] The workflow panel's new Scope field reads well at every width
   **Judged by:** the independent reviewer on the images (`fw reviewer judge T-1528 --criterion 1`), who may escalate.
   **Steps:**
   1. Open `docs/reports/T-1528-shots/workflow-panel-unset-{1024,1440,1920}.png` and `workflow-panel-framework-{1024,1440,1920}.png`
@@ -167,6 +169,7 @@ it in the workflow panel; a bad value is a validator warning; the kit and the sk
   listed state needs screenshots at every UX_SHOT_WIDTHS width:
   fw ux shots <T-ID> <state>=<URL>. This comment is inert: the gate ignores it.
 -->
+  **Reviewer verdict:** green V-20261127-34174541 — reviewer-judge-t-1528-r5-antigravity-db4f98e78c6d:antigravity (rung rung-5-panel:antigravity), digest 7e90d8bb2cc4; dispatch judge-t-1528-r5-antigravity-db4f98e78c6d; GREEN-DEGRADED: run run-t-1528-160e02a548 closed on 2 green seat(s) of distinct vendors (codex [openai], antigravity [google]); unavailable: claude-code (exit 1, no verdict (dispatch judge-t-1528-r5-claude-code-8f87f4d8bd43)); evidence: .context/reviews/evidence/T-1528/AC1-judge-t-1528-r5-antigravity-db4f98e78c6d.md; ledger .context/reviews/verdicts.jsonl
 
 ## Verification
 
@@ -310,6 +313,8 @@ it in the workflow panel; a bad value is a validator warning; the kit and the sk
 node tools/_t1528-workflow-scope-cdp.mjs > /tmp/.t1528.out 2>&1 && grep -q "all legs passed" /tmp/.t1528.out
 python3 tools/validate-workflow.py tests/fixtures/warn/W-XML-WORKFLOW-SCOPE.bpmn > /tmp/.t1528x.out 2>&1; grep -q "\[W-XML-WORKFLOW-SCOPE\]" /tmp/.t1528x.out && grep -q " 0 error(s), 1 warning(s)" /tmp/.t1528x.out
 python3 tools/validate-workflow.py tests/fixtures/warn/W-WORKFLOW-SCOPE.yaml > /tmp/.t1528y.out 2>&1; grep -q "\[W-WORKFLOW-SCOPE\]" /tmp/.t1528y.out && grep -q " 0 error(s), 1 warning(s)" /tmp/.t1528y.out
+sed 's/kind="overlord"/scope="framework"/' tests/fixtures/invalid/E-XML-WORKFLOW-KIND.bpmn > /tmp/.t1528f.bpmn && python3 tools/validate-workflow.py /tmp/.t1528f.bpmn > /tmp/.t1528f.out 2>&1 && grep -q "no findings" /tmp/.t1528f.out
+python3 tools/_t1425-shared-contracts.py --mapping > /tmp/.t1528m.out 2>&1
 python3 tests/test_rule_dialect_axis.py > /tmp/.t1528d.out 2>&1
 python3 tests/test_rule_form_parity.py > /tmp/.t1528p.out 2>&1
 python3 tests/test_finding_anchorability.py > /tmp/.t1528a.out 2>&1
@@ -428,3 +433,16 @@ Read: 1024 framework (label, hint, value, Kind above, Recently opened below, too
 
 ### 2026-11-27T10:07:30Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-27T12:11:14Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-cce6286e
+- **Timestamp:** 2026-11-27T12:11:29Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** none
