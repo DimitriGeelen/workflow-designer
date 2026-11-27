@@ -48,7 +48,9 @@ you serve 0.52.0, and to ship your vendor filter and its test with this pickup (
 in 0.52.0 or later, or with a script: an older designer drops the mark on save.
 
 **What changes in Check (`POST /api/validate`):** one new warning, `W-XML-WORKFLOW-SCOPE`, on a `scope` value other
-than `framework` or `project`. Nothing else in the validator changed.
+than `framework` or `project`. Nothing else in the validator changed. The validator-refusal mapping (your T-5189
+artifact, pinned by 832 under T-1425) gains the two scope codes, `prevents: []`, `design_only: true`. Its pin moves
+from 713cb005 to edc34c1d. Nothing else in it changed.
 
 **What you get without any change on your side:** deep links with an unencoded `&v=` open the version they name. Your
 0.51.0 pickup (T-5419) can take 0.52.0 directly.

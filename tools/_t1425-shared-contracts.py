@@ -61,7 +61,10 @@ IGNORED_LINE = re.compile(r"^[-+]const APP_VERSION = '[^']*';$")
 # is design-time and never a refusal record, so the checkable relation is this mapping. Pinned by sha256; it must
 # cover every code our validator emits and every reason_code of the vendored refusal schema v2, exactly.
 MAPPING = "docs/contracts/aef-v2/validator-refusal-mapping.yaml"
-MAPPING_SHA256 = "713cb005414fb9ae106198d59f5702a076dcaa0b77c1ae2ea96220143f6312e0"
+# T-1528: 713cb005 -> edc34c1d. Two entries added, W-WORKFLOW-SCOPE and W-XML-WORKFLOW-SCOPE (prevents: [], design_only),
+# the validator half of the scope attribute AEF agreed under T-1519 (msg ab4c1d03); the entries sent to AEF for their
+# copy (T-5189 artifact) with this sha. Nothing else in the mapping changed.
+MAPPING_SHA256 = "edc34c1dde475c6bbbe2f0d093440715ee8118aaf93491a6f43d4475eb60e8b8"
 REFUSAL_V2 = CONTRACTS + "/v2/refusal.schema.json"
 VALIDATOR_SRC = "tools/validate-workflow.py"
 CODE_RE = re.compile(r"""["']([EWI]-[A-Z0-9]+(?:-[A-Z0-9]+)*)["']""")

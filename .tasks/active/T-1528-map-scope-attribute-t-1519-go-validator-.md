@@ -113,7 +113,6 @@ it in the workflow panel; a bad value is a validator warning; the kit and the sk
 
 ### Human
 - [ ] [REVIEW] The workflow panel's new Scope field reads well at every width
-  **Why you:** render-surface — a new control a person reads and sets; judged by the independent reviewer (PD-357)
   **Steps:**
   1. Open `docs/reports/T-1528-shots/workflow-panel-unset-{1024,1440,1920}.png` and `workflow-panel-framework-{1024,1440,1920}.png`
   2. In each: the Scope label, its hint ("which projects get this map") and the select are visible, unclipped,
