@@ -1,0 +1,88 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1519: Agree with AEF a machine-readable map scope attribute (framework | project) on aef:workflowMeta, so vendoring can ship only framework maps
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-27T10:06:27Z
+# ============================================================================
+
+task_id: T-1519
+task_name: "Agree with AEF a machine-readable map scope attribute (framework | project) on aef:workflowMeta, so vendoring can ship only framework maps"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-25T09:24:41Z
+completed: 2026-11-27T10:06:20Z
+duration_days: 2
+updates_count: 3
+first_commit: 2026-11-25T11:15:44+01:00
+last_commit: 2026-11-26T19:25:22+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the go/no-go criterion names why it is the operator's (direction: a change to the two-party map contract) — the _t1066 core leg refused it. framing, hypothesis, IW-1..4 (deferred to AEF's answer) and the proposal report: aef:workflowMeta/@scope = framework | project, absent read as project. AEF agrees all four points (msg ab4c1d03, their T-5415); IW-1..4 answered; recommendation GO, for the operator's decision. runme job 186 — the operator's GO via fw inception decide (dry-run passed, sha 4c867da746ac)
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/runme/186-decide-t1519-go/dryrun.ok'
+  - '.context/runme/186-decide-t1519-go/job.sh'
+  - '.tasks/active/T-1519-agree-with-aef-a-machine-readable-map-sc.md'
+  - 'docs/reports/T-1519-map-scope-attribute.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-25T11:15:44'
+    action: 'T-1519: the go/no-go criterion names why it is the operator''s (direction: a change to the two-party map contract) — the _t1066 core leg refused it'
+  - time: '2026-11-26T10:40:14'
+    action: 'T-1519: framing, hypothesis, IW-1..4 (deferred to AEF''s answer) and the proposal report: aef:workflowMeta/@scope = framework | project, absent read as project'
+  - time: '2026-11-26T10:42:03'
+    action: 'T-1519: AEF agrees all four points (msg ab4c1d03, their T-5415); IW-1..4 answered; recommendation GO, for the operator''s decision'
+  - time: '2026-11-26T19:25:22'
+    action: 'T-1519: runme job 186 — the operator''s GO via fw inception decide (dry-run passed, sha 4c867da746ac)'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 2921 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 2921
+  commits: 5
+  files_changed: 8
+  lines_added: 358
+  lines_removed: 37
+  footprint_refreshed_at: '2026-11-27T10:06:29Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1519-agree-with-aef-a-machine-readable-map-sc.md
+generated_by: context-agent-hybrid

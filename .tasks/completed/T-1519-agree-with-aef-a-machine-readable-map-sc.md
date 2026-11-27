@@ -6,19 +6,19 @@ description: >
   Inception: Agree with AEF a machine-readable map scope attribute (framework | project)
   on aef:workflowMeta, so vendoring can ship only framework maps
 
-status: started-work
+status: work-completed
 workflow_type: inception
-current_node: frw_1_start
+current_node: frw_end_task
 owner: human
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
 waiting_on: agent
 revisit_at: 2026-12-02
 created: 2026-11-25T09:24:41Z
-last_update: 2026-11-26T09:42:03Z
-date_finished:
+last_update: 2026-11-27T10:06:20Z
+date_finished: 2026-11-27T10:06:20Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -178,15 +178,15 @@ the map that shipped by mistake (their T-5393) no longer ships.
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Why you:** direction — a new attribute in the two-party map contract with AEF is a contract change, and `fw inception decide` is the operator's
   **Steps:**
   1. Run: `fw task review T-XXX` (opens Watchtower with recommendation, assumptions, research artifacts)
@@ -254,7 +254,11 @@ with AEF's filter release in mind (AEF ships marks and filter together).
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Operator GO 2026-11-26. Both sides agree (report docs/reports/T-1519-map-scope-attribute.md; AEF msg ab4c1d03, their T-5415; AEF operator confirmed msg 7a18d0f0): aef:workflowMeta/@scope = framework | project, absent read as project, separate from kind, no third value. 832 builds the validator value check (warning on other values), the designer Scope select, AUTHORING 6 and skill rule 1; AEF builds the fw vendor filter and its test and marks its framework maps, shipped together with 832's release. Additive and optional: no stored map changes or becomes invalid.
+
+**Date**: 2026-11-27T10:06:19Z
 
 ## Updates
 
@@ -263,3 +267,44 @@ with AEF's filter release in mind (AEF ships marks and filter together).
 
 ### 2026-11-26T09:39:36Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-11-27T10:06:19Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Operator GO 2026-11-26. Both sides agree (report docs/reports/T-1519-map-scope-attribute.md; AEF msg ab4c1d03, their T-5415; AEF operator confirmed msg 7a18d0f0): aef:workflowMeta/@scope = framework | project, absent read as project, separate from kind, no third value. 832 builds the validator value check (warning on other values), the designer Scope select, AUTHORING 6 and skill rule 1; AEF builds the fw vendor filter and its test and marks its framework maps, shipped together with 832's release. Additive and optional: no stored map changes or becomes invalid.
+
+### 2026-11-27T10:06:20Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-6f9188ab
+- **Timestamp:** 2026-11-27T10:06:21Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Scope:** static anti-pattern scan; PASS means no anti-pattern was found, not that the criteria hold
+- **Needs Human:** no
+- **Findings:** 3
+
+**Verification-level findings:**
+
+  1. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-2
+     - evidence: `IW-2 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  2. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-3
+     - evidence: `IW-3 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  3. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-4
+     - evidence: `IW-4 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-cabac4d2
+- **Timestamp:** 2026-11-27T10:06:21Z
+- **Overall:** CONTRADICTED
+- **Claims:** 3
+
+| Claim | Type | Status |
+|-------|------|--------|
+| `docs/reports/T-1519-map-scope-attribute.md` | file | ✓ pass |
+| `T-5415` | task | ✗ fail — no task file in .tasks/{active,completed}/ |
+| `T-5393` | task | ✗ fail — no task file in .tasks/{active,completed}/ |

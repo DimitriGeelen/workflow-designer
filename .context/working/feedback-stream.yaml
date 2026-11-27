@@ -24439,3 +24439,29 @@ scan_id: R-9e6a9188
 task_id: T-1521
 payload:
   task_file: .tasks/active/T-1521-loadapiversionidxvn-written-unencoded-op.md
+---
+kind: scan_emitted
+timestamp: '2026-11-27T10:06:21Z'
+scan_id: R-6f9188ab
+task_id: T-1519
+payload:
+  overall: CONCERN
+  finding_count: 3
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-27T10:06:21Z'
+scan_id: R-6f9188ab
+task_id: T-1519
+payload:
+  task_file: .tasks/active/T-1519-agree-with-aef-a-machine-readable-map-sc.md
+---
+kind: recommendation_claims_verdict
+timestamp: '2026-11-27T10:06:21Z'
+scan_id: RC-cabac4d2
+task_id: T-1519
+payload:
+  overall: CONTRADICTED
+  claim_count: 3
