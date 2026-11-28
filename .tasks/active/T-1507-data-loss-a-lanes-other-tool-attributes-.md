@@ -1,13 +1,19 @@
 ---
 id: T-1507
-name: "Data loss: a lane's other-tool attributes and extensionElements are dropped on save (documentation kept since T-1500)"
+name: "Data loss: a lane's other-tool attributes and extensionElements are dropped
+  on save (documentation kept since T-1500)"
 description: >
-  T-1506 census (2026-11-24): on Greenfield's sample (4 lanes) and kitchen-sink (2 lanes), every lane lost a foreign attribute and a foreign extension element on save; its documentation survived (T-1500). Other modelers (Camunda, Signavio) keep lane properties there. Fix in the lane importer/emitter as T-1500 did for documentation (kept-XML, as T-1326 does for the pool and process).
+  T-1506 census (2026-11-24): on Greenfield's sample (4 lanes) and kitchen-sink (2
+  lanes), every lane lost a foreign attribute and a foreign extension element on save;
+  its documentation survived (T-1500). Other modelers (Camunda, Signavio) keep lane
+  properties there. Fix in the lane importer/emitter as T-1500 did for documentation
+  (kept-XML, as T-1326 does for the pool and process).
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: [designer, bug, data-loss, census]
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-24T11:22:46Z
-last_update: 2026-11-24T11:22:46Z
-date_finished: null
+last_update: '2026-11-28T10:29:58Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +56,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-28T10:29:58Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 1
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 1
+      F3: 0
+      F1: 2
+    rationale: 'D1=1 (body:fix-without-learning); D2=0 (no-signal); D3=0 (no-signal);
+      D4=0 (no-signal); F-RECALL=0 (no-signal); F2=0 (no-signal); F4=1 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L1:keyword=lane);
+      F3=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal); F1=2 (basis: task body — no hypothesis, so this score
+      has no claim to be wrong about,L2:keyword=import)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1507: Data loss: a lane's other-tool attributes and extensionElements are dropped on save (documentation kept since T-1500)
@@ -57,20 +83,28 @@ date_finished: null
 ## Context
 
 <!-- All four parts are required before source edits (T-4907). Plain language; link design docs for substantial tasks. -->
-**Background / trigger:** <what happened, who reported it, evidence (message id, task, log)>
+**Background / trigger:** T-1506 census (2026-11-24): on Greenfield's sample (4 lanes) and the kitchen-sink (2 lanes),
+every lane lost a foreign attribute and a foreign extension element on save; its documentation survived (T-1500).
 
-**Problem / hypothesis:** <what we think is wrong and why>
+**Problem / hypothesis:** the lane reader takes only what the designer names (id, name, documentation, aef:laneMeta) and
+the writer writes only that, so any other attribute on `<bpmn:lane>` (another tool's, e.g. `camunda:*`, `signavio:*`)
+and any other child of the lane's `extensionElements` is dropped. Same class as T-1326 (pool and process).
 
-**Goal:** <what we are trying to achieve>
+**Goal:** keep them verbatim, in their place, as T-1326 does for the process level and T-1500 for lane documentation.
 
-**Expected outcome:** <what will be different when this is done>
+**Expected outcome:** a lane's foreign attributes and foreign extension elements survive open + save; a lane without
+them saves byte-identically to today; editing the lane (rename, authority, height) keeps them.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] On Greenfield's sample and the kitchen-sink, every lane's foreign attributes (with their namespace declarations)
+  and foreign extensionElements children survive open + save + reopen + save (second save identical)
+- [ ] A lane edit (rename, authority) keeps them; a lane added in the designer has none; a deleted lane takes its own
+  with it
+- [ ] Maps without them save byte-identically to 0.53.0 (the byte-identity goldens unchanged)
+- [ ] A browser leg asserts the above (teeth: 0.53.0 fails the survival check); round green
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -119,6 +153,9 @@ date_finished: null
 -->
 
 ## Verification
+
+node tools/_t1507-lane-kept-cdp.mjs > /tmp/.t1507.out 2>&1 && grep -q "all legs passed" /tmp/.t1507.out
+grep -q 'test_t1507_lane_kept' tests/run-bridge-tests.sh
 
 <!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
      headings; the completion gate strips HTML comments before running anything.
@@ -273,6 +310,17 @@ date_finished: null
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
+**Symptom:** a lane's attributes and extension elements written by another modeler (Camunda candidate groups, Signavio
+colours, any foreign extension) disappeared on the first save in the designer, silently.
+**Root cause:** the lane reader built each lane from the fields the designer names (id, name, documentation, laneMeta)
+and the writer wrote only those. T-1325/T-1326 had added keep-what-you-do-not-read (`elementKept`) to nodes, flows, the
+process and the pool, but not to lanes.
+**Why structurally allowed:** no corpus or third-party fixture carries foreign lane data, so no byte-identity golden or
+round-trip leg could see it; only the T-1506 census, which injects foreign data per element kind, found it.
+**Prevention:** browser leg `test_t1507_lane_kept` injects foreign lane data into two fixtures and asserts it survives
+(0.53.0 fails it). The general gap, element kinds that are read field by field without `elementKept`, is what the
+T-1506 census measures.
+
 ## Evolution
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
@@ -353,3 +401,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1507-data-loss-a-lanes-other-tool-attributes-.md
 - **Context:** Initial task creation
+
+### 2026-11-28T10:29:57Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

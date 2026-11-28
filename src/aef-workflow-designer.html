@@ -15688,7 +15688,7 @@ function buildBpmnXml(s) {
   // reads as a defect (defaulted:empty-laneset), so it is never written.
   if (lanesToEmit.length) lines.push(`    <bpmn:laneSet id="LaneSet_1">`);
   for (const lane of lanesToEmit) {
-    lines.push(`      <bpmn:lane id="${escAttr(lane.id)}" name="${escAttr(lane.name)}">`);
+    lines.push(`      <bpmn:lane id="${escAttr(lane.id)}" name="${escAttr(lane.name)}"${lane.kept ? keptAttrsXml(lane.kept.attrs) : ''}>`);   // T-1507
     for (const d of (lane.documentation || [])) {   // T-1500: documentation first (tBaseElement order), as nodes (T-602)
       const attrs = (d.id ? ` id="${escAttr(d.id)}"` : '') + (d.textFormat ? ` textFormat="${escAttr(d.textFormat)}"` : '');
       lines.push(`        <bpmn:documentation${attrs}>${escText(d.text)}</bpmn:documentation>`);
@@ -15698,6 +15698,7 @@ function buildBpmnXml(s) {
     // that declares no authoring default exports byte-identically.
     const _ad = lane.authoringDefault ? ` authoringDefault="${escAttr(lane.authoringDefault)}"` : '';
     lines.push(`          <aef:laneMeta abbr="${escAttr(lane.abbr || '')}" authority="${escAttr(lane.authority)}"${_ad} height="${lane.height || 130}"/>`);
+    for (const x of (lane.kept && lane.kept.ext) || []) lines.push(`          ${x}`);   // T-1507: other tools' lane extensions
     lines.push(`        </bpmn:extensionElements>`);
     for (const n of s.nodes.filter(x => x.lane === lane.id)) {
       lines.push(`        <bpmn:flowNodeRef>${escText(displayIdOf(n))}</bpmn:flowNodeRef>`);
@@ -16297,6 +16298,7 @@ function dataKeptDiLines(s) {
 // designer wrote parses to exactly the state it always did.
 const ARTIFACT_TAGS = new Set(['textAnnotation', 'association', 'group']);
 const PROC_READ_ATTRS = new Set(['id', 'name', 'isExecutable']);
+const LANE_READ_ATTRS = new Set(['id', 'name']);   // T-1507: the rest of a lane's attributes is kept
 const ROOT_READ_ATTRS = new Set(['id', 'exporter', 'exporterVersion', 'targetNamespace']);
 const AEF_TARGET_NS = 'https://aef.anchorpoint.dev/workflows';
 // T-1262: the ids a save writes — the file's own where it had its own (state.fileIds), else derived from the workflow
@@ -17716,8 +17718,14 @@ function parseBpmnXml(text) {
         if (d.hasAttribute('textFormat')) entry.textFormat = d.getAttribute('textFormat');
         return entry;
       });
+      // T-1507: what another tool put on the lane (its attributes, its extensionElements children other than ours) is
+      // kept verbatim and written back in place, as T-1325/T-1326 do for nodes and the process. Before, every save
+      // dropped it (T-1506 census: every lane of Greenfield's sample and the kitchen-sink). Children the designer
+      // writes itself (flowNodeRef) or does not model (a nested childLaneSet) are not kept here.
+      const laneKept = elementKept(laneEl, LANE_READ_ATTRS, () => true);
       lanes.push({
         ...(laneDocs.length ? { documentation: laneDocs } : {}),
+        ...(laneKept && (laneKept.attrs.length || laneKept.ext.length) ? { kept: { attrs: laneKept.attrs, ext: laneKept.ext } } : {}),
         id: laneEl.getAttribute('id') || generateUid('l').slice(2),
         name: laneEl.getAttribute('name') || laneEl.getAttribute('id') || 'lane',
         abbr: laneMeta?.getAttribute('abbr') || deriveLaneAbbr(laneEl.getAttribute('name') || laneEl.getAttribute('id') || 'lane'),

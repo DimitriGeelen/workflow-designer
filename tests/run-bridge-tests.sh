@@ -2600,6 +2600,20 @@ else
 fi
 }
 leg browser "test_t1514_phases_follow_steps" _leg_t1514
+_leg_t1507() {
+
+# ── T-1507: a lane's other-tool attributes and extensionElements children survive save (Greenfield's sample and the
+# kitchen-sink, foreign lane data added); second save identical; lane edits keep them, an added lane has none, a deleted
+# lane takes its own; without foreign data byte-identical to dist 0.53.0. 0.53.0 fails L1, L3. ~15 s.
+if node "$ROOT/tools/_t1507-lane-kept-cdp.mjs" > "$TMP/leg-_t1507.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "A lane's other-tool attributes or extensions are dropped on save again (_t1507-lane-kept-cdp.mjs; T-1507)"
+  show_output "$TMP/leg-_t1507.out" "_t1507-lane-kept-cdp.mjs"
+  fail=$((fail + 1))
+fi
+}
+leg browser "test_t1507_lane_kept" _leg_t1507
 _leg_t1521() {
 
 # ── T-1521: a deep link to a version opens that version whether `load` is encoded or not (an unencoded &v= is carried
