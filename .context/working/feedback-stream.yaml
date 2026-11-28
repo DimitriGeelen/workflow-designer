@@ -24537,3 +24537,39 @@ scan_id: R-4aeb9f4b
 task_id: T-1526
 payload:
   task_file: .tasks/active/T-1526-t1273-signal-restore-teeth-the-t-1294-ra.md
+---
+kind: scan_emitted
+timestamp: '2026-11-28T06:00:55Z'
+scan_id: R-83b252e5
+task_id: T-593
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-28T06:00:55Z'
+scan_id: R-83b252e5
+task_id: T-593
+payload:
+  task_file: .tasks/active/T-593-ewcr-handoff-envelope-records-an-operato.md
+---
+kind: scan_emitted
+timestamp: '2026-11-28T08:32:15Z'
+scan_id: R-eba03fdc
+task_id: T-1530
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-28T08:32:15Z'
+scan_id: R-eba03fdc
+task_id: T-1530
+payload:
+  task_file: .tasks/active/T-1530-re-pin-the-validator-refusal-mapping-to-.md

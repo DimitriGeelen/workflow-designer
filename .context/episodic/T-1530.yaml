@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-1530: Re-pin the validator-refusal mapping to AEF's copy (theirs 8aa2f955 + the two scope entries) so both stay byte-equal
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-11-28T08:32:22Z
+# ============================================================================
+
+task_id: T-1530
+task_name: "Re-pin the validator-refusal mapping to AEF's copy (theirs 8aa2f955 + the two scope entries) so both stay byte-equal"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-11-27T13:22:35Z
+completed: 2026-11-28T08:32:14Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-11-27T16:02:43+01:00
+last_commit: 2026-11-28T09:32:13+01:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  scoped — re-pin to AEF's final mapping sha 2307d836 (msg d4be45e2) once their file reaches us (be-tag after be.71). the refusal mapping is AEF's be.72 file byte-for-byte (2307d836; ours plus the named validator 0.52.0); pin moved with its reason; 0.53.0 notes say so
+
+# Key outcomes
+outcomes:
+  - 'AEF''s file copied byte-for-byte; sha256 2307d836… (taken from their public tag v1.8.16-be.72, c8b9f1857, msg'
+  - '`MAPPING_SHA256` in `tools/_t1425-shared-contracts.py` re-pinned with its reason; `--mapping` (82 codes, 18'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (task file Decisions section, joined with decisions.yaml by task id — T-4193)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-1530-re-pin-the-validator-refusal-mapping-to-.md'
+  - 'docs/contracts/aef-v2/validator-refusal-mapping.yaml'
+  - 'docs/releases/RELEASE-NOTES-0.53.0.md'
+  - 'tools/_t1425-shared-contracts.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: '2026-11-27T16:02:43'
+    action: 'T-1530: scoped — re-pin to AEF''s final mapping sha 2307d836 (msg d4be45e2) once their file reaches us (be-tag after be.71)'
+  - time: '2026-11-28T09:32:13'
+    action: 'T-1530: the refusal mapping is AEF''s be.72 file byte-for-byte (2307d836; ours plus the named validator 0.52.0); pin moved with its reason; 0.53.0 notes say so'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 1149 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  # git_mining: ok = the four counters below are measurements.
+  #             skipped = git could not be reached from PROJECT_ROOT; the
+  #             counters are null (absent measurement), NOT zero (T-3129).
+  git_mining: ok
+  wall_clock_minutes: 1149
+  commits: 3
+  files_changed: 7
+  lines_added: 552
+  lines_removed: 22
+  footprint_refreshed_at: '2026-11-28T08:32:28Z'
+  footprint_refreshed_by_commit: pre-commit
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-1530-re-pin-the-validator-refusal-mapping-to-.md
+generated_by: context-agent-hybrid
