@@ -24573,3 +24573,21 @@ scan_id: R-eba03fdc
 task_id: T-1530
 payload:
   task_file: .tasks/active/T-1530-re-pin-the-validator-refusal-mapping-to-.md
+---
+kind: scan_emitted
+timestamp: '2026-11-28T10:16:32Z'
+scan_id: R-146c166f
+task_id: T-1531
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-11-28T10:16:32Z'
+scan_id: R-146c166f
+task_id: T-1531
+payload:
+  task_file: .tasks/active/T-1531-release-designer-0530-t-1514-phase-bound.md
