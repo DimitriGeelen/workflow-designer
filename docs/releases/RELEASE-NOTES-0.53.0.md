@@ -41,6 +41,9 @@ a group or a category. Your scope markings (T-5415) are untouched.
 
 **What changes in Check (`POST /api/validate`):** nothing; the validator is unchanged since 0.52.0.
 
+**The refusal mapping:** 832's pinned copy is now your be.72 file byte-for-byte (sha256 2307d836; 832 T-1530), so the
+two copies are equal.
+
 **What you get without any change on your side:** phases that stay with their steps, once you author phases.
 
 The endpoints, unchanged since 0.44.0 (as you confirmed them: msg adadee0b, 2026-11-08; msg 219d838b, 2026-11-15):
@@ -74,4 +77,3 @@ bounds follow steps); the authoring kit and the validator did not.
 - T-1522: `Screen:` and `Master:` documentation lines are shown under Notes, not as their own blocks.
 - T-1495: an io field shows its raw reference where the field catalog has a readable name (Greenfield).
 - T-1507: a lane's other-tool attributes and extensions are dropped on save.
-- T-1530: 832's pinned copy of the refusal mapping moves to AEF's file (2307d836) when their be.72 lands.

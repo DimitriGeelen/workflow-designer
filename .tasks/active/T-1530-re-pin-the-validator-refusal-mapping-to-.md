@@ -1,13 +1,19 @@
 ---
 id: T-1530
-name: "Re-pin the validator-refusal mapping to AEF's copy (theirs 8aa2f955 + the two scope entries) so both stay byte-equal"
+name: "Re-pin the validator-refusal mapping to AEF's copy (theirs 8aa2f955 + the two
+  scope entries) so both stay byte-equal"
 description: >
-  AEF's copy moved 713cb005 -> 8aa2f955 after the build 832 vendors; 832 pinned edc34c1d (713cb005 + W-WORKFLOW-SCOPE/W-XML-WORKFLOW-SCOPE, T-1528). AEF applies the two entries on 8aa2f955 and sends the sha (msg 20e9e601, reply f406b52d); 832 takes their file byte-for-byte, re-pins tools/_t1425-shared-contracts.py, checks --mapping covers every code.
+  AEF's copy moved 713cb005 -> 8aa2f955 after the build 832 vendors; 832 pinned edc34c1d
+  (713cb005 + W-WORKFLOW-SCOPE/W-XML-WORKFLOW-SCOPE, T-1528). AEF applies the two
+  entries on 8aa2f955 and sends the sha (msg 20e9e601, reply f406b52d); 832 takes
+  their file byte-for-byte, re-pins tools/_t1425-shared-contracts.py, checks --mapping
+  covers every code.
 
-status: captured
+status: started-work
 workflow_type: build
+current_node: frw_1_start
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -38,8 +44,8 @@ related_tasks: []
 #                                 # session from consuming the captured→started-work transition the demo
 #                                 # worker expects to drive. Origin OBS-057.
 created: 2026-11-27T13:22:35Z
-last_update: 2026-11-27T13:22:35Z
-date_finished: null
+last_update: '2026-11-28T08:31:20Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -50,6 +56,26 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-11-28T08:31:20Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 0
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 0
+      F3: 0
+      F1: 0
+    rationale: 'D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 (no-signal);
+      F-RECALL=0 (no-signal); F2=0 (no-signal); F4=0 (basis: task body — no hypothesis,
+      so this score has no claim to be wrong about,L0: no signal); F3=0 (basis: task
+      body — no hypothesis, so this score has no claim to be wrong about,L0: no signal);
+      F1=0 (basis: task body — no hypothesis, so this score has no claim to be wrong
+      about,L0: no signal)'
+    rubric_sha: e4a00f38e801
 ---
 
 # T-1530: Re-pin the validator-refusal mapping to AEF's copy (theirs 8aa2f955 + the two scope entries) so both stay byte-equal
@@ -74,9 +100,11 @@ validator code.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] AEF's file (from the vendored framework after be.71, or sent on the thread) copied byte-for-byte; sha256 2307d836…
-- [ ] `MAPPING_SHA256` in `tools/_t1425-shared-contracts.py` re-pinned with its reason; `--mapping` and `--check` pass;
-  core green
+- [x] AEF's file copied byte-for-byte; sha256 2307d836… (taken from their public tag v1.8.16-be.72, c8b9f1857, msg
+  a1787488; the only difference from edc34c1d: the validator it names, 0.43.0 -> 0.52.0, sha 68dad584 = 832's 0.52.0
+  kit validator)
+- [x] `MAPPING_SHA256` in `tools/_t1425-shared-contracts.py` re-pinned with its reason; `--mapping` (82 codes, 18
+  reason_codes) and `--check` pass; core green (the push gate)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -125,6 +153,10 @@ validator code.
 -->
 
 ## Verification
+
+echo "2307d8365c1ca60b4989793abdedb25a8ec6a8d2c32c6085e9d1085e020cf493  docs/contracts/aef-v2/validator-refusal-mapping.yaml" | sha256sum -c --quiet
+python3 tools/_t1425-shared-contracts.py --mapping > /tmp/.t1530.out 2>&1
+python3 tools/_t1425-shared-contracts.py --check > /tmp/.t1530c.out 2>&1
 
 <!-- T-4906: guidance is an HTML comment so GitHub does not render its `#` lines as
      headings; the completion gate strips HTML comments before running anything.
@@ -359,3 +391,7 @@ validator code.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-1530-re-pin-the-validator-refusal-mapping-to-.md
 - **Context:** Initial task creation
+
+### 2026-11-28T08:31:19Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
